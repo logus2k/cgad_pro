@@ -1,0 +1,96 @@
+﻿Information listing created by	
+bruno
+
+
+Date	
+05-Dec-2021 17:43:06
+
+
+Current work part	
+C:\Users\bruno\Desktop\proj mcomp\62\fem1.fem
+
+
+Node name	
+laptop-tiemtdga
+
+
+ 
+------------------------------------------------------------
+ 
+                     NODE INFORMATION
+ 
+------------------------------------------------------------
+ 
+
+
+Label 1 
+    Global coordinates                  : 166.6667  -166.6667  0.0000  
+
+
+Label 2 
+    Global coordinates                  : 166.6667  166.6667  0.0000  
+
+
+Label 3 
+    Global coordinates                  : -166.6667  -166.6667  0.0000  
+
+
+Label 4 
+    Global coordinates                  : -166.6667  166.6667  0.0000  
+
+
+Label 5 
+    Global coordinates                  : -500.0000  -166.6667  0.0000  
+
+
+Label 6 
+    Global coordinates                  : -500.0000  166.6667  0.0000  
+
+
+Label 7 
+    Global coordinates                  : 166.6667  -500.0000  0.0000  
+
+
+Label 8 
+    Global coordinates                  : -166.6667  -500.0000  0.0000  
+
+
+Label 9 
+    Global coordinates                  : -166.6667  500.0000  0.0000  
+
+
+Label 10 
+    Global coordinates                  : 166.6667  500.0000  0.0000  
+
+
+Label 11 
+    Global coordinates                  : 500.0000  166.6667  0.0000  
+
+
+Label 12 
+    Global coordinates                  : 500.0000  -166.6667  0.0000  
+
+
+Label 13 
+    Global coordinates                  : -500.0000  -500.0000  0.0000  
+
+
+Label 14 
+    Global coordinates                  : -500.0000  500.0000  0.0000  
+
+
+Label 15 
+    Global coordinates                  : 500.0000  -500.0000  0.0000  
+
+
+Label 16 
+    Global coordinates                  : 500.0000  500.0000  0.0000  
+
+
+ 
+------------------------------------------------------------
+ 
+
+
+
+ 

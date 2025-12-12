@@ -1,0 +1,708 @@
+﻿Information listing created by	
+bruno
+
+
+Date	
+05-Dec-2021 19:02:24
+
+
+Current work part	
+C:\Users\bruno\Desktop\proj mcomp\62\trig6\tirg_6_fem1.fem
+
+
+Node name	
+laptop-tiemtdga
+
+
+ 
+------------------------------------------------------------
+ 
+                     NODE INFORMATION
+ 
+------------------------------------------------------------
+ 
+
+
+Label 1 
+    Global coordinates                  : -1124.9930  300.0000  0.0000  
+
+
+Label 2 
+    Global coordinates                  : -1312.4929  150.0000  0.0000  
+
+
+Label 3 
+    Global coordinates                  : -1124.9930  150.0000  0.0000  
+
+
+Label 4 
+    Global coordinates                  : -1312.4929  450.0000  0.0000  
+
+
+Label 5 
+    Global coordinates                  : -1124.9930  450.0000  0.0000  
+
+
+Label 6 
+    Global coordinates                  : -937.4930  150.0000  0.0000  
+
+
+Label 7 
+    Global coordinates                  : -937.4930  450.0000  0.0000  
+
+
+Label 8 
+    Global coordinates                  : -1499.9929  300.0000  0.0000  
+
+
+Label 9 
+    Global coordinates                  : -1124.9930  0.0000    0.0000  
+
+
+Label 10 
+    Global coordinates                  : -1312.4929  0.0000    0.0000  
+
+
+Label 11 
+    Global coordinates                  : -937.4930  0.0000    0.0000  
+
+
+Label 12 
+    Global coordinates                  : -1124.9930  600.0000  0.0000  
+
+
+Label 13 
+    Global coordinates                  : -1312.4929  600.0000  0.0000  
+
+
+Label 14 
+    Global coordinates                  : -937.4930  600.0000  0.0000  
+
+
+Label 15 
+    Global coordinates                  : -749.9930  300.0000  0.0000  
+
+
+Label 16 
+    Global coordinates                  : -1499.9929  0.0000    0.0000  
+
+
+Label 17 
+    Global coordinates                  : -1499.9929  600.0000  0.0000  
+
+
+Label 18 
+    Global coordinates                  : -749.9930  0.0000    0.0000  
+
+
+Label 19 
+    Global coordinates                  : -749.9930  600.0000  0.0000  
+
+
+Label 20 
+    Global coordinates                  : 1300.0026  424.9981  0.0000  
+
+
+Label 21 
+    Global coordinates                  : 1100.0035  424.9981  0.0000  
+
+
+Label 22 
+    Global coordinates                  : 900.0026  424.9981  0.0000  
+
+
+Label 23 
+    Global coordinates                  : 700.0035  424.9981  0.0000  
+
+
+Label 24 
+    Global coordinates                  : 1100.0017  600.0000  0.0000  
+
+
+Label 25 
+    Global coordinates                  : 1300.0009  600.0000  0.0000  
+
+
+Label 26 
+    Global coordinates                  : 900.0026  600.0000  0.0000  
+
+
+Label 27 
+    Global coordinates                  : 1100.0053  249.9961  0.0000  
+
+
+Label 28 
+    Global coordinates                  : 1300.0062  249.9961  0.0000  
+
+
+Label 29 
+    Global coordinates                  : 900.0044  249.9961  0.0000  
+
+
+Label 30 
+    Global coordinates                  : 1500.0035  424.9981  0.0000  
+
+
+Label 31 
+    Global coordinates                  : 700.0035  600.0000  0.0000  
+
+
+Label 32 
+    Global coordinates                  : 700.0035  249.9961  0.0000  
+
+
+Label 33 
+    Global coordinates                  : 1500.0000  600.0000  0.0000  
+
+
+Label 34 
+    Global coordinates                  : 1500.0071  249.9961  0.0000  
+
+
+Label 35 
+    Global coordinates                  : -158.3373  199.7165  0.0000  
+
+
+Label 36 
+    Global coordinates                  : 188.9354  374.0649  0.0000  
+
+
+Label 37 
+    Global coordinates                  : 89.3946   194.0966  0.0000  
+
+
+Label 38 
+    Global coordinates                  : -396.6920  239.1308  0.0000  
+
+
+Label 39 
+    Global coordinates                  : -552.0817  394.3224  0.0000  
+
+
+Label 40 
+    Global coordinates                  : 250.6069  487.0325  0.0000  
+
+
+Label 41 
+    Global coordinates                  : 94.4677   487.0325  0.0000  
+
+
+Label 42 
+    Global coordinates                  : 600.0052  424.9981  0.0000  
+
+
+Label 43 
+    Global coordinates                  : 406.1427  424.9981  0.0000  
+
+
+Label 44 
+    Global coordinates                  : 344.4712  312.0305  0.0000  
+
+
+Label 45 
+    Global coordinates                  : 256.0832  275.4191  0.0000  
+
+
+Label 46 
+    Global coordinates                  : -204.1687  274.8583  0.0000  
+
+
+Label 47 
+    Global coordinates                  : -115.7809  311.4705  0.0000  
+
+
+Label 48 
+    Global coordinates                  : 169.6982  97.0483   0.0000  
+
+
+Label 49 
+    Global coordinates                  : 43.1611   97.0483   0.0000  
+
+
+Label 50 
+    Global coordinates                  : 206.3128  185.4350  0.0000  
+
+
+Label 51 
+    Global coordinates                  : 139.1650  284.0808  0.0000  
+
+
+Label 52 
+    Global coordinates                  : -34.4714  196.9066  0.0000  
+
+
+Label 53 
+    Global coordinates                  : -80.7048  99.8583   0.0000  
+
+
+Label 54 
+    Global coordinates                  : 8.0851    308.6605  0.0000  
+
+
+Label 55 
+    Global coordinates                  : 57.8555   398.6447  0.0000  
+
+
+Label 56 
+    Global coordinates                  : -573.3425  119.5654  0.0000  
+
+
+Label 57 
+    Global coordinates                  : -362.1462  119.5654  0.0000  
+
+
+Label 58 
+    Global coordinates                  : -651.0373  197.1612  0.0000  
+
+
+Label 59 
+    Global coordinates                  : -651.0373  497.1612  0.0000  
+
+
+Label 60 
+    Global coordinates                  : -474.3868  316.7266  0.0000  
+
+
+Label 61 
+    Global coordinates                  : -411.7337  331.1777  0.0000  
+
+
+Label 62 
+    Global coordinates                  : -489.4286  408.7734  0.0000  
+
+
+Label 63 
+    Global coordinates                  : -526.0408  497.1612  0.0000  
+
+
+Label 64 
+    Global coordinates                  : -323.3460  294.5654  0.0000  
+
+
+Label 65 
+    Global coordinates                  : -242.9688  99.8583   0.0000  
+
+
+Label 66 
+    Global coordinates                  : -277.5146  219.4237  0.0000  
+
+
+Label 67 
+    Global coordinates                  : -624.9965  600.0000  0.0000  
+
+
+Label 68 
+    Global coordinates                  : -73.2245  423.2245  0.0000  
+
+
+Label 69 
+    Global coordinates                  : -250.0000  350.0000  0.0000  
+
+
+Label 70 
+    Global coordinates                  : -426.7755  423.2245  0.0000  
+
+
+Label 71 
+    Global coordinates                  : -154.3295  369.0310  0.0000  
+
+
+Label 72 
+    Global coordinates                  : -19.0310  504.3295  0.0000  
+
+
+Label 73 
+    Global coordinates                  : -480.9690  504.3295  0.0000  
+
+
+Label 74 
+    Global coordinates                  : -345.6705  369.0310  0.0000  
+
+
+Label 75 
+    Global coordinates                  : -327.6003  0.0000    0.0000  
+
+
+Label 76 
+    Global coordinates                  : -3.0724   0.0000    0.0000  
+
+
+Label 77 
+    Global coordinates                  : 123.4647  0.0000    0.0000  
+
+
+Label 78 
+    Global coordinates                  : -538.7967  0.0000    0.0000  
+
+
+Label 79 
+    Global coordinates                  : -165.3364  0.0000    0.0000  
+
+
+Label 80 
+    Global coordinates                  : 323.2310  176.7733  0.0000  
+
+
+Label 81 
+    Global coordinates                  : 404.3366  230.9656  0.0000  
+
+
+Label 82 
+    Global coordinates                  : 269.0358  95.6698   0.0000  
+
+
+Label 83 
+    Global coordinates                  : 312.2784  600.0000  0.0000  
+
+
+Label 84 
+    Global coordinates                  : 156.1392  600.0000  0.0000  
+
+
+Label 85 
+    Global coordinates                  : 506.1409  600.0000  0.0000  
+
+
+Label 86 
+    Global coordinates                  : 600.0052  249.9961  0.0000  
+
+
+Label 87 
+    Global coordinates                  : -500.0000  600.0000  0.0000  
+
+
+Label 88 
+    Global coordinates                  : 0.0000    600.0000  0.0000  
+
+
+Label 89 
+    Global coordinates                  : 250.0018  0.0000    0.0000  
+
+
+Label 90 
+    Global coordinates                  : 500.0070  249.9961  0.0000  
+
+
+Label 91 
+    Global coordinates                  : -1124.9930  -300.0000  0.0000  
+
+
+Label 92 
+    Global coordinates                  : -1312.4929  -150.0000  0.0000  
+
+
+Label 93 
+    Global coordinates                  : -1124.9930  -150.0000  0.0000  
+
+
+Label 94 
+    Global coordinates                  : -1312.4929  -450.0000  0.0000  
+
+
+Label 95 
+    Global coordinates                  : -1124.9930  -450.0000  0.0000  
+
+
+Label 96 
+    Global coordinates                  : -937.4930  -150.0000  0.0000  
+
+
+Label 97 
+    Global coordinates                  : -937.4930  -450.0000  0.0000  
+
+
+Label 98 
+    Global coordinates                  : -1499.9929  -300.0000  0.0000  
+
+
+Label 99 
+    Global coordinates                  : -1312.4929  -600.0000  0.0000  
+
+
+Label 100 
+    Global coordinates                  : -1124.9930  -600.0000  0.0000  
+
+
+Label 101 
+    Global coordinates                  : -937.4930  -600.0000  0.0000  
+
+
+Label 102 
+    Global coordinates                  : -749.9930  -300.0000  0.0000  
+
+
+Label 103 
+    Global coordinates                  : -1499.9929  -600.0000  0.0000  
+
+
+Label 104 
+    Global coordinates                  : -749.9930  -600.0000  0.0000  
+
+
+Label 105 
+    Global coordinates                  : -158.3373  -199.7165  0.0000  
+
+
+Label 106 
+    Global coordinates                  : 188.9334  -374.0729  0.0000  
+
+
+Label 107 
+    Global coordinates                  : 89.3917   -194.0997  0.0000  
+
+
+Label 108 
+    Global coordinates                  : -396.6920  -239.1308  0.0000  
+
+
+Label 109 
+    Global coordinates                  : -552.0817  -394.3224  0.0000  
+
+
+Label 110 
+    Global coordinates                  : 250.6059  -487.0364  0.0000  
+
+
+Label 111 
+    Global coordinates                  : 94.4667   -487.0364  0.0000  
+
+
+Label 112 
+    Global coordinates                  : 600.0052  -425.0071  0.0000  
+
+
+Label 113 
+    Global coordinates                  : 406.1427  -425.0071  0.0000  
+
+
+Label 114 
+    Global coordinates                  : 344.4702  -312.0436  0.0000  
+
+
+Label 115 
+    Global coordinates                  : 256.0790  -275.4290  0.0000  
+
+
+Label 116 
+    Global coordinates                  : -204.1687  -274.8583  0.0000  
+
+
+Label 117 
+    Global coordinates                  : -115.7809  -311.4705  0.0000  
+
+
+Label 118 
+    Global coordinates                  : 169.6968  -97.0498  0.0000  
+
+
+Label 119 
+    Global coordinates                  : 43.1597   -97.0498  0.0000  
+
+
+Label 120 
+    Global coordinates                  : 206.3082  -185.4424  0.0000  
+
+
+Label 121 
+    Global coordinates                  : 139.1626  -284.0863  0.0000  
+
+
+Label 122 
+    Global coordinates                  : -34.4728  -196.9081  0.0000  
+
+
+Label 123 
+    Global coordinates                  : -80.7048  -99.8583  0.0000  
+
+
+Label 124 
+    Global coordinates                  : 8.0836    -308.6621  0.0000  
+
+
+Label 125 
+    Global coordinates                  : 57.8545   -398.6487  0.0000  
+
+
+Label 126 
+    Global coordinates                  : -573.3425  -119.5654  0.0000  
+
+
+Label 127 
+    Global coordinates                  : -362.1462  -119.5654  0.0000  
+
+
+Label 128 
+    Global coordinates                  : -651.0373  -197.1612  0.0000  
+
+
+Label 129 
+    Global coordinates                  : -651.0373  -497.1612  0.0000  
+
+
+Label 130 
+    Global coordinates                  : -474.3868  -316.7266  0.0000  
+
+
+Label 131 
+    Global coordinates                  : -411.7337  -331.1777  0.0000  
+
+
+Label 132 
+    Global coordinates                  : -489.4286  -408.7734  0.0000  
+
+
+Label 133 
+    Global coordinates                  : -526.0408  -497.1612  0.0000  
+
+
+Label 134 
+    Global coordinates                  : -323.3460  -294.5654  0.0000  
+
+
+Label 135 
+    Global coordinates                  : -242.9688  -99.8583  0.0000  
+
+
+Label 136 
+    Global coordinates                  : -277.5146  -219.4237  0.0000  
+
+
+Label 137 
+    Global coordinates                  : -624.9965  -600.0000  0.0000  
+
+
+Label 138 
+    Global coordinates                  : -480.9690  -504.3295  0.0000  
+
+
+Label 139 
+    Global coordinates                  : -426.7755  -423.2245  0.0000  
+
+
+Label 140 
+    Global coordinates                  : -345.6705  -369.0310  0.0000  
+
+
+Label 141 
+    Global coordinates                  : -250.0000  -350.0000  0.0000  
+
+
+Label 142 
+    Global coordinates                  : -154.3295  -369.0310  0.0000  
+
+
+Label 143 
+    Global coordinates                  : -73.2245  -423.2245  0.0000  
+
+
+Label 144 
+    Global coordinates                  : -19.0310  -504.3295  0.0000  
+
+
+Label 145 
+    Global coordinates                  : 404.3324  -230.9820  0.0000  
+
+
+Label 146 
+    Global coordinates                  : 323.2246  -176.7851  0.0000  
+
+
+Label 147 
+    Global coordinates                  : 269.0306  -95.6753  0.0000  
+
+
+Label 148 
+    Global coordinates                  : 156.1392  -600.0000  0.0000  
+
+
+Label 149 
+    Global coordinates                  : 312.2784  -600.0000  0.0000  
+
+
+Label 150 
+    Global coordinates                  : 506.1409  -600.0000  0.0000  
+
+
+Label 151 
+    Global coordinates                  : 600.0052  -250.0143  0.0000  
+
+
+Label 152 
+    Global coordinates                  : 700.0035  -425.0071  0.0000  
+
+
+Label 153 
+    Global coordinates                  : -500.0000  -600.0000  0.0000  
+
+
+Label 154 
+    Global coordinates                  : 0.0000    -600.0000  0.0000  
+
+
+Label 155 
+    Global coordinates                  : 500.0070  -250.0143  0.0000  
+
+
+Label 156 
+    Global coordinates                  : 700.0035  -600.0000  0.0000  
+
+
+Label 157 
+    Global coordinates                  : 700.0035  -250.0143  0.0000  
+
+
+Label 158 
+    Global coordinates                  : 1300.0062  -425.0071  0.0000  
+
+
+Label 159 
+    Global coordinates                  : 1100.0053  -425.0071  0.0000  
+
+
+Label 160 
+    Global coordinates                  : 900.0044  -425.0071  0.0000  
+
+
+Label 161 
+    Global coordinates                  : 900.0044  -600.0000  0.0000  
+
+
+Label 162 
+    Global coordinates                  : 1100.0053  -600.0000  0.0000  
+
+
+Label 163 
+    Global coordinates                  : 1300.0062  -600.0000  0.0000  
+
+
+Label 164 
+    Global coordinates                  : 1300.0062  -250.0143  0.0000  
+
+
+Label 165 
+    Global coordinates                  : 1100.0053  -250.0143  0.0000  
+
+
+Label 166 
+    Global coordinates                  : 900.0044  -250.0143  0.0000  
+
+
+Label 167 
+    Global coordinates                  : 1500.0071  -425.0071  0.0000  
+
+
+Label 168 
+    Global coordinates                  : 1500.0071  -600.0000  0.0000  
+
+
+Label 169 
+    Global coordinates                  : 1500.0071  -250.0143  0.0000  
+
+
+ 
+------------------------------------------------------------
+ 
+
+
+
+ 

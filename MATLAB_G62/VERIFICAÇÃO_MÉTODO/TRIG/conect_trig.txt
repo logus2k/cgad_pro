@@ -1,0 +1,37 @@
+﻿Information listing created by	
+bruno
+
+
+Date	
+05-Dec-2021 16:07:48
+
+
+Current work part	
+C:\Users\bruno\Desktop\proj mcomp\62\Valid_method_fem.fem
+
+
+Node name	
+laptop-tiemtdga
+
+
+ 
+------------------------------------------------------------
+ 
+              ELEMENT INFORMATION
+ 
+------------------------------------------------------------
+ 
+ 
+ELEMENT INFORMATION
+  Label                | Mesh              | Connected Nodes
+  1                    | 2d_mapped_mesh(1) | 8 3 1
+  2                    | 2d_mapped_mesh(1) | 8 1 5
+  3                    | 2d_mapped_mesh(1) | 3 6 2
+  4                    | 2d_mapped_mesh(1) | 3 2 1
+  5                    | 2d_mapped_mesh(1) | 1 2 7
+  6                    | 2d_mapped_mesh(1) | 1 7 4
+  7                    | 2d_mapped_mesh(1) | 5 1 4
+  8                    | 2d_mapped_mesh(1) | 5 4 9
+ 
+------------------------------------------------------------
+ 
