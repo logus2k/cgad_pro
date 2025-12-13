@@ -4,3 +4,6 @@ share/
 lib/
 lib64
 __pycache__/
+
+app/
+data/models/

@@ -1,12 +1,11 @@
 """
 QUAD8 FEM — GPU-accelerated version using CuPy
 
-Changes vs CPU version:
-- numpy  -> cupy
-- scipy.sparse -> cupyx.scipy.sparse
-- assembly + post-processing on GPU
-- solve kept on CPU for numerical stability & fair comparison
-- COO assembly (correct FEM pattern), CSR only after assembly
+Dynamic version:
+- Loads arbitrary Quad-8 meshes from Excel
+- Geometry-based BC detection (same as CPU)
+- COO-only sparse assembly (GPU-friendly)
+- Linear solve on CPU for stability and fair comparison
 """
 
 from pathlib import Path
@@ -17,26 +16,72 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import spsolve
 import pandas as pd
 
+from elem_quad8_gpu import Elem_Quad8
+from genip2dq_gpu import Genip2DQ
+from shape_n_der8_gpu import Shape_N_Der8
+from robin_quadr_gpu import Robin_quadr
+
+# -------------------------------------------------
+# Configuration (physics)
+# -------------------------------------------------
+P0   = 101328.8281
+RHO  = 0.6125
+GAMA = 2.5
+
 # -------------------------------------------------
 # Paths
 # -------------------------------------------------
 HERE = Path(__file__).resolve().parent.parent
+MESH_FILE = HERE / "data/input/mesh_data_quad8.xlsx"
+OUT_FILE  = HERE / "data/output/Results_quad8_GPU.xlsx"
 
 # -------------------------------------------------
 # Input (CPU → GPU)
 # -------------------------------------------------
-coord = pd.read_excel(HERE / "../data/input/mesh_data_quad8.xlsx", sheet_name="coord", header=None)
-conec = pd.read_excel(HERE / "../data/input/mesh_data_quad8.xlsx", sheet_name="conec", header=None)
+coord = pd.read_excel(MESH_FILE, sheet_name="coord")
+conec = pd.read_excel(MESH_FILE, sheet_name="conec")
 
-x_cpu = coord.iloc[:, 0].to_numpy() / 1000.0
-y_cpu = coord.iloc[:, 1].to_numpy() / 1000.0
-quad8 = conec.to_numpy(dtype=int) - 1  # zero-based
+x_cpu = coord["X"].to_numpy(dtype=float) / 1000.0
+y_cpu = coord["Y"].to_numpy(dtype=float) / 1000.0
+quad8 = conec.iloc[:, :8].to_numpy(dtype=int) - 1
 
-Nnds = len(x_cpu)
+Nnds = x_cpu.size
 Nels = quad8.shape[0]
+
+print(f"Loaded mesh: {Nnds} nodes, {Nels} elements")
 
 x = cp.asarray(x_cpu)
 y = cp.asarray(y_cpu)
+
+# -------------------------------------------------
+# Geometry-based BC detection (CPU → GPU)
+# -------------------------------------------------
+tol = 1e-9
+
+x_max = x_cpu.max()
+x_min = x_cpu.min()
+
+exit_nodes = np.where(np.abs(x_cpu - x_max) < tol)[0]
+boundary_nodes = set(np.where(np.abs(x_cpu - x_min) < tol)[0].tolist())
+
+exit_nodes_gpu = cp.asarray(exit_nodes, dtype=cp.int32)
+
+# Detect Robin edges
+robin_edges = []
+for e in range(Nels):
+    nodes = quad8[e]
+    edges = [
+        (nodes[0], nodes[4], nodes[1]),
+        (nodes[1], nodes[5], nodes[2]),
+        (nodes[2], nodes[6], nodes[3]),
+        (nodes[3], nodes[7], nodes[0]),
+    ]
+    for ed in edges:
+        if all(n in boundary_nodes for n in ed):
+            robin_edges.append(ed)
+
+print(f"Dirichlet nodes: {len(exit_nodes)}")
+print(f"Robin edges: {len(robin_edges)}")
 
 # -------------------------------------------------
 # Global RHS (GPU)
@@ -44,13 +89,8 @@ y = cp.asarray(y_cpu)
 fg_gpu = cp.zeros(Nnds, dtype=cp.float64)
 
 # -------------------------------------------------
-# Element assembly (COO triplets on GPU)
+# Element assembly (COO triplets)
 # -------------------------------------------------
-from elem_quad8_gpu import Elem_Quad8
-from genip2dq_gpu import Genip2DQ
-from shape_n_der8_gpu import Shape_N_Der8
-from robin_quadr_gpu import Robin_quadr
-
 rows = []
 cols = []
 vals = []
@@ -69,23 +109,18 @@ for e in range(Nels):
             vals.append(Ke[i, j])
 
 # -------------------------------------------------
-# Robin BCs (also into COO — NO CSR MODIFICATION)
+# Robin BCs (into COO)
 # -------------------------------------------------
-robin_sides = [
-    [18, 6, 5],
-    [5, 7, 17],
-    [17, 114, 115],
-    [115, 116, 123]
-]
-
-for ed in robin_sides:
+for (n1, n2, n3) in robin_edges:
     He, Pe = Robin_quadr(
-        x[ed[0]], y[ed[0]],
-        x[ed[1]], y[ed[1]],
-        x[ed[2]], y[ed[2]],
-        p=0.0, gama=2.5
+        x[n1], y[n1],
+        x[n2], y[n2],
+        x[n3], y[n3],
+        p=0.0,
+        gama=GAMA
     )
 
+    ed = [n1, n2, n3]
     for i in range(3):
         fg_gpu[ed[i]] += Pe[i]
         for j in range(3):
@@ -94,53 +129,35 @@ for ed in robin_sides:
             vals.append(He[i, j])
 
 # -------------------------------------------------
-# Build sparse matrix ONCE (COO → CSR)
+# Dirichlet BCs via COO filtering (GPU-safe)
 # -------------------------------------------------
-Kg_gpu = cpsparse.coo_matrix(
-    (cp.asarray(vals), (cp.asarray(rows), cp.asarray(cols))),
-    shape=(Nnds, Nnds)
-).tocsr()
-
-# -------------------------------------------------
-# Dirichlet BCs (safe on CSR)
-# -------------------------------------------------
-"""
-exit_nodes = cp.asarray([32, 29, 33, 200, 198, 199])  # zero-based
-
-Kg_gpu[exit_nodes, :] = 0
-Kg_gpu[:, exit_nodes] = 0
-Kg_gpu[exit_nodes, exit_nodes] = 1.0
-fg_gpu[exit_nodes] = 0.0
-"""
-
-exit_nodes = cp.asarray([32, 29, 33, 200, 198, 199])
+rows_cp = cp.asarray(rows, dtype=cp.int32)
+cols_cp = cp.asarray(cols, dtype=cp.int32)
+vals_cp = cp.asarray(vals, dtype=cp.float64)
 
 exit_mask = cp.zeros(Nnds, dtype=cp.bool_)
-exit_mask[exit_nodes] = True
+exit_mask[exit_nodes_gpu] = True
 
-rows_cp = cp.asarray(rows)
-cols_cp = cp.asarray(cols)
-vals_cp = cp.asarray(vals)
-
-# Remove any entry touching Dirichlet nodes
 keep = ~(exit_mask[rows_cp] | exit_mask[cols_cp])
 
 rows_cp = rows_cp[keep]
 cols_cp = cols_cp[keep]
 vals_cp = vals_cp[keep]
 
-# Add identity entries for Dirichlet nodes
-rows_cp = cp.concatenate([rows_cp, exit_nodes])
-cols_cp = cp.concatenate([cols_cp, exit_nodes])
-vals_cp = cp.concatenate([vals_cp, cp.ones(len(exit_nodes))])
+# Add identity rows for Dirichlet nodes
+rows_cp = cp.concatenate([rows_cp, exit_nodes_gpu])
+cols_cp = cp.concatenate([cols_cp, exit_nodes_gpu])
+vals_cp = cp.concatenate([vals_cp, cp.ones(exit_nodes_gpu.size)])
 
-# Build CSR once
+fg_gpu[exit_nodes_gpu] = 0.0
+
+# -------------------------------------------------
+# Build sparse matrix ONCE
+# -------------------------------------------------
 Kg_gpu = cpsparse.coo_matrix(
     (vals_cp, (rows_cp, cols_cp)),
     shape=(Nnds, Nnds)
 ).tocsr()
-
-fg_gpu[exit_nodes] = 0.0
 
 # -------------------------------------------------
 # Solve (CPU on purpose)
@@ -175,7 +192,7 @@ for e in range(Nels):
 
     abs_vel[e] = cp.mean(v_ip)
 
-pressure = 101328.8281 - 0.6125 * abs_vel**2
+pressure = P0 - RHO * abs_vel**2
 
 # -------------------------------------------------
 # Export (GPU → CPU → Excel)
@@ -185,9 +202,7 @@ vel_cpu = cp.asnumpy(vel)
 abs_cpu = cp.asnumpy(abs_vel)
 p_cpu = cp.asnumpy(pressure)
 
-outfile = HERE / "../data/output/Results_quad8_GPU.xlsx"
-
-with pd.ExcelWriter(outfile, engine="openpyxl") as writer:
+with pd.ExcelWriter(OUT_FILE, engine="openpyxl") as writer:
     header = [
         "#NODE", "VELOCITY POTENTIAL", "",
         "#ELEMENT", "U m/s (x  vel)", "V m/s (y vel)",
@@ -195,18 +210,19 @@ with pd.ExcelWriter(outfile, engine="openpyxl") as writer:
     ]
     pd.DataFrame([header]).to_excel(writer, index=False, header=False)
 
-    pd.DataFrame(
-        np.column_stack([np.arange(1, Nnds + 1), u_cpu])
-    ).to_excel(writer, startrow=1, startcol=0,
-               index=False, header=False)
+    pd.DataFrame({
+        "#NODE": np.arange(1, Nnds + 1),
+        "VELOCITY POTENTIAL": u_cpu
+    }).to_excel(writer, startrow=1, startcol=0,
+                index=False, header=False)
 
-    pd.DataFrame(
-        np.column_stack([
-            np.arange(1, Nels + 1),
-            vel_cpu[:, 0],
-            vel_cpu[:, 1],
-            abs_cpu,
-            p_cpu
-        ])
-    ).to_excel(writer, startrow=1, startcol=3,
-               index=False, header=False)
+    pd.DataFrame({
+        "#ELEMENT": np.arange(1, Nels + 1),
+        "Ux": vel_cpu[:, 0],
+        "Uy": vel_cpu[:, 1],
+        "|V|": abs_cpu,
+        "Pressure": p_cpu
+    }).to_excel(writer, startrow=1, startcol=3,
+                index=False, header=False)
+
+print(f"GPU results written to: {OUT_FILE}")
