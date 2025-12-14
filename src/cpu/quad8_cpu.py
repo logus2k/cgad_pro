@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Callable
 from numpy.typing import NDArray
 
 from scipy.sparse import lil_matrix, csr_matrix
@@ -180,11 +180,31 @@ class Quad8FEMSolver:
         self.vel: NDArray[np.float64]
         self.abs_vel: NDArray[np.float64]
         self.pressure: NDArray[np.float64]
+
+        # Record Global Program Start Time
+        self.program_start_time: float = time.perf_counter()
         
         # Solver diagnostics (will be initialized in solve)
         self.monitor: IterativeSolverMonitor
         self.solve_info: int
         self.converged: bool = False
+        self.timing_metrics: Dict[str, float] = {} # Initialize timing dictionary
+
+    def _time_step(self, step_name: str, func: Callable[..., Any]) -> Any:
+        """Utility to time a function call and store the result."""
+        t0 = time.perf_counter()
+        # Execute the function
+        result = func()
+        t1 = time.perf_counter()
+        
+        # Store the metric
+        self.timing_metrics[step_name] = t1 - t0
+        
+        # Print if verbose
+        if self.verbose:
+            print(f"  > Step '{step_name}' completed in {self.timing_metrics[step_name]:.4f} seconds.")
+            
+        return result    
         
     def load_mesh(self) -> None:
         """Load mesh from Excel file."""
@@ -304,6 +324,8 @@ class Quad8FEMSolver:
     def solve(self) -> NDArray[np.float64]:
         """Solve linear system using preconditioned GMRES."""
         
+        solve_start_time = time.perf_counter()
+
         if self.verbose:
             print("Converting to CSR format...")
         
@@ -368,7 +390,7 @@ class Quad8FEMSolver:
             target_tol=TARGET_RTOL
         )
         
-        # --- SWITCH TO GMRES ---
+        # GMRES
         self.u, self.solve_info = gmres(
             self.Kg,
             self.fg,
@@ -380,13 +402,18 @@ class Quad8FEMSolver:
             callback_type='legacy', # Add this to silence the deprecation warning
             restart=20
         )
-        # -----------------------
         
         # Check actual convergence with residual check
         final_residual = self.monitor.residuals[-1] if self.monitor.residuals else float('inf')
         initial_residual = self.monitor.residuals[0] if self.monitor.residuals else initial_residual_norm
         relative_residual = final_residual / initial_residual if initial_residual > 0 else final_residual
-        
+
+        # STOP TIMER and store metric
+        solve_end_time = time.perf_counter()
+        total_solve_time = solve_end_time - solve_start_time
+        self.timing_metrics['solve_system'] = total_solve_time # Store the metric
+
+
         # The GMRES convergence check should be against the relaxed tolerance
         self.converged = bool(self.solve_info == 0)
         
@@ -400,6 +427,8 @@ class Quad8FEMSolver:
             else:
                 print(f"✗ GMRES error (info={self.solve_info}) - did not converge!")
                 print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
+            
+            print(f"  Total solver wall time: {total_solve_time:.4f} seconds")
         
         return self.u
     
@@ -439,7 +468,8 @@ class Quad8FEMSolver:
         print(f"  u mean:  {self.u.mean():.6e}")
         print(f"  u std:   {self.u.std():.6e}")
     
-    def visualize(self, output_dir: Path | str) -> Dict[str, Path]:
+    def visualize(self, output_dir: Optional[Path | str]) -> Dict[str, Path]:
+        """Generates and saves visualizations."""
         """
         Generate all visualization plots.
         
@@ -449,7 +479,9 @@ class Quad8FEMSolver:
         Returns:
             Dictionary of output file paths
         """
-        output_dir = Path(output_dir)
+
+        if output_dir is None:
+            output_dir = PROJECT_ROOT / "data/output/figures"        
         
         if self.verbose:
             print(f"Generating visualizations...")
@@ -466,7 +498,7 @@ class Quad8FEMSolver:
         
         return output_files
     
-    def export(self, output_file: Path | str) -> Path:
+    def export(self, output_file: Optional[Path | str]):
         """
         Export results to Excel.
         
@@ -476,7 +508,8 @@ class Quad8FEMSolver:
         Returns:
             Path to saved file
         """
-        output_file = Path(output_file)
+        if output_file is None:
+            output_file = PROJECT_ROOT / f"data/output/Results_quad8_{self.implementation_name}.xlsx"
         
         if self.verbose:
             print(f"Exporting results...")
@@ -492,31 +525,42 @@ class Quad8FEMSolver:
             print(f"  Saved to {output_file}")
         
         return output_file
-    
+
     def run(
         self,
         output_dir: Optional[Path | str] = None,
         export_file: Optional[Path | str] = None
     ) -> Dict[str, Any]:
-        """
-        Run complete FEM simulation workflow.
+        """Run complete FEM simulation workflow."""
         
-        Args:
-            output_dir: Directory for visualization outputs. 
-                    Defaults to PROJECT_ROOT/data/output/figures
-            export_file: Path for Excel export.
-                        Defaults to PROJECT_ROOT/data/output/Results_quad8_{implementation}.xlsx
-            
-        Returns:
-            Dictionary with solution data and file paths
-        """
-        # Execute workflow
-        self.load_mesh()
-        self.assemble_system()
-        self.apply_boundary_conditions()
-        self.solve()
-        self.compute_derived_fields()
-        self.print_statistics()
+        # --- NEW: Start Timer for the Core Workflow ---
+        total_workflow_start = time.perf_counter()
+        self.timing_metrics = {} # Ensure metrics are cleared/re-initialized
+        
+        # 1. Loading and Setup
+        self._time_step('load_mesh', self.load_mesh)
+        self._time_step('assemble_system', self.assemble_system)
+        self._time_step('apply_bc', self.apply_boundary_conditions)
+        
+        # 2. Solving (timed internally by solve() method)
+        self.solve() 
+        
+        # 3. Post-processing
+        self._time_step('compute_derived', self.compute_derived_fields)
+        self._time_step('print_stats', self.print_statistics) # Keep this for diagnostics
+        
+        # 4. Outputs
+        # Use lambda to handle function calls with arguments for _time_step
+        self._time_step('visualize', lambda: self.visualize(output_dir))
+        self._time_step('export', lambda: self.export(export_file))
+
+        # --- Final Total Workflow Time ---
+        total_workflow_end = time.perf_counter()
+        self.timing_metrics['total_workflow'] = total_workflow_end - total_workflow_start
+        
+        # --- Calculate and Store Total Program Time ---
+        total_program_time = total_workflow_end - self.program_start_time
+        self.timing_metrics['total_program_time'] = total_program_time
         
         results: Dict[str, Any] = {
             'u': self.u,
@@ -525,25 +569,22 @@ class Quad8FEMSolver:
             'pressure': self.pressure,
             'converged': self.converged,
             'iterations': self.monitor.it,
-            'residuals': self.monitor.residuals
+            'residuals': self.monitor.residuals,
+            'timing_metrics': self.timing_metrics
         }
-        
-        # Set defaults if not provided
-        if output_dir is None:
-            output_dir = PROJECT_ROOT / "data/output/figures"
-        
-        if export_file is None:
-            export_file = PROJECT_ROOT / f"data/output/Results_quad8_{self.implementation_name}.xlsx"
-        
-        # Generate outputs
-        results['visualization_files'] = self.visualize(output_dir)
-        results['export_file'] = self.export(export_file)
         
         if self.verbose:
             print("\n✓ Simulation complete")
+            
+            # Print the detailed breakdown
+            print("\nStep-by-Step Timings (seconds):")
+            for k, v in self.timing_metrics.items():
+                print(f"  {k:<20}: {v:.4f}")
+            
+            # Print the final total time
+            print(f"  Total Program Wall Time: {total_program_time:.4f} seconds") 
         
         return results
-
 
 # -------------------------------------------------
 # Main execution
@@ -568,3 +609,6 @@ if __name__ == "__main__":
         initial_res = results['residuals'][0]
         final_res = results['residuals'][-1]
         print(f"  Residual reduction: {initial_res/final_res:.2e}×")
+
+    total_program_time = results['timing_metrics'].get('total_program_time', 0.0)
+    print(f"  Total Program Wall Time: {total_program_time:.4f} seconds")
