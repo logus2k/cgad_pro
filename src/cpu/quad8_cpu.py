@@ -70,6 +70,7 @@ class Quad8FEMSolver:
         gamma: float = 2.5,
         rtol: float = 1e-8,
         maxiter: int = 5000,
+        bc_tolerance: float = 1e-9,  # ← Add this
         cg_print_every: int = 50,
         assembly_print_every: int = 50000,
         implementation_name: str = "CPU",
@@ -85,6 +86,7 @@ class Quad8FEMSolver:
             gamma: Specific heat ratio
             rtol: CG solver relative tolerance
             maxiter: Maximum CG iterations
+            bc_tolerance: Tolerance for detecting boundary nodes
             cg_print_every: Print CG progress every N iterations
             assembly_print_every: Print assembly progress every N elements
             implementation_name: Identifier for output files (e.g., "CPU", "GPU")
@@ -98,6 +100,7 @@ class Quad8FEMSolver:
         # Solver parameters
         self.rtol = rtol
         self.maxiter = maxiter
+        self.bc_tolerance = bc_tolerance
         self.cg_print_every = cg_print_every
         self.assembly_print_every = assembly_print_every
         
@@ -175,12 +178,10 @@ class Quad8FEMSolver:
         if self.verbose:
             print("Applying boundary conditions...")
         
-        tol = 1e-9
-        
         # Robin BC on minimum-x boundary (inlet)
         x_min = float(self.x.min())
-        boundary_nodes = set(np.where(np.abs(self.x - x_min) < tol)[0].tolist())
-        
+        boundary_nodes = set(np.where(np.abs(self.x - x_min) < self.bc_tolerance)[0].tolist())
+            
         robin_edges = []
         for e in range(self.Nels):
             n = self.quad8[e]
@@ -214,7 +215,7 @@ class Quad8FEMSolver:
         
         # Dirichlet BC on maximum-x boundary (outlet)
         x_max = float(self.x.max())
-        exit_nodes = np.where(np.abs(self.x - x_max) < tol)[0]
+        exit_nodes = np.where(np.abs(self.x - x_max) < self.bc_tolerance)[0]
         
         if self.verbose:
             print(f"  Applying {len(exit_nodes)} Dirichlet nodes...")
@@ -381,8 +382,10 @@ class Quad8FEMSolver:
         Run complete FEM simulation workflow.
         
         Args:
-            output_dir: Directory for visualization outputs (optional)
-            export_file: Path for Excel export (optional)
+            output_dir: Directory for visualization outputs. 
+                    Defaults to PROJECT_ROOT/data/output/figures
+            export_file: Path for Excel export.
+                        Defaults to PROJECT_ROOT/data/output/Results_quad8_{implementation}.xlsx
             
         Returns:
             Dictionary with solution data and file paths
@@ -405,12 +408,16 @@ class Quad8FEMSolver:
             'residuals': self.monitor.residuals
         }
         
-        # Optional outputs
-        if output_dir:
-            results['visualization_files'] = self.visualize(output_dir)
+        # Set defaults if not provided
+        if output_dir is None:
+            output_dir = PROJECT_ROOT / "data/output/figures"
         
-        if export_file:
-            results['export_file'] = self.export(export_file)
+        if export_file is None:
+            export_file = PROJECT_ROOT / f"data/output/Results_quad8_{self.implementation_name}.xlsx"
+        
+        # Generate outputs
+        results['visualization_files'] = self.visualize(output_dir)
+        results['export_file'] = self.export(export_file)
         
         if self.verbose:
             print("\n✓ Simulation complete")
@@ -425,22 +432,11 @@ if __name__ == "__main__":
     # Create solver instance
     solver = Quad8FEMSolver(
         mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v3.xlsx",
-        p0=101328.8281,
-        rho=0.6125,
-        gamma=2.5,
-        rtol=1e-8,
-        maxiter=5000,
-        cg_print_every=50,
-        assembly_print_every=50000,
-        implementation_name="CPU",
-        verbose=True
+        implementation_name="CPU"
     )
     
-    # Run simulation
-    results = solver.run(
-        output_dir=PROJECT_ROOT / "data/output/figures",
-        export_file=PROJECT_ROOT / "data/output/Results_quad8_CPU.xlsx"
-    )
+    # Run simulation (uses default output paths)
+    results = solver.run()
     
     print(f"\nResults summary:")
     print(f"  Converged: {results['converged']}")
