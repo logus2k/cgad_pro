@@ -5,6 +5,7 @@ Encapsulated solver class for 2D potential flow using Quad-8 elements.
 """
 
 import sys
+import time
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -33,8 +34,8 @@ from genip2dq_cpu import Genip2DQ
 from shape_n_der8_cpu import Shape_N_Der8
 
 
-class CGMonitor:
-    """Callback monitor for CG solver iterations."""
+class IterativeSolverMonitor:
+    """Callback monitor for CG/GMRES solver iterations."""
     
     def __init__(self, every: int = 10, maxiter: int = 5000, target_tol: float = 1e-8):
         self.it: int = 0
@@ -42,37 +43,65 @@ class CGMonitor:
         self.maxiter: int = maxiter
         self.target_tol: float = target_tol
         self.residuals: list[float] = []
+        self.start_time: float = time.time() # <--- NEW: Track start time
 
     def __call__(self, rk: NDArray[np.float64]) -> None:
-            self.it += 1
-            residual = float(np.linalg.norm(rk))
-            self.residuals.append(residual)
+        """Called after each iteration to log and report progress."""
+        
+        # NOTE: rk is the residual vector norm for GMRES.
+        res_norm = float(np.linalg.norm(rk))
+        
+        # Store the residual for later analysis (we store every step for accuracy)
+        if not self.residuals:
+            self.residuals.append(res_norm) # Initial residual (at it=0)
+        self.residuals.append(res_norm)
+        
+        self.it += 1
+        
+        # Check convergence based on current residual vs target tolerance
+        initial_res = self.residuals[0]
+        relative_res = res_norm / initial_res if initial_res > 0 else res_norm
+        
+        # --- NEW: PROGRESS REPORTING AND ESTIMATION ---
+        
+        # Check if it's time to print OR if we reached the maximum iteration
+        if self.it % self.every == 0 or self.it == self.maxiter:
             
-            if self.it % self.every == 0:
-                # Calculate progress percentage based on iterations
-                iter_progress = (self.it / self.maxiter) * 100
-                
-                # --- Simplified Progress Estimate ---
-                progress = iter_progress
-                if len(self.residuals) > 1:
-                    initial_res = self.residuals[0]
-                    # Only try to estimate convergence progress if the residual is actually reducing
-                    if residual < initial_res:
-                        # Exponential decay estimate (kept for advanced monitoring, but guarded)
-                        decay_rate = np.log(residual / initial_res) / self.it
-                        
-                        if residual > self.target_tol and decay_rate < 0:
-                            est_remaining = np.log(self.target_tol / residual) / decay_rate
-                            est_total = self.it + est_remaining
-                            residual_progress = (self.it / est_total) * 100
-                            
-                            # Use the more conservative estimate between iteration progress and residual progress
-                            progress = max(iter_progress, residual_progress)
-                
-                progress = min(progress, 99.9)  # Cap at 99.9% until actually done
-                
-                print(f"  CG iteration {self.it}/{self.maxiter} ({progress:.1f}%), residual = {residual:.3e}")
+            # 1. Calculate Elapsed Time and Time Per Iteration
+            elapsed_time = time.time() - self.start_time
+            time_per_it = elapsed_time / self.it
+            
+            # 2. Estimate Remaining Iterations and Time
+            remaining_iters = self.maxiter - self.it
+            estimated_time_remaining = remaining_iters * time_per_it
+            
+            # 3. Format Time for Readability (M:SS)
+            def format_time(seconds):
+                minutes = int(seconds // 60)
+                seconds = int(seconds % 60)
+                return f"{minutes:02d}m:{seconds:02d}s"
 
+            etr_str = format_time(estimated_time_remaining)
+            
+            # 4. Print the Progress Bar/Status
+            progress_percent = (self.it / self.maxiter) * 100
+            
+            print(
+                f"  GMRES iteration {self.it}/{self.maxiter} ({progress_percent:.1f}%), "
+                f"residual = {res_norm:.3e}, "
+                f"ETR: {etr_str}" # <--- ADDED ETR
+            )
+        
+        # -----------------------------------------------
+        
+        # Check termination criteria based on rtol (this is just for printing, actual exit is in gmres)
+        if relative_res < self.target_tol and self.it % self.every != 0:
+             # Print final status immediately if convergence is reached mid-cycle
+             print(
+                f"✓ GMRES converged at iteration {self.it}. "
+                f"Final residual: {res_norm:.3e} (Target: {self.target_tol:.1e})"
+            )
+             
 class Quad8FEMSolver:
     """
     QUAD8 FEM Solver for 2D potential flow.
@@ -153,7 +182,7 @@ class Quad8FEMSolver:
         self.pressure: NDArray[np.float64]
         
         # Solver diagnostics (will be initialized in solve)
-        self.monitor: CGMonitor
+        self.monitor: IterativeSolverMonitor
         self.solve_info: int
         self.converged: bool = False
         
@@ -333,7 +362,7 @@ class Quad8FEMSolver:
         TARGET_RTOL = 1e-6 
         
         # Initialize the monitor
-        self.monitor = CGMonitor( 
+        self.monitor = IterativeSolverMonitor( 
             every=self.cg_print_every,
             maxiter=self.maxiter,
             target_tol=TARGET_RTOL
@@ -522,8 +551,10 @@ class Quad8FEMSolver:
 if __name__ == "__main__":
     # Create solver instance
     solver = Quad8FEMSolver(
-        mesh_file=PROJECT_ROOT / "data/input/mesh_data_quad8_ORIGINAL.xlsx",
-        implementation_name="CPU"
+        mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.xlsx",
+        implementation_name="CPU",
+        maxiter=5000,
+        cg_print_every=5   # 5 or 10 for frequent updates
     )
     
     # Run simulation (uses default output paths)
