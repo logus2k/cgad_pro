@@ -35,73 +35,49 @@ from shape_n_der8_cpu import Shape_N_Der8
 
 
 class IterativeSolverMonitor:
-    """Callback monitor for CG/GMRES solver iterations."""
-    
-    def __init__(self, every: int = 10, maxiter: int = 5000, target_tol: float = 1e-8):
+    """Pure reporting callback for CG/GMRES iterations (no convergence logic)."""
+
+    def __init__(self, every: int = 10, maxiter: int = 5000):
         self.it: int = 0
         self.every: int = every
         self.maxiter: int = maxiter
-        self.target_tol: float = target_tol
-        self.residuals: list[float] = []
-        self.start_time: float = time.time() # <--- NEW: Track start time
+        self.start_time: float = time.perf_counter()
 
     def __call__(self, rk: NDArray[np.float64]) -> None:
-        """Called after each iteration to log and report progress."""
-        
-        # NOTE: rk is the residual vector norm for GMRES.
-        res_norm = float(np.linalg.norm(rk))
-        
-        # Store the residual for later analysis (we store every step for accuracy)
-        if not self.residuals:
-            self.residuals.append(res_norm) # Initial residual (at it=0)
-        self.residuals.append(res_norm)
-        
-        self.it += 1
-        
-        # Check convergence based on current residual vs target tolerance
-        initial_res = self.residuals[0]
-        relative_res = res_norm / initial_res if initial_res > 0 else res_norm
-        
-        # --- NEW: PROGRESS REPORTING AND ESTIMATION ---
-        
-        # Check if it's time to print OR if we reached the maximum iteration
-        if self.it % self.every == 0 or self.it == self.maxiter:
-            
-            # 1. Calculate Elapsed Time and Time Per Iteration
-            elapsed_time = time.time() - self.start_time
-            time_per_it = elapsed_time / self.it
-            
-            # 2. Estimate Remaining Iterations and Time
-            remaining_iters = self.maxiter - self.it
-            estimated_time_remaining = remaining_iters * time_per_it
-            
-            # 3. Format Time for Readability (M:SS)
-            def format_time(seconds):
-                minutes = int(seconds // 60)
-                seconds = int(seconds % 60)
-                return f"{minutes:02d}m:{seconds:02d}s"
+        """
+        Called by SciPy GMRES callback (legacy mode).
 
-            etr_str = format_time(estimated_time_remaining)
+        Parameters
+        ----------
+        rk : ndarray
+            Preconditioned residual (M⁻¹ r). Diagnostic only.
+        """
+        self.it += 1
+
+        if self.it % self.every != 0 and self.it != self.maxiter:
+            return
+
+        res_norm = float(np.linalg.norm(rk))
+
+        elapsed = time.perf_counter() - self.start_time
+        time_per_it = elapsed / self.it
+        remaining = self.maxiter - self.it
+        etr = remaining * time_per_it
+
+        def fmt(seconds: float) -> str:
+            m = int(seconds // 60)
+            s = int(seconds % 60)
+            return f"{m:02d}m:{s:02d}s"
+
+        progress = 100.0 * self.it / self.maxiter
+
+        print(
+            f"  GMRES iter {self.it}/{self.maxiter} ({progress:.1f}%), "
+            f"||M⁻¹ r|| = {res_norm:.3e}, "
+            f"ETR: {fmt(etr)}"
+        )
             
-            # 4. Print the Progress Bar/Status
-            progress_percent = (self.it / self.maxiter) * 100
             
-            print(
-                f"  GMRES iteration {self.it}/{self.maxiter} ({progress_percent:.1f}%), "
-                f"residual = {res_norm:.3e}, "
-                f"ETR: {etr_str}" # <--- ADDED ETR
-            )
-        
-        # -----------------------------------------------
-        
-        # Check termination criteria based on rtol (this is just for printing, actual exit is in gmres)
-        if relative_res < self.target_tol and self.it % self.every != 0:
-             # Print final status immediately if convergence is reached mid-cycle
-             print(
-                f"✓ GMRES converged at iteration {self.it}. "
-                f"Final residual: {res_norm:.3e} (Target: {self.target_tol:.1e})"
-            )
-             
 class Quad8FEMSolver:
     """
     QUAD8 FEM Solver for 2D potential flow.
@@ -294,8 +270,7 @@ class Quad8FEMSolver:
         
         
         # Dirichlet BC on maximum-x boundary (outlet)
-        # 0-based indices for the 6 fixed nodes: [32, 29, 33, 200, 198, 199]
-        exit_nodes = np.array([32, 29, 33, 200, 198, 199], dtype=int)
+        exit_nodes = np.where(self.x == np.max(self.x))[0]
         
         if self.verbose:
             print(f"  Applying {len(exit_nodes)} Dirichlet nodes (u=0) via Penalty Method...")
@@ -380,14 +355,13 @@ class Quad8FEMSolver:
             # Note the solver name change
             print(f"Solving linear system (PCGMRES with {precond_name})...")
         
-        # Relax tolerance slightly for stability, but GMRES can often handle tighter tolerance than CG
-        TARGET_RTOL = 1e-6 
+        # Relax tolerance slightly for stability
+        TARGET_RTOL = 1e-10
         
         # Initialize the monitor
         self.monitor = IterativeSolverMonitor( 
             every=self.cg_print_every,
             maxiter=self.maxiter,
-            target_tol=TARGET_RTOL
         )
         
         # GMRES
@@ -399,35 +373,33 @@ class Quad8FEMSolver:
             maxiter=self.maxiter,
             M=M,
             callback=self.monitor,
-            callback_type='legacy', # Add this to silence the deprecation warning
-            restart=20
+            callback_type='legacy'  # Add this to silence the deprecation warning
         )
         
-        # Check actual convergence with residual check
-        final_residual = self.monitor.residuals[-1] if self.monitor.residuals else float('inf')
-        initial_residual = self.monitor.residuals[0] if self.monitor.residuals else initial_residual_norm
-        relative_residual = final_residual / initial_residual if initial_residual > 0 else final_residual
+        # --- TRUE residual check (this is what GMRES actually enforces) ---
+        r = self.fg - self.Kg @ self.u
+        true_residual = np.linalg.norm(r)
+        true_relative_residual = true_residual / initial_residual_norm
 
         # STOP TIMER and store metric
         solve_end_time = time.perf_counter()
         total_solve_time = solve_end_time - solve_start_time
-        self.timing_metrics['solve_system'] = total_solve_time # Store the metric
+        self.timing_metrics['solve_system'] = total_solve_time
 
+        # GMRES convergence is defined by info == 0
+        self.converged = (self.solve_info == 0)
 
-        # The GMRES convergence check should be against the relaxed tolerance
-        self.converged = bool(self.solve_info == 0)
-        
         if self.verbose:
             if self.converged:
                 print(f"✓ GMRES converged in {self.monitor.it} iterations")
-                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
             elif self.solve_info > 0:
-                print(f"✗ GMRES did not converge - maximum iterations reached ({self.monitor.it} iterations)")
-                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
+                print(f"✗ GMRES did not converge (max iterations reached)")
             else:
-                print(f"✗ GMRES error (info={self.solve_info}) - did not converge!")
-                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
-            
+                print(f"✗ GMRES failed (info={self.solve_info})")
+
+            print(f"  True residual norm:     {true_residual:.3e}")
+            print(f"  True relative residual: {true_relative_residual:.3e}")
+            print(f"  Target rtol:            {TARGET_RTOL:.1e}")
             print(f"  Total solver wall time: {total_solve_time:.4f} seconds")
         
         return self.u
@@ -488,7 +460,7 @@ class Quad8FEMSolver:
         
         output_files = generate_all_visualizations(
             self.x, self.y, self.quad8,
-            self.u, self.abs_vel, self.pressure,
+            self.u,
             output_dir,
             implementation_name=self.implementation_name
         )
@@ -569,7 +541,6 @@ class Quad8FEMSolver:
             'pressure': self.pressure,
             'converged': self.converged,
             'iterations': self.monitor.it,
-            'residuals': self.monitor.residuals,
             'timing_metrics': self.timing_metrics
         }
         
@@ -604,11 +575,6 @@ if __name__ == "__main__":
     print(f"\nResults summary:")
     print(f"  Converged: {results['converged']}")
     print(f"  Iterations: {results['iterations']}")
-    if results['residuals']:
-        print(f"  Final residual: {results['residuals'][-1]:.3e}")
-        initial_res = results['residuals'][0]
-        final_res = results['residuals'][-1]
-        print(f"  Residual reduction: {initial_res/final_res:.2e}×")
 
     total_program_time = results['timing_metrics'].get('total_program_time', 0.0)
     print(f"  Total Program Wall Time: {total_program_time:.4f} seconds")
