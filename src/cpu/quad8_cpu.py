@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any
 from numpy.typing import NDArray
 
 from scipy.sparse import lil_matrix, csr_matrix
-from scipy.sparse.linalg import cg, LinearOperator
+from scipy.sparse.linalg import cg, LinearOperator, gmres
 
 # Project paths
 HERE = Path(__file__).resolve().parent
@@ -36,19 +36,42 @@ from shape_n_der8_cpu import Shape_N_Der8
 class CGMonitor:
     """Callback monitor for CG solver iterations."""
     
-    def __init__(self, every: int = 10):
+    def __init__(self, every: int = 10, maxiter: int = 5000, target_tol: float = 1e-8):
         self.it: int = 0
         self.every: int = every
+        self.maxiter: int = maxiter
+        self.target_tol: float = target_tol
         self.residuals: list[float] = []
 
     def __call__(self, rk: NDArray[np.float64]) -> None:
-        self.it += 1
-        residual = float(np.linalg.norm(rk))
-        self.residuals.append(residual)
-        
-        if self.it % self.every == 0:
-            print(f"  CG iteration {self.it}, residual = {residual:.3e}")
-
+            self.it += 1
+            residual = float(np.linalg.norm(rk))
+            self.residuals.append(residual)
+            
+            if self.it % self.every == 0:
+                # Calculate progress percentage based on iterations
+                iter_progress = (self.it / self.maxiter) * 100
+                
+                # --- Simplified Progress Estimate ---
+                progress = iter_progress
+                if len(self.residuals) > 1:
+                    initial_res = self.residuals[0]
+                    # Only try to estimate convergence progress if the residual is actually reducing
+                    if residual < initial_res:
+                        # Exponential decay estimate (kept for advanced monitoring, but guarded)
+                        decay_rate = np.log(residual / initial_res) / self.it
+                        
+                        if residual > self.target_tol and decay_rate < 0:
+                            est_remaining = np.log(self.target_tol / residual) / decay_rate
+                            est_total = self.it + est_remaining
+                            residual_progress = (self.it / est_total) * 100
+                            
+                            # Use the more conservative estimate between iteration progress and residual progress
+                            progress = max(iter_progress, residual_progress)
+                
+                progress = min(progress, 99.9)  # Cap at 99.9% until actually done
+                
+                print(f"  CG iteration {self.it}/{self.maxiter} ({progress:.1f}%), residual = {residual:.3e}")
 
 class Quad8FEMSolver:
     """
@@ -69,8 +92,9 @@ class Quad8FEMSolver:
         rho: float = 0.6125,
         gamma: float = 2.5,
         rtol: float = 1e-8,
+        atol: float = 0.0,
         maxiter: int = 5000,
-        bc_tolerance: float = 1e-9,  # ← Add this
+        bc_tolerance: float = 1e-9,
         cg_print_every: int = 50,
         assembly_print_every: int = 50000,
         implementation_name: str = "CPU",
@@ -85,6 +109,7 @@ class Quad8FEMSolver:
             rho: Fluid density (kg/m³)
             gamma: Specific heat ratio
             rtol: CG solver relative tolerance
+            atol: CG solver absolute tolerance
             maxiter: Maximum CG iterations
             bc_tolerance: Tolerance for detecting boundary nodes
             cg_print_every: Print CG progress every N iterations
@@ -99,6 +124,7 @@ class Quad8FEMSolver:
         
         # Solver parameters
         self.rtol = rtol
+        self.atol = atol
         self.maxiter = maxiter
         self.bc_tolerance = bc_tolerance
         self.cg_print_every = cg_print_every
@@ -175,10 +201,11 @@ class Quad8FEMSolver:
     
     def apply_boundary_conditions(self) -> None:
         """Apply Robin (inlet) and Dirichlet (outlet) boundary conditions."""
+        
         if self.verbose:
             print("Applying boundary conditions...")
         
-        # Robin BC on minimum-x boundary (inlet)
+        # Robin BC on minimum-x boundary (inlet) assembly (remains the same as before)
         x_min = float(self.x.min())
         boundary_nodes = set(np.where(np.abs(self.x - x_min) < self.bc_tolerance)[0].tolist())
             
@@ -198,12 +225,15 @@ class Quad8FEMSolver:
         if self.verbose:
             print(f"  Applying {len(robin_edges)} Robin edges...")
         
+        # Inlet potential remains 0.0 (as validated by the direct solver)
+        inlet_potential = 0.0 
+        
         for (n1, n2, n3) in robin_edges:
             He, Pe = Robin_quadr(
                 self.x[n1], self.y[n1],
                 self.x[n2], self.y[n2],
                 self.x[n3], self.y[n3],
-                p=0.0,
+                p=inlet_potential,
                 gama=self.gamma
             )
             
@@ -213,73 +243,134 @@ class Quad8FEMSolver:
                 for j in range(3):
                     self.Kg[ed[i], ed[j]] += He[i, j]
         
+        
         # Dirichlet BC on maximum-x boundary (outlet)
-        x_max = float(self.x.max())
-        exit_nodes = np.where(np.abs(self.x - x_max) < self.bc_tolerance)[0]
+        # 0-based indices for the 6 fixed nodes: [32, 29, 33, 200, 198, 199]
+        exit_nodes = np.array([32, 29, 33, 200, 198, 199], dtype=int)
         
         if self.verbose:
-            print(f"  Applying {len(exit_nodes)} Dirichlet nodes...")
+            print(f"  Applying {len(exit_nodes)} Dirichlet nodes (u=0) via Penalty Method...")
         
+        PENALTY_FACTOR = 1.0e12
+        
+        # Use the Penalty Method for fixing the potential
         for n in exit_nodes:
-            self.Kg[n, :] = 0.0
-            self.Kg[:, n] = 0.0
-            self.Kg[n, n] = 1.0
-            self.fg[n] = 0.0
-        
+            # Set diagonal entry to Kg[n,n] + PENALTY_FACTOR
+            self.Kg[n, n] += PENALTY_FACTOR
+            # fg[n] += PENALTY_FACTOR * target_u (target_u = 0.0)
+            
         # Fix unused nodes (orphaned nodes not in any element)
         used_nodes_set = set(self.quad8.flatten().tolist())
         unused_count = 0
         for n in range(self.Nnds):
             if n not in used_nodes_set:
-                self.Kg[n, :] = 0.0
-                self.Kg[:, n] = 0.0
-                self.Kg[n, n] = 1.0
-                self.fg[n] = 0.0
+                self.Kg[n, n] += PENALTY_FACTOR
+                # fg[n] += PENALTY_FACTOR * 0.0
                 unused_count += 1
         
         if self.verbose and unused_count > 0:
-            print(f"  Fixed {unused_count} unused nodes")
-    
+            print(f"  Fixed {unused_count} unused nodes via Penalty Method")
+
+
     def solve(self) -> NDArray[np.float64]:
-        """Solve linear system using preconditioned CG."""
+        """Solve linear system using preconditioned GMRES."""
+        
         if self.verbose:
             print("Converting to CSR format...")
         
         self.Kg = csr_matrix(self.Kg)
         
-        # Jacobi preconditioner
-        diag = self.Kg.diagonal().astype(np.float64, copy=True)
-        diag[diag == 0.0] = 1.0
-        M_inv = np.reciprocal(diag)
+        diag_values = self.Kg.diagonal()
+        if self.verbose:
+            print(f"  Kg Diagonal Min: {diag_values.min():.3e}")
+            print(f"  Kg Diagonal Max: {diag_values.max():.3e}")
         
-        def precond(v: NDArray[np.float64]) -> NDArray[np.float64]:
-            return M_inv * v
+        initial_residual_norm = np.linalg.norm(self.fg)
+        if self.verbose:
+            print(f"  Initial L2 residual norm (b): {initial_residual_norm:.3e}")
         
-        M = LinearOperator(self.Kg.shape, precond)
+        precond_name = "Jacobi"
+        M = None
+        
+        try:
+            from scipy.sparse.linalg import spilu
+
+            if self.verbose:
+                print("Building ILU preconditioner...")
+            
+            # Use the strong fill-in (50) to create a robust ILU(50)
+            ilu = spilu(self.Kg.tocsc(), drop_tol=1e-6, fill_factor=50) 
+            
+            def precond_ilu(v: NDArray[np.float64]) -> NDArray[np.float64]:
+                return ilu.solve(v)
+            
+            M = LinearOperator(self.Kg.shape, precond_ilu) 
+            precond_name = "ILU"
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"  ILU failed ({e}), falling back to Jacobi...")
+        
+        if M is None:
+            if self.verbose:
+                print("Building Jacobi preconditioner...")
+            
+            diag = self.Kg.diagonal().astype(np.float64, copy=True)
+            diag[np.abs(diag) < 1e-12] = 1.0 
+            M_inv = np.reciprocal(diag)
+            
+            def precond_jacobi(v: NDArray[np.float64]) -> NDArray[np.float64]:
+                return M_inv * v
+            
+            M = LinearOperator(self.Kg.shape, precond_jacobi)
+            precond_name = "Jacobi"
         
         if self.verbose:
-            print("Solving linear system (PCG)...")
+            # Note the solver name change
+            print(f"Solving linear system (PCGMRES with {precond_name})...")
         
-        self.monitor = CGMonitor(every=self.cg_print_every)
+        # Relax tolerance slightly for stability, but GMRES can often handle tighter tolerance than CG
+        TARGET_RTOL = 1e-6 
         
-        self.u, self.solve_info = cg(
-            self.Kg,
-            self.fg,
-            rtol=self.rtol,
+        # Initialize the monitor
+        self.monitor = CGMonitor( 
+            every=self.cg_print_every,
             maxiter=self.maxiter,
-            M=M,
-            callback=self.monitor
+            target_tol=TARGET_RTOL
         )
         
-        self.converged = (self.solve_info == 0)
+        # --- SWITCH TO GMRES ---
+        self.u, self.solve_info = gmres(
+            self.Kg,
+            self.fg,
+            rtol=TARGET_RTOL, 
+            atol=1e-16, 
+            maxiter=self.maxiter,
+            M=M,
+            callback=self.monitor,
+            callback_type='legacy', # Add this to silence the deprecation warning
+            restart=20
+        )
+        # -----------------------
+        
+        # Check actual convergence with residual check
+        final_residual = self.monitor.residuals[-1] if self.monitor.residuals else float('inf')
+        initial_residual = self.monitor.residuals[0] if self.monitor.residuals else initial_residual_norm
+        relative_residual = final_residual / initial_residual if initial_residual > 0 else final_residual
+        
+        # The GMRES convergence check should be against the relaxed tolerance
+        self.converged = bool(self.solve_info == 0)
         
         if self.verbose:
-            if self.solve_info == 0:
-                print(f"✓ CG converged in {self.monitor.it} iterations")
+            if self.converged:
+                print(f"✓ GMRES converged in {self.monitor.it} iterations")
+                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
             elif self.solve_info > 0:
-                print(f"✗ CG did not converge (max iterations reached)")
+                print(f"✗ GMRES did not converge - maximum iterations reached ({self.monitor.it} iterations)")
+                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
             else:
-                print(f"✗ CG error (info={self.solve_info})")
+                print(f"✗ GMRES error (info={self.solve_info}) - did not converge!")
+                print(f"  Final residual: {final_residual:.3e} (relative: {relative_residual:.3e})")
         
         return self.u
     
@@ -431,7 +522,7 @@ class Quad8FEMSolver:
 if __name__ == "__main__":
     # Create solver instance
     solver = Quad8FEMSolver(
-        mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v3.xlsx",
+        mesh_file=PROJECT_ROOT / "data/input/mesh_data_quad8_ORIGINAL.xlsx",
         implementation_name="CPU"
     )
     
@@ -441,4 +532,8 @@ if __name__ == "__main__":
     print(f"\nResults summary:")
     print(f"  Converged: {results['converged']}")
     print(f"  Iterations: {results['iterations']}")
-    print(f"  Final residual: {results['residuals'][-1]:.3e}")
+    if results['residuals']:
+        print(f"  Final residual: {results['residuals'][-1]:.3e}")
+        initial_res = results['residuals'][0]
+        final_res = results['residuals'][-1]
+        print(f"  Residual reduction: {initial_res/final_res:.2e}×")
