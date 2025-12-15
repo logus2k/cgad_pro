@@ -8,3 +8,4 @@ __pycache__/
 app/
 data/models/
 data/input/
+data/output/
