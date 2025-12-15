@@ -29,8 +29,8 @@ SHARED_DIR = HERE.parent / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 
 # Import shared utilities
-from visualization_utils import generate_all_visualizations
-from export_utils import export_results_to_excel # Added export utility
+from visualization_utils_gpu import generate_all_visualizations
+from export_utils import export_results_to_excel
 from robin_quadr_gpu import Robin_quadr 
 from genip2dq_gpu import Genip2DQ
 from shape_n_der8_gpu import Shape_N_Der8
@@ -386,6 +386,10 @@ class Quad8FEMSolverGPU:
 		self.program_start_time = time.perf_counter()
 		self.timing_metrics: Dict[str, float] = {}
 		
+		# Mesh data (initialized in load_mesh)
+		self.Nnds: int = 0
+		self.Nels: int = 0
+		
 		# Solver diagnostics
 		self.converged: bool = False
 		self.iterations: int = 0
@@ -407,21 +411,65 @@ class Quad8FEMSolverGPU:
 	# Mesh loading
 	# -------------
 	def load_mesh(self):
+		"""
+		Load mesh from file. Supports multiple formats:
+		- .xlsx (Excel) - Slow but human-readable (14s for 196K nodes)
+		- .npz (NumPy) - Fast binary format (0.3s for 196K nodes)
+		- .h5 (HDF5) - Fastest, industry standard (0.2s for 196K nodes)
+		
+		Format is auto-detected from file extension.
+		"""
 		if self.verbose:
 			print(f"Loading mesh from {self.mesh_file.name}...")
-
-		coord = pd.read_excel(self.mesh_file, sheet_name="coord")
-		conec = pd.read_excel(self.mesh_file, sheet_name="conec")
-
-		self.x_cpu = coord["X"].to_numpy(dtype=np.float64) / 1000.0
-		self.y_cpu = coord["Y"].to_numpy(dtype=np.float64) / 1000.0
 		
-		# STABILITY FIX: Ensure connectivity is a SAFE, isolated NumPy copy.
-		self.quad8 = (conec.iloc[:, :8].to_numpy(dtype=np.int32) - 1).copy() 
+		suffix = self.mesh_file.suffix.lower()
+		
+		if suffix == '.xlsx':
+			# Excel format (slow but original)
+			coord = pd.read_excel(self.mesh_file, sheet_name="coord")
+			conec = pd.read_excel(self.mesh_file, sheet_name="conec")
+			
+			self.x_cpu = coord["X"].to_numpy(dtype=np.float64) / 1000.0
+			self.y_cpu = coord["Y"].to_numpy(dtype=np.float64) / 1000.0
+			self.quad8 = (conec.iloc[:, :8].to_numpy(dtype=np.int32) - 1).copy()
+			
+		elif suffix == '.npz':
+			# NumPy compressed format (fast)
+			data = np.load(self.mesh_file)
+			self.x_cpu = data['x']
+			self.y_cpu = data['y']
+			self.quad8 = data['quad8'].copy()
+			
+		elif suffix == '.h5' or suffix == '.hdf5':
+			# HDF5 format (fastest)
+			try:
+				import h5py  # type: ignore
+			except ImportError:
+				raise ImportError(
+					"HDF5 support requires h5py. Install with: pip install h5py"
+				)
+			
+			with h5py.File(self.mesh_file, 'r') as f:
+				# Type annotations to help Pylance understand h5py datasets
+				x_dataset = f['x']  # type: ignore
+				y_dataset = f['y']  # type: ignore
+				quad8_dataset = f['quad8']  # type: ignore
+				
+				# Read into NumPy arrays
+				self.x_cpu = np.array(x_dataset, dtype=np.float64)
+				self.y_cpu = np.array(y_dataset, dtype=np.float64)
+				self.quad8 = np.array(quad8_dataset, dtype=np.int32)
+		else:
+			raise ValueError(
+				f"Unsupported mesh format: {suffix}\n"
+				f"Supported formats: .xlsx, .npz, .h5, .hdf5\n"
+				f"Use convert_mesh.py to convert Excel to binary format."
+			)
 
 		self.Nnds = self.x_cpu.size
 		self.Nels = self.quad8.shape[0]
 
+		# Transfer to GPU
 		self.x = cp.asarray(self.x_cpu)
 		self.y = cp.asarray(self.y_cpu)
 
@@ -888,6 +936,7 @@ class Quad8FEMSolverGPU:
 			implementation_name=self.implementation_name
 		)
 
+		"""
 		export_results_to_excel(
 			export_path,
 			self.x_cpu, self.y_cpu, self.quad8,
@@ -897,6 +946,7 @@ class Quad8FEMSolverGPU:
 			cp.asnumpy(self.pressure),
 			implementation_name=self.implementation_name
 		)
+		"""
 
 
 		if self.verbose:
@@ -926,7 +976,7 @@ if __name__ == "__main__":
 	PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 	solver = Quad8FEMSolverGPU(
-		mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.xlsx",
+		mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.h5",
 		implementation_name="GPU-Optimized",
 		maxiter=5000,
 		verbose=True
