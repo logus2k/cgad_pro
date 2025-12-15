@@ -19,7 +19,7 @@ import cupy as cp
 import cupyx.scipy.sparse as cpsparse
 import cupyx.scipy.sparse.linalg as cpsplg
 from scipy.sparse import csr_matrix
-from scipy.sparse.linalg import LinearOperator, gmres
+from scipy.sparse.linalg import LinearOperator, gmres, spilu, aslinearoperator
 from scipy.sparse.linalg import spilu # Added spilu back for ILU preconditioner
 
 # --- Project paths (Adjust as needed) ---
@@ -32,6 +32,8 @@ sys.path.insert(0, str(SHARED_DIR))
 from visualization_utils import generate_all_visualizations
 from export_utils import export_results_to_excel # Added export utility
 from robin_quadr_gpu import Robin_quadr 
+from genip2dq_gpu import Genip2DQ
+from shape_n_der8_gpu import Shape_N_Der8
 
 # =========================================================================
 # 1. RAW KERNEL SOURCE: Mass Assembly (Ke and fe for ALL elements)
@@ -245,16 +247,17 @@ void quad8_postprocess_kernel(
             grad[1] += B[i][1] * u_e[i]; // d(u)/dy
         }
 
-        // --- 5. Velocity and Norm ---
-        double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
-        v_ip_sum += vel_norm;
+		// --- 5. Velocity and Norm ---
+		double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
+		v_ip_sum += vel_norm;
 
-        // Write the velocity at the first IP (approximation of element velocity)
-        if (ip == 0) {
-            vel_out[e * 2 + 0] = grad[0];
-            vel_out[e * 2 + 1] = grad[1];
-        }
-    }
+		// Write the velocity at the first IP (approximation of element velocity)
+		if (ip == 0) {
+			// CORRECTION: Velocity is the negative gradient (v = -grad(u))
+			vel_out[e * 2 + 0] = -grad[0];
+			vel_out[e * 2 + 1] = -grad[1];
+		}
+	}
     
     // --- 6. Output (Average Velocity) ---
     // Average velocity magnitude (at NIP=4)
@@ -262,6 +265,49 @@ void quad8_postprocess_kernel(
     abs_vel_out[e] = avg_vel;
 }
 """
+
+# =========================================================================
+# GPU SOLVER MONITOR (Progress Callback for CuPy solvers)
+# =========================================================================
+class GPUSolverMonitor:
+	"""Monitor for GPU iterative solvers (CuPy BiCGSTAB/CG)"""
+	def __init__(self, every: int = 50, maxiter: int = 5000, verbose: bool = True):
+		self.every = every
+		self.maxiter = maxiter
+		self.verbose = verbose
+		self.it = 0
+		self.t_start = time.perf_counter()
+	
+	def __call__(self, xk):
+		"""Callback function called by CuPy solvers"""
+		self.it += 1
+		
+		if self.it % self.every == 0 or self.it == 1:
+			# Compute residual norm (xk is current solution estimate)
+			residual = cp.linalg.norm(xk).get()
+			
+			elapsed = time.perf_counter() - self.t_start
+			pct = 100.0 * self.it / self.maxiter
+			
+			# ETR calculation
+			if self.it > 0:
+				iters_left = self.maxiter - self.it
+				time_per_iter = elapsed / self.it
+				etr_sec = iters_left * time_per_iter
+				etr_min = int(etr_sec // 60)
+				etr_sec_rem = int(etr_sec % 60)
+				etr_str = f"{etr_min:02d}m:{etr_sec_rem:02d}s"
+			else:
+				etr_str = "--:--"
+			
+			if self.verbose:
+				print(f"  Iter {self.it}/{self.maxiter} ({pct:.1f}%), ||xk|| = {residual:.3e}, ETR: {etr_str}")
+	
+	def reset(self):
+		"""Reset monitor for a new solve attempt"""
+		self.it = 0
+		self.t_start = time.perf_counter()
+
 
 class IterativeSolverMonitor:
 	"""Callback monitor for GMRES solver iterations (NumPy on CPU)."""
@@ -311,7 +357,7 @@ class Quad8FEMSolverGPU:
 		gamma: float = 2.5,
 		rtol: float = 1e-6,
 		atol: float = 0.0,
-		maxiter: int = 100,
+		maxiter: int = 5000,
 		cg_print_every: int = 50,
 		bc_tolerance: float = 1e-9,
 		implementation_name: str = "GPU",
@@ -362,20 +408,20 @@ class Quad8FEMSolverGPU:
 	# -------------
 	def load_mesh(self):
 		if self.verbose:
-			# FIX 5 is also resolved here by the __init__ assignment
-			print(f"Loading mesh from {self.mesh_file.name}...") 
+			print(f"Loading mesh from {self.mesh_file.name}...")
 
 		coord = pd.read_excel(self.mesh_file, sheet_name="coord")
 		conec = pd.read_excel(self.mesh_file, sheet_name="conec")
 
 		self.x_cpu = coord["X"].to_numpy(dtype=np.float64) / 1000.0
 		self.y_cpu = coord["Y"].to_numpy(dtype=np.float64) / 1000.0
-		self.quad8 = conec.iloc[:, :8].to_numpy(dtype=np.int32) - 1 
+		
+		# STABILITY FIX: Ensure connectivity is a SAFE, isolated NumPy copy.
+		self.quad8 = (conec.iloc[:, :8].to_numpy(dtype=np.int32) - 1).copy() 
 
 		self.Nnds = self.x_cpu.size
 		self.Nels = self.quad8.shape[0]
 
-		# Transfer nodal data to GPU
 		self.x = cp.asarray(self.x_cpu)
 		self.y = cp.asarray(self.y_cpu)
 
@@ -440,68 +486,67 @@ class Quad8FEMSolverGPU:
 		
 		cp.cuda.Stream.null.synchronize()
 
+
 	# --------------------
 	# Boundary conditions 
 	# --------------------
-
 	def apply_boundary_conditions(self):
 		if self.verbose:
 			print("Applying boundary conditions...")
 
 		x_min = self.x_cpu.min()
 		x_max = self.x_cpu.max()
+		
+		# CRITICAL FIX: Define the high penalty factor (REQUIRED for convergence)
+		PENALTY_FACTOR = 1.0e12 
 
 		# Dirichlet BC on maximum-x boundary (outlet)
-		exit_nodes_cpu = np.where(self.x_cpu == x_max)[0]
-		exit_nodes_gpu = cp.asarray(exit_nodes_cpu, dtype=cp.int32)
-
+		exit_nodes = np.where(self.x_cpu == x_max)[0]
+		exit_nodes_gpu = cp.asarray(exit_nodes, dtype=cp.int32)
+		
 		# Robin BC on minimum-x boundary (inlet)
-		boundary_nodes_cpu = set(
+		boundary_nodes = set(
 			np.where(np.abs(self.x_cpu - x_min) < self.bc_tolerance)[0].tolist()
 		)
 
-		# Find the edges forming the Robin boundary (Inlet)
-		robin_edges = []
-		for e in range(self.Nels):
-			n = self.quad8[e]
-			edges = [
-				(n[0], n[4], n[1]), (n[1], n[5], n[2]),
-				(n[2], n[6], n[3]), (n[3], n[7], n[0]), 
-			]
-			for edge in edges:
-				if all(k in boundary_nodes_cpu for k in edge):
-					# Use tuple(sorted) to ensure unique edges are found
-					if tuple(sorted(edge)) not in [tuple(sorted(e)) for e in robin_edges]:
-						robin_edges.append(edge)
-						
-		if self.verbose:
-			print(f"  Applying {len(robin_edges)} Robin edges (Inlet)...")
-
-		# --- CORRECTION: ALIGN ROBIN BC VALUE WITH CPU (inlet_potential=0.0) ---
-		inlet_potential = 0.0 
-
+		# ---------------------------------
+		# Robin BCs (temporary CPU buffers)
+		# ---------------------------------
 		bc_rows = []
 		bc_cols = []
 		bc_vals = []
+        
+		if self.verbose:
+			print(f"  Applying {exit_nodes_gpu.size} Dirichlet nodes (u=0) and Robin edges (Inlet)...")
 
-		for (n1, n2, n3) in robin_edges:
-			He, Pe = Robin_quadr(
-				self.x[n1], self.y[n1], self.x[n2], self.y[n2],
-				self.x[n3], self.y[n3], p=inlet_potential, gama=self.gamma
-			)
-			
-			ed = [n1, n2, n3]
-			
-			for i in range(3):
-				# CORRECTION: Remove the scaling factor (x 10.0)
-				self.fg[ed[i]] += Pe[i] 
-				
-				for j in range(3):
-					bc_rows.append(ed[i])
-					bc_cols.append(ed[j])
-					bc_vals.append(cp.asnumpy(He[i, j]).item())
 
-		# Merge bulk COO with Robin BC COO
+		for e in range(self.Nels):
+			n = self.quad8[e]
+			edges = [
+				(n[0], n[4], n[1]),
+				(n[1], n[5], n[2]),
+				(n[2], n[6], n[3]),
+				(n[3], n[7], n[0]),
+			]
+			for (n1, n2, n3) in edges:
+				if n1 in boundary_nodes and n2 in boundary_nodes and n3 in boundary_nodes:
+					He, Pe = Robin_quadr(
+						self.x[n1], self.y[n1],
+						self.x[n2], self.y[n2],
+						self.x[n3], self.y[n3],
+						p=0.0,
+						gama=self.gamma
+					)
+					for i, ni in enumerate((n1, n2, n3)):
+						self.fg[ni] += Pe[i]
+						for j, nj in enumerate((n1, n2, n3)):
+							bc_rows.append(ni)
+							bc_cols.append(nj)
+							bc_vals.append(He[i, j])
+
+		# ---------------------------------
+		# Merge bulk COO with BC COO
+		# ---------------------------------
 		if bc_rows:
 			bc_rows_cp = cp.asarray(bc_rows, dtype=cp.int32)
 			bc_cols_cp = cp.asarray(bc_cols, dtype=cp.int32)
@@ -511,13 +556,9 @@ class Quad8FEMSolverGPU:
 			self._cols = cp.concatenate([self._cols, bc_cols_cp])
 			self._vals = cp.concatenate([self._vals, bc_vals_cp])
 
-		# --- FIX 2: DIRICHLET ELIMINATION (Outlet: COO filtering and High Penalty) ---
-		PENALTY_FACTOR = 1.0e12 # ALIGNED with CPU penalty strength
-
-		if self.verbose:
-			print(f"  Applying {exit_nodes_cpu.size} Dirichlet nodes (u=0) via COO Identity/Penalty...")
-
-		# 1. COO Filtering: Remove existing contributions to Dirichlet rows/cols
+		# ---------------------------------
+		# Dirichlet elimination (Outlet)
+		# ---------------------------------
 		mask = ~(
 			cp.isin(self._rows, exit_nodes_gpu) |
 			cp.isin(self._cols, exit_nodes_gpu)
@@ -527,41 +568,45 @@ class Quad8FEMSolverGPU:
 		cols_cp = self._cols[mask]
 		vals_cp = self._vals[mask]
 
-		# 2. Add Identity/Penalty rows for Dirichlet nodes
+		# Identity rows for Dirichlet nodes
 		rows_cp = cp.concatenate([rows_cp, exit_nodes_gpu])
 		cols_cp = cp.concatenate([cols_cp, exit_nodes_gpu])
-		# FIX: Apply the high penalty factor
+        
+        # CRITICAL FIX: Apply the high penalty factor (1.0e12)
 		vals_cp = cp.concatenate([vals_cp, cp.ones(exit_nodes_gpu.size) * PENALTY_FACTOR])
 
-		# Set RHS to 0.0 (target u=0.0)
 		self.fg[exit_nodes_gpu] = 0.0
-
-		# --- FIX 3: Fix unused nodes (orphaned nodes not in any element) ---
-		used_nodes_set = set(self.quad8.flatten().tolist())
-		unused_nodes_cpu = np.array([
-			n for n in range(self.Nnds) if n not in used_nodes_set
-		], dtype=np.int32)
-
-		unused_count = unused_nodes_cpu.size
-
-		if unused_count > 0:
-			unused_nodes_gpu = cp.asarray(unused_nodes_cpu)
+        
+		# ---------------------------------
+		# Fix unused nodes (nodes not in any element)
+		# ---------------------------------
+		# Build temporary matrix to find which nodes are used
+		temp_coo = cpsparse.coo_matrix(
+			(vals_cp, (rows_cp, cols_cp)),
+			shape=(self.Nnds, self.Nnds)
+		)
+		temp_csr = temp_coo.tocsr()
+		
+		# Find nodes with zero diagonal (unused nodes)
+		diag_temp = temp_csr.diagonal()
+		unused_mask = cp.abs(diag_temp) < 1e-14
+		unused_nodes = cp.where(unused_mask)[0]
+		
+		if unused_nodes.size > 0:
+			if self.verbose:
+				print(f"  Fixing {unused_nodes.size} unused nodes via penalty method...")
 			
-			# Append rows/cols for unused nodes
-			rows_cp = cp.concatenate([rows_cp, unused_nodes_gpu])
-			cols_cp = cp.concatenate([cols_cp, unused_nodes_gpu])
+			# Add penalty diagonal entries for unused nodes
+			rows_cp = cp.concatenate([rows_cp, unused_nodes])
+			cols_cp = cp.concatenate([cols_cp, unused_nodes])
+			vals_cp = cp.concatenate([vals_cp, cp.ones(unused_nodes.size) * PENALTY_FACTOR])
 			
-			# Append diagonal penalty values
-			vals_cp = cp.concatenate([vals_cp, cp.ones(unused_nodes_gpu.size) * PENALTY_FACTOR]) 
-			
-			# Set RHS to 0.0 for unused nodes
-			self.fg[unused_nodes_gpu] = 0.0
+			# Set RHS to zero for unused nodes
+			self.fg[unused_nodes] = 0.0
 
-		if self.verbose: # The printout you saw was likely this one
-			print(f"  Fixed {unused_count} unused nodes via Penalty Method")
-
-
+		# ---------------------------------
 		# Final sparse matrix
+		# ---------------------------------
 		self.Kg = cpsparse.coo_matrix(
 			(vals_cp, (rows_cp, cols_cp)),
 			shape=(self.Nnds, self.Nnds)
@@ -570,81 +615,184 @@ class Quad8FEMSolverGPU:
 
 
 
+	def _print_system_diagnostics(self):
+		"""Print comprehensive diagnostics about the system matrix and RHS"""
+		if not self.verbose:
+			return
+		
+		print("\n" + "="*70)
+		print("SYSTEM DIAGNOSTICS")
+		print("="*70)
+		
+		# Matrix properties
+		diag = self.Kg.diagonal()
+		nnz = self.Kg.nnz
+		
+		diag_min = cp.abs(diag).min().get()
+		diag_max = cp.abs(diag).max().get()
+		diag_mean = cp.abs(diag).mean().get()
+		
+		# Count zero/near-zero diagonals
+		zero_diag_count = cp.sum(cp.abs(diag) < 1e-14).get()
+		
+		print(f"Matrix Properties:")
+		print(f"  Shape: {self.Kg.shape}")
+		print(f"  NNZ: {nnz} ({100*nnz/(self.Nnds**2):.4f}% dense)")
+		print(f"  Diagonal min: {diag_min:.3e}")
+		print(f"  Diagonal max: {diag_max:.3e}")
+		print(f"  Diagonal mean: {diag_mean:.3e}")
+		print(f"  Condition estimate (diag): {diag_max/diag_min:.3e}")
+		print(f"  Zero/near-zero diagonals: {zero_diag_count}")
+		
+		# RHS properties
+		fg_norm = cp.linalg.norm(self.fg).get()
+		fg_min = cp.abs(self.fg).min().get()
+		fg_max = cp.abs(self.fg).max().get()
+		fg_nonzero = cp.count_nonzero(self.fg).get()
+		
+		print(f"\nRHS Properties:")
+		print(f"  L2 norm: {fg_norm:.3e}")
+		print(f"  Min (abs): {fg_min:.3e}")
+		print(f"  Max (abs): {fg_max:.3e}")
+		print(f"  Non-zero entries: {fg_nonzero}/{self.Nnds}")
+		
+		# Symmetry check (for sparse matrices, check data arrays)
+		Kg_T = self.Kg.T.tocsr()
+		diff = self.Kg - Kg_T
+		sym_diff = cp.abs(diff.data).sum().get() if diff.nnz > 0 else 0.0
+		
+		print(f"\nSymmetry:")
+		print(f"  ||Kg - Kg^T||_1: {sym_diff:.3e}")
+		
+		if sym_diff < 1e-10:
+			print(f"  ✓ Matrix is symmetric")
+		else:
+			print(f"  ✗ Matrix is NOT symmetric (may affect solver choice)")
+		
+		print("="*70 + "\n")
 
 
-	# ------
-	# Solve (CPU GMRES for stability/comparison)
-	# ------
+	# -------------
+	# Solver
+	# -------------
 	def solve(self):
+		"""
+		GPU-accelerated iterative solver with diagnostics.
+		Tries CG first (for symmetric systems), falls back to GMRES if needed.
+		"""
 		if self.verbose:
-			print("Converting system to CPU CSR for GMRES...")
+			print("Preparing GPU solver with diagnostics...")
+		
+		t0_convert = time.perf_counter()
+		
+		# --- System Diagnostics ---
+		self._print_system_diagnostics()
+		
+		self.timing_metrics["convert_to_cpu"] = time.perf_counter() - t0_convert
 
-		# GPU → CPU transfer
-		K_cpu = csr_matrix(self.Kg.get())
-		f_cpu = self.fg.get()
-
-		initial_residual_norm = np.linalg.norm(f_cpu)
-
+		# --- Solver Setup ---
+		MAXITER = 5000 
+		TOL = 1e-8
+		
+		self.converged = False
+		self.iterations = MAXITER
+		
+		# --- Diagonal Equilibration (improves conditioning) ---
 		if self.verbose:
-			print(f"  Initial L2 residual norm (b): {initial_residual_norm:.3e}")
-
-		# -----------------------------
-		# Preconditioner (ILU/Jacobi)
-		# -----------------------------
-		M = None
-		precond_name = "Jacobi"
-
-		try:
-			ilu = spilu(K_cpu.tocsc(), drop_tol=1e-6, fill_factor=50)
-			def precond_ilu(v): return ilu.solve(v)
-			M = LinearOperator(K_cpu.shape, precond_ilu)
-			precond_name = "ILU"
-		except Exception:
-			if self.verbose:
-				print("  ILU failed, falling back to Jacobi...")
-			diag = K_cpu.diagonal().astype(np.float64, copy=True)
-			diag[np.abs(diag) < 1e-12] = 1.0
-			M_inv = np.reciprocal(diag)
-			def precond_jacobi(v): return M_inv * v
-			M = LinearOperator(K_cpu.shape, precond_jacobi)
-
-		if self.verbose:
-			print(f"Solving linear system (PCGMRES with {precond_name})...")
-
-		# -----------------------------
-		# GMRES solve
-		# -----------------------------
-		self.monitor = IterativeSolverMonitor(every=50, maxiter=self.maxiter)
-
-		u_cpu, self.solve_info = gmres(
-			K_cpu,
-			f_cpu,
-			rtol=self.rtol,
-			atol=self.atol,
-			maxiter=self.maxiter,
-			M=M,
-			callback=self.monitor,
-			callback_type="legacy"
+			print("Applying diagonal equilibration...")
+		
+		diag = self.Kg.diagonal()
+		diag_safe = cp.where(cp.abs(diag) < 1e-14, 1.0, diag)
+		D_inv_sqrt = 1.0 / cp.sqrt(cp.abs(diag_safe))
+		
+		# Equilibrated system: D^(-1/2) * Kg * D^(-1/2) * (D^(1/2) * u) = D^(-1/2) * fg
+		Kg_eq = self.Kg.multiply(D_inv_sqrt[:, None]).multiply(D_inv_sqrt[None, :])
+		fg_eq = self.fg * D_inv_sqrt
+		
+		# --- GPU Jacobi Preconditioner ---
+		diag_eq = Kg_eq.diagonal()
+		diag_eq_safe = cp.where(cp.abs(diag_eq) < 1e-14, 1.0, diag_eq)
+		
+		def jacobi_precond(x):
+			return x / diag_eq_safe
+		
+		M = cpsplg.LinearOperator(
+			shape=Kg_eq.shape,
+			matvec=jacobi_precond,
+			dtype=cp.float64
 		)
-
-		self.converged = (self.solve_info == 0)
-		self.iterations = self.monitor.it
 		
-		final_res = np.linalg.norm(f_cpu - K_cpu @ u_cpu)
-		
-		# --- FIX 4: Explicitly cast NumPy float to standard Python float ---
-		self.residuals = [float(initial_residual_norm), float(final_res)]
-		# ------------------------------------------------------------------
-		
-		# Nullspace fix and transfer back to GPU
-		u_cpu -= u_cpu.mean()
-		self.u = cp.asarray(u_cpu)
-
+		# --- Try CG first (optimal for symmetric positive definite) ---
 		if self.verbose:
-			if self.converged:
-				print(f"✓ GMRES converged in {self.iterations} iterations")
-			else:
-				print(f"✗ GMRES did not converge (info={self.solve_info})")
+			print(f"Solving with GPU CG (tol={TOL:.1e}, maxiter={MAXITER})...")
+		
+		monitor = GPUSolverMonitor(every=50, maxiter=MAXITER, verbose=self.verbose)
+		
+		t0_solve = time.perf_counter()
+		
+		try:
+			u_eq, info = cpsplg.cg(
+				Kg_eq,
+				fg_eq,
+				x0=cp.zeros_like(fg_eq),
+				M=M,
+				tol=TOL,
+				maxiter=MAXITER,
+				callback=monitor
+			)
+			
+			solver_name = "CG"
+			
+		except Exception as e:
+			if self.verbose:
+				print(f"  CG failed: {e}")
+				print("  Falling back to GMRES...")
+			
+			monitor.reset()
+			
+			try:
+				u_eq, info = cpsplg.gmres(
+					Kg_eq,
+					fg_eq,
+					x0=cp.zeros_like(fg_eq),
+					M=M,
+					tol=TOL,
+					maxiter=MAXITER,
+					restart=50,
+					callback=monitor
+				)
+				solver_name = "GMRES"
+				
+			except Exception as e2:
+				if self.verbose:
+					print(f"  GMRES also failed: {e2}")
+				raise RuntimeError("Both CG and GMRES failed") from e2
+		
+		t1_solve = time.perf_counter()
+		
+		# Undo equilibration
+		self.u = u_eq * D_inv_sqrt
+		
+		self.timing_metrics["solve_system"] = t1_solve - t0_solve
+		self.iterations = monitor.it
+		
+		# --- Convergence Check ---
+		if info == 0:
+			# Verify true residual
+			residual = cp.linalg.norm(self.Kg @ self.u - self.fg)
+			rel_residual = residual / cp.linalg.norm(self.fg)
+			
+			if self.verbose:
+				print(f"\n✓ {solver_name} converged in {self.iterations} iterations")
+				print(f"  True residual norm:     {residual.get():.3e}")
+				print(f"  True relative residual: {rel_residual.get():.3e}")
+				print(f"  Solver time: {t1_solve - t0_solve:.4f}s")
+			
+			self.converged = True
+		else:
+			if self.verbose:
+				print(f"\n✗ {solver_name} did not converge (info={info})")
+			self.converged = False
 
 	# ----------------
 	# Post-processing 
@@ -657,35 +805,48 @@ class Quad8FEMSolverGPU:
 		], dtype=cp.float64)
 		return xp
 
+	# ----------------
+	# Post-processing 
+	# ----------------
 	def compute_derived_fields(self):
+		"""
+		Compute velocity and pressure fields using GPU RawKernel.
+		Replaces the slow Python loop with mass-parallel GPU computation.
+		"""
 		if self.verbose:
-			print("Computing velocity field (Mass Post-Processing RawKernel)...")
-		
-		# 1. Prepare arrays
-		quad8_cp = cp.asarray(self.quad8, dtype=cp.int32)
-		self.abs_vel = cp.zeros(self.Nels, dtype=cp.float64)
+			print("Computing derived fields...")
+
+		# Allocate output arrays on GPU
 		self.vel = cp.zeros((self.Nels, 2), dtype=cp.float64)
+		self.abs_vel = cp.zeros(self.Nels, dtype=cp.float64)
+
+		# Generate 4-point Gauss integration points for post-processing
+		xp = self._genip2dq_4_gpu()
 		
-		# 2. Setup Integration Points
-		xp_4 = self._genip2dq_4_gpu()
-		
-		# 3. Launch Kernel
+		# Prepare connectivity array
+		quad8_cp = cp.asarray(self.quad8, dtype=cp.int32)
+
+		# Launch GPU kernel for velocity computation
 		kernel = cp.RawKernel(QUAD8_POSTPROCESS_KERNEL_SOURCE, 'quad8_postprocess_kernel')
 		threads_per_block = 128
 		blocks = (self.Nels + threads_per_block - 1) // threads_per_block
 
 		kernel((blocks,), (threads_per_block,), (
-			self.u, self.x, self.y, quad8_cp, 
-			xp_4,
+			self.u,           # Solution vector
+			self.x, self.y,   # Nodal coordinates
+			quad8_cp,         # Connectivity
+			xp,               # Integration points
 			self.Nels,
-			self.p0, self.rho,
-			self.abs_vel, self.vel 
+			self.p0,          # Reference pressure
+			self.rho,         # Density
+			self.abs_vel,     # Output: velocity magnitude
+			self.vel          # Output: velocity vector
 		))
-
-		# 4. Final pressure calculation (Vectorized on GPU)
-		self.pressure = self.p0 - self.rho * self.abs_vel**2
 		
 		cp.cuda.Stream.null.synchronize()
+
+		# Compute pressure from Bernoulli equation
+		self.pressure = self.p0 - self.rho * self.abs_vel**2
 
 
 	# ----
@@ -767,7 +928,7 @@ if __name__ == "__main__":
 	solver = Quad8FEMSolverGPU(
 		mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.xlsx",
 		implementation_name="GPU-Optimized",
-		maxiter=100,
+		maxiter=5000,
 		verbose=True
 	)
 
