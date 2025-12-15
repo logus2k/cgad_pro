@@ -24,6 +24,8 @@ try:
     DATASHADER_AVAILABLE = True
 except ImportError:
     DATASHADER_AVAILABLE = False
+    ds = None  # type: ignore
+    tf = None  # type: ignore
 
 
 def plot_fem_field_gpu(
@@ -66,23 +68,21 @@ def plot_fem_field_gpu(
             "  pip install cupy-cuda12x"
         )
     
+    # Type guard for Pylance - we know ds and tf are not None here
+    assert ds is not None
+    assert tf is not None
+    
     import pandas as pd
     
     # Convert Quad8 to triangles for datashader
-    # Each Quad8 → 4 triangles using midpoint nodes
+    # Each Quad8 → 2 triangles using corner nodes
     triangles = []
     u_triangles = []
     
     for e in range(len(quad8)):
         n = quad8[e]
         
-        # Create 4 triangles per Quad8 element
-        # Triangle 1: corner 0, midpoint 4, center (avg of corners)
-        # Triangle 2: midpoint 4, corner 1, center
-        # Triangle 3: corner 1, midpoint 5, center
-        # etc...
-        
-        # Simpler approach: 2 triangles using corner nodes only
+        # Create 2 triangles per Quad8 element using corner nodes
         tris = [
             [n[0], n[1], n[2]],  # Triangle 1
             [n[0], n[2], n[3]]   # Triangle 2
@@ -96,30 +96,33 @@ def plot_fem_field_gpu(
     triangles = np.array(triangles)
     u_triangles = np.array(u_triangles)
     
-    # Create dataframe with triangle vertices
-    df = pd.DataFrame({
-        'x0': x[triangles[:, 0]],
-        'y0': y[triangles[:, 0]],
-        'x1': x[triangles[:, 1]],
-        'y1': y[triangles[:, 1]],
-        'x2': x[triangles[:, 2]],
-        'y2': y[triangles[:, 2]],
-        'u': u_triangles
-    })
-    
-    # Create canvas with specified resolution
+    # Create canvas with proper aspect ratio
     x_range = (x.min(), x.max())
     y_range = (y.min(), y.max())
     
+    # Calculate aspect ratio to preserve geometry
+    aspect = (y_range[1] - y_range[0]) / (x_range[1] - x_range[0])
+    plot_height = int(width * aspect)
+    
     canvas = ds.Canvas(
         plot_width=width,
-        plot_height=height,
+        plot_height=plot_height,
         x_range=x_range,
         y_range=y_range
     )
     
-    # Rasterize triangles (GPU-accelerated if CUDA available)
-    agg = canvas.trimesh(df['x0'], df['y0'], df['x1'], df['y1'], df['x2'], df['y2'], df['u'])
+    # Use nodal points directly (not triangle centers) for better coverage
+    points_df = pd.DataFrame({
+        'x': x,
+        'y': y,
+        'u': u
+    })
+    
+    # Use points aggregation (GPU-accelerated)
+    agg = canvas.points(points_df, 'x', 'y', ds.mean('u'))
+    
+    # Apply spread to fill gaps between nodes
+    agg = tf.dynspread(agg, threshold=0.5, max_px=3)
     
     # Apply colormap
     img = tf.shade(agg, cmap=colormaps[cmap_name], how='linear')
@@ -130,7 +133,7 @@ def plot_fem_field_gpu(
     if show_colorbar:
         # Add colorbar using matplotlib
         fig, ax = plt.subplots(figsize=(12, 9))
-        ax.imshow(pil_img, extent=[x_range[0], x_range[1], y_range[0], y_range[1]], 
+        ax.imshow(pil_img, extent=tuple([x_range[0], x_range[1], y_range[0], y_range[1]]),  # type: ignore
                   aspect='auto', origin='lower')
         ax.set_xlabel("x (m)", fontsize=12)
         ax.set_ylabel("y (m)", fontsize=12)
@@ -243,7 +246,7 @@ def plot_fem_field_cupy_direct(
     
     im = ax.imshow(
         grid_cpu,
-        extent=[x_min, x_max, y_min, y_max],
+        extent=tuple([x_min, x_max, y_min, y_max]),  # type: ignore
         origin='lower',
         aspect='auto',
         cmap=cmap_name
@@ -299,12 +302,10 @@ def generate_all_visualizations(
     
     # Auto-select method
     if method == "auto":
-        if DATASHADER_AVAILABLE:
-            method = "gpu"
-            print("  Using GPU-accelerated rendering (Datashader)")
-        else:
-            method = "fast"
-            print("  Using CPU vectorized rendering (install datashader for GPU)")
+        # Default to "fast" (CPU PolyCollection) for reliability
+        # Datashader works but requires careful tuning for FEM meshes
+        method = "fast"
+        print("  Using CPU vectorized rendering (PolyCollection - reliable and fast)")
     
     # Render
     if method == "gpu":
