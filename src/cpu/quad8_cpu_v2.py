@@ -601,10 +601,10 @@ class Quad8FEMSolver:
 if __name__ == "__main__":
     # Create solver instance
     solver = Quad8FEMSolver(
-        mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.h5",  # Use HDF5
+        mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
         implementation_name="CPU",
         maxiter=5000,
-        cg_print_every=5   # 5 or 10 for frequent updates
+        cg_print_every=5
     )
     
     # Run simulation (uses default output paths)

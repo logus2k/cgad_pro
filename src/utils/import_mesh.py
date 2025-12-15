@@ -142,8 +142,8 @@ def parse_mesh_txt_to_excel(input_filename, output_filename):
 # --- Main Execution ---
 if __name__ == "__main__":
     # Define your input and output filenames here
-    INPUT_FILE_PATH = "/home/logus/env/iscte/cgad_pro/data/input/exported_mesh_v5.txt"
-    OUTPUT_FILE_PATH = "/home/logus/env/iscte/cgad_pro/data/input/converted_mesh_v5.xlsx"
+    INPUT_FILE_PATH = "/home/logus/env/iscte/cgad_pro/data/input/exported_mesh_v6.txt"
+    OUTPUT_FILE_PATH = "/home/logus/env/iscte/cgad_pro/data/input/converted_mesh_v6.xlsx"
 
     try:
         parse_mesh_txt_to_excel(INPUT_FILE_PATH, OUTPUT_FILE_PATH)

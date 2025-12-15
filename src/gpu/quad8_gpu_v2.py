@@ -30,7 +30,7 @@ sys.path.insert(0, str(SHARED_DIR))
 
 # Import shared utilities
 from visualization_utils_gpu import generate_all_visualizations
-from export_utils import export_results_to_excel
+from export_utils_v2 import export_results
 from robin_quadr_gpu import Robin_quadr 
 from genip2dq_gpu import Genip2DQ
 from shape_n_der8_gpu import Shape_N_Der8
@@ -271,7 +271,7 @@ void quad8_postprocess_kernel(
 # =========================================================================
 class GPUSolverMonitor:
 	"""Monitor for GPU iterative solvers (CuPy BiCGSTAB/CG)"""
-	def __init__(self, every: int = 50, maxiter: int = 5000, verbose: bool = True):
+	def __init__(self, every: int = 50, maxiter: int = 50000, verbose: bool = True):
 		self.every = every
 		self.maxiter = maxiter
 		self.verbose = verbose
@@ -312,7 +312,7 @@ class GPUSolverMonitor:
 class IterativeSolverMonitor:
 	"""Callback monitor for GMRES solver iterations (NumPy on CPU)."""
 	
-	def __init__(self, every: int = 50, maxiter: int = 5000):
+	def __init__(self, every: int = 50, maxiter: int = 50000):
 		self.it = 0
 		self.every = every
 		self.maxiter = maxiter
@@ -357,7 +357,7 @@ class Quad8FEMSolverGPU:
 		gamma: float = 2.5,
 		rtol: float = 1e-6,
 		atol: float = 0.0,
-		maxiter: int = 5000,
+		maxiter: int = 50000,
 		cg_print_every: int = 50,
 		bc_tolerance: float = 1e-9,
 		implementation_name: str = "GPU",
@@ -739,7 +739,7 @@ class Quad8FEMSolverGPU:
 		self.timing_metrics["convert_to_cpu"] = time.perf_counter() - t0_convert
 
 		# --- Solver Setup ---
-		MAXITER = 5000 
+		MAXITER = 50000 
 		TOL = 1e-8
 		
 		self.converged = False
@@ -936,17 +936,13 @@ class Quad8FEMSolverGPU:
 			implementation_name=self.implementation_name
 		)
 
-		"""
-		export_results_to_excel(
+		export_results(
 			export_path,
-			self.x_cpu, self.y_cpu, self.quad8,
-			cp.asnumpy(self.u), 
-			cp.asnumpy(self.vel), 
-			cp.asnumpy(self.abs_vel), 
-			cp.asnumpy(self.pressure),
-			implementation_name=self.implementation_name
-		)
-		"""
+			self.x, self.y, self.quad8,
+			self.u, self.vel, self.abs_vel, self.pressure,
+			implementation_name=self.implementation_name,
+			formats=['hdf5']   # ['hdf5', 'npz', 'csv']
+        )
 
 
 		if self.verbose:
@@ -976,9 +972,9 @@ if __name__ == "__main__":
 	PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 	solver = Quad8FEMSolverGPU(
-		mesh_file=PROJECT_ROOT / "data/input/converted_mesh_v5.h5",
-		implementation_name="GPU-Optimized",
-		maxiter=5000,
+		mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
+		implementation_name="GPU",
+		maxiter=50000,
 		verbose=True
 	)
 
