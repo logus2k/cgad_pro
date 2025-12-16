@@ -11,6 +11,12 @@ Input formats supported:
   - Jupyter notebooks (.ipynb): text outputs stripped, images preserved
   - Markdown documents (.md): converted directly to DOCX
 
+Requirements:
+  pip install nbformat nbconvert
+  # For DOCX:
+  pip install pypandoc            # required
+  # OR install system pandoc: https://pandoc.org/install.html  
+
 Options:
   --out report_basename    Base name for outputs (without extension)
   --no-code                (Notebooks only) Hide code cells in the exported outputs
