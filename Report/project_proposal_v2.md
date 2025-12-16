@@ -150,6 +150,6 @@ Expected contributions include:
 * An integrated application supporting result inspection and performance evaluation;
 * A structured discussion of design decisions, optimisation strategies, and observed trade-offs.
 
-This project directly addresses the learning objectives of the *High Performance Graphical Computing* curricular unit through practical application of GPU acceleration techniques, systematic performance evaluation, and development of technical proficiency in modern heterogeneous computing frameworks.
+This project aims to directly address the learning objectives of the curricular unit through practical application of GPU acceleration techniques, systematic performance evaluation, and development of technical proficiency in modern heterogeneous computing frameworks.
 
 ---
