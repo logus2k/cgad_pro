@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Three.js Grid + HTML Overlay</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="style/style.css" />
+	<link rel="stylesheet" href="style/hud.css" />
+	<link rel="stylesheet" href="style/window.css" />
+	<link rel="stylesheet" href="style/menu.css" />
+
+	<script type="text/javascript" src="./library/socket.io.min.js"></script>
+	<script type="text/javascript" src="./library/moveable.min.js"></script>
+</head>
+
+<body>
+
+	<div id="root">
+		<div id="three-layer"></div>
+		<div id="ui-layer">
+			<div id="overlay">
+
+				<div>
+					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
+						<defs>
+							<style type="text/css">
+								@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=Inter:wght@400;900&amp;display=swap');
+							</style>
+						</defs>
+						<text x="30" y="50" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="30" fill="currentColor">
+							<tspan font-weight="900" fill="#404040">FEM</tspan><tspan font-weight="400">ULATOR</tspan>
+							<tspan dx="0" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+						</text>
+					</svg>
+				</div>
+
+				<div id="application-menu-container"></div>
+
+				<div class="hud metrics visible" id="hud-metrics" style="z-index: 15;">
+
+					<h1>METRICS</h1>
+					<div class="sep"></div>
+
+					<div class="metrics-container">
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script type="module">
+		import { MillimetricScene } from './script/scene.js';
+		import { FEMClient } from './script/fem-client.js';
+		import { MetricsDisplay } from './script/metrics-display.js';
+
+		// Initialize Three.js scene
+		const container = document.getElementById('three-layer');
+		const scene = new MillimetricScene(container);
+
+		// Initialize FEM client
+		const femClient = new FEMClient('http://localhost:4567');
+		const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
+
+		// Register event handlers
+		femClient.on('connected', () => {
+			metricsDisplay.updateStatus('Connected');
+		});
+
+		femClient.on('stage_start', (data) => {
+			metricsDisplay.updateStage(data.stage);
+			metricsDisplay.updateStatus('Running');
+		});
+
+		femClient.on('mesh_loaded', (data) => {
+			metricsDisplay.updateMesh(data.nodes, data.elements);
+		});
+
+		femClient.on('solve_progress', (data) => {
+			metricsDisplay.updateProgress(
+				data.iteration,
+				data.max_iterations,
+				data.residual,
+				data.etr_seconds
+			);
+		});
+
+		femClient.on('solve_complete', (data) => {
+			metricsDisplay.updateStatus('Complete');
+			metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
+			console.log('Final results:', data);
+		});
+
+		// Expose to window for testing
+		window.femClient = femClient;
+		window.metricsDisplay = metricsDisplay;
+	</script>
+
+	<script type="module" src="./script/menu.init.js"></script>
+	<script type="module" src="./script/moveable.init.js"></script>
+
+</body>
+
+</html>

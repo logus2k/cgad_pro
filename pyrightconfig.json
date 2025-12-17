@@ -1,5 +1,7 @@
 {
-  "extraPaths": [
-    "./src/shared"
-  ]
+	"extraPaths": [
+		"./src/cpu",
+		"./src/gpu",
+		"./src/shared",
+	]
 }

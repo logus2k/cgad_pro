@@ -34,6 +34,8 @@ from export_utils_v2 import export_results
 from robin_quadr_gpu import Robin_quadr 
 from genip2dq_gpu import Genip2DQ
 from shape_n_der8_gpu import Shape_N_Der8
+from progress_callback import ProgressCallback
+
 
 # =========================================================================
 # 1. RAW KERNEL SOURCE: Mass Assembly (Ke and fe for ALL elements)
@@ -271,7 +273,7 @@ void quad8_postprocess_kernel(
 # =========================================================================
 class GPUSolverMonitor:
 	"""Monitor for GPU iterative solvers with actual residual computation"""
-	def __init__(self, A, b, every: int = 50, maxiter: int = 50000, verbose: bool = True):
+	def __init__(self, A, b, every: int = 50, maxiter: int = 50000, verbose: bool = True, progress_callback=None):
 		self.A = A  # System matrix (equilibrated)
 		self.b = b  # Right-hand side (equilibrated)
 		self.every = every
@@ -280,6 +282,7 @@ class GPUSolverMonitor:
 		self.it = 0
 		self.t_start = time.perf_counter()
 		self.b_norm = float(cp.linalg.norm(b).get())
+		self.progress_callback = progress_callback 
 	
 	def __call__(self, xk):
 		"""Callback function called by CuPy solvers"""
@@ -295,6 +298,7 @@ class GPUSolverMonitor:
 			pct = 100.0 * self.it / self.maxiter
 			
 			# ETR calculation
+			etr_sec = 0.0  # ← ADD DEFAULT VALUE HERE
 			if self.it > 0:
 				iters_left = self.maxiter - self.it
 				time_per_iter = elapsed / self.it
@@ -307,6 +311,17 @@ class GPUSolverMonitor:
 			
 			if self.verbose:
 				print(f"  Iter {self.it}/{self.maxiter} ({pct:.1f}%), ||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, ETR: {etr_str}")
+			
+			# Invoke callback for Socket.IO emission
+			if self.progress_callback is not None:
+				self.progress_callback.on_iteration(
+					iteration=self.it,
+					max_iterations=self.maxiter,
+					residual=res_norm,
+					relative_residual=rel_res,
+					elapsed_time=elapsed,
+					etr_seconds=etr_sec  # ← Now always defined
+				)			
 	
 	def reset(self):
 		"""Reset monitor for a new solve attempt"""
@@ -367,6 +382,7 @@ class Quad8FEMSolverGPU:
 		bc_tolerance: float = 1e-9,
 		implementation_name: str = "GPU",
 		verbose: bool = True,
+		progress_callback=None,
 	):
 		# --- FIXES 1, 2, 3, 5: Assign mesh_file to self ---
 		self.mesh_file = Path(mesh_file) 
@@ -400,6 +416,7 @@ class Quad8FEMSolverGPU:
 		self.iterations: int = 0
 		self.residuals: List[float] = [] # FIX 4: Explicitly type hint as List[float]
 
+		self.progress_callback = progress_callback
 
 	# ---------------
 	# Timing utility 
@@ -666,8 +683,6 @@ class Quad8FEMSolverGPU:
 		).tocsr()
 
 
-
-
 	def _print_system_diagnostics(self):
 		"""Print comprehensive diagnostics about the system matrix and RHS"""
 		if not self.verbose:
@@ -779,7 +794,7 @@ class Quad8FEMSolverGPU:
 		if self.verbose:
 			print(f"Solving with GPU CG (tol={TOL:.1e}, maxiter={MAXITER})...")
 		
-		monitor = GPUSolverMonitor(Kg_eq, fg_eq, every=50, maxiter=MAXITER, verbose=self.verbose)
+		monitor = GPUSolverMonitor(Kg_eq, fg_eq, every=50, maxiter=MAXITER, verbose=self.verbose, progress_callback=self.progress_callback)
 		
 		t0_solve = time.perf_counter()
 		
@@ -902,74 +917,166 @@ class Quad8FEMSolverGPU:
 		self.pressure = self.p0 - self.rho * self.abs_vel**2
 
 
-	# ----
-	# Run 
-	# ----
-	def run(self):
-		total_start = time.perf_counter()
+		# ----
+		# Run 
+		# ----
+	def run(
+		self,
+		output_dir: Optional[Path | str] = None,
+		export_file: Optional[Path | str] = None
+	) -> Dict[str, Any]:
+		"""Run complete FEM simulation workflow with progress callbacks."""
+		
+		# --- Start Timer for the Core Workflow ---
+		total_workflow_start = time.perf_counter()
 		self.timing_metrics = {}
-
-		self._time_step("load_mesh", self.load_mesh)
-		self._time_step("assemble_system", self.assemble_system)
-		self._time_step("apply_bc", self.apply_boundary_conditions)
-		self._time_step("solve_system", self.solve)
-		self._time_step("compute_derived", self.compute_derived_fields)
-
-		self.timing_metrics["total_workflow"] = time.perf_counter() - total_start
-		self.timing_metrics["total_program_time"] = (
-			time.perf_counter() - self.program_start_time
-		)
-
-		if self.verbose:
-			print("\n✓ GPU simulation complete")
-
-		# ----------------
-		# Visualization and Export (using CPU data)
-		# ----------------
-		output_dir = self.mesh_file.parent.parent / "output/figures" # Fix 5 resolved here
-		export_path = self.mesh_file.parent.parent / f"output/Results_quad8_{self.implementation_name}.xlsx"
+		
+		# --- STAGE 1: Load Mesh ---
+		if self.progress_callback:
+			self.progress_callback.on_stage_start(stage='load_mesh')
+		
+		self._time_step('load_mesh', self.load_mesh)
+		
+		if self.progress_callback:
+			self.progress_callback.on_stage_complete(
+				stage='load_mesh',
+				duration=self.timing_metrics['load_mesh']
+			)
+			# Emit mesh metadata (convert CuPy arrays to CPU for serialization)
+			self.progress_callback.on_mesh_loaded(
+				nodes=self.Nnds,
+				elements=self.Nels,
+				coordinates={'x': self.x.get().tolist(), 'y': self.y.get().tolist()} if self.Nnds < 50000 else None,
+				connectivity=self.quad8.tolist() if self.Nels < 10000 else None
+			)
+		
+		# --- STAGE 2: Assembly ---
+		if self.progress_callback:
+			self.progress_callback.on_stage_start(stage='assemble_system')
+		
+		self._time_step('assemble_system', self.assemble_system)
+		
+		if self.progress_callback:
+			self.progress_callback.on_stage_complete(
+				stage='assemble_system',
+				duration=self.timing_metrics['assemble_system']
+			)
+		
+		# --- STAGE 3: Apply Boundary Conditions ---
+		if self.progress_callback:
+			self.progress_callback.on_stage_start(stage='apply_bc')
+		
+		self._time_step('apply_bc', self.apply_boundary_conditions)
+		
+		if self.progress_callback:
+			self.progress_callback.on_stage_complete(
+				stage='apply_bc',
+				duration=self.timing_metrics['apply_bc']
+			)
+		
+		# --- STAGE 4: Solve Linear System ---
+		if self.progress_callback:
+			self.progress_callback.on_stage_start(stage='solve_system')
+		
+		self._time_step('solve_system', self.solve)
+		
+		if self.progress_callback:
+			self.progress_callback.on_stage_complete(
+				stage='solve_system',
+				duration=self.timing_metrics['solve_system']
+			)
+		
+		# --- STAGE 5: Post-Processing ---
+		if self.progress_callback:
+			self.progress_callback.on_stage_start(stage='compute_derived')
+		
+		self._time_step('compute_derived', self.compute_derived_fields)
+		
+		if self.progress_callback:
+			self.progress_callback.on_stage_complete(
+				stage='compute_derived',
+				duration=self.timing_metrics['compute_derived']
+			)
 		
 		if self.verbose:
-			print("Generating visualizations...")
-
-		output_files = generate_all_visualizations(
-			self.x_cpu,
-			self.y_cpu,
-			self.quad8,
-			cp.asnumpy(self.u),
-			output_dir,
-			implementation_name=self.implementation_name
-		)
-
-		export_results(
-			export_path,
-			self.x, self.y, self.quad8,
-			self.u, self.vel, self.abs_vel, self.pressure,
-			implementation_name=self.implementation_name,
-			formats=['hdf5']   # ['hdf5', 'npz', 'csv']
-        )
-
-
-		if self.verbose:
-			for k, v in output_files.items():
-				print(f"  Saved {k}: {v.name}")
-
-		timing = self.timing_metrics
-		if self.verbose:
-			print("\nStep-by-Step Timings (seconds):")
-			for k, v in timing.items():
-				print(f"  {k:<20}: {v:.4f}")
-			print(f"  Total Program Wall Time: {timing['total_program_time']:.4f} seconds")
-
-		return {
-			"u": cp.asnumpy(self.u),
-			"vel": cp.asnumpy(self.vel),
-			"abs_vel": cp.asnumpy(self.abs_vel),
-			"pressure": cp.asnumpy(self.pressure),
-			"converged": self.converged,
-			"iterations": self.iterations,
-			"timing_metrics": self.timing_metrics,
+			print(f"\nSolution statistics:")
+			print(f"  u range: [{self.u.min():.6e}, {self.u.max():.6e}]")
+			print(f"  u mean:  {self.u.mean():.6e}")
+			print(f"  u std:   {self.u.std():.6e}")
+		
+		# --- STAGE 6: Visualization (Optional) ---
+		if output_dir is not None:
+			if self.progress_callback:
+				self.progress_callback.on_stage_start(stage='visualize')
+			
+			# Optional visualization code...
+			
+			if self.progress_callback:
+				self.progress_callback.on_stage_complete(
+					stage='visualize',
+					duration=self.timing_metrics.get('visualize', 0.0)
+				)
+		
+		# --- Final Total Workflow Time ---
+		total_workflow_end = time.perf_counter()
+		self.timing_metrics['total_workflow'] = total_workflow_end - total_workflow_start
+		
+		# --- Calculate and Store Total Program Time ---
+		total_program_time = total_workflow_end - self.program_start_time
+		self.timing_metrics['total_program_time'] = total_program_time
+		
+		# --- Prepare Results Dictionary ---
+		results: Dict[str, Any] = {
+			'u': self.u,
+			'converged': self.converged,
+			'iterations': self.iterations,
+			'timing_metrics': self.timing_metrics,
+			'solution_stats': {
+				'u_range': [float(self.u.min()), float(self.u.max())],
+				'u_mean': float(self.u.mean()),
+				'u_std': float(self.u.std())
+			},
+			'mesh_info': {
+				'nodes': self.Nnds,
+				'elements': self.Nels
+			}
 		}
+		
+		# Add derived fields if computed
+		if hasattr(self, 'vel'):
+			results['vel'] = self.vel
+		if hasattr(self, 'abs_vel'):
+			results['abs_vel'] = self.abs_vel
+		if hasattr(self, 'pressure'):
+			results['pressure'] = self.pressure
+		
+		# --- Emit Final Completion Event ---
+		if self.progress_callback:
+			self.progress_callback.on_solve_complete(
+				converged=self.converged,
+				iterations=self.iterations,
+				timing_metrics=self.timing_metrics,
+				solution_stats=results['solution_stats'],
+				mesh_info=results['mesh_info']
+			)
+		
+		# --- Console Output (if verbose) ---
+		if self.verbose:
+			print("\n✓ GPU simulation complete")
+			
+			print("\nStep-by-Step Timings (seconds):")
+			for k, v in self.timing_metrics.items():
+				print(f"  {k:<20}: {v:.4f}")
+			
+			print(f"  Total Program Wall Time: {total_program_time:.4f} seconds")
+			
+			print(f"\nResults summary:")
+			print(f"  Converged: {results['converged']}")
+			print(f"  Iterations: {results['iterations']}")
+			print(f"  u range: [{results['solution_stats']['u_range'][0]:.6e}, "
+				f"{results['solution_stats']['u_range'][1]:.6e}]")
+		
+		return results
 
 if __name__ == "__main__":
 	

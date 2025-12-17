@@ -32,12 +32,13 @@ from elem_quad8_cpu import Elem_Quad8
 from robin_quadr_cpu import Robin_quadr
 from genip2dq_cpu import Genip2DQ
 from shape_n_der8_cpu import Shape_N_Der8
+from progress_callback import ProgressCallback
 
 
 class IterativeSolverMonitor:
     """Monitor for CG iterations with actual residual computation."""
 
-    def __init__(self, A, b, every: int = 10, maxiter: int = 15000):
+    def __init__(self, A, b, every: int = 10, maxiter: int = 15000, progress_callback=None):
         self.A = A  # System matrix
         self.b = b  # Right-hand side
         self.it: int = 0
@@ -45,6 +46,7 @@ class IterativeSolverMonitor:
         self.maxiter: int = maxiter
         self.start_time: float = time.perf_counter()
         self.b_norm = float(np.linalg.norm(b))
+        self.progress_callback = progress_callback 
 
     def __call__(self, xk: NDArray[np.float64]) -> None:
         """
@@ -82,6 +84,16 @@ class IterativeSolverMonitor:
             f"||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, "
             f"ETR: {fmt(etr)}"
         )
+
+        if self.progress_callback is not None:
+            self.progress_callback.on_iteration(
+                iteration=self.it,
+                max_iterations=self.maxiter,
+                residual=res_norm,
+                relative_residual=rel_res,
+                elapsed_time=elapsed,
+                etr_seconds=etr
+            )        
             
             
 class Quad8FEMSolver:
@@ -109,7 +121,8 @@ class Quad8FEMSolver:
         cg_print_every: int = 50,
         assembly_print_every: int = 50000,
         implementation_name: str = "CPU",
-        verbose: bool = True
+        verbose: bool = True,
+        progress_callback=None
     ):
         """
         Initialize FEM solver.
@@ -171,6 +184,8 @@ class Quad8FEMSolver:
         self.solve_info: int
         self.converged: bool = False
         self.timing_metrics: Dict[str, float] = {} # Initialize timing dictionary
+        
+        self.progress_callback = progress_callback
 
     def _time_step(self, step_name: str, func: Callable[..., Any]) -> Any:
         """Utility to time a function call and store the result."""
@@ -533,29 +548,108 @@ class Quad8FEMSolver:
         output_dir: Optional[Path | str] = None,
         export_file: Optional[Path | str] = None
     ) -> Dict[str, Any]:
-        """Run complete FEM simulation workflow."""
+        """Run complete FEM simulation workflow with progress callbacks."""
         
-        # --- NEW: Start Timer for the Core Workflow ---
+        # --- Start Timer for the Core Workflow ---
         total_workflow_start = time.perf_counter()
-        self.timing_metrics = {} # Ensure metrics are cleared/re-initialized
+        self.timing_metrics = {}  # Ensure metrics are cleared/re-initialized
         
-        # 1. Loading and Setup
+        # --- STAGE 1: Load Mesh ---
+        if self.progress_callback:
+            self.progress_callback.on_stage_start(stage='load_mesh')
+        
         self._time_step('load_mesh', self.load_mesh)
+        
+        if self.progress_callback:
+            self.progress_callback.on_stage_complete(
+                stage='load_mesh',
+                duration=self.timing_metrics['load_mesh']
+            )
+            # Emit mesh metadata
+            self.progress_callback.on_mesh_loaded(
+                nodes=self.Nnds,
+                elements=self.Nels,
+                coordinates={'x': self.x.tolist(), 'y': self.y.tolist()},
+                connectivity=self.quad8.tolist()
+            )
+        
+        # --- STAGE 2: Assembly ---
+        if self.progress_callback:
+            self.progress_callback.on_stage_start(stage='assemble_system')
+        
         self._time_step('assemble_system', self.assemble_system)
+        
+        if self.progress_callback:
+            self.progress_callback.on_stage_complete(
+                stage='assemble_system',
+                duration=self.timing_metrics['assemble_system']
+            )
+        
+        # --- STAGE 3: Apply Boundary Conditions ---
+        if self.progress_callback:
+            self.progress_callback.on_stage_start(stage='apply_bc')
+        
         self._time_step('apply_bc', self.apply_boundary_conditions)
         
-        # 2. Solving (timed internally by solve() method)
-        self.solve() 
+        if self.progress_callback:
+            self.progress_callback.on_stage_complete(
+                stage='apply_bc',
+                duration=self.timing_metrics['apply_bc']
+            )
         
-        # 3. Post-processing
+        # --- STAGE 4: Solve Linear System ---
+        if self.progress_callback:
+            self.progress_callback.on_stage_start(stage='solve_system')
+        
+        self._time_step('solve_system', self.solve)
+        
+        if self.progress_callback:
+            self.progress_callback.on_stage_complete(
+                stage='solve_system',
+                duration=self.timing_metrics['solve_system']
+            )
+        
+        # --- STAGE 5: Post-Processing ---
+        if self.progress_callback:
+            self.progress_callback.on_stage_start(stage='compute_derived')
+        
         self._time_step('compute_derived', self.compute_derived_fields)
-        self._time_step('print_stats', self.print_statistics) # Keep this for diagnostics
         
-        # 4. Outputs
-        # Use lambda to handle function calls with arguments for _time_step
-        self._time_step('visualize', lambda: self.visualize(output_dir))
-        self._time_step('export', lambda: self.export(export_file))
-
+        if self.progress_callback:
+            self.progress_callback.on_stage_complete(
+                stage='compute_derived',
+                duration=self.timing_metrics['compute_derived']
+            )
+        
+        # Print statistics (console diagnostics)
+        self._time_step('print_stats', self.print_statistics)
+        
+        # --- STAGE 6: Visualization (Optional) ---
+        if output_dir is not None:
+            if self.progress_callback:
+                self.progress_callback.on_stage_start(stage='visualize')
+            
+            self._time_step('visualize', lambda: self.visualize(output_dir))
+            
+            if self.progress_callback:
+                self.progress_callback.on_stage_complete(
+                    stage='visualize',
+                    duration=self.timing_metrics['visualize']
+                )
+        
+        # --- STAGE 7: Export (Optional) ---
+        if export_file is not None:
+            if self.progress_callback:
+                self.progress_callback.on_stage_start(stage='export')
+            
+            self._time_step('export', lambda: self.export(export_file))
+            
+            if self.progress_callback:
+                self.progress_callback.on_stage_complete(
+                    stage='export',
+                    duration=self.timing_metrics['export']
+                )
+        
         # --- Final Total Workflow Time ---
         total_workflow_end = time.perf_counter()
         self.timing_metrics['total_workflow'] = total_workflow_end - total_workflow_start
@@ -564,6 +658,7 @@ class Quad8FEMSolver:
         total_program_time = total_workflow_end - self.program_start_time
         self.timing_metrics['total_program_time'] = total_program_time
         
+        # --- Prepare Results Dictionary ---
         results: Dict[str, Any] = {
             'u': self.u,
             'vel': self.vel,
@@ -571,9 +666,29 @@ class Quad8FEMSolver:
             'pressure': self.pressure,
             'converged': self.converged,
             'iterations': self.monitor.it,
-            'timing_metrics': self.timing_metrics
+            'timing_metrics': self.timing_metrics,
+            'solution_stats': {
+                'u_range': [float(self.u.min()), float(self.u.max())],
+                'u_mean': float(self.u.mean()),
+                'u_std': float(self.u.std())
+            },
+            'mesh_info': {
+                'nodes': self.Nnds,
+                'elements': self.Nels
+            }
         }
         
+        # --- Emit Final Completion Event ---
+        if self.progress_callback:
+            self.progress_callback.on_solve_complete(
+                converged=self.converged,
+                iterations=self.monitor.it,
+                timing_metrics=self.timing_metrics,
+                solution_stats=results['solution_stats'],
+                mesh_info=results['mesh_info']
+            )
+        
+        # --- Console Output (if verbose) ---
         if self.verbose:
             print("\n✓ Simulation complete")
             
@@ -583,7 +698,14 @@ class Quad8FEMSolver:
                 print(f"  {k:<20}: {v:.4f}")
             
             # Print the final total time
-            print(f"  Total Program Wall Time: {total_program_time:.4f} seconds") 
+            print(f"  Total Program Wall Time: {total_program_time:.4f} seconds")
+            
+            # Print results summary
+            print(f"\nResults summary:")
+            print(f"  Converged: {results['converged']}")
+            print(f"  Iterations: {results['iterations']}")
+            print(f"  u range: [{results['solution_stats']['u_range'][0]:.6e}, "
+                f"{results['solution_stats']['u_range'][1]:.6e}]")
         
         return results
 

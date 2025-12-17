@@ -1,0 +1,860 @@
+:root {
+    /* Sketchy Light Theme Palette */
+    --hud-accent: #2266ff;        /* Blueprint blue or classic ink blue */
+    --hud-warm: #e63946;          /* Red pen for highlights */
+    --hud-fg: #b0b0b0;            /* Pencil lead grey */
+    --hud-fg-dim: #b0b0b0;        /* Light pencil strokes */
+    --hud-bg: #dfdfdf;            /* Pure paper white */
+    --hud-bg-hover: #fcfcfc;
+    --hud-border: #000000;        /* Strong ink line */
+    --hud-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* "Hard" drop shadow for a 2D feel */
+}
+
+/* Moveable.js CSS rules */
+.rCS1w3zcxh {
+    --moveable-color: transparent !important;
+}
+
+.rCS1w3zcxh .moveable-control {
+    border-radius: 0 !important;
+    border: 1px solid transparent !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    z-index: 10 !important;
+}
+
+/* Core HUD */
+.hud {
+    position: absolute;
+    color: var(--hud-fg);
+    border: 0.5px solid #9a9a9a;
+    box-shadow: var(--hud-shadow);
+    padding: 10px;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    resize: none;
+}
+
+/* Hover / focus: visible border */
+.hud:hover,
+.hud:focus-within {
+    /*background: var(--hud-bg-hover);*/
+
+
+    backdrop-filter: blur(2px) saturate(115%);
+    -webkit-backdrop-filter: blur(2px) saturate(115%);
+
+    box-shadow: var(--hud-shadow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    z-index: 10;
+}
+
+/* Positions */
+.hud.metrics {
+    bottom: 100px;
+    right: 120px;
+    width: 300px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    min-width: 300px;
+    min-height: 400px;
+    max-width: 300px;
+    background-color: #fff4e5c5;
+}
+
+.hud.metrics:hover {
+    background-color: #fff4e5;
+	cursor: text;
+}
+
+.hud.search {
+	top: 85px;
+	left: 20px;
+	width: 350px;
+	height: 600px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.hud.data {
+    bottom: 100px;
+    left: 20px;
+    width: 700px;
+    height: 500px;
+    align-self: flex-end;
+    overflow: hidden;
+}
+
+.hud.settings {
+	top: 85px;
+	right: 20px;
+	width: 260px;
+	max-width: min(92vw, 320px);
+	resize: none;
+	overflow: hidden;
+}
+
+.hud.about {
+    top: calc(50% - 300px);
+    left: calc(50% - 250px);
+	width: 500px;
+	height: auto;
+	overflow: hidden;
+}
+
+.about-section {
+	font-size: 10px;
+	line-height: 1.4;
+	opacity: 0.9;
+	margin: 0px 10px 10px 10px;
+}
+
+
+.hud.settings .control-grid {
+    grid-template-columns: 1fr minmax(175px, 1.2fr);
+    margin: 10px 0px 5px 5px;
+}
+
+.hud.settings .btnrow.nowrap {
+    gap: 4px;
+}
+
+.hud.settings .btn {
+    padding: 6px 9px;
+    color: var(--hud-accent);
+    background-color: transparent;
+}
+
+.hud.settings .btn:hover {
+    color: var(--hud-warm);
+    background-color: var(--sel-bg-hover);
+}
+
+.hud.callout {
+	position: absolute;
+	display: none;
+	z-index: 22;
+	width: 250px;
+	max-width: 400px;
+	opacity: 1 !important;
+	visibility: visible;
+	pointer-events: auto;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
+	padding: 12px;
+}
+
+.hud.callout .calloutTitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--hud-warm);
+	padding-top: 5px;
+    margin: 0px 12px 5px 5px;
+}
+
+.calloutSubTitle {
+	margin: 0px 10px 10px 5px;
+}
+
+.hud.callout .calloutTitleSuffix {
+	font-size: 12px;
+	color: #eee;
+	opacity: .9;
+}
+
+.hud.callout .calloutSubRegion {
+	font-size: 12px;
+	font-weight: 500;
+	color: #00ff00;
+}
+
+.hud.callout .calloutNotes {
+	margin-top: 5px;
+	text-align: right;
+	font-family: 'Roboto';
+	font-size: 11px;
+	color: #00ff00;
+	opacity: .95;
+}
+
+.hud.callout .calloutFlag {
+	width: 100px;
+	height: 75px;
+	margin-bottom: 25px;
+}
+
+.hud h1 {
+    font-size: 11px;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 1px;
+    margin: 0px 0px 8px 0px;
+    color: #696969;
+    font-weight: 900;
+    cursor: move;
+}
+
+.hud.dragging {
+	cursor: grabbing;
+	transition: none;
+	box-shadow: 0 18px 46px rgba(0, 0, 0, .7);
+	opacity: .96;
+}
+
+/* Visibility system (panels hidden by default) */
+[id^="hud-"] {
+	color: #bdbdbd;
+	opacity: 0;
+	visibility: hidden;
+	filter: saturate(.9);
+	transition: background .45s ease, opacity .35s ease, visibility .35s ease, filter .3s ease;
+}
+
+[id^="hud-"].visible {
+	opacity: .98;
+	visibility: visible;
+	filter: saturate(1);
+}
+
+
+
+/* About */
+#hud-about {
+	--link-idle: rgba(51, 255, 51, .75);
+	--link: #33FF33;
+	--link-hover: #79FF79;
+	--link-glow: rgba(51, 255, 51, .45);
+}
+
+#hud-about a {
+	color: var(--link-idle);
+	text-decoration: none;
+	border-bottom: 1px solid rgba(51, 255, 51, .28);
+	transition: color .2s ease, border-color .2s ease, text-shadow .2s ease;
+}
+
+#hud-about:hover a {
+	color: var(--link);
+	border-bottom-color: var(--link);
+	text-shadow: 0 0 8px var(--link-glow);
+}
+
+#hud-about a:hover,
+#hud-about a:focus-visible {
+	color: var(--link-hover);
+	border-bottom-color: var(--link-hover);
+	text-shadow: 0 0 8px var(--link-glow);
+}
+
+#hud-about a:focus-visible {
+	outline: 2px solid var(--link);
+	outline-offset: 2px;
+}
+
+.hud :is(button, input, select, textarea):focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Groups (collapsible sections) */
+.group {
+    margin: 6px 0px 0px 0px;
+    border-radius: 6px;
+    padding: 0px 5px 2px 5px;
+}
+
+.group[open] {
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(255, 255, 255, .08);
+    padding: 0px 5px 8px 5px;
+}
+
+/* Summary: icons right; full-row clickable; 10px LR padding */
+summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0px;
+    cursor: pointer;
+    padding: 5px 2px 5px 5px;
+    list-style: none;
+    user-select: none;
+    color: var(--hud-warm);
+    font-size: 13px;
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+.summary-text {
+	pointer-events: none;
+}
+
+/* Maintain ~10px LR padding for group content */
+.group[open]> :not(summary) {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* Material Symbols arrows */
+.msi.material-symbols-outlined {
+	pointer-events: none;
+	font-size: 20px;
+	line-height: 1;
+	opacity: .9;
+	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.group:not([open]) summary .msi.up {
+	display: none;
+}
+
+.group[open] summary .msi.down {
+	display: none;
+}
+
+/* Controls / UI */
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0px 0px 0px;
+}
+
+.row label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.hud .sep {
+    height: 0.5px;
+    background: #c4c4c4b5;
+    margin: 0px 0px 10px 0px;
+}
+
+.inline-controls {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.inline-color {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.control-grid {
+	display: grid;
+	grid-template-columns: 1fr minmax(220px, 1.2fr);
+	align-items: center;
+	gap: 6px 10px;
+}
+
+.label {
+	opacity: .9;
+}
+
+/* Inputs */
+input[type="range"] {
+	width: 100%;
+	box-sizing: border-box;
+	cursor: grab;
+}
+
+input[type="color"] {
+	width: 40px;
+	height: 22px;
+	padding: 0;
+	background: transparent;
+}
+
+input[type="color"]:hover {
+	cursor: pointer;
+}
+
+input[type="text"], input[type="search"] {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, .25);
+    background: rgba(0, 0, 0, .28);
+    color: #fff;
+    text-decoration: none;
+}
+
+.readout {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	opacity: .95;
+	font-size: 11px;
+}
+
+.readout.brightness {
+    padding-right: 33px;
+    vertical-align: middle;
+}
+
+.readout.spin {
+    padding-right: 4px;
+    vertical-align: middle;
+}
+
+.readout.speed {
+    padding-right: 3px;
+    vertical-align: middle;
+	text-wrap: nowrap;
+}
+
+.scale-labels {
+	display: flex;
+	justify-content: space-between;
+	font-size: 11px;
+	opacity: .9;
+}
+
+.hidden {
+	display: none !important;
+}
+
+/* Buttons */
+.btnrow {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.btnrow.nowrap {
+	flex-wrap: nowrap;
+}
+
+.btn {
+	appearance: none;
+	border: 1px solid rgba(255, 255, 255, .22);
+	background: rgba(255, 255, 255, .08);
+	color: #fff;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 12px;
+	transition: background .15s ease, border-color .15s ease, transform .06s ease;
+	white-space: nowrap;
+}
+
+.btn:hover {
+	background: rgba(255, 255, 255, .14);
+	border-color: rgba(255, 255, 255, .3);
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+/* Explorer bits */
+.mini {
+	font-size: 11px;
+	opacity: .9;
+	margin: 5px;
+}
+
+.props dl {
+	margin: 10px;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 6px 10px;
+}
+
+.props dt {
+	opacity: .88;
+}
+
+.props dd {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+div.results {
+    grid-auto-columns: auto !important;
+    margin: 6px 6px 6px 0px;
+    /* max-height: -webkit-fill-available; */
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+}
+
+div.search-result-item {
+    border-bottom: 0.5px solid rgba(255, 255, 255, .12);
+    margin: 3px;
+    padding: 4px;
+    justify-items: left;
+    vertical-align: middle;
+    display: flex;
+}
+
+div.search-result-item:hover {
+    background: rgb(11 52 34 / 81%);
+    cursor: pointer;
+}
+
+.results button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: transparent;
+	color: #fff;
+	border: 0;
+	padding: 8px 10px;
+	cursor: pointer;
+}
+
+.results button:hover {
+	background: rgba(255, 255, 255, .12);
+}
+
+/* Scrollbars */
+div.results::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+div.results::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 1px #3a3a3a;
+	border-radius: 8px;
+}
+
+div.results::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, .12);
+	border-radius: 8px;
+}
+
+div.results::-webkit-scrollbar-thumb:hover {
+	background: rgba(127, 255, 161, .28);
+}
+
+.hint {
+	opacity: .8;
+	font-size: 11px;
+	margin-top: 4px;
+}
+
+
+input.switch {
+    --sw-w: 28px;
+    --sw-h: 17px;
+    --sw-pad: 3px;
+    --sw-knob: calc(var(--sw-h) - 2*var(--sw-pad));
+    appearance: none;
+    -webkit-appearance: none;
+    width: var(--sw-w);
+    height: var(--sw-h);
+    border-radius: calc(var(--sw-h)/2);
+    background: rgba(255, 255, 255, 0);
+    border: 0.5px solid rgba(255, 255, 255, .30);
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    vertical-align: middle;
+    margin-left: 0px;
+}
+
+input.switch::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: var(--sw-pad);
+	transform: translateY(-50%);
+	width: var(--sw-knob);
+	height: var(--sw-knob);
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+	transition: left .2s ease;
+}
+
+input.switch:checked {
+	background: rgba(51, 255, 51, .35);
+	border-color: var(--hud-accent);
+	box-shadow: 0 0 0 2px rgba(51, 255, 51, .15) inset;
+}
+
+input.switch:checked::after {
+	left: calc(var(--sw-w) - var(--sw-pad) - var(--sw-knob));
+}
+
+input.switch:disabled {
+	opacity: .5;
+	cursor: not-allowed;
+}
+
+input.switch:focus-visible {
+	outline: 2px solid var(--hud-accent);
+	outline-offset: 2px;
+}
+
+/* Optional tighter variants (add a second class: class="switch sm" or "switch xs") */
+input.switch.sm {
+	--sw-w: 32px;
+	--sw-h: 18px;
+}
+
+input.switch.xs {
+	--sw-w: 28px;
+	--sw-h: 16px;
+}
+
+div.sep2 {
+    height: 0.5px;
+    background: rgba(255, 255, 255, .12);
+    margin: 0px 0px 10px 0px;
+}
+
+.select-hud {
+	--seam-bleed: 1px;
+	--sel-bg: rgba(255, 255, 255, .08);
+	--sel-bg-hover: rgba(255, 255, 255, .14);
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+/* Inner “border” drawn with outline so it can’t be lightened by UA */
+.select-hud::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	outline: 1px solid rgba(255, 255, 255, .22);
+	outline-offset: -1px;
+	/* sits inside */
+	pointer-events: none;
+	transition: outline-color .15s ease, box-shadow .15s ease;
+}
+
+/* Hover/focus states */
+.select-hud:hover {
+	background: var(--sel-bg-hover);
+}
+
+.select-hud:hover::before {
+	outline-color: rgba(255, 255, 255, .30);
+}
+
+.select-hud:focus-within::before {
+	outline-color: var(--hud-accent);
+	box-shadow: inset 0 0 0 2px rgba(51, 255, 51, .18);
+}
+
+/* Native <select>: transparent, no border, and bleed past the edges */
+.select-hud select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	display: block;
+	width: calc(100% + 2*var(--seam-bleed));
+	height: calc(100% + 2*var(--seam-bleed));
+	margin: calc(-1 * var(--seam-bleed));
+	padding: 6px 32px 6px 10px;
+	outline: 0;
+	background: transparent !important;
+	color: #33c433;
+	font-size: 11px;
+	line-height: 1.2;
+}
+
+/* Remove the old pseudo chevron if present */
+.select-hud::after {
+	content: none !important;
+}
+
+/* Place the Material icon as the caret */
+.select-hud {
+	position: relative;
+}
+
+.select-hud .select-caret {
+    position: absolute;
+    right: 5px;
+    top: 51%;
+    transform: translateY(-52%);
+    font-size: 18px;
+    line-height: 1;
+    opacity: .9;
+    pointer-events: none;
+}
+
+/* Add a bit of right padding so text doesn't collide with the icon */
+.select-hud select {
+	padding-right: 32px;
+}
+
+
+/* Ensure dropdown list text is readable across engines */
+.select-hud select option,
+.select-hud select optgroup {
+	color: #0b0b0b;
+	background: #ffffff;
+}
+
+@supports (color-scheme: light dark) {
+	.select-hud select {
+		color-scheme: dark;
+	}
+
+	/* dark popup on supporting UAs */
+	@media (prefers-color-scheme: dark) {
+
+		.select-hud select option,
+		.select-hud select optgroup {
+			color: var(--hud-accent);
+			background: #0b0f1a;
+		}
+	}
+}
+
+
+
+/* General HUD/Panel Styling */
+.hud.about {
+    /* Assuming a general style for the HUD panel container */
+    padding: 15px;
+}
+
+/* Horizontal Separator */
+.sep-line {
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white/light separator */
+    margin: 15px 0; /* Consistent vertical spacing */
+}
+
+/* Headings (Author, Core Features, etc.) */
+.about-heading {
+    /* Replaces inline style: color: #FFB000; margin: 12px 0 8px 0; */
+    color: #FFB000;
+    margin: 12px 0 8px 0;
+    font-size: 1.1em; /* Adjust size as needed */
+}
+
+/* Product Info (Top Section) */
+.about-header-info {
+    /* Replaces inline style: display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.product-title {
+    /* Replaces inline style: font-size: 13px; font-weight: 600; color: #FFB000; */
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFB000;
+}
+
+/* Author Details */
+.author-details {
+    /* Container for name and email */
+    margin-bottom: 4px;
+}
+
+.author-name {
+    /* Replaces inline style: font-weight: 500; */
+    font-weight: 500;
+    margin-right: 8px; /* Space between name and email link */
+}
+
+.author-bio {
+    /* Replaces inline style: font-size: 10px; opacity: 0.7; */
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+/* Feature and Data Source Lists */
+.about-list {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0;
+    margin-left: 10px;
+}
+
+.about-list li {
+    padding-left: 10px;
+    text-indent: -10px; /* Aligns list items correctly */
+    margin-bottom: 6px;
+}
+
+.about-list li:before {
+    /* Creates the custom bullet point (•) */
+    content: "• ";
+}
+
+/* Technology Section */
+.technology-list > div {
+    margin-bottom: 6px; /* Space between each technology entry */
+}
+
+.tech-subtext {
+    /* Replaces inline style: opacity: 0.7; */
+    opacity: 0.7;
+    margin-left: 5px; /* Space after the bold link */
+    line-height: 1.4;
+}
+
+.tech-subtext.block {
+    margin-left: 10px;
+    font-size: 0.9em;
+}
+
+/* Footer / Quote */
+.about-footer {
+    /* Replaces inline style: text-align: center; font-size: 9px; opacity: 0.6; margin-top: 10px; */
+    text-align: center;
+    font-size: 9px;
+    opacity: 0.6;
+    margin-top: 10px;
+	color: var(--hud-warm);
+	font-weight: bold;
+}
+
+.about-footer .copyright {
+	color: var(--hud-accent)
+}
+
+/* Apply this to the parent div/li that contains the name and type spans */
+.list-item-flex {
+    /* 1. Enable Flexbox for alignment */
+    display: flex;
+    
+    /* 2. Push the left content and right content to opposite ends */
+    justify-content: space-between; 
+    
+    /* 3. Ensure vertical alignment */
+    align-items: center;
+    
+    /* Optional: Ensure it takes full width for clear alignment */
+    width: 100%; 
+}
+
+/* Optional: Styles for the spans if needed */
+.left-align-content {
+    /* Ensure the left part takes available space but allows wrapping */
+    flex-grow: 1; 
+    padding-right: 10px; /* little space between the two sides */
+}
+
+.right-align-type {
+    /* Ensures the type text stays together and doesn't wrap */
+    white-space: nowrap; 
+    /* Optional: You may want to slightly reduce opacity or size here */
+    opacity: 0.8;
+	font-size: 10px;
+}
