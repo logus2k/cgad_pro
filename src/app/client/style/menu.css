@@ -2,7 +2,7 @@
 	font-family: 'Material Symbols Outlined';
 	font-style: normal;
 	font-weight: 400;
-	src: url('../fonts/material.symbols.outlined.woff2') format('woff2');
+	src: url('../fonts/material.symbols.outlined.v3.woff2') format('woff2');
 	font-display: fallback;
 }
 
@@ -44,7 +44,7 @@
 	border: none;
 	border-radius: 10px;
 	background: rgba(255, 255, 255, 0.6);
-	color: #33FF33;
+	color: #313131;
 	/* inactive = green */
 	cursor: pointer;
 }

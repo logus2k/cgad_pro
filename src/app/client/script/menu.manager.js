@@ -21,7 +21,7 @@ export class MenuManager {
             menuPosition: config.menuPosition || 'bottom-center',
             iconSize: config.menuIconSize || 36,
             margin: config.menuMargin || 16,
-            panelIds: config.panelIds || ['search', 'data', 'metrics', 'about', 'settings'],
+            panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'about', 'settings'],
             initialVisibility: config.initialVisibility || {},
         };
 
@@ -70,9 +70,10 @@ export class MenuManager {
         wrap.style.setProperty('--pm-m', `${this.cfg.margin}px`);
 
         const items = [
-            { id: 'search', icon: 'search', label: 'Search' },
-            { id: 'data', icon: 'description', label: 'Data Explorer' },
+            { id: 'gallery', icon: 'deployed_code', label: 'Gallery' },
             { id: 'metrics', icon: 'equalizer', label: 'Metrics' },
+            { id: 'benchmark', icon: 'emoji_events', label: 'Benchmark' },
+            { id: 'report', icon: 'description', label: 'Report' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
@@ -109,7 +110,7 @@ export class MenuManager {
             if (!close) {
                 close = document.createElement('button');
                 close.className = 'pm-close';
-                close.textContent = '×';
+                close.innerHTML = '×';
                 el.appendChild(close);
             }
 

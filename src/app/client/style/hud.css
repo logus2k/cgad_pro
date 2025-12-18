@@ -72,7 +72,7 @@
 	cursor: text;
 }
 
-.hud.search {
+.hud.gallery {
 	top: 85px;
 	left: 20px;
 	width: 350px;
@@ -80,15 +80,42 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+    background-color: #fff4e5c5;
 }
 
-.hud.data {
+.hud.gallery:hover {
+    background-color: #fff4e5;
+	cursor: text;
+}
+
+.hud.benchmark {
     bottom: 100px;
     left: 20px;
     width: 700px;
     height: 500px;
     align-self: flex-end;
     overflow: hidden;
+    background-color: #fff4e5c5;
+}
+
+.hud.benchmark:hover {
+    background-color: #fff4e5;
+	cursor: text;
+}
+
+.hud.report {
+	top: 385px;
+	right: 200px;
+	width: 660px;
+	max-width: min(92vw, 620px);
+	resize: none;
+	overflow: hidden;
+    background-color: #fff4e5c5;
+}
+
+.hud.report:hover {
+    background-color: #fff4e5;
+	cursor: text;
 }
 
 .hud.settings {
@@ -98,6 +125,12 @@
 	max-width: min(92vw, 320px);
 	resize: none;
 	overflow: hidden;
+    background-color: #fff4e5c5;
+}
+
+.hud.settings:hover {
+    background-color: #fff4e5;
+	cursor: text;
 }
 
 .hud.about {
@@ -106,6 +139,12 @@
 	width: 500px;
 	height: auto;
 	overflow: hidden;
+    background-color: #fff4e5c5;
+}
+
+.hud.about:hover {
+    background-color: #fff4e5;
+	cursor: text;
 }
 
 .about-section {
