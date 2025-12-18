@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEM Model Gallery</title>
+    <style>
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gallery-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 60vh;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 60px); /* Account for controls */
+            overflow: hidden;
+        }
+
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-item {
+            min-width: calc(100% / 3);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .model-image {
+            width: 100%;
+            height: 70%;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .model-name {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .selected-indicator {
+            border: 3px solid #007bff;
+            border-radius: 4px;
+        }
+
+        .carousel-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .nav-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal Gallery -->
+    <div id="galleryModal" class="gallery-modal">
+        <div class="gallery-container">
+            <div class="carousel-container">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="carousel-controls">
+                <button class="btn" id="prevBtn">Previous</button>
+                <div class="nav-dots" id="navDots"></div>
+                <button class="btn" id="selectBtn">Select Model</button>
+                <button class="btn" id="nextBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ModelGallery {
+            constructor(models) {
+                this.models = models;
+                this.originalModelsCount = models.length;
+                this.visibleItems = 3;
+                
+                // Handle single image case
+                if (models.length === 1) {
+                    this.models.push(models[0], models[0]); // Add two more for smooth operation
+                } else if (models.length === 2) {
+                    this.models.push(models[0], models[1]); // Add clones to make it work properly
+                }
+                
+                // Clone first and last items for seamless looping
+                this.clonedModels = [
+                    ...this.models.slice(-this.visibleItems), // Last items at start
+                    ...this.models,
+                    ...this.models.slice(0, this.visibleItems)  // First items at end
+                ];
+                
+                this.currentIndex = this.visibleItems; // Start at first real item
+                this.selectedModelIndex = null; // No initial selection
+                
+                this.modal = document.getElementById('galleryModal');
+                this.carouselTrack = document.getElementById('carouselTrack');
+                this.navDots = document.getElementById('navDots');
+                
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.selectBtn = document.getElementById('selectBtn');
+                
+                this.setupEventListeners();
+                this.render();
+            }
+            
+            setupEventListeners() {
+                this.prevBtn.addEventListener('click', () => this.prev());
+                this.nextBtn.addEventListener('click', () => this.next());
+                this.selectBtn.addEventListener('click', () => this.selectModel());
+                
+                // Touch/drag events for mobile
+                let startX = 0;
+                let currentX = 0;
+                
+                this.carouselTrack.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+                
+                this.carouselTrack.addEventListener('touchmove', (e) => {
+                    currentX = e.touches[0].clientX;
+                });
+                
+                this.carouselTrack.addEventListener('touchend', (e) => {
+                    const diff = startX - currentX;
+                    if (Math.abs(diff) > 50) { // Swipe threshold
+                        if (diff > 0) {
+                            this.next();
+                        } else {
+                            this.prev();
+                        }
+                    }
+                });
+                
+                // Mouse drag events for desktop
+                let isDragging = false;
+                let startMouseX = 0;
+                
+                this.carouselTrack.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startMouseX = e.clientX;
+                    this.carouselTrack.style.transition = 'none';
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const diff = e.clientX - startMouseX;
+                    // Visual feedback during drag (optional)
+                });
+                
+                document.addEventListener('mouseup', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    this.carouselTrack.style.transition = 'transform 0.3s ease';
+                    
+                    const diff = e.clientX - startMouseX;
+                    if (Math.abs(diff) > 50) { // Drag threshold
+                        if (diff > 0) {
+                            this.next();
+                        } else {
+                            this.prev();
+                        }
+                    } else {
+                        this.updatePosition();
+                    }
+                });
+            }
+            
+            render() {
+                this.carouselTrack.innerHTML = '';
+                
+                // Create all items including clones
+                for (let i = 0; i < this.clonedModels.length; i++) {
+                    const modelIndex = i >= this.visibleItems && i < this.visibleItems + this.originalModelsCount 
+                        ? i - this.visibleItems 
+                        : (i - this.visibleItems + this.originalModelsCount) % this.originalModelsCount;
+                    
+                    const item = this.createItem(modelIndex, i);
+                    this.carouselTrack.appendChild(item);
+                }
+                
+                // Update navigation dots
+                this.updateNavDots();
+                
+                // Position the track
+                this.updatePosition();
+            }
+            
+            createItem(originalIndex, positionIndex) {
+                const item = document.createElement('div');
+                item.className = 'carousel-item';
+                
+                // Check if this item corresponds to the selected model
+                const actualModelIndex = originalIndex % this.originalModelsCount;
+                if (this.selectedModelIndex !== null && actualModelIndex === this.selectedModelIndex) {
+                    item.classList.add('selected-indicator');
+                }
+                
+                // Get the actual model data
+                const model = this.models[actualModelIndex];
+                
+                item.innerHTML = `
+                    <img src="${model.image}" alt="${model.name}" class="model-image">
+                    <div class="model-name">${model.name}</div>
+                `;
+                
+                // Click handler for selection
+                item.addEventListener('click', () => {
+                    const actualModelIndex = originalIndex % this.originalModelsCount;
+                    
+                    // Determine which position this item is in the current view
+                    const visibleStart = this.currentIndex;
+                    const visibleEnd = this.currentIndex + this.visibleItems - 1;
+                    
+                    // Check if it's in the current visible area
+                    if (positionIndex >= visibleStart && positionIndex <= visibleEnd) {
+                        const relativePosition = positionIndex - visibleStart;
+                        
+                        if (relativePosition === 0) { // Leftmost item
+                            // Move carousel right to center this item
+                            this.currentIndex--;
+                            this.selectedModelIndex = actualModelIndex;
+                        } else if (relativePosition === 2) { // Rightmost item
+                            // Move carousel left to center this item
+                            this.currentIndex++;
+                            this.selectedModelIndex = actualModelIndex;
+                        } else if (relativePosition === 1) { // Middle item
+                            // Don't move, just select
+                            this.selectedModelIndex = actualModelIndex;
+                        }
+                    } else {
+                        // If not in view, center it
+                        // Find the nearest occurrence of this model in the real section
+                        for (let j = this.visibleItems; j < this.visibleItems + this.originalModelsCount; j++) {
+                            if ((j - this.visibleItems) % this.originalModelsCount === actualModelIndex) {
+                                this.currentIndex = j - 1; // Position to center this item
+                                this.selectedModelIndex = actualModelIndex;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    this.render();
+                });
+                
+                return item;
+            }
+            
+            updatePosition() {
+                const translateX = -(this.currentIndex * (100 / this.visibleItems));
+                this.carouselTrack.style.transform = `translateX(${translateX}%)`;
+            }
+            
+            updateNavDots() {
+                this.navDots.innerHTML = '';
+                
+                for (let i = 0; i < this.originalModelsCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = `dot ${i === this.selectedModelIndex ? 'active' : ''}`;
+                    dot.addEventListener('click', () => {
+                        // Find the nearest occurrence of the selected model
+                        for (let j = this.visibleItems; j < this.visibleItems + this.originalModelsCount; j++) {
+                            if ((j - this.visibleItems) % this.originalModelsCount === i) {
+                                this.currentIndex = j - 1; // Center this item
+                                this.selectedModelIndex = i;
+                                this.render();
+                                break;
+                            }
+                        }
+                    });
+                    this.navDots.appendChild(dot);
+                }
+            }
+            
+            next() {
+                // Temporarily disable transition for instant positioning when wrapping
+                this.carouselTrack.style.transition = 'none';
+                
+                this.currentIndex++;
+                
+                // If we've moved past the real items to the cloned ones at the end
+                if (this.currentIndex >= this.clonedModels.length - this.visibleItems) {
+                    // Instantly jump back to the corresponding real item
+                    this.currentIndex = this.visibleItems;
+                }
+                
+                // Apply the new position instantly
+                this.updatePosition();
+                
+                // Re-enable transition after a brief moment to prevent visible jump
+                setTimeout(() => {
+                    this.carouselTrack.style.transition = 'transform 0.3s ease';
+                }, 10);
+            }
+            
+            prev() {
+                // Temporarily disable transition for instant positioning when wrapping
+                this.carouselTrack.style.transition = 'none';
+                
+                this.currentIndex--;
+                
+                // If we've moved before the real items to the cloned ones at the start
+                if (this.currentIndex < this.visibleItems) {
+                    // Instantly jump to the corresponding real item at the end
+                    this.currentIndex = this.clonedModels.length - this.visibleItems * 2;
+                }
+                
+                // Apply the new position instantly
+                this.updatePosition();
+                
+                // Re-enable transition after a brief moment to prevent visible jump
+                setTimeout(() => {
+                    this.carouselTrack.style.transition = 'transform 0.3s ease';
+                }, 10);
+            }
+            
+            selectModel() {
+                if (this.selectedModelIndex !== null) {
+                    const selectedModel = this.models[this.selectedModelIndex % this.originalModelsCount];
+                    console.log('Selected model:', selectedModel);
+                    // Add your selection logic here
+                    this.hide();
+                } else {
+                    alert('Please select a model first');
+                }
+            }
+            
+            show() {
+                this.selectedModelIndex = null; // Clear any previous selection
+                this.currentIndex = this.visibleItems; // Start at first real item
+                this.render();
+                this.modal.style.display = 'flex';
+            }
+            
+            hide() {
+                this.modal.style.display = 'none';
+            }
+        }
+
+        // Example usage
+        const models = [
+            { name: 'Model A', image: './images/image1.png' },
+            { name: 'Model B', image: './images/image2.png' },
+            { name: 'Model C', image: './images/image3.png' },
+            { name: 'Model D', image: './images/image4.png' },
+            { name: 'Model E', image: './images/image5.png' },
+            { name: 'Model F', image: './images/image6.png' },
+        ];
+
+        const gallery = new ModelGallery(models);
+
+        // To show the gallery
+        // gallery.show();
+
+        // Example: Show gallery when page loads
+        setTimeout(() => {
+            gallery.show();
+        }, 1000);
+    </script>
+</body>
+</html>

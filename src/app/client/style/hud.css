@@ -75,17 +75,18 @@
 .hud.gallery {
 	top: 85px;
 	left: 20px;
-	width: 350px;
-	height: 600px;
+	width: 800px;
+	height: 450px;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-    background-color: #fff4e5c5;
+    background-color: #ffffff;
 }
 
 .hud.gallery:hover {
-    background-color: #fff4e5;
+    background-color: #ffffff;
 	cursor: text;
+	cursor: pointer;
 }
 
 .hud.benchmark {

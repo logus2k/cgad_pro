@@ -5,7 +5,8 @@
 	<meta charset="UTF-8" />
 	<title>Three.js Grid + HTML Overlay</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="stylesheet" href="style/style.css" />
+	<link rel="stylesheet" href="style/theme.css" />
+	<link rel="stylesheet" href="style/gallery.css" />
 	<link rel="stylesheet" href="style/hud.css" />
 	<link rel="stylesheet" href="style/window.css" />
 	<link rel="stylesheet" href="style/menu.css" />
@@ -49,17 +50,34 @@
 
 				<div class="hud gallery" id="hud-gallery" style="z-index: 15;">
 
-					<h1>GALLERY</h1>
+					<h1>MESH GALLERY</h1>
 					<div class="sep"></div>
 
-					<div class="gallery-container">
+					<div class="gallery-container" class="gallery-container">
+
+						<div class="caroussel-wrapper">
+							<div class="carousel-container">
+								<div class="carousel-track" id="carouselTrack">
+								</div>
+							</div>
+							<div class="nav-dots" id="navDots"></div>
+							<div class="carousel-controls">
+								<button class="btn" id="prevBtn">Previous</button>
+								<div class="btn-group">
+									<button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+									<button class="btn btn-primary" id="selectBtn">Select Model</button>
+								</div>
+								<button class="btn" id="nextBtn">Next</button>
+							</div>
+						</div>
+
 					</div>
 
 				</div>
 
 				<div class="hud metrics visible" id="hud-metrics" style="z-index: 15;">
 
-					<h1>METRICS</h1>
+					<h1>PERFORMANCE METRICS</h1>
 					<div class="sep"></div>
 
 					<div class="metrics-container">
@@ -113,9 +131,24 @@
 	</div>
 
 	<script type="module">
+
 		import { MillimetricScene } from './script/scene.js';
 		import { FEMClient } from './script/fem-client.js';
 		import { MetricsDisplay } from './script/metrics-display.js';
+		import { ModelGallery } from './script/model_gallery.js';
+
+        // Example usage
+        const models = [
+            { name: 'Model A', image: './images/image1.png' },
+            { name: 'Model B', image: './images/image2.png' },
+            { name: 'Model C', image: './images/image3.png' },
+            { name: 'Model D', image: './images/image4.png' },
+            { name: 'Model E', image: './images/image5.png' },
+            { name: 'Model F', image: './images/image6.png' },
+        ];
+
+		const gallery = new ModelGallery(models);
+		gallery.show();
 
 		// Initialize Three.js scene
 		const container = document.getElementById('three-layer');
