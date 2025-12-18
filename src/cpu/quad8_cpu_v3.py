@@ -474,15 +474,22 @@ class Quad8FEMSolver:
             XN = np.column_stack((self.x[edofs], self.y[edofs]))
             
             xp, _ = Genip2DQ(4)
+            
+            # ✅ FIX: Accumulate velocity at all Gauss points
+            vel_x = np.zeros(4, dtype=np.float64)
+            vel_y = np.zeros(4, dtype=np.float64)
             v_ip = np.zeros(4, dtype=np.float64)
             
             for ip in range(4):
                 B, _, _ = Shape_N_Der8(XN, xp[ip, 0], xp[ip, 1])
                 grad = B.T @ self.u[edofs]
-                self.vel[e, 0] = grad[0]
-                self.vel[e, 1] = grad[1]
+                vel_x[ip] = grad[0]
+                vel_y[ip] = grad[1]
                 v_ip[ip] = np.linalg.norm(grad)
             
+            # ✅ FIX: Average velocity components
+            self.vel[e, 0] = vel_x.mean()
+            self.vel[e, 1] = vel_y.mean()
             self.abs_vel[e] = v_ip.mean()
         
         self.pressure = self.p0 - self.rho * self.abs_vel**2

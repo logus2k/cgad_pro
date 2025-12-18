@@ -203,13 +203,15 @@ void quad8_postprocess_kernel(
     }
 
     double v_ip_sum = 0.0;
+    double vel_x_sum = 0.0;  // ✅ ADD: Accumulate vx
+    double vel_y_sum = 0.0;  // ✅ ADD: Accumulate vy
     
     // --- 2. Integration Loop (NIP=4) ---
     for (int ip = 0; ip < N_IP; ++ip) {
         double csi = xp_in[ip * 2 + 0];
         double eta = xp_in[ip * 2 + 1];
 
-        // --- 3. B matrix calculation (repeated logic) ---
+        // --- 3. B matrix calculation ---
         double Dpsi[N_NDS_PER_EL][2];
         
         // Derivatives wrt (csi, eta) (Dpsi)
@@ -249,22 +251,20 @@ void quad8_postprocess_kernel(
             grad[1] += B[i][1] * u_e[i]; // d(u)/dy
         }
 
-		// --- 5. Velocity and Norm ---
-		double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
-		v_ip_sum += vel_norm;
-
-		// Write the velocity at the first IP (approximation of element velocity)
-		if (ip == 0) {
-			// CORRECTION: Velocity is the negative gradient (v = -grad(u))
-			vel_out[e * 2 + 0] = -grad[0];
-			vel_out[e * 2 + 1] = -grad[1];
-		}
-	}
+        // --- 5. Accumulate velocity components ---
+        // Velocity is negative gradient: v = -grad(u)
+        vel_x_sum += -grad[0];  // ✅ FIX: Accumulate vx
+        vel_y_sum += -grad[1];  // ✅ FIX: Accumulate vy
+        
+        // Velocity magnitude at this Gauss point
+        double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
+        v_ip_sum += vel_norm;
+    }
     
-    // --- 6. Output (Average Velocity) ---
-    // Average velocity magnitude (at NIP=4)
-    double avg_vel = v_ip_sum / N_IP;
-    abs_vel_out[e] = avg_vel;
+    // --- 6. Output (Average over all 4 Gauss points) ---
+    vel_out[e * 2 + 0] = vel_x_sum / N_IP;  // ✅ FIX: Average vx
+    vel_out[e * 2 + 1] = vel_y_sum / N_IP;  // ✅ FIX: Average vy
+    abs_vel_out[e] = v_ip_sum / N_IP;        // Already correct
 }
 """
 
@@ -288,6 +288,18 @@ class GPUSolverMonitor:
 		"""Callback function called by CuPy solvers"""
 		self.it += 1
 		
+		# ✅ ALWAYS check for incremental updates (independent of logging)
+		if self.progress_callback is not None:
+			if self.it == 1 or (self.it % 100 == 0):
+				print(f"[DEBUG GPU] Sending solution increment at iteration {self.it}")
+				# Convert CuPy array to CPU for transmission
+				solution_cpu = xk.get() if hasattr(xk, 'get') else xk
+				self.progress_callback.on_solution_increment(
+					iteration=self.it,
+					solution=solution_cpu
+				)
+		
+		# Log progress at specified intervals
 		if self.it % self.every == 0 or self.it == 1:
 			# Compute actual residual: r = b - A*x
 			r = self.b - self.A @ xk
@@ -298,7 +310,7 @@ class GPUSolverMonitor:
 			pct = 100.0 * self.it / self.maxiter
 			
 			# ETR calculation
-			etr_sec = 0.0  # ← ADD DEFAULT VALUE HERE
+			etr_sec = 0.0
 			if self.it > 0:
 				iters_left = self.maxiter - self.it
 				time_per_iter = elapsed / self.it
@@ -312,7 +324,7 @@ class GPUSolverMonitor:
 			if self.verbose:
 				print(f"  Iter {self.it}/{self.maxiter} ({pct:.1f}%), ||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, ETR: {etr_str}")
 			
-			# Invoke callback for Socket.IO emission
+			# Invoke callback for metrics
 			if self.progress_callback is not None:
 				self.progress_callback.on_iteration(
 					iteration=self.it,
@@ -321,16 +333,7 @@ class GPUSolverMonitor:
 					relative_residual=rel_res,
 					elapsed_time=elapsed,
 					etr_seconds=etr_sec
-				)
-				
-				# ← ADD THIS: Send incremental solution
-				if self.it % 100 == 0:
-					# Convert CuPy array to CPU for transmission
-					solution_cpu = xk.get() if hasattr(xk, 'get') else xk
-					self.progress_callback.on_solution_increment(
-						iteration=self.it,
-						solution=solution_cpu
-					)		
+				)	
 	
 	def reset(self):
 		"""Reset monitor for a new solve attempt"""
