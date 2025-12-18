@@ -9,7 +9,7 @@ const menuManager = new MenuManager({
 		settings: false,
 		search: false,
 		data: false,
-		metrics: true,
+		metrics: false,
 		about: false
 	}
 });
