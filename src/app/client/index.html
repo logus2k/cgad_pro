@@ -135,7 +135,11 @@
 		import { MillimetricScene } from './script/scene.js';
 		import { FEMClient } from './script/fem-client.js';
 		import { MetricsDisplay } from './script/metrics-display.js';
-		import { FEMMeshRenderer } from './script/fem-mesh-renderer.js';
+		import { FEMMeshRendererCPU } from './script/fem-mesh-renderer-cpu.js';
+		import { FEMMeshRendererGPU } from './script/fem-mesh-renderer-gpu.js';
+
+		// Toggle logic
+		const useGPU = true; 
 
 		// Initialize Three.js scene
 		const container = document.getElementById('three-layer');
@@ -146,7 +150,7 @@
 		const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
 		
 		// Initialize mesh renderer
-		const meshRenderer = new FEMMeshRenderer(millimetricScene.getScene());
+		const meshRenderer = useGPU ? new FEMMeshRendererGPU(millimetricScene.getScene()) : new FEMMeshRendererCPU(millimetricScene.getScene());
 
 		// Register event handlers
 		femClient.on('connected', () => {

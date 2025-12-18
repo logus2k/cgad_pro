@@ -115,37 +115,40 @@ class ProgressCallback:
         })
 
     def on_solution_increment(self, iteration: int, solution):
-        """
-        Send incremental solution update as binary
+        """Send incremental solution update as binary"""
         
-        Args:
-            iteration: Current iteration number
-            solution: NumPy or CuPy array of current solution estimate
-        """
-        # Throttle updates - only send every 2 seconds
+        print(f"[DEBUG] on_solution_increment called: iteration={iteration}, solution shape={solution.shape}")
+        
+        # Throttle updates
         current_time = time.time()
         if not hasattr(self, 'last_solution_update'):
             self.last_solution_update = 0
+            force_send = True
+        else:
+            force_send = False
         
-        if current_time - self.last_solution_update < 2.0:
+        if not force_send and current_time - self.last_solution_update < 2.0:
+            print(f"[DEBUG] Throttled (last update {current_time - self.last_solution_update:.2f}s ago)")
             return
         
         self.last_solution_update = current_time
+        print(f"[DEBUG] Sending solution increment...")
         
-        # ← FIX: Handle CuPy arrays
+        # Handle CuPy arrays
         import numpy as np
         if hasattr(solution, 'get'):
-            # CuPy array - transfer to CPU
             solution = solution.get()
         
-        # Convert to float32 for efficiency
+        # Convert to float32
         solution_f32 = np.array(solution, dtype=np.float32)
         
-        # Compute stats for scaling
+        # Compute stats
         sol_min = float(solution_f32.min())
         sol_max = float(solution_f32.max())
         
-        # Subsample for transmission (send every 10th value for speed)
+        print(f"[DEBUG] Solution range: [{sol_min:.3f}, {sol_max:.3f}]")
+        
+        # Subsample
         stride = 10
         solution_subsample = solution_f32[::stride]
         
@@ -153,6 +156,8 @@ class ProgressCallback:
         import base64
         solution_bytes = solution_subsample.tobytes()
         chunk_b64 = base64.b64encode(solution_bytes).decode('ascii')
+        
+        print(f"[DEBUG] Emitting solution_increment event (size: {len(chunk_b64)} bytes)")
         
         self._emit_sync('solution_increment', {
             'job_id': self.job_id,
@@ -166,7 +171,9 @@ class ProgressCallback:
                 'max': sol_max
             },
             'timestamp': time.time()
-        })       
+        })
+        
+        print(f"[DEBUG] solution_increment event emitted")     
     
     def on_error(self, stage: str, error: str):
         """Called when an error occurs"""

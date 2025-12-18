@@ -2,11 +2,10 @@
 
 import * as THREE from '../library/three.module.min.js';
 
-
 /**
  * FEM Mesh Renderer - Visualizes FEM meshes in Three.js
  */
-export class FEMMeshRenderer {
+export class FEMMeshRendererCPU {
 
     constructor(scene) {
         this.scene = scene;
@@ -36,7 +35,7 @@ export class FEMMeshRenderer {
             return;
         }
         
-        console.log('Building mesh geometry...');
+        console.log('Building mesh geometry with 6-triangle subdivision...');
         
         // Create geometry from Quad-8 elements
         const geometry = this.createGeometryFromQuad8(
@@ -61,13 +60,13 @@ export class FEMMeshRenderer {
     }
     
     /**
-     * Create Three.js geometry from Quad-8 connectivity
+     * Create Three.js geometry from Quad-8 connectivity using 6 triangles per element
      */
     createGeometryFromQuad8(coordinates, connectivity) {
         const { x, y } = coordinates;
         const geometry = new THREE.BufferGeometry();
         
-        // Convert Quad-8 to triangles (use only corner nodes: 0,2,4,6)
+        // Convert Quad-8 to triangles using all 8 nodes
         const vertices = [];
         const indices = [];
         
@@ -75,11 +74,11 @@ export class FEMMeshRenderer {
         
         for (let elem of connectivity) {
             // Quad-8: nodes [0,1,2,3,4,5,6,7]
-            // Use corners: [0,2,4,6]
-            const corners = [elem[0], elem[2], elem[4], elem[6]];
+            // 0,2,4,6 are corners; 1,3,5,7 are mid-sides
             
-            // Add vertices for this quad
-            for (let nodeId of corners) {
+            // Add all 8 vertices for this element
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
                 vertices.push(
                     x[nodeId],  // x
                     y[nodeId],  // y
@@ -87,22 +86,21 @@ export class FEMMeshRenderer {
                 );
             }
             
-            // Create two triangles from quad
-            // Triangle 1: 0-1-2
+            // 6-Triangle Subdivision Pattern (local indices 0-7):
+            // This covers the perimeter corners and the interior space
             indices.push(
-                vertexIndex + 0,
-                vertexIndex + 1,
-                vertexIndex + 2
+                // Outer corners to mid-nodes
+                vertexIndex + 0, vertexIndex + 1, vertexIndex + 7, // Triangle 1
+                vertexIndex + 1, vertexIndex + 2, vertexIndex + 3, // Triangle 2
+                vertexIndex + 3, vertexIndex + 4, vertexIndex + 5, // Triangle 3
+                vertexIndex + 5, vertexIndex + 6, vertexIndex + 7, // Triangle 4
+                
+                // Interior bridge triangles
+                vertexIndex + 1, vertexIndex + 3, vertexIndex + 7, // Triangle 5
+                vertexIndex + 3, vertexIndex + 5, vertexIndex + 7  // Triangle 6
             );
             
-            // Triangle 2: 0-2-3
-            indices.push(
-                vertexIndex + 0,
-                vertexIndex + 2,
-                vertexIndex + 3
-            );
-            
-            vertexIndex += 4;
+            vertexIndex += 8;
         }
         
         // Set geometry attributes
@@ -117,7 +115,7 @@ export class FEMMeshRenderer {
     }
     
     /**
-     * Update mesh colors based on solution values
+     * Update mesh colors based on solution values (all 8 nodes)
      */
     updateSolution(solutionData) {
         if (!this.meshObject) {
@@ -125,36 +123,24 @@ export class FEMMeshRenderer {
             return;
         }
         
-        console.log('Updating solution visualization...');
-        
         const { values, range } = solutionData;
         const [min, max] = range;
         
-        console.log(`Solution range: [${min.toExponential(3)}, ${max.toExponential(3)}]`);
-        
-        // Get positions to determine how many vertices we have
         const positions = this.meshObject.geometry.attributes.position;
         const numVertices = positions.count;
+        const colors = new Float32Array(numVertices * 3);
         
-        // Create color array
-        const colors = new Float32Array(numVertices * 3); // RGB for each vertex
-        
-        // We created 4 vertices per element (quad corners)
-        // Need to map solution values (per node) to vertices
         const connectivity = this.meshData.connectivity;
         
         let vertexIndex = 0;
         for (let elem of connectivity) {
-            // Quad-8 corners: [0,2,4,6]
-            const corners = [elem[0], elem[2], elem[4], elem[6]];
-            
-            for (let nodeId of corners) {
-                // Get solution value for this node
+            // Map solution for all 8 nodes per element
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
                 const value = values[nodeId];
                 const normalized = (value - min) / (max - min);
                 const color = this.valueToColor(normalized);
                 
-                // Set RGB
                 colors[vertexIndex * 3 + 0] = color.r;
                 colors[vertexIndex * 3 + 1] = color.g;
                 colors[vertexIndex * 3 + 2] = color.b;
@@ -163,42 +149,31 @@ export class FEMMeshRenderer {
             }
         }
         
-        // Update geometry
         this.meshObject.geometry.setAttribute(
             'color',
             new THREE.BufferAttribute(colors, 3)
         );
         
-        // Switch to vertex colors material (solid, not wireframe)
         this.meshObject.material.dispose();
         this.meshObject.material = new THREE.MeshBasicMaterial({
             vertexColors: true,
             side: THREE.DoubleSide,
-            wireframe: false  // Solid for color visualization
+            wireframe: false
         });
-        
-        console.log('✅ Solution visualization updated');
     }
 
     /**
-     * Update solution incrementally during solving
+     * Update solution incrementally (all 8 nodes)
      */
     updateSolutionIncremental(updateData) {
-        if (!this.meshObject) {
-            console.warn('No mesh loaded yet');
-            return;
-        }
+        if (!this.meshObject) return;
         
-        const { solution_values, chunk_info, iteration } = updateData;
+        const { solution_values, chunk_info } = updateData;
         const { min, max } = chunk_info;
         
-        console.log(`Incremental update at iteration ${iteration}, range: [${min.toFixed(3)}, ${max.toFixed(3)}]`);
-        
-        // Get positions
         const positions = this.meshObject.geometry.attributes.position;
         const numVertices = positions.count;
         
-        // Create or get color attribute
         let colors;
         if (this.meshObject.geometry.attributes.color) {
             colors = this.meshObject.geometry.attributes.color.array;
@@ -210,20 +185,16 @@ export class FEMMeshRenderer {
             );
         }
         
-        // Update colors based on solution values
         const connectivity = this.meshData.connectivity;
         
         let vertexIndex = 0;
         for (let elem of connectivity) {
-            const corners = [elem[0], elem[2], elem[4], elem[6]];
-            
-            for (let nodeId of corners) {
-                // Get solution value for this node
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
                 const value = solution_values[nodeId] || 0;
                 const normalized = (value - min) / (max - min);
                 const color = this.valueToColor(normalized);
                 
-                // Set RGB
                 colors[vertexIndex * 3 + 0] = color.r;
                 colors[vertexIndex * 3 + 1] = color.g;
                 colors[vertexIndex * 3 + 2] = color.b;
@@ -232,10 +203,8 @@ export class FEMMeshRenderer {
             }
         }
         
-        // Mark attribute as needing update
         this.meshObject.geometry.attributes.color.needsUpdate = true;
         
-        // Switch to colored material if still wireframe
         if (this.meshObject.material.wireframe) {
             this.meshObject.material.dispose();
             this.meshObject.material = new THREE.MeshBasicMaterial({
@@ -250,84 +219,43 @@ export class FEMMeshRenderer {
      * Map normalized value [0,1] to color (viridis-like colormap)
      */
     valueToColor(t) {
-        // Simple blue -> cyan -> green -> yellow -> red colormap
-        t = Math.max(0, Math.min(1, t)); // Clamp to [0,1]
-        
+        t = Math.max(0, Math.min(1, t)); 
         let r, g, b;
         
         if (t < 0.25) {
-            // Blue to Cyan
             const s = t / 0.25;
-            r = 0;
-            g = s;
-            b = 1;
+            r = 0; g = s; b = 1;
         } else if (t < 0.5) {
-            // Cyan to Green
             const s = (t - 0.25) / 0.25;
-            r = 0;
-            g = 1;
-            b = 1 - s;
+            r = 0; g = 1; b = 1 - s;
         } else if (t < 0.75) {
-            // Green to Yellow
             const s = (t - 0.5) / 0.25;
-            r = s;
-            g = 1;
-            b = 0;
+            r = s; g = 1; b = 0;
         } else {
-            // Yellow to Red
             const s = (t - 0.75) / 0.25;
-            r = 1;
-            g = 1 - s;
-            b = 0;
+            r = 1; g = 1 - s; b = 0;
         }
-        
         return new THREE.Color(r, g, b);
     }
     
-    /**
-     * Create color scale legend
-     */
-    createColorScale() {
-        // Could create a canvas-based legend here
-        return null;
-    }
+    createColorScale() { return null; }
     
-    /**
-     * Fit mesh to view
-     */
     fitMeshToView() {
         if (!this.meshObject) return;
-        
-        // Compute bounding box
         const box = new THREE.Box3().setFromObject(this.meshObject);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
-        
-        // Center mesh
         this.meshObject.position.sub(center);
-        
-        // Calculate scale to fit in view
         const maxDim = Math.max(size.x, size.y, size.z);
-        const targetSize = 50; // Fit to ~50 units
+        const targetSize = 50;
         const scale = targetSize / maxDim;
-        
         this.meshObject.scale.set(scale, scale, scale);
-        
-        console.log(`Mesh centered and scaled: ${maxDim.toFixed(2)} → ${targetSize}`);
     }
     
-    /**
-     * Toggle wireframe mode
-     */
     setWireframe(enabled) {
-        if (this.meshObject) {
-            this.meshObject.material.wireframe = enabled;
-        }
+        if (this.meshObject) this.meshObject.material.wireframe = enabled;
     }
     
-    /**
-     * Clear mesh from scene
-     */
     clear() {
         if (this.meshObject) {
             this.scene.remove(this.meshObject);

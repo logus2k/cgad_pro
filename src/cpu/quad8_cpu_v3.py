@@ -55,10 +55,21 @@ class IterativeSolverMonitor:
         Parameters
         ----------
         xk : ndarray
-            Current solution estimate
+            Current solution estimate (equilibrated)
         """
         self.it += 1
+        
+        # Always check for incremental solution updates (independent of logging)
+        if self.progress_callback is not None:
+            # Send at iteration 1, 100, 200, 300, etc.
+            if self.it == 1 or (self.it % 100 == 0):
+                print(f"[DEBUG] Sending solution increment at iteration {self.it}")  # ← Debug log
+                self.progress_callback.on_solution_increment(
+                    iteration=self.it,
+                    solution=xk
+                )
 
+        # Log progress at specified intervals
         if self.it % self.every != 0 and self.it != self.maxiter:
             return
 
@@ -85,7 +96,7 @@ class IterativeSolverMonitor:
             f"ETR: {fmt(etr)}"
         )
         
-        # Invoke callback for Socket.IO emission
+        # Invoke callback for metrics
         if self.progress_callback is not None:
             self.progress_callback.on_iteration(
                 iteration=self.it,
@@ -94,15 +105,8 @@ class IterativeSolverMonitor:
                 relative_residual=rel_res,
                 elapsed_time=elapsed,
                 etr_seconds=etr
-            )
-            
-            # ← ADD THIS: Send incremental solution every 100 iterations
-            if self.it % 100 == 0:  # Throttle to every 100 iterations
-                self.progress_callback.on_solution_increment(
-                    iteration=self.it,
-                    solution=xk  # Current solution estimate
-                )      
-            
+            )  
+
             
 class Quad8FEMSolver:
     """
@@ -414,6 +418,7 @@ class Quad8FEMSolver:
             fg_eq,
             every=self.cg_print_every,
             maxiter=self.maxiter,
+            progress_callback=self.progress_callback
         )
         
         # Solve with CG (more robust for large symmetric systems)

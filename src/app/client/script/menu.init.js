@@ -6,10 +6,11 @@ const menuManager = new MenuManager({
 	iconSize: 36,
 	menuMargin: 16,
 	initialVisibility: {
+		gallery: false,
+		metrics: true,
+		benchmark: false,
+		report: false,
 		settings: false,
-		search: false,
-		data: false,
-		metrics: false,
-		about: false
+		about: false,
 	}
 });
