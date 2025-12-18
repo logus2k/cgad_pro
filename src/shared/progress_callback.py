@@ -113,6 +113,60 @@ class ProgressCallback:
             'solution_url': f'/solve/{self.job_id}/solution/binary',
             'timestamp': time.time()
         })
+
+    def on_solution_increment(self, iteration: int, solution):
+        """
+        Send incremental solution update as binary
+        
+        Args:
+            iteration: Current iteration number
+            solution: NumPy or CuPy array of current solution estimate
+        """
+        # Throttle updates - only send every 2 seconds
+        current_time = time.time()
+        if not hasattr(self, 'last_solution_update'):
+            self.last_solution_update = 0
+        
+        if current_time - self.last_solution_update < 2.0:
+            return
+        
+        self.last_solution_update = current_time
+        
+        # ← FIX: Handle CuPy arrays
+        import numpy as np
+        if hasattr(solution, 'get'):
+            # CuPy array - transfer to CPU
+            solution = solution.get()
+        
+        # Convert to float32 for efficiency
+        solution_f32 = np.array(solution, dtype=np.float32)
+        
+        # Compute stats for scaling
+        sol_min = float(solution_f32.min())
+        sol_max = float(solution_f32.max())
+        
+        # Subsample for transmission (send every 10th value for speed)
+        stride = 10
+        solution_subsample = solution_f32[::stride]
+        
+        # Convert to base64
+        import base64
+        solution_bytes = solution_subsample.tobytes()
+        chunk_b64 = base64.b64encode(solution_bytes).decode('ascii')
+        
+        self._emit_sync('solution_increment', {
+            'job_id': self.job_id,
+            'iteration': iteration,
+            'chunk_data': chunk_b64,
+            'chunk_info': {
+                'stride': stride,
+                'total_nodes': len(solution_f32),
+                'transmitted_nodes': len(solution_subsample),
+                'min': sol_min,
+                'max': sol_max
+            },
+            'timestamp': time.time()
+        })       
     
     def on_error(self, stage: str, error: str):
         """Called when an error occurs"""

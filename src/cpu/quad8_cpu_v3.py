@@ -46,7 +46,7 @@ class IterativeSolverMonitor:
         self.maxiter: int = maxiter
         self.start_time: float = time.perf_counter()
         self.b_norm = float(np.linalg.norm(b))
-        self.progress_callback = progress_callback 
+        self.progress_callback = progress_callback
 
     def __call__(self, xk: NDArray[np.float64]) -> None:
         """
@@ -84,7 +84,8 @@ class IterativeSolverMonitor:
             f"||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, "
             f"ETR: {fmt(etr)}"
         )
-
+        
+        # Invoke callback for Socket.IO emission
         if self.progress_callback is not None:
             self.progress_callback.on_iteration(
                 iteration=self.it,
@@ -93,7 +94,14 @@ class IterativeSolverMonitor:
                 relative_residual=rel_res,
                 elapsed_time=elapsed,
                 etr_seconds=etr
-            )        
+            )
+            
+            # ← ADD THIS: Send incremental solution every 100 iterations
+            if self.it % 100 == 0:  # Throttle to every 100 iterations
+                self.progress_callback.on_solution_increment(
+                    iteration=self.it,
+                    solution=xk  # Current solution estimate
+                )      
             
             
 class Quad8FEMSolver:

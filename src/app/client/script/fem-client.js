@@ -2,7 +2,9 @@
  * FEM Solver Client - Socket.IO connection manager
  */
 export class FEMClient {
+
     constructor(serverUrl = 'http://localhost:4567') {
+
         this.serverUrl = serverUrl;
         this.socket = io(serverUrl);
         this.currentJobId = null;
@@ -12,6 +14,7 @@ export class FEMClient {
     }
     
     setupConnectionHandlers() {
+
         this.socket.on('connect', () => {
             console.log('✅ Connected to FEM server');
             this.triggerEvent('connected');
@@ -63,6 +66,22 @@ export class FEMClient {
             data.binary_chunk = new Float32Array(binaryData);
             this.triggerEvent('solution_update', data);
         });
+
+        // Incremental solution update
+        this.socket.on('solution_increment', (data) => {
+            // Decode base64 binary chunk
+            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
+            const solutionChunk = new Float32Array(binaryData);
+            
+            // Reconstruct full solution from subsampled data
+            const fullSolution = this.reconstructSolution(
+                solutionChunk,
+                data.chunk_info
+            );
+            
+            data.solution_values = fullSolution;
+            this.triggerEvent('solution_increment', data);
+        });        
         
         // Solve complete
         this.socket.on('solve_complete', async (data) => {
@@ -134,6 +153,38 @@ export class FEMClient {
             connectivity: connectivity
         };
     }
+
+    /**
+     * Reconstruct full solution from subsampled chunk
+     */
+    reconstructSolution(chunk, info) {
+        const { stride, total_nodes } = info;
+        
+        // Create full array with interpolated values
+        const full = new Float32Array(total_nodes);
+        
+        for (let i = 0; i < chunk.length - 1; i++) {
+            const baseIndex = i * stride;
+            const value1 = chunk[i];
+            const value2 = chunk[i + 1];
+            
+            // Set sampled value
+            full[baseIndex] = value1;
+            
+            // Linearly interpolate between samples
+            for (let j = 1; j < stride && baseIndex + j < total_nodes; j++) {
+                const t = j / stride;
+                full[baseIndex + j] = value1 * (1 - t) + value2 * t;
+            }
+        }
+        
+        // Handle last value
+        if (chunk.length > 0) {
+            full[(chunk.length - 1) * stride] = chunk[chunk.length - 1];
+        }
+        
+        return full;
+    }    
     
     /**
      * Fetch binary solution data

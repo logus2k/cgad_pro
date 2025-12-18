@@ -1,9 +1,13 @@
+// fem-mesh-renderer.js
+
 import * as THREE from '../library/three.module.min.js';
+
 
 /**
  * FEM Mesh Renderer - Visualizes FEM meshes in Three.js
  */
 export class FEMMeshRenderer {
+
     constructor(scene) {
         this.scene = scene;
         this.meshObject = null;
@@ -126,34 +130,58 @@ export class FEMMeshRenderer {
         const { values, range } = solutionData;
         const [min, max] = range;
         
-        // Create color attribute
-        const colors = [];
+        console.log(`Solution range: [${min.toExponential(3)}, ${max.toExponential(3)}]`);
         
-        // For each vertex, map solution value to color
-        for (let value of values) {
-            const normalized = (value - min) / (max - min);
-            const color = this.valueToColor(normalized);
-            colors.push(color.r, color.g, color.b);
+        // Get positions to determine how many vertices we have
+        const positions = this.meshObject.geometry.attributes.position;
+        const numVertices = positions.count;
+        
+        // Create color array
+        const colors = new Float32Array(numVertices * 3); // RGB for each vertex
+        
+        // We created 4 vertices per element (quad corners)
+        // Need to map solution values (per node) to vertices
+        const connectivity = this.meshData.connectivity;
+        
+        let vertexIndex = 0;
+        for (let elem of connectivity) {
+            // Quad-8 corners: [0,2,4,6]
+            const corners = [elem[0], elem[2], elem[4], elem[6]];
+            
+            for (let nodeId of corners) {
+                // Get solution value for this node
+                const value = values[nodeId];
+                const normalized = (value - min) / (max - min);
+                const color = this.valueToColor(normalized);
+                
+                // Set RGB
+                colors[vertexIndex * 3 + 0] = color.r;
+                colors[vertexIndex * 3 + 1] = color.g;
+                colors[vertexIndex * 3 + 2] = color.b;
+                
+                vertexIndex++;
+            }
         }
         
         // Update geometry
         this.meshObject.geometry.setAttribute(
             'color',
-            new THREE.Float32BufferAttribute(colors, 3)
+            new THREE.BufferAttribute(colors, 3)
         );
         
-        // Switch to vertex colors material
+        // Switch to vertex colors material (solid, not wireframe)
         this.meshObject.material.dispose();
         this.meshObject.material = new THREE.MeshBasicMaterial({
             vertexColors: true,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            wireframe: false  // Solid for color visualization
         });
         
         console.log('✅ Solution visualization updated');
     }
 
     /**
-     * Update solution incrementally
+     * Update solution incrementally during solving
      */
     updateSolutionIncremental(updateData) {
         if (!this.meshObject) {
@@ -161,17 +189,62 @@ export class FEMMeshRenderer {
             return;
         }
         
-        const { binary_chunk, chunk_info, iteration } = updateData;
+        const { solution_values, chunk_info, iteration } = updateData;
+        const { min, max } = chunk_info;
         
-        // binary_chunk is Float32Array of solution values
-        // Update portion of mesh colors
+        console.log(`Incremental update at iteration ${iteration}, range: [${min.toFixed(3)}, ${max.toFixed(3)}]`);
         
-        console.log(`Incremental update at iteration ${iteration}`);
+        // Get positions
+        const positions = this.meshObject.geometry.attributes.position;
+        const numVertices = positions.count;
         
-        // You can implement partial color updates here
-        // For now, store for final render
-        this.latestSolutionChunk = binary_chunk;
-    }    
+        // Create or get color attribute
+        let colors;
+        if (this.meshObject.geometry.attributes.color) {
+            colors = this.meshObject.geometry.attributes.color.array;
+        } else {
+            colors = new Float32Array(numVertices * 3);
+            this.meshObject.geometry.setAttribute(
+                'color',
+                new THREE.BufferAttribute(colors, 3)
+            );
+        }
+        
+        // Update colors based on solution values
+        const connectivity = this.meshData.connectivity;
+        
+        let vertexIndex = 0;
+        for (let elem of connectivity) {
+            const corners = [elem[0], elem[2], elem[4], elem[6]];
+            
+            for (let nodeId of corners) {
+                // Get solution value for this node
+                const value = solution_values[nodeId] || 0;
+                const normalized = (value - min) / (max - min);
+                const color = this.valueToColor(normalized);
+                
+                // Set RGB
+                colors[vertexIndex * 3 + 0] = color.r;
+                colors[vertexIndex * 3 + 1] = color.g;
+                colors[vertexIndex * 3 + 2] = color.b;
+                
+                vertexIndex++;
+            }
+        }
+        
+        // Mark attribute as needing update
+        this.meshObject.geometry.attributes.color.needsUpdate = true;
+        
+        // Switch to colored material if still wireframe
+        if (this.meshObject.material.wireframe) {
+            this.meshObject.material.dispose();
+            this.meshObject.material = new THREE.MeshBasicMaterial({
+                vertexColors: true,
+                side: THREE.DoubleSide,
+                wireframe: false
+            });
+        }
+    }   
     
     /**
      * Map normalized value [0,1] to color (viridis-like colormap)

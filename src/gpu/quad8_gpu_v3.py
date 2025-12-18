@@ -320,8 +320,17 @@ class GPUSolverMonitor:
 					residual=res_norm,
 					relative_residual=rel_res,
 					elapsed_time=elapsed,
-					etr_seconds=etr_sec  # ← Now always defined
-				)			
+					etr_seconds=etr_sec
+				)
+				
+				# ← ADD THIS: Send incremental solution
+				if self.it % 100 == 0:
+					# Convert CuPy array to CPU for transmission
+					solution_cpu = xk.get() if hasattr(xk, 'get') else xk
+					self.progress_callback.on_solution_increment(
+						iteration=self.it,
+						solution=solution_cpu
+					)		
 	
 	def reset(self):
 		"""Reset monitor for a new solve attempt"""

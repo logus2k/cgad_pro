@@ -123,6 +123,11 @@ async def run_solver_task(job_id: str, params: dict):
         # Run in executor to not block event loop
         results = await loop.run_in_executor(None, wrapper.run)
         
+        # ← FIX: Convert CuPy arrays to NumPy before storing
+        solution = results['u']
+        if hasattr(solution, 'get'):
+            solution = solution.get()  # Transfer from GPU to CPU
+        
         # Update job with results
         jobs[job_id].update({
             'status': 'completed',
@@ -132,7 +137,7 @@ async def run_solver_task(job_id: str, params: dict):
                 'timing_metrics': results['timing_metrics'],
                 'solution_stats': results['solution_stats'],
                 'mesh_info': results['mesh_info'],
-                'u': results['u']  # ← STORE SOLUTION ARRAY
+                'u': solution  # ← Store CPU copy
             }
         })
         
@@ -144,7 +149,6 @@ async def run_solver_task(job_id: str, params: dict):
             'error': str(e)
         }, room=job_id)
         print(f"Job {job_id} failed: {e}")
-
 
 # ============================================================================
 # REST API Endpoints
@@ -344,8 +348,13 @@ async def get_solution_binary(job_id: str):
     if not results or 'u' not in results:
         raise HTTPException(status_code=404, detail="Solution data not found")
     
-    # Extract solution array (NumPy array from solver)
+    # Extract solution array (might be NumPy or CuPy)
     solution = results['u']
+    
+    # ← FIX: Handle CuPy arrays
+    if hasattr(solution, 'get'):
+        # CuPy array - transfer to CPU first
+        solution = solution.get()
     
     # Convert to float32 for efficiency
     solution_f32 = np.array(solution, dtype=np.float32)

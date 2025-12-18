@@ -177,14 +177,30 @@
 			);
 		});
 
-		femClient.on('solve_complete', (data) => {
+		femClient.on('solve_complete', async (data) => {
 			metricsDisplay.updateStatus('Complete');
 			metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
 			console.log('Final results:', data);
 			
-			// You can later fetch and display the solution field here
-			// meshRenderer.updateSolution({...});
+			// Visualize solution field if available
+			if (data.solution_field) {
+				meshRenderer.updateSolution({
+					values: Array.from(data.solution_field),
+					range: data.solution_stats.u_range
+				});
+				millimetricScene.render();
+			}
 		});
+
+		femClient.on('solution_increment', (data) => {
+			// Update mesh colors in real-time during solving
+			meshRenderer.updateSolutionIncremental(data);
+			millimetricScene.render();
+			
+			// Optional: update metrics with current solution range
+			console.log(`Solution update: iter ${data.iteration}, ` +
+						`range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+		});	
 
 		// Expose to window for testing
 		window.femClient = femClient;
