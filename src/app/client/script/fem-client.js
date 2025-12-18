@@ -33,9 +33,21 @@ export class FEMClient {
             this.triggerEvent('stage_complete', data);
         });
         
-        // Mesh loaded
-        this.socket.on('mesh_loaded', (data) => {
+        // Mesh loaded - fetch binary
+        this.socket.on('mesh_loaded', async (data) => {
             console.log(`📐 Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
+            
+            // Fetch binary mesh data
+            if (data.binary_url) {
+                try {
+                    const meshData = await this.fetchBinaryMesh(data.binary_url);
+                    data.coordinates = meshData.coordinates;
+                    data.connectivity = meshData.connectivity;
+                } catch (error) {
+                    console.error('Failed to fetch binary mesh:', error);
+                }
+            }
+            
             this.triggerEvent('mesh_loaded', data);
         });
         
@@ -44,9 +56,28 @@ export class FEMClient {
             this.triggerEvent('solve_progress', data);
         });
         
+        // Incremental solution update
+        this.socket.on('solution_update', (data) => {
+            // Decode base64 binary chunk
+            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
+            data.binary_chunk = new Float32Array(binaryData);
+            this.triggerEvent('solution_update', data);
+        });
+        
         // Solve complete
-        this.socket.on('solve_complete', (data) => {
+        this.socket.on('solve_complete', async (data) => {
             console.log(`🎉 Solve complete! Converged: ${data.converged}, Iterations: ${data.iterations}`);
+            
+            // Fetch final solution binary
+            if (data.solution_url) {
+                try {
+                    const solution = await this.fetchBinarySolution(data.solution_url);
+                    data.solution_field = solution;
+                } catch (error) {
+                    console.error('Failed to fetch solution:', error);
+                }
+            }
+            
             this.triggerEvent('solve_complete', data);
         });
         
@@ -55,6 +86,78 @@ export class FEMClient {
             console.error(`❌ Solver error at ${data.stage}:`, data.error);
             this.triggerEvent('solve_error', data);
         });
+    }
+    
+    /**
+     * Fetch binary mesh data
+     */
+    async fetchBinaryMesh(url) {
+        const response = await fetch(`${this.serverUrl}${url}`);
+        const buffer = await response.arrayBuffer();
+        
+        return this.parseBinaryMesh(buffer);
+    }
+    
+    /**
+     * Parse binary mesh format
+     */
+    parseBinaryMesh(buffer) {
+        const view = new DataView(buffer);
+        let offset = 0;
+        
+        // Read header
+        const numNodes = view.getUint32(offset, true); offset += 4;
+        const numElements = view.getUint32(offset, true); offset += 4;
+        
+        console.log(`Parsing binary mesh: ${numNodes} nodes, ${numElements} elements`);
+        
+        // Read coordinates
+        const x = new Float32Array(buffer, offset, numNodes);
+        offset += numNodes * 4;
+        
+        const y = new Float32Array(buffer, offset, numNodes);
+        offset += numNodes * 4;
+        
+        // Read connectivity (8 nodes per Quad-8 element)
+        const connectivityFlat = new Int32Array(buffer, offset, numElements * 8);
+        
+        // Reshape to 2D array
+        const connectivity = [];
+        for (let i = 0; i < numElements; i++) {
+            connectivity.push(
+                Array.from(connectivityFlat.slice(i * 8, (i + 1) * 8))
+            );
+        }
+        
+        return {
+            coordinates: { x: Array.from(x), y: Array.from(y) },
+            connectivity: connectivity
+        };
+    }
+    
+    /**
+     * Fetch binary solution data
+     */
+    async fetchBinarySolution(url) {
+        const response = await fetch(`${this.serverUrl}${url}`);
+        const buffer = await response.arrayBuffer();
+        
+        const view = new DataView(buffer);
+        const numValues = view.getUint32(0, true);
+        
+        return new Float32Array(buffer, 4, numValues);
+    }
+    
+    /**
+     * Convert base64 to ArrayBuffer
+     */
+    base64ToArrayBuffer(base64) {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
     }
     
     /**

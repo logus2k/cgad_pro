@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="style/hud.css" />
 	<link rel="stylesheet" href="style/window.css" />
 	<link rel="stylesheet" href="style/menu.css" />
+	<link rel="stylesheet" href="style/metrics.css" />	
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
@@ -131,32 +132,21 @@
 	</div>
 
 	<script type="module">
-
 		import { MillimetricScene } from './script/scene.js';
 		import { FEMClient } from './script/fem-client.js';
 		import { MetricsDisplay } from './script/metrics-display.js';
-		import { ModelGallery } from './script/model_gallery.js';
-
-        // Example usage
-        const models = [
-            { name: 'Model A', image: './images/image1.png' },
-            { name: 'Model B', image: './images/image2.png' },
-            { name: 'Model C', image: './images/image3.png' },
-            { name: 'Model D', image: './images/image4.png' },
-            { name: 'Model E', image: './images/image5.png' },
-            { name: 'Model F', image: './images/image6.png' },
-        ];
-
-		const gallery = new ModelGallery(models);
-		gallery.show();
+		import { FEMMeshRenderer } from './script/fem-mesh-renderer.js';
 
 		// Initialize Three.js scene
 		const container = document.getElementById('three-layer');
-		const scene = new MillimetricScene(container);
+		const millimetricScene = new MillimetricScene(container);
 
 		// Initialize FEM client
 		const femClient = new FEMClient('http://localhost:4567');
 		const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
+		
+		// Initialize mesh renderer
+		const meshRenderer = new FEMMeshRenderer(millimetricScene.getScene());
 
 		// Register event handlers
 		femClient.on('connected', () => {
@@ -170,6 +160,12 @@
 
 		femClient.on('mesh_loaded', (data) => {
 			metricsDisplay.updateMesh(data.nodes, data.elements);
+			
+			// Render mesh if coordinates are available
+			if (data.coordinates && data.connectivity) {
+				meshRenderer.loadMesh(data);
+				millimetricScene.render(); // Trigger re-render
+			}
 		});
 
 		femClient.on('solve_progress', (data) => {
@@ -185,11 +181,16 @@
 			metricsDisplay.updateStatus('Complete');
 			metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
 			console.log('Final results:', data);
+			
+			// You can later fetch and display the solution field here
+			// meshRenderer.updateSolution({...});
 		});
 
 		// Expose to window for testing
 		window.femClient = femClient;
 		window.metricsDisplay = metricsDisplay;
+		window.meshRenderer = meshRenderer;
+		window.millimetricScene = millimetricScene;
 	</script>
 
 	<script type="module" src="./script/menu.init.js"></script>

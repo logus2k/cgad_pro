@@ -8,6 +8,7 @@ Usage:
     uvicorn fem_api_server:app --host 0.0.0.0 --port 4567 --reload
 """
 import sys
+import io
 from pathlib import Path
 
 # Add parent directories to Python path
@@ -22,8 +23,12 @@ from typing import Dict
 import uvicorn
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import socketio
+
+import struct
+import numpy as np
 
 from models import SolverParams, JobStatus, JobResult
 from progress_callback import ProgressCallback
@@ -104,8 +109,9 @@ async def run_solver_task(job_id: str, params: dict):
         # Update job status
         jobs[job_id]['status'] = 'running'
         
-        # Create callback
-        callback = ProgressCallback(sio, job_id)
+        # Create callback with event loop reference
+        loop = asyncio.get_event_loop()
+        callback = ProgressCallback(sio, job_id, loop)
         
         # Create and run solver
         wrapper = SolverWrapper(
@@ -115,7 +121,6 @@ async def run_solver_task(job_id: str, params: dict):
         )
         
         # Run in executor to not block event loop
-        loop = asyncio.get_event_loop()
         results = await loop.run_in_executor(None, wrapper.run)
         
         # Update job with results
@@ -126,7 +131,8 @@ async def run_solver_task(job_id: str, params: dict):
                 'iterations': results['iterations'],
                 'timing_metrics': results['timing_metrics'],
                 'solution_stats': results['solution_stats'],
-                'mesh_info': results['mesh_info']
+                'mesh_info': results['mesh_info'],
+                'u': results['u']  # ← STORE SOLUTION ARRAY
             }
         })
         
@@ -275,6 +281,98 @@ async def list_meshes():
     
     return {"meshes": meshes}
 
+@app.get("/solve/{job_id}/mesh/binary")
+async def get_mesh_binary(job_id: str):
+    """Get mesh geometry as binary (efficient transfer)"""
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job = jobs[job_id]
+    mesh_file = job['params']['mesh_file']
+    
+    # Load mesh from file
+    import h5py
+    with h5py.File(mesh_file, 'r') as f:
+        x = np.array(f['x'], dtype=np.float32)
+        y = np.array(f['y'], dtype=np.float32)
+        connectivity = np.array(f['quad8'], dtype=np.int32)
+    
+    # Pack binary format:
+    # Header: [num_nodes(4 bytes), num_elements(4 bytes)]
+    # Data: [x_array, y_array, connectivity_flat]
+    
+    buffer = io.BytesIO()
+    
+    # Write header
+    buffer.write(struct.pack('II', len(x), len(connectivity)))
+    
+    # Write coordinate arrays
+    buffer.write(x.tobytes())
+    buffer.write(y.tobytes())
+    
+    # Write connectivity (flatten to 1D)
+    buffer.write(connectivity.flatten().tobytes())
+    
+    # Reset buffer position to beginning
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/octet-stream",
+        headers={
+            "Content-Disposition": f"attachment; filename=mesh_{job_id}.bin",
+            "X-Mesh-Format": "quad8-binary-v1"
+        }
+    )
+
+@app.get("/solve/{job_id}/solution/binary")
+async def get_solution_binary(job_id: str):
+    """Get final solution field as binary"""
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job = jobs[job_id]
+    
+    if job['status'] != 'completed':
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Job not completed yet. Status: {job['status']}"
+        )
+    
+    # Get solution from results
+    results = job.get('results')
+    if not results or 'u' not in results:
+        raise HTTPException(status_code=404, detail="Solution data not found")
+    
+    # Extract solution array (NumPy array from solver)
+    solution = results['u']
+    
+    # Convert to float32 for efficiency
+    solution_f32 = np.array(solution, dtype=np.float32)
+    
+    # Pack solution as binary
+    # Format: [num_values(4 bytes), values(float32 array)]
+    buffer = io.BytesIO()
+    
+    # Write header (number of values)
+    buffer.write(struct.pack('I', len(solution_f32)))
+    
+    # Write solution values
+    buffer.write(solution_f32.tobytes())
+    
+    # Reset buffer position
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/octet-stream",
+        headers={
+            "Content-Disposition": f"attachment; filename=solution_{job_id}.bin",
+            "X-Solution-Format": "float32-array",
+            "X-Solution-Min": str(float(solution_f32.min())),
+            "X-Solution-Max": str(float(solution_f32.max()))
+        }
+    )
 
 # ============================================================================
 # Main Entry Point

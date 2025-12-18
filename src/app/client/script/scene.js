@@ -1,8 +1,13 @@
+// scene.js
+
 import * as THREE from '../library/three.module.min.js';
 import { OrbitControls } from '../library/OrbitControls.js';
 
+
 export class MillimetricScene {
+
     constructor(container) {
+
         this.container = container;
 
         this.scene = new THREE.Scene();
@@ -59,6 +64,10 @@ export class MillimetricScene {
     render() {
         this.renderer.render(this.scene, this.camera);
     }
+
+    getScene() {
+        return this.scene;
+    }    
 
     #addLights() {
         const ambient = new THREE.AmbientLight(0xffffff, 0.6);

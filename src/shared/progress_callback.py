@@ -4,35 +4,25 @@ Progress callback for Socket.IO event emission during FEM solving.
 import time
 import asyncio
 from typing import Optional
+import struct
 
 
 class ProgressCallback:
     """Emit events to Socket.IO during solving"""
     
-    def __init__(self, socketio, job_id: str):
+    def __init__(self, socketio, job_id: str, loop=None):
         self.socketio = socketio
         self.job_id = job_id
+        self.loop = loop or asyncio.get_event_loop()
+        self.last_solution_update = 0  # Throttle solution updates
     
     def _emit_sync(self, event: str, data: dict):
-        """Emit event synchronously by scheduling it in the event loop"""
-        try:
-            # Try to get the running event loop
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Schedule the coroutine to run
-                asyncio.create_task(
-                    self.socketio.emit(event, data, room=self.job_id)
-                )
-            else:
-                # If no loop is running, run it synchronously
-                loop.run_until_complete(
-                    self.socketio.emit(event, data, room=self.job_id)
-                )
-        except RuntimeError:
-            # No event loop - create a new one
-            asyncio.run(
-                self.socketio.emit(event, data, room=self.job_id)
-            )
+        """Emit event by scheduling in the async event loop"""
+        future = asyncio.run_coroutine_threadsafe(
+            self.socketio.emit(event, data, room=self.job_id),
+            self.loop
+        )
+        return future
     
     def on_stage_start(self, stage: str):
         """Called when a stage begins"""
@@ -53,13 +43,13 @@ class ProgressCallback:
     
     def on_mesh_loaded(self, nodes: int, elements: int, 
                        coordinates: Optional[dict], connectivity: Optional[list]):
-        """Called after mesh is loaded"""
+        """Called after mesh is loaded - send metadata only"""
         self._emit_sync('mesh_loaded', {
             'job_id': self.job_id,
             'nodes': nodes,
             'elements': elements,
-            'coordinates': coordinates if nodes < 50000 else None,
-            'connectivity': connectivity if elements < 10000 else None,
+            # Don't send geometry via Socket.IO - use binary endpoint
+            'binary_url': f'/solve/{self.job_id}/mesh/binary',
             'timestamp': time.time()
         })
     
@@ -80,6 +70,35 @@ class ProgressCallback:
             'timestamp': time.time()
         })
     
+    def on_solution_update(self, iteration: int, solution_chunk: bytes, 
+                          chunk_info: dict):
+        """
+        Send incremental solution update as binary
+        
+        Args:
+            iteration: Current iteration number
+            solution_chunk: Binary data (partial solution)
+            chunk_info: Metadata about the chunk
+        """
+        # Throttle updates - only send every 100 iterations
+        current_time = time.time()
+        if current_time - self.last_solution_update < 1.0:  # Max 1 update/sec
+            return
+        
+        self.last_solution_update = current_time
+        
+        # Convert binary to base64 for Socket.IO
+        import base64
+        chunk_b64 = base64.b64encode(solution_chunk).decode('ascii')
+        
+        self._emit_sync('solution_update', {
+            'job_id': self.job_id,
+            'iteration': iteration,
+            'chunk_data': chunk_b64,
+            'chunk_info': chunk_info,
+            'timestamp': time.time()
+        })
+    
     def on_solve_complete(self, converged: bool, iterations: int,
                          timing_metrics: dict, solution_stats: dict,
                          mesh_info: dict):
@@ -91,6 +110,7 @@ class ProgressCallback:
             'timing_metrics': timing_metrics,
             'solution_stats': solution_stats,
             'mesh_info': mesh_info,
+            'solution_url': f'/solve/{self.job_id}/solution/binary',
             'timestamp': time.time()
         })
     
