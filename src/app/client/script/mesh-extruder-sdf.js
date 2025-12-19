@@ -81,7 +81,6 @@ export class MeshExtruderSDF {
     
     /**
      * Calculate Z bounds based on maximum radius in segment cache
-     * Must be called AFTER buildSegmentCache()
      */
     calculateZBounds() {
         let maxRadius = 0;
@@ -95,7 +94,6 @@ export class MeshExtruderSDF {
             }
         }
         
-        // Add 10% margin
         const zExtent = maxRadius * 1.1;
         
         console.log(`   Max radius found: ${maxRadius.toFixed(3)}, Z extent: +/-${zExtent.toFixed(3)}`);
@@ -108,7 +106,7 @@ export class MeshExtruderSDF {
      */
     buildSegmentCache() {
         const coords = this.meshData.coordinates;
-        const { xMin, xMax, yMin, yMax } = this.bounds;
+        const { xMin, xMax, yMin, yMax } = this.originalBounds;
         const yRange = yMax - yMin;
         
         const cacheResolution = this.config.resolution[0] * 2;
@@ -124,7 +122,6 @@ export class MeshExtruderSDF {
         for (let i = 0; i <= cacheResolution; i++) {
             const x = xMin + i * dx;
             
-            // Collect all Y values at this X
             const yValues = [];
             for (let j = 0; j < coords.x.length; j += 3) {
                 if (Math.abs(coords.x[j] - x) < tolerance) {
@@ -175,7 +172,7 @@ export class MeshExtruderSDF {
      * Get cached Y segments at X (O(1) lookup)
      */
     getYSegmentsAtXCached(x) {
-        const { xMin, xMax } = this.bounds;
+        const { xMin, xMax } = this.originalBounds;
         
         const t = (x - xMin) / (xMax - xMin);
         const idx = Math.round(t * this.segmentCacheResolution);
@@ -221,11 +218,16 @@ export class MeshExtruderSDF {
     }
 
     /**
+     * Check if point is inside tube
+     */
+    isInsideTube(x, y, z) {
+        return this.sdf(x, y, z) < 0;
+    }
+
+    /**
      * Remove end cap faces to open the tube ends
-     * Detects actual mesh X range and removes faces at boundaries
      */
     removeEndCaps(positions, indices) {
-        // Find actual X range in the generated mesh vertices
         let meshXMin = Infinity, meshXMax = -Infinity;
         for (let i = 0; i < positions.length; i += 3) {
             const x = positions[i];
@@ -235,9 +237,8 @@ export class MeshExtruderSDF {
         
         console.log(`   Mesh X range: [${meshXMin.toFixed(3)}, ${meshXMax.toFixed(3)}]`);
         
-        // Tolerance: remove faces within 1% of the X range from edges (reduced from 3%)
         const xRange = meshXMax - meshXMin;
-        const tolerance = xRange * 0.0125;
+        const tolerance = xRange * 0.015;
         
         const newIndices = [];
         let removedInlet = 0;
@@ -248,19 +249,16 @@ export class MeshExtruderSDF {
             const i1 = indices[i + 1];
             const i2 = indices[i + 2];
             
-            // Get X coordinates of triangle vertices
             const x0 = positions[i0 * 3];
             const x1 = positions[i1 * 3];
             const x2 = positions[i2 * 3];
             
-            // Check if all vertices are near inlet (meshXMin)
             const atInlet = (
                 x0 < meshXMin + tolerance &&
                 x1 < meshXMin + tolerance &&
                 x2 < meshXMin + tolerance
             );
             
-            // Check if all vertices are near outlet (meshXMax)
             const atOutlet = (
                 x0 > meshXMax - tolerance &&
                 x1 > meshXMax - tolerance &&
@@ -334,7 +332,6 @@ export class MeshExtruderSDF {
             indices[i * 3 + 2] = result.cells[i][2];
         }
         
-        // Remove end caps to open inlet and outlets
         indices = this.removeEndCaps(positions, indices);
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -374,7 +371,6 @@ export class MeshExtruderSDF {
         const positions = geometry.attributes.position;
         const colors = new Float32Array(positions.count * 3);
         
-        // Use original bounds for color mapping
         const { xMin, xMax } = this.originalBounds;
         
         for (let i = 0; i < positions.count; i++) {
@@ -497,11 +493,7 @@ export class MeshExtruderSDF {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
-    /**
-     * Fit mesh to view - uses original bounds for correct positioning
-     */
     fitMeshToView(mesh) {
-        // Use original bounds for positioning (not expanded bounds)
         const { xMin, xMax, yMin, yMax } = this.originalBounds;
 
         const sizeX = xMax - xMin;
@@ -527,7 +519,7 @@ export class MeshExtruderSDF {
         this.config.show3DExtrusion = visible;
         if (this.mesh3D) this.mesh3D.visible = visible;
     }
-
+    
     /**
      * Set visualization mode
      * @param {string} mode - '2d', '3d', or 'both'
@@ -550,7 +542,7 @@ export class MeshExtruderSDF {
                 console.warn(`Unknown visualization mode: ${mode}`);
         }
         console.log(`Visualization mode: ${mode}`);
-    }    
+    }
     
     async createAll() {
         this.create2DMesh();

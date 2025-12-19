@@ -51,7 +51,7 @@
 
 				<div class="hud gallery" id="hud-gallery" style="z-index: 15;">
 
-					<h1>MESH GALLERY</h1>
+					<h1>SCENE SETTINGS</h1>
 					<div class="sep"></div>
 
 					<div class="gallery-container" class="gallery-container">
@@ -138,13 +138,14 @@
 		import { FEMMeshRendererCPU } from './script/fem-mesh-renderer-cpu.js';
 		import { FEMMeshRendererGPU } from './script/fem-mesh-renderer-gpu.js';
 		import { MeshExtruderSDF } from './script/mesh-extruder-sdf.js';
+		import { ParticleFlow } from './script/particle-flow.js';
 
 		// ============================================================================
 		// Configuration
 		// ============================================================================
 		const useGPU = false;              // Use GPU renderer (false = CPU)
 		const use3DExtrusion = true;       // Enable 3D extrusion of mesh
-		const useParticleAnimation = false; // Enable particle flow animation (TODO)
+		const useParticleAnimation = true; // Enable particle flow animation
 
 		// ============================================================================
 		// Initialize Three.js scene
@@ -165,7 +166,8 @@
 
 		// 3D mesh extruder (initialized after solve completes)
 		let meshExtruder = null;
-		let animationFrameId = null;
+		let particleFlow = null;
+		let velocityData = null;
 
 		// ============================================================================
 		// Socket.IO Event Handlers
@@ -173,7 +175,7 @@
 		
 		femClient.on('connected', () => {
 			metricsDisplay.updateStatus('Connected');
-			console.log('✅ Connected to FEM server');
+			console.log('Connected to FEM server');
 		});
 
 		femClient.on('stage_start', (data) => {
@@ -210,11 +212,11 @@
 		femClient.on('solve_complete', async (data) => {
 			metricsDisplay.updateStatus('Complete');
 			metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
-			console.log('🎉 Solve complete!', data);
+			console.log('Solve complete!', data);
 			
 			// Check if we have solution data
 			if (!data.solution_field) {
-				console.error('❌ No solution field in results');
+				console.error('No solution field in results');
 				return;
 			}
 			
@@ -228,10 +230,10 @@
 			// ========================================================================
 			if (use3DExtrusion) {
 				try {
-					console.log('🌊 Creating 3D extruded visualization...');
+					console.log('Creating 3D extruded visualization...');
 					
-					// Fetch velocity data (optional for coloring)
-					let velocityData = null;
+					// Fetch velocity data
+					velocityData = null;
 					try {
 						const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
 						const response = await fetch(`http://localhost:4567${velocityUrl}`);
@@ -239,12 +241,12 @@
 						if (response.ok) {
 							const buffer = await response.arrayBuffer();
 							velocityData = parseVelocityBinary(buffer, data.mesh_info.elements);
-							console.log('✅ Velocity data loaded:', velocityData);
+							console.log('Velocity data loaded:', velocityData);
 						} else {
-							console.warn('⚠️  Velocity data not available, using solution only');
+							console.warn('Velocity data not available, using solution only');
 						}
 					} catch (velocityError) {
-						console.warn('⚠️  Could not fetch velocity:', velocityError);
+						console.warn('Could not fetch velocity:', velocityError);
 					}
 					
 					// Create mesh extruder with both 2D and 3D views
@@ -253,31 +255,54 @@
 						window.currentMeshData,
 						solutionData,
 						{
-							show2DMesh: true,           // Keep 2D mesh visible
+							show2DMesh: false,          // Hide 2D mesh by default
 							show3DExtrusion: true,      // Show 3D extrusion
-							extrusionDepth: 2.0,        // Extrusion depth in Z
-							extrusionOpacity: 0.6       // Transparency of 3D mesh
+							tubeOpacity: 0.8
 						}
 					);
 
-					meshExtruder.createAll();
+					await meshExtruder.createAll();
 					millimetricScene.render();
 
-					window.meshExtruder = meshExtruder;					
+					// Expose to window
+					window.meshExtruder = meshExtruder;
+					window.velocityData = velocityData;
 					
-					console.log('✅ 3D extrusion created successfully');
+					console.log('3D extrusion created successfully');
 					
-					// TODO: Add particle animation if enabled
+					// ================================================================
+					// Particle Animation
+					// ================================================================
 					if (useParticleAnimation && velocityData) {
-						console.log('🎨 Starting particle animation...');
-						// Animation loop will go here
+						console.log('Creating particle flow animation...');
+						
+						particleFlow = new ParticleFlow(
+							meshExtruder,
+							velocityData,
+							() => millimetricScene.render(),
+							{
+								particleCount: 1000,
+								speedScale: 0.3,
+								particleSize: 0.4,
+								particleOpacity: 0.9,
+								particleMaxLife: 8.0,
+								colorBySpeed: true
+							}
+						);
+						
+						window.particleFlow = particleFlow;
+						
+						// Start animation
+						particleFlow.start();
+						
+						console.log('Particle animation started');
 					}
 					
 				} catch (error) {
-					console.error('❌ Failed to create 3D extrusion:', error);
+					console.error('Failed to create 3D extrusion:', error);
 					
 					// Fallback to standard 2D visualization
-					console.log('⚠️  Falling back to 2D visualization');
+					console.log('Falling back to 2D visualization');
 					meshRenderer.loadMesh(window.currentMeshData);
 					meshRenderer.updateSolution(solutionData);
 					millimetricScene.render();
@@ -287,7 +312,7 @@
 			// Standard 2D Mode
 			// ========================================================================
 			else {
-				console.log('📐 Using standard 2D visualization');
+				console.log('Using standard 2D visualization');
 				meshRenderer.updateSolution(solutionData);
 				millimetricScene.render();
 			}
@@ -353,7 +378,7 @@
 				abs_vel.push(Math.sqrt(vx * vx + vy * vy));
 			}
 			
-			console.log(`✅ Parsed ${vel.length} velocity vectors`);
+			console.log(`Parsed ${vel.length} velocity vectors`);
 			console.log(`   Speed range: [${Math.min(...abs_vel).toFixed(3)}, ${Math.max(...abs_vel).toFixed(3)}]`);
 			
 			return { vel, abs_vel };
@@ -367,7 +392,6 @@
 		window.metricsDisplay = metricsDisplay;
 		window.meshRenderer = meshRenderer;
 		window.millimetricScene = millimetricScene;
-		window.meshExtruder = meshExtruder;
 		
 		// ============================================================================
 		// Console Helper Functions
@@ -381,9 +405,9 @@
 			if (meshExtruder) {
 				meshExtruder.set2DMeshVisible(visible);
 				millimetricScene.render();
-				console.log(`📐 2D mesh: ${visible ? 'visible' : 'hidden'}`);
+				console.log(`2D mesh: ${visible ? 'visible' : 'hidden'}`);
 			} else {
-				console.warn('⚠️  Mesh extruder not initialized');
+				console.warn('Mesh extruder not initialized');
 			}
 		};
 		
@@ -395,26 +419,86 @@
 			if (meshExtruder) {
 				meshExtruder.set3DExtrusionVisible(visible);
 				millimetricScene.render();
-				console.log(`🌊 3D extrusion: ${visible ? 'visible' : 'hidden'}`);
+				console.log(`3D extrusion: ${visible ? 'visible' : 'hidden'}`);
 			} else {
-				console.warn('⚠️  Mesh extruder not initialized');
+				console.warn('Mesh extruder not initialized');
 			}
 		};
 		
 		/**
-		* Update extrusion configuration
-		* Usage: updateExtrusionConfig({ extrusionDepth: 5.0, extrusionOpacity: 0.8 })
+		* Toggle particle animation
+		* Usage: toggleParticles(true)  // Start particles
+		*        toggleParticles(false) // Stop particles
 		*/
-		window.updateExtrusionConfig = (newConfig) => {
-			if (meshExtruder) {
-				Object.assign(meshExtruder.config, newConfig);
-				console.log('✅ Extrusion config updated:', meshExtruder.config);
-				
-				// Recreate mesh with new config
-				meshExtruder.create3DExtrusion();
-				millimetricScene.render();
+		window.toggleParticles = (visible) => {
+			if (particleFlow) {
+				particleFlow.setVisible(visible);
+				console.log(`Particles: ${visible ? 'visible' : 'hidden'}`);
+			} else if (visible && velocityData && meshExtruder) {
+				// Create particle flow if it doesn't exist
+				particleFlow = new ParticleFlow(
+					meshExtruder,
+					velocityData,
+					() => millimetricScene.render(),
+					{ particleCount: 1000, speedScale: 0.3 }
+				);
+				window.particleFlow = particleFlow;
+				particleFlow.start();
+				console.log('Particle flow created and started');
 			} else {
-				console.warn('⚠️  Mesh extruder not initialized');
+				console.warn('Cannot create particles: missing meshExtruder or velocityData');
+			}
+		};
+		
+		/**
+		* Set visualization mode
+		* Usage: setMode('3d')      // 3D tube only
+		*        setMode('2d')      // 2D mesh only
+		*        setMode('both')    // Both 2D and 3D
+		*        setMode('flow')    // 3D tube with particle animation
+		*/
+		window.setMode = (mode) => {
+			if (!meshExtruder) {
+				console.warn('Mesh extruder not initialized');
+				return;
+			}
+			
+			switch (mode) {
+				case '2d':
+					meshExtruder.setVisualizationMode('2d');
+					if (particleFlow) particleFlow.setVisible(false);
+					break;
+				case '3d':
+					meshExtruder.setVisualizationMode('3d');
+					if (particleFlow) particleFlow.setVisible(false);
+					break;
+				case 'both':
+					meshExtruder.setVisualizationMode('both');
+					if (particleFlow) particleFlow.setVisible(false);
+					break;
+				case 'flow':
+					meshExtruder.setVisualizationMode('3d');
+					toggleParticles(true);
+					break;
+				default:
+					console.warn(`Unknown mode: ${mode}. Use '2d', '3d', 'both', or 'flow'`);
+					return;
+			}
+			
+			millimetricScene.render();
+			console.log(`Visualization mode: ${mode}`);
+		};
+		
+		/**
+		* Update particle configuration
+		* Usage: updateParticles({ particleCount: 2000, speedScale: 0.5 })
+		*/
+		window.updateParticles = (config) => {
+			if (particleFlow) {
+				particleFlow.updateConfig(config);
+				console.log('Particle config updated:', config);
+			} else {
+				console.warn('Particle flow not initialized');
 			}
 		};
 		
@@ -434,17 +518,18 @@
 		// ============================================================================
 		// Log Configuration on Startup
 		// ============================================================================
-		console.log('⚙️  FEMulator Pro Configuration:');
+		console.log('FEMulator Pro Configuration:');
 		console.log(`   GPU Rendering: ${useGPU ? 'Enabled' : 'Disabled'}`);
 		console.log(`   3D Extrusion: ${use3DExtrusion ? 'Enabled' : 'Disabled'}`);
 		console.log(`   Particle Animation: ${useParticleAnimation ? 'Enabled' : 'Disabled'}`);
-		console.log('\n💡 Console helpers available:');
+		console.log('\nConsole helpers available:');
 		console.log('   toggle2DMesh(true/false)');
 		console.log('   toggle3DExtrusion(true/false)');
-		console.log('   updateExtrusionConfig({...})');
+		console.log('   toggleParticles(true/false)');
+		console.log('   setMode("2d" | "3d" | "both" | "flow")');
+		console.log('   updateParticles({ particleCount, speedScale, ... })');
 		console.log('   quickSolve()');
 	</script>
-
 	<script type="module" src="./script/menu.init.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
 
