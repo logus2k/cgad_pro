@@ -235,9 +235,9 @@ export class MeshExtruderSDF {
         
         console.log(`   Mesh X range: [${meshXMin.toFixed(3)}, ${meshXMax.toFixed(3)}]`);
         
-        // Tolerance: remove faces within 3% of the X range from edges
+        // Tolerance: remove faces within 1% of the X range from edges (reduced from 3%)
         const xRange = meshXMax - meshXMin;
-        const tolerance = xRange * 0.03;
+        const tolerance = xRange * 0.015;
         
         const newIndices = [];
         let removedInlet = 0;
