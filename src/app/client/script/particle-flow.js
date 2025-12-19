@@ -22,7 +22,7 @@ export class ParticleFlow {
             gridResolution: 100,
             inflowDistance: 0.15,
             outflowDistance: 0.25,
-            tubeRadiusFactor: 0.95,  // Use 95% of tube radius (small margin for particle size)
+            tubeWallMargin: 0.02,  // Fixed margin from tube wall (in world units)
             ...config
         };
         
@@ -154,9 +154,10 @@ export class ParticleFlow {
     }
     
     /**
-     * Get tube segment at X position, finding the best match for a given Y
+     * Get tube segment at X position, finding the best match for a given Y,Z position
+     * Uses radial distance to find which tube the particle is actually in
      */
-    getSegmentAtPosition(x, y) {
+    getSegmentAtPosition(x, y, z = 0) {
         const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
         
         // Clamp X to original bounds for segment lookup
@@ -167,15 +168,34 @@ export class ParticleFlow {
             return null;
         }
         
-        // Find closest segment to this Y position
-        let bestSeg = segments[0];
-        let bestDist = Math.abs(y - segments[0].centerY);
+        // If only one segment, return it
+        if (segments.length === 1) {
+            return segments[0];
+        }
         
-        for (let i = 1; i < segments.length; i++) {
-            const dist = Math.abs(y - segments[i].centerY);
-            if (dist < bestDist) {
-                bestDist = dist;
-                bestSeg = segments[i];
+        // Multiple segments (branches) - find which one the particle is in/closest to
+        // Use radial distance from each tube's centerline
+        let bestSeg = segments[0];
+        let bestRadialDist = Infinity;
+        
+        for (const seg of segments) {
+            const dy = y - seg.centerY;
+            const radialDist = Math.sqrt(dy * dy + z * z);
+            
+            // Prefer segment where particle is inside (radialDist < radius)
+            // If inside multiple or none, use closest
+            if (radialDist < seg.radius) {
+                // Particle is inside this segment
+                if (radialDist < bestRadialDist || bestRadialDist >= bestSeg.radius) {
+                    bestSeg = seg;
+                    bestRadialDist = radialDist;
+                }
+            } else if (bestRadialDist >= bestSeg.radius) {
+                // Not inside any segment yet, track closest
+                if (radialDist < bestRadialDist) {
+                    bestSeg = seg;
+                    bestRadialDist = radialDist;
+                }
             }
         }
         
@@ -184,9 +204,10 @@ export class ParticleFlow {
     
     /**
      * Constrain position to stay inside tube cross-section
+     * Accounts for particle radius so spheres don't clip through walls
      */
     constrainToTube(x, y, z) {
-        const seg = this.getSegmentAtPosition(x, y);
+        const seg = this.getSegmentAtPosition(x, y, z);
         
         if (!seg) {
             return { y, z, constrained: false };
@@ -194,7 +215,9 @@ export class ParticleFlow {
         
         const dy = y - seg.centerY;
         const radialDist = Math.sqrt(dy * dy + z * z);
-        const maxRadius = seg.radius * this.config.tubeRadiusFactor;
+        
+        // Max radius = tube radius - fixed wall margin - particle radius
+        const maxRadius = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
         
         if (radialDist > maxRadius && radialDist > 0.0001) {
             // Push particle back inside
@@ -280,12 +303,14 @@ export class ParticleFlow {
             }
             
             // Get tube cross-section
-            const seg = this.getSegmentAtPosition(x, (this.originalBounds.yMin + this.originalBounds.yMax) / 2);
+            const seg = this.getSegmentAtPosition(x, (this.originalBounds.yMin + this.originalBounds.yMax) / 2, 0);
             
             if (seg) {
-                // Random position in FULL circular cross-section (using tubeRadiusFactor)
+                // Random position in circular cross-section
+                // Account for wall margin and particle radius
                 const angle = Math.random() * Math.PI * 2;
-                const r = Math.sqrt(Math.random()) * seg.radius * this.config.tubeRadiusFactor;
+                const maxR = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
+                const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
                 
                 y = seg.centerY + Math.cos(angle) * r;
                 z = Math.sin(angle) * r;
@@ -307,7 +332,8 @@ export class ParticleFlow {
                 // Multiple branches - pick one randomly
                 const seg = segments[Math.floor(Math.random() * segments.length)];
                 const angle = Math.random() * Math.PI * 2;
-                const r = Math.sqrt(Math.random()) * seg.radius * this.config.tubeRadiusFactor;
+                const maxR = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
+                const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
                 y = seg.centerY + Math.cos(angle) * r;
                 z = Math.sin(angle) * r;
             }
@@ -379,18 +405,16 @@ export class ParticleFlow {
      * Check if particle is in valid flow region (extended bounds)
      */
     isInFlowRegion(x, y, z) {
-        const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
-        
-        // Get segment for this position
-        const seg = this.getSegmentAtPosition(x, y);
+        // Get segment for this position (using Y and Z for proper branch detection)
+        const seg = this.getSegmentAtPosition(x, y, z);
         if (!seg) return false;
         
         // Check radial distance
         const dy = y - seg.centerY;
         const radialDist = Math.sqrt(dy * dy + z * z);
         
-        // Allow slightly outside for extended flow regions
-        const maxRadius = seg.radius * (this.config.tubeRadiusFactor + 0.05);
+        // Allow slightly outside (just wall margin, not particle radius)
+        const maxRadius = seg.radius - this.config.tubeWallMargin * 0.5;
         
         return radialDist < maxRadius;
     }
