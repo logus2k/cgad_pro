@@ -123,10 +123,31 @@ async def run_solver_task(job_id: str, params: dict):
         # Run in executor to not block event loop
         results = await loop.run_in_executor(None, wrapper.run)
         
-        # ← FIX: Convert CuPy arrays to NumPy before storing
+        # Convert CuPy arrays to NumPy before storing
         solution = results['u']
         if hasattr(solution, 'get'):
-            solution = solution.get()  # Transfer from GPU to CPU
+            solution = solution.get()
+        
+        # Extract and convert velocity/derived fields
+        velocity = results.get('vel')
+        abs_velocity = results.get('abs_vel')
+        pressure = results.get('pressure')
+        
+        if velocity is not None and hasattr(velocity, 'get'):
+            velocity = velocity.get()
+        if abs_velocity is not None and hasattr(abs_velocity, 'get'):
+            abs_velocity = abs_velocity.get()
+        if pressure is not None and hasattr(pressure, 'get'):
+            pressure = pressure.get()
+        
+        # Debug output
+        print(f"\n[DEBUG] Results from solver:")
+        print(f"  Keys: {list(results.keys())}")
+        if velocity is not None:
+            print(f"  ✅ vel shape: {velocity.shape}")
+            print(f"  ✅ vel range: [{velocity.min():.3f}, {velocity.max():.3f}]")
+        else:
+            print(f"  ❌ vel is None!")
         
         # Update job with results
         jobs[job_id].update({
@@ -137,9 +158,14 @@ async def run_solver_task(job_id: str, params: dict):
                 'timing_metrics': results['timing_metrics'],
                 'solution_stats': results['solution_stats'],
                 'mesh_info': results['mesh_info'],
-                'u': solution  # ← Store CPU copy
+                'u': solution,
+                'vel': velocity,
+                'abs_vel': abs_velocity,
+                'pressure': pressure
             }
         })
+        
+        print(f"✅ Job {job_id} completed and stored successfully\n")
         
     except Exception as e:
         jobs[job_id]['status'] = 'failed'
@@ -148,7 +174,9 @@ async def run_solver_task(job_id: str, params: dict):
             'job_id': job_id,
             'error': str(e)
         }, room=job_id)
-        print(f"Job {job_id} failed: {e}")
+        print(f"❌ Job {job_id} failed: {e}")
+        import traceback
+        traceback.print_exc()
 
 # ============================================================================
 # REST API Endpoints
@@ -380,6 +408,57 @@ async def get_solution_binary(job_id: str):
             "X-Solution-Format": "float32-array",
             "X-Solution-Min": str(float(solution_f32.min())),
             "X-Solution-Max": str(float(solution_f32.max()))
+        }
+    )
+
+@app.get("/solve/{job_id}/velocity/binary")
+async def get_velocity_binary(job_id: str):
+    """Get velocity field as binary"""
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job = jobs[job_id]
+    
+    if job['status'] != 'completed':
+        raise HTTPException(status_code=400, detail="Job not completed yet")
+    
+    results = job.get('results')
+    if not results:
+        raise HTTPException(status_code=404, detail="Results not found")
+    
+    # Check if velocity data exists
+    if 'vel' not in results:
+        raise HTTPException(status_code=404, detail="Velocity data not computed")
+    
+    # Get velocity array (shape: [Nels, 2])
+    vel = results['vel']
+    
+    # Handle CuPy arrays
+    if hasattr(vel, 'get'):
+        vel = vel.get()
+    
+    # Convert to float32
+    vel_f32 = np.array(vel, dtype=np.float32)
+    
+    print(f"Velocity data: shape={vel_f32.shape}, min={vel_f32.min():.3f}, max={vel_f32.max():.3f}")
+    
+    # Pack as binary: [count(4 bytes), vx0, vy0, vx1, vy1, ...]
+    buffer = io.BytesIO()
+    
+    # Write header (number of elements)
+    buffer.write(struct.pack('I', len(vel_f32)))
+    
+    # Write velocity vectors (already flattened when writing)
+    buffer.write(vel_f32.tobytes())
+    
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/octet-stream",
+        headers={
+            "X-Velocity-Format": "float32-pairs",
+            "X-Element-Count": str(len(vel_f32))
         }
     )
 
