@@ -237,7 +237,7 @@ export class MeshExtruderSDF {
         
         // Tolerance: remove faces within 1% of the X range from edges (reduced from 3%)
         const xRange = meshXMax - meshXMin;
-        const tolerance = xRange * 0.015;
+        const tolerance = xRange * 0.0125;
         
         const newIndices = [];
         let removedInlet = 0;
@@ -527,6 +527,30 @@ export class MeshExtruderSDF {
         this.config.show3DExtrusion = visible;
         if (this.mesh3D) this.mesh3D.visible = visible;
     }
+
+    /**
+     * Set visualization mode
+     * @param {string} mode - '2d', '3d', or 'both'
+     */
+    setVisualizationMode(mode) {
+        switch (mode) {
+            case '2d':
+                this.set2DMeshVisible(true);
+                this.set3DExtrusionVisible(false);
+                break;
+            case '3d':
+                this.set2DMeshVisible(false);
+                this.set3DExtrusionVisible(true);
+                break;
+            case 'both':
+                this.set2DMeshVisible(true);
+                this.set3DExtrusionVisible(true);
+                break;
+            default:
+                console.warn(`Unknown visualization mode: ${mode}`);
+        }
+        console.log(`Visualization mode: ${mode}`);
+    }    
     
     async createAll() {
         this.create2DMesh();

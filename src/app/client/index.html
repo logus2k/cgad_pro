@@ -259,9 +259,11 @@
 							extrusionOpacity: 0.6       // Transparency of 3D mesh
 						}
 					);
-					
+
 					meshExtruder.createAll();
 					millimetricScene.render();
+
+					window.meshExtruder = meshExtruder;					
 					
 					console.log('✅ 3D extrusion created successfully');
 					
