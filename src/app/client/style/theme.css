@@ -6,8 +6,40 @@
 	font-display: fallback;
 }
 
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 700;
+	src: url('../fonts/Roboto-Bold.ttf') format('truetype');
+	font-display: fallback;
+}
+
+@font-face {
+	font-family: 'Dancing-Script';
+	font-style: normal;
+	font-weight: 400;
+	src: url('../fonts/DancingScript-Regular.ttf') format('truetype');
+	font-display: fallback;
+}
+
 .roboto {
 	font-family: 'Roboto';
+	font-weight: normal;
+	font-style: normal;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	font-feature-settings: 'liga';
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
+}
+
+.dancing-script {
+	font-family: 'Dancing-Script';
 	font-weight: normal;
 	font-style: normal;
 	line-height: 1;

@@ -23,6 +23,7 @@
 		<div id="three-layer"></div>
 		<div id="ui-layer">
 			<div id="overlay">
+
 				<div class="scene">
 					<svg class="horizon-svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
 						<path id="horizon-path" fill="none" stroke="#333333" stroke-width="0.2"/>
@@ -30,26 +31,28 @@
 					<img class="pena-palace" src="./images/logo/pena_palace.png" alt="Pena Palace">
 					<div class="pena-palace-caption">ISCTE SINTRA</div>
 				</div>
+				
 				<div>
 					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
 						<defs>
-							<style type="text/css">
-								@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=Inter:wght@400;900&amp;display=swap');
-							</style>
-							
 							<filter id="softShadow" x="-20%" y="-20%" width="150%" height="150%">
-								<feGaussianBlur in="SourceAlpha" stdDeviation="2" /> <feOffset dx="2" dy="2" result="offsetblur" /> <feComponentTransfer>
-									<feFuncA type="linear" slope="0.3"/> </feComponentTransfer>
+								<feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+								<feOffset dx="2" dy="2" result="offsetblur" />
+								<feComponentTransfer>
+									<feFuncA type="linear" slope="0.3"/>
+								</feComponentTransfer>
 								<feMerge>
-									<feMergeNode /> <feMergeNode in="SourceGraphic" /> </feMerge>
+									<feMergeNode />
+									<feMergeNode in="SourceGraphic" />
+								</feMerge>
 							</filter>
 						</defs>
 						<text x="30" y="50" 
-							font-family="'Inter', -apple-system, sans-serif" 
+							font-family="'Roboto', -apple-system, sans-serif" 
 							font-size="30" 
 							fill="currentColor" 
 							filter="url(#softShadow)"> <tspan font-weight="900" fill="#404040">FEM</tspan><tspan font-weight="400">ULATOR</tspan>
-							<tspan dx="5" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+							<tspan dx="5" dy="3" font-family="'Dancing-Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
 						</text>
 					</svg>
 				</div>
