@@ -40,6 +40,9 @@ export class CameraController {
         this.mesh3D = null;
         this.meshExtruder = null;
         
+        // Particle flow reference (set via setParticleFlow)
+        this.particleFlow = null;
+        
         // Scene reference for grid switching
         this.millimetricScene = null;
         
@@ -86,6 +89,7 @@ export class CameraController {
     
     /**
      * Update orthographic camera to fit the mesh bounds with margin
+     * Also stores the fixed 2D position for animation target
      */
     updateOrthoCameraToFitMesh() {
         if (!this.meshExtruder) return;
@@ -95,11 +99,6 @@ export class CameraController {
         
         // Get the scale factor applied to the mesh
         const scale = this.meshExtruder.scale || 1;
-        
-        // The mesh is positioned at: -centerX * scale, -yMin * scale, -centerZ * scale
-        // So in world space, the mesh occupies:
-        // X: centered around 0
-        // Y: from 0 to (yMax - yMin) * scale
         
         const width = (xMax - xMin) * scale;
         const height = (yMax - yMin) * scale;
@@ -116,42 +115,39 @@ export class CameraController {
             this.millimetricScene.set2DGridCenterY(worldCenterY);
         }
         
-        // Add margin
-        const margin = this.config.margin;
-        const viewWidth = width * (1 + margin * 2);
-        const viewHeight = height * (1 + margin * 2);
+        // =====================================================================
+        // FIXED 2D POSITION - used by both ortho and perspective cameras
+        // =====================================================================
+        const cameraZ = 100;
+        this.fixed2DPosition = new THREE.Vector3(worldCenterX, worldCenterY, cameraZ);
+        this.fixed2DQuaternion = new THREE.Quaternion();
+        this.fixed2DUp = new THREE.Vector3(0, 1, 0);
         
-        // Get aspect ratio
-        const canvas = this.renderer.domElement;
-        const aspect = canvas.width / canvas.height;
+        // =====================================================================
+        // Calculate ortho frustum to MATCH what perspective camera sees
+        // =====================================================================
+        const fovRad = THREE.MathUtils.degToRad(this.perspectiveCamera.fov);
+        const perspectiveHeight = 2 * cameraZ * Math.tan(fovRad / 2);
+        const perspectiveWidth = perspectiveHeight * this.perspectiveCamera.aspect;
         
-        // Determine frustum size based on aspect ratio
-        let frustumWidth, frustumHeight;
-        
-        if (viewWidth / viewHeight > aspect) {
-            // Width-constrained
-            frustumWidth = viewWidth;
-            frustumHeight = viewWidth / aspect;
-        } else {
-            // Height-constrained
-            frustumHeight = viewHeight;
-            frustumWidth = viewHeight * aspect;
-        }
-        
-        // Update orthographic camera
-        this.orthoCamera.left = -frustumWidth / 2;
-        this.orthoCamera.right = frustumWidth / 2;
-        this.orthoCamera.top = frustumHeight / 2;
-        this.orthoCamera.bottom = -frustumHeight / 2;
+        // Use perspective visible area as ortho frustum
+        this.orthoCamera.left = -perspectiveWidth / 2;
+        this.orthoCamera.right = perspectiveWidth / 2;
+        this.orthoCamera.top = perspectiveHeight / 2;
+        this.orthoCamera.bottom = -perspectiveHeight / 2;
         this.orthoCamera.updateProjectionMatrix();
         
-        // Position camera looking along -Z axis at the mesh center
-        // Camera at positive Z looking toward negative Z
-        this.orthoCamera.position.set(worldCenterX, worldCenterY, 100);
+        // Set ortho camera to fixed position and look at center
+        this.orthoCamera.position.copy(this.fixed2DPosition);
+        this.orthoCamera.up.copy(this.fixed2DUp);
         this.orthoCamera.lookAt(worldCenterX, worldCenterY, 0);
-        this.orthoCamera.up.set(0, 1, 0);
+        this.orthoCamera.updateMatrixWorld();
         
-        console.log(`   Ortho camera: center(${worldCenterX.toFixed(1)}, ${worldCenterY.toFixed(1)}), size(${frustumWidth.toFixed(1)} x ${frustumHeight.toFixed(1)})`);
+        // Store the quaternion after lookAt
+        this.fixed2DQuaternion.copy(this.orthoCamera.quaternion);
+        
+        console.log(`   Fixed 2D position: (${this.fixed2DPosition.x.toFixed(1)}, ${this.fixed2DPosition.y.toFixed(1)}, ${this.fixed2DPosition.z.toFixed(1)})`);
+        console.log(`   Matched frustum: ${perspectiveWidth.toFixed(1)} x ${perspectiveHeight.toFixed(1)}`);
     }
     
     /**
@@ -161,6 +157,13 @@ export class CameraController {
         this.meshExtruder = meshExtruder;
         this.mesh2D = meshExtruder.mesh2D;
         this.mesh3D = meshExtruder.mesh3D;
+    }
+    
+    /**
+     * Set particle flow reference for 2D mode flattening
+     */
+    setParticleFlow(particleFlow) {
+        this.particleFlow = particleFlow;
     }
     
     /**
@@ -228,17 +231,17 @@ export class CameraController {
         // Save current 3D state
         this.save3DState();
         
-        // Update ortho camera to fit mesh
+        // Update ortho camera and calculate fixed 2D position
         this.updateOrthoCameraToFitMesh();
         
-        // Set up transition parameters
+        // Set up transition parameters - use FIXED 2D position as target
         this.startPosition.copy(this.perspectiveCamera.position);
         this.startQuaternion.copy(this.perspectiveCamera.quaternion);
         this.startUp.copy(this.perspectiveCamera.up);
         
-        this.targetPosition.copy(this.orthoCamera.position);
-        this.targetQuaternion.copy(this.orthoCamera.quaternion);
-        this.targetUp.set(0, 1, 0);
+        this.targetPosition.copy(this.fixed2DPosition);
+        this.targetQuaternion.copy(this.fixed2DQuaternion);
+        this.targetUp.copy(this.fixed2DUp);
         
         // Disable orbit controls during transition
         if (this.orbitControls) {
@@ -334,13 +337,11 @@ export class CameraController {
         
         // Apply to appropriate camera based on progress
         if (this.transitionTarget === '2D') {
-            // During transition to 2D, move perspective camera, then switch
-            if (easedProgress < 1) {
-                this.perspectiveCamera.position.copy(currentPosition);
-                this.perspectiveCamera.quaternion.copy(currentQuaternion);
-                this.perspectiveCamera.up.copy(currentUp);
-                this.activeCamera = this.perspectiveCamera;
-            }
+            // During transition to 2D, move perspective camera throughout
+            this.perspectiveCamera.position.copy(currentPosition);
+            this.perspectiveCamera.quaternion.copy(currentQuaternion);
+            this.perspectiveCamera.up.copy(currentUp);
+            this.activeCamera = this.perspectiveCamera;
             
             // Interpolate grid from 3D (floor) to 2D (backdrop)
             if (this.millimetricScene && this.millimetricScene.setGridInterpolation) {
@@ -419,21 +420,37 @@ export class CameraController {
         this.isTransitioning = false;
         
         if (this.transitionTarget === '2D') {
+            // Debug: compare camera positions at switch moment
+            console.log('=== Camera Switch Debug ===');
+            console.log('Perspective pos:', this.perspectiveCamera.position.x.toFixed(3), this.perspectiveCamera.position.y.toFixed(3), this.perspectiveCamera.position.z.toFixed(3));
+            console.log('Ortho pos:', this.orthoCamera.position.x.toFixed(3), this.orthoCamera.position.y.toFixed(3), this.orthoCamera.position.z.toFixed(3));
+            
+            // Calculate what perspective camera sees at this distance
+            const dist = this.perspectiveCamera.position.z;
+            const fovRad = THREE.MathUtils.degToRad(this.perspectiveCamera.fov);
+            const perspectiveHeight = 2 * dist * Math.tan(fovRad / 2);
+            const perspectiveWidth = perspectiveHeight * this.perspectiveCamera.aspect;
+            
+            // What ortho camera sees
+            const orthoWidth = this.orthoCamera.right - this.orthoCamera.left;
+            const orthoHeight = this.orthoCamera.top - this.orthoCamera.bottom;
+            
+            console.log('Perspective visible area:', perspectiveWidth.toFixed(1), 'x', perspectiveHeight.toFixed(1));
+            console.log('Ortho visible area:', orthoWidth.toFixed(1), 'x', orthoHeight.toFixed(1));
+            console.log('Size ratio (ortho/persp):', (orthoWidth / perspectiveWidth).toFixed(3));
+            
+            // Set final mesh state BEFORE camera switch
+            if (this.mesh2D) this.mesh2D.visible = true;
+            if (this.mesh3D) this.mesh3D.visible = false;
+            
+            // Flatten particles to Z=0 plane for 2D view
+            if (this.particleFlow) {
+                this.particleFlow.set2DMode(true);
+            }
+            
             // Switch to orthographic camera
             this.activeCamera = this.orthoCamera;
             this.is2DMode = true;
-            
-            // Ensure 2D mesh visible, 3D hidden (fully flattened)
-            if (this.mesh2D) this.mesh2D.visible = true;
-            if (this.mesh3D) {
-                this.mesh3D.visible = false;
-                this.mesh3D.scale.z = 0;
-            }
-            
-            // Ensure grid is at final 2D position
-            if (this.millimetricScene && this.millimetricScene.setGridInterpolation) {
-                this.millimetricScene.setGridInterpolation(1, this.targetCenterY);
-            }
             
             console.log('Transition to 2D complete');
         } else {
@@ -441,7 +458,7 @@ export class CameraController {
             this.activeCamera = this.perspectiveCamera;
             this.is2DMode = false;
             
-            // Ensure 3D mesh visible (fully expanded), 2D hidden
+            // Final state already set by updateMeshVisibility, just ensure it's correct
             if (this.mesh2D) this.mesh2D.visible = false;
             if (this.mesh3D) {
                 this.mesh3D.visible = true;
@@ -449,15 +466,14 @@ export class CameraController {
                 this.mesh3D.scale.z = this.mesh3D.scale.x;
             }
             
-            // Ensure grid is at final 3D position
-            if (this.millimetricScene && this.millimetricScene.setGridInterpolation) {
-                this.millimetricScene.setGridInterpolation(0, this.targetCenterY);
+            // Restore particles to 3D mode
+            if (this.particleFlow) {
+                this.particleFlow.set2DMode(false);
             }
             
             // Re-enable orbit controls
             if (this.orbitControls) {
                 this.orbitControls.enabled = true;
-                // Update orbit controls target
                 if (this.saved3DState) {
                     this.orbitControls.target.copy(this.saved3DState.target);
                 }
@@ -467,7 +483,7 @@ export class CameraController {
             console.log('Transition to 3D complete');
         }
         
-        // Final render
+        // Final render with the correct camera
         if (this.onUpdate) {
             this.onUpdate(this.activeCamera);
         }

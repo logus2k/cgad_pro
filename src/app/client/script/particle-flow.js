@@ -70,10 +70,16 @@ export class ParticleFlow {
             this.originalBounds.yMax - this.originalBounds.yMin
         );
         
-        // Compute offset
+        // Debug: compare with mesh extruder scale
+        console.log('ParticleFlow scale:', this.scale.toFixed(4));
+        console.log('MeshExtruder scale:', meshExtruder.scale?.toFixed(4) || 'not set yet');
+        
+        // Compute offset - must match mesh extruder's fitMeshToView
         const { xMin, xMax, yMin } = this.originalBounds;
+        const { zMin, zMax } = this.bounds;
         const centerX = (xMin + xMax) / 2;
-        this.offset = new THREE.Vector3(-centerX * this.scale, -yMin * this.scale, 0);
+        const centerZ = (zMin + zMax) / 2;
+        this.offset = new THREE.Vector3(-centerX * this.scale, -yMin * this.scale, -centerZ * this.scale);
         
         // Particle state arrays
         this.particlePositions = null;
@@ -562,7 +568,8 @@ export class ParticleFlow {
             } else {
                 this.particlePositions[idx + 0] = x;
                 this.particlePositions[idx + 1] = y;
-                this.particlePositions[idx + 2] = z;
+                // In 2D mode, flatten to Z=0
+                this.particlePositions[idx + 2] = this.is2DMode ? 0 : z;
             }
         }
         
@@ -630,6 +637,15 @@ export class ParticleFlow {
             this.animationId = null;
         }
         console.log('Particle animation stopped');
+    }
+    
+    /**
+     * Set 2D mode - flattens particles to Z=0 plane
+     * @param {boolean} enabled - true for 2D mode, false for 3D mode
+     */
+    set2DMode(enabled) {
+        this.is2DMode = enabled;
+        console.log(`ParticleFlow 2D mode: ${enabled ? 'enabled' : 'disabled'}`);
     }
     
     /**

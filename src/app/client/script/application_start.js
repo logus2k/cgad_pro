@@ -242,6 +242,12 @@ femClient.on('solve_complete', async (data) => {
                     );
                     
                     window.particleFlow = particleFlow;
+                    
+                    // Register with camera controller for 2D mode
+                    if (cameraController) {
+                        cameraController.setParticleFlow(particleFlow);
+                    }
+                    
                     particleFlow.start();
                     
                     console.log('Particle animation started');
