@@ -28,10 +28,10 @@ export class MetricsDisplay {
                 <span class="metric-value" id="metric-stage">-</span>
             </div>
             
-            <div class="metric-row" style="flex-direction: column; align-items: flex-start; gap: 5px; margin: 0px;">
+            <div class="metric-row" style="flex-direction: column; align-items: flex-start; gap: 6px; margin: 0px;">
                 <span class="metric-label">Convergence Trend (Log Scale):</span>
                 <canvas id="convergence-plot" width="240" height="60" 
-                    style="width: 100%; height: 60px; background: rgba(0,0,0,0.05); border: 0.5px solid #9a9a9a; border-radius: 2px;">
+                    style="width: 100%; height: 70px; background: rgba(0,0,0,0.04); border: 0.5px solid #cccccc; border-radius: 4px;">
                 </canvas>
             </div>
 
@@ -136,8 +136,8 @@ export class MetricsDisplay {
         // Draw the convergence line
         ctx.beginPath();
         ctx.setLineDash([]);
-        ctx.strokeStyle = '#2266ff'; // Using --hud-accent (Blueprint Blue)
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#ff6f55ff";
+        ctx.lineWidth = 1;
         ctx.lineJoin = 'round';
 
         for (let i = 0; i < logs.length; i++) {
@@ -155,7 +155,7 @@ export class MetricsDisplay {
         // Fill area under the curve
         ctx.lineTo((logs.length - 1) / (this.maxHistory - 1) * w, h);
         ctx.lineTo(0, h);
-        ctx.fillStyle = 'rgba(34, 102, 255, 0.05)';
+        ctx.fillStyle = "rgba(255, 56, 34, 0.07)";
         ctx.fill();
     }
     
