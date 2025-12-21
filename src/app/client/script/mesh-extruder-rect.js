@@ -349,13 +349,18 @@ export class MeshExtruderRect {
     }
     
     /**
-     * Fit mesh to view (same logic as other renderers)
+     * Fit mesh to view - scale based on X/Y only, Z scales proportionally
      */
     fitMeshToView(mesh) {
-        const { xMin, xMax, yMin, yMax, zMin, zMax, maxDim } = this.bounds;
+        const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
+        
+        // Scale based on X/Y dimensions only (not Z)
+        const xRange = xMax - xMin;
+        const yRange = yMax - yMin;
+        const maxXY = Math.max(xRange, yRange);
         
         const targetSize = 50;
-        const scale = targetSize / maxDim;
+        const scale = targetSize / maxXY;
         
         mesh.scale.set(scale, scale, scale);
         
@@ -365,7 +370,7 @@ export class MeshExtruderRect {
         // Center horizontally, rest on floor (Y), center in Z
         mesh.position.set(-centerX * scale, -yMin * scale, -centerZ * scale);
         
-        console.log(`   Fitted to view: scale=${scale.toFixed(4)}`);
+        console.log(`   Fitted to view: scale=${scale.toFixed(4)} (based on X/Y only)`);
     }
     
     /**

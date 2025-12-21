@@ -31,7 +31,7 @@ export class MetricsDisplay {
             <div class="metric-row" style="flex-direction: column; align-items: flex-start; gap: 6px; margin: 0px;">
                 <span class="metric-label">Convergence Trend (Log Scale):</span>
                 <canvas id="convergence-plot" width="240" height="60" 
-                    style="width: 100%; height: 70px; background: rgba(0,0,0,0.04); border: 0.5px solid #cccccc; border-radius: 4px;">
+                    style="width: 100%; height: 70px; background: rgba(0,0,0,0.04); border: 0.5px solid #cccccc; border-radius: 2px;">
                 </canvas>
             </div>
 
