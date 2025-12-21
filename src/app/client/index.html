@@ -61,7 +61,7 @@
 
 				<div class="hud gallery" id="hud-gallery" style="z-index: 15;">
 
-					<h1>SCENE SETTINGS</h1>
+					<h1>MESH GALLERY</h1>
 					<div class="sep"></div>
 
 					<div class="gallery-container" class="gallery-container">
@@ -124,6 +124,17 @@
 					<div class="settings-container">
 						<input id="checkbox1" type="checkbox" class="ui-checkbox">
 					</div>
+
+					<!-- Brightness slider -->
+					<input type="range" min="0" max="1" step="0.05" value="1" 
+						oninput="setBrightness(this.value)">
+
+					<!-- Opacity slider -->
+					<input type="range" min="0" max="1" step="0.05" value="0.8" 
+						oninput="setOpacity(this.value)">
+
+					<!-- Transparency checkbox -->
+					<input type="checkbox" checked onchange="setTransparent(this.checked)">					
 
 				</div>
 

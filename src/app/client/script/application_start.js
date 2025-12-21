@@ -10,7 +10,7 @@ import { ParticleFlow } from '../script/particle-flow.js';
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = true;              // Use GPU renderer (false = CPU)
+const useGPU = false;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
@@ -373,6 +373,74 @@ window.updateParticles = (config) => {
     }
 };
 
+// ============================================================================
+// Appearance Controls (ready for UI binding)
+// ============================================================================
+
+/**
+ * Set mesh brightness
+ * @param {number} value - 0.0 (black) to 1.0 (full bright)
+ * Usage: setBrightness(0.85)
+ * UI: <input type="range" min="0" max="1" step="0.05" oninput="setBrightness(this.value)">
+ */
+window.setBrightness = (value) => {
+    if (meshExtruder) {
+        meshExtruder.setBrightness(parseFloat(value));
+        millimetricScene.render();
+        console.log(`Brightness: ${value}`);
+    } else {
+        console.warn('Mesh extruder not initialized');
+    }
+};
+
+/**
+ * Set mesh opacity
+ * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque)
+ * Usage: setOpacity(0.8)
+ * UI: <input type="range" min="0" max="1" step="0.05" oninput="setOpacity(this.value)">
+ */
+window.setOpacity = (value) => {
+    if (meshExtruder) {
+        meshExtruder.setOpacity(parseFloat(value));
+        millimetricScene.render();
+        console.log(`Opacity: ${value}`);
+    } else {
+        console.warn('Mesh extruder not initialized');
+    }
+};
+
+/**
+ * Enable or disable transparency
+ * @param {boolean} enabled - true/false
+ * Usage: setTransparent(true)
+ * UI: <input type="checkbox" onchange="setTransparent(this.checked)">
+ */
+window.setTransparent = (enabled) => {
+    if (meshExtruder) {
+        meshExtruder.setTransparent(enabled);
+        millimetricScene.render();
+        console.log(`Transparent: ${enabled}`);
+    } else {
+        console.warn('Mesh extruder not initialized');
+    }
+};
+
+/**
+ * Get current appearance settings
+ * Usage: getAppearance()
+ * Returns: { brightness, opacity, transparent }
+ */
+window.getAppearance = () => {
+    if (meshExtruder) {
+        const settings = meshExtruder.getAppearanceSettings();
+        console.log('Appearance settings:', settings);
+        return settings;
+    } else {
+        console.warn('Mesh extruder not initialized');
+        return null;
+    }
+};
+
 window.quickSolve = () => {
     femClient.startSolve({
         mesh_file: '/home/logus/env/iscte/cgad_pro/data/input/converted_mesh_v5.h5',
@@ -397,3 +465,8 @@ console.log('   toggleParticles(true/false)');
 console.log('   setMode("2d" | "3d" | "both" | "flow")');
 console.log('   updateParticles({ particleCount, speedScale, ... })');
 console.log('   quickSolve()');
+console.log('\nAppearance controls (real-time, no regeneration):');
+console.log('   setBrightness(0.0 - 1.0)');
+console.log('   setOpacity(0.0 - 1.0)');
+console.log('   setTransparent(true/false)');
+console.log('   getAppearance()');

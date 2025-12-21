@@ -694,4 +694,58 @@ export class MeshExtruderSDF {
             this.mesh3D.material.dispose();
         }
     }
+    
+    // =========================================================================
+    // Real-time Appearance Controls (no regeneration needed)
+    // =========================================================================
+    
+    /**
+     * Set brightness of the 3D mesh (multiplies vertex colors)
+     * @param {number} value - 0.0 (black) to 1.0 (full bright), default 1.0
+     */
+    setBrightness(value) {
+        if (this.mesh3D && this.mesh3D.material) {
+            const v = Math.max(0, Math.min(1, value));
+            this.mesh3D.material.color.setRGB(v, v, v);
+        }
+        if (this.mesh2D && this.mesh2D.material) {
+            const v = Math.max(0, Math.min(1, value));
+            this.mesh2D.material.color.setRGB(v, v, v);
+        }
+    }
+    
+    /**
+     * Set opacity of the 3D mesh
+     * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque), default 0.8
+     */
+    setOpacity(value) {
+        if (this.mesh3D && this.mesh3D.material) {
+            this.mesh3D.material.opacity = Math.max(0, Math.min(1, value));
+        }
+    }
+    
+    /**
+     * Enable or disable transparency
+     * @param {boolean} enabled - true to enable transparency, false to disable
+     */
+    setTransparent(enabled) {
+        if (this.mesh3D && this.mesh3D.material) {
+            this.mesh3D.material.transparent = enabled;
+        }
+    }
+    
+    /**
+     * Get current appearance settings
+     * @returns {Object} Current brightness, opacity, and transparency values
+     */
+    getAppearanceSettings() {
+        if (!this.mesh3D || !this.mesh3D.material) {
+            return null;
+        }
+        return {
+            brightness: this.mesh3D.material.color.r,
+            opacity: this.mesh3D.material.opacity,
+            transparent: this.mesh3D.material.transparent
+        };
+    }
 }

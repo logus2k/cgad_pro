@@ -141,12 +141,11 @@ export class MeshExtruderRect {
         // Apply neutral gray color initially
         this.applyNeutralColors(geometry);
         
-        const material = new THREE.MeshPhongMaterial({
+        const material = new THREE.MeshBasicMaterial({
             vertexColors: true,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: this.config.extrusionOpacity,
-            shininess: 30
+            opacity: this.config.extrusionOpacity
         });
         
         this.mesh3D = new THREE.Mesh(geometry, material);
@@ -576,5 +575,59 @@ export class MeshExtruderRect {
             this.mesh3D.geometry.dispose();
             this.mesh3D.material.dispose();
         }
+    }
+    
+    // =========================================================================
+    // Real-time Appearance Controls (no regeneration needed)
+    // =========================================================================
+    
+    /**
+     * Set brightness of the 3D mesh (multiplies vertex colors)
+     * @param {number} value - 0.0 (black) to 1.0 (full bright), default 1.0
+     */
+    setBrightness(value) {
+        if (this.mesh3D && this.mesh3D.material) {
+            const v = Math.max(0, Math.min(1, value));
+            this.mesh3D.material.color.setRGB(v, v, v);
+        }
+        if (this.mesh2D && this.mesh2D.material) {
+            const v = Math.max(0, Math.min(1, value));
+            this.mesh2D.material.color.setRGB(v, v, v);
+        }
+    }
+    
+    /**
+     * Set opacity of the 3D mesh
+     * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque), default 0.8
+     */
+    setOpacity(value) {
+        if (this.mesh3D && this.mesh3D.material) {
+            this.mesh3D.material.opacity = Math.max(0, Math.min(1, value));
+        }
+    }
+    
+    /**
+     * Enable or disable transparency
+     * @param {boolean} enabled - true to enable transparency, false to disable
+     */
+    setTransparent(enabled) {
+        if (this.mesh3D && this.mesh3D.material) {
+            this.mesh3D.material.transparent = enabled;
+        }
+    }
+    
+    /**
+     * Get current appearance settings
+     * @returns {Object} Current brightness, opacity, and transparency values
+     */
+    getAppearanceSettings() {
+        if (!this.mesh3D || !this.mesh3D.material) {
+            return null;
+        }
+        return {
+            brightness: this.mesh3D.material.color.r,  // R=G=B for grayscale multiplier
+            opacity: this.mesh3D.material.opacity,
+            transparent: this.mesh3D.material.transparent
+        };
     }
 }
