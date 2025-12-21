@@ -26,8 +26,8 @@ html {
 
 .pena-palace-caption {
     font-family: 'Roboto', sans-serif;
-    font-size: 7px;
+    font-size: 6px;
     position: absolute;
     top: max(calc(8%), 90px);
-    right: calc(71px);
+    right: 77px;
 }

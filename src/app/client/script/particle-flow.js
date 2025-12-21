@@ -37,6 +37,8 @@ export class ParticleFlow {
             inflowDistance: 0.15,
             outflowDistance: 0.25,
             tubeWallMargin: 0.02,
+            // Extrusion mode: 'cylindrical' (radial constraint) or 'rectangular' (Y bounds constraint)
+            extrusionMode: 'cylindrical',
             // Merge type-specific defaults
             ...ParticleClass.getDefaults(),
             ...config
@@ -182,6 +184,8 @@ export class ParticleFlow {
     
     /**
      * Get tube segment at X position, finding the best match for a given Y,Z position
+     * Cylindrical mode: uses radial distance to segment center
+     * Rectangular mode: uses Y bounds containment
      */
     getSegmentAtPosition(x, y, z = 0) {
         const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
@@ -197,6 +201,31 @@ export class ParticleFlow {
             return segments[0];
         }
         
+        // Rectangular mode: find segment containing Y position
+        if (this.config.extrusionMode === 'rectangular') {
+            // First, try to find a segment that contains the Y position
+            for (const seg of segments) {
+                if (y >= seg.yMin && y <= seg.yMax) {
+                    return seg;
+                }
+            }
+            
+            // If not inside any segment, find the closest one by Y distance
+            let bestSeg = segments[0];
+            let bestDist = Infinity;
+            
+            for (const seg of segments) {
+                const dist = y < seg.yMin ? (seg.yMin - y) : (y - seg.yMax);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    bestSeg = seg;
+                }
+            }
+            
+            return bestSeg;
+        }
+        
+        // Cylindrical mode: use radial distance (original behavior)
         let bestSeg = segments[0];
         let bestRadialDist = Infinity;
         
@@ -221,7 +250,9 @@ export class ParticleFlow {
     }
     
     /**
-     * Constrain position to stay inside tube cross-section
+     * Constrain position to stay inside tube/slab cross-section
+     * Cylindrical mode: radial constraint (circular cross-section)
+     * Rectangular mode: Y bounds constraint (rectangular cross-section)
      */
     constrainToTube(x, y, z) {
         const seg = this.getSegmentAtPosition(x, y, z);
@@ -230,10 +261,48 @@ export class ParticleFlow {
             return { y, z, constrained: false };
         }
         
+        const particleSize = this.config.particleSize || 0.015;
+        const margin = this.config.tubeWallMargin + particleSize;
+        
+        // Rectangular mode: constrain Y to segment bounds, Z to slab bounds
+        if (this.config.extrusionMode === 'rectangular') {
+            const { zMin, zMax } = this.meshExtruder.bounds;
+            
+            let constrained = false;
+            let newY = y;
+            let newZ = z;
+            
+            // Constrain Y to THIS segment's bounds (important for bifurcation)
+            const yMinBound = seg.yMin + margin;
+            const yMaxBound = seg.yMax - margin;
+            
+            if (y < yMinBound) {
+                newY = yMinBound;
+                constrained = true;
+            } else if (y > yMaxBound) {
+                newY = yMaxBound;
+                constrained = true;
+            }
+            
+            // Constrain Z to slab bounds
+            const zMinBound = zMin + margin;
+            const zMaxBound = zMax - margin;
+            
+            if (z < zMinBound) {
+                newZ = zMinBound;
+                constrained = true;
+            } else if (z > zMaxBound) {
+                newZ = zMaxBound;
+                constrained = true;
+            }
+            
+            return { y: newY, z: newZ, constrained };
+        }
+        
+        // Cylindrical mode: radial constraint (original behavior)
         const dy = y - seg.centerY;
         const radialDist = Math.sqrt(dy * dy + z * z);
-        const particleSize = this.config.particleSize || 0.015;
-        const maxRadius = seg.radius - this.config.tubeWallMargin - particleSize;
+        const maxRadius = seg.radius - margin;
         
         if (radialDist > maxRadius && radialDist > 0.0001) {
             const scale = maxRadius / radialDist;
@@ -254,9 +323,22 @@ export class ParticleFlow {
         const seg = this.getSegmentAtPosition(x, y, z);
         if (!seg) return false;
         
+        const margin = this.config.tubeWallMargin * 0.5;
+        
+        // Rectangular mode: check Y and Z bounds
+        if (this.config.extrusionMode === 'rectangular') {
+            const { zMin, zMax } = this.meshExtruder.bounds;
+            
+            const inYBounds = y >= seg.yMin + margin && y <= seg.yMax - margin;
+            const inZBounds = z >= zMin + margin && z <= zMax - margin;
+            
+            return inYBounds && inZBounds;
+        }
+        
+        // Cylindrical mode: check radial distance
         const dy = y - seg.centerY;
         const radialDist = Math.sqrt(dy * dy + z * z);
-        const maxRadius = seg.radius - this.config.tubeWallMargin * 0.5;
+        const maxRadius = seg.radius - margin;
         
         return radialDist < maxRadius;
     }
@@ -281,8 +363,9 @@ export class ParticleFlow {
      */
     respawnParticle(index, randomPosition = false) {
         const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
-        const { xMin: extXMin } = this.bounds;
+        const { xMin: extXMin, zMin, zMax } = this.bounds;
         const particleSize = this.config.particleSize || 0.015;
+        const margin = this.config.tubeWallMargin + particleSize;
         
         let x, y, z;
         let attempts = 0;
@@ -297,12 +380,23 @@ export class ParticleFlow {
             const seg = this.getSegmentAtPosition(x, (this.originalBounds.yMin + this.originalBounds.yMax) / 2, 0);
             
             if (seg) {
-                const angle = Math.random() * Math.PI * 2;
-                const maxR = seg.radius - this.config.tubeWallMargin - particleSize;
-                const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
-                
-                y = seg.centerY + Math.cos(angle) * r;
-                z = Math.sin(angle) * r;
+                // Rectangular mode: uniform distribution in Y and Z bounds
+                if (this.config.extrusionMode === 'rectangular') {
+                    const yRange = (seg.yMax - margin) - (seg.yMin + margin);
+                    const zRange = (zMax - margin) - (zMin + margin);
+                    
+                    y = seg.yMin + margin + Math.random() * yRange;
+                    z = zMin + margin + Math.random() * zRange;
+                } 
+                // Cylindrical mode: circular distribution
+                else {
+                    const angle = Math.random() * Math.PI * 2;
+                    const maxR = seg.radius - margin;
+                    const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
+                    
+                    y = seg.centerY + Math.cos(angle) * r;
+                    z = Math.sin(angle) * r;
+                }
                 break;
             }
             attempts++;
@@ -319,11 +413,23 @@ export class ParticleFlow {
             const segments = this.meshExtruder.getYSegmentsAtXCached(x);
             if (segments && segments.length > 1) {
                 const seg = segments[Math.floor(Math.random() * segments.length)];
-                const angle = Math.random() * Math.PI * 2;
-                const maxR = seg.radius - this.config.tubeWallMargin - particleSize;
-                const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
-                y = seg.centerY + Math.cos(angle) * r;
-                z = Math.sin(angle) * r;
+                
+                // Rectangular mode: uniform distribution in Y and Z bounds
+                if (this.config.extrusionMode === 'rectangular') {
+                    const yRange = (seg.yMax - margin) - (seg.yMin + margin);
+                    const zRange = (zMax - margin) - (zMin + margin);
+                    
+                    y = seg.yMin + margin + Math.random() * yRange;
+                    z = zMin + margin + Math.random() * zRange;
+                }
+                // Cylindrical mode: circular distribution
+                else {
+                    const angle = Math.random() * Math.PI * 2;
+                    const maxR = seg.radius - margin;
+                    const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
+                    y = seg.centerY + Math.cos(angle) * r;
+                    z = Math.sin(angle) * r;
+                }
             }
         }
         

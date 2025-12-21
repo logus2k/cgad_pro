@@ -3,10 +3,8 @@ import * as THREE from '../library/three.module.min.js';
 /**
  * MeshExtruderRect - Rectangular extrusion for 2D FEM meshes
  * 
- * Creates a 3D slab by extruding the 2D mesh along the Z axis.
- * Standard FEM visualization where Z represents "infinite" extent.
- * 
- * Z >> max(X, Y) to represent plane strain/plane flow assumption.
+ * Creates a hollow 3D tube by extruding only the BOUNDARY edges of the 2D mesh.
+ * Inlet (xMin) and outlets (xMax) are left open for particle flow.
  * 
  * Supports incremental color updates during solve.
  */
@@ -14,12 +12,12 @@ export class MeshExtruderRect {
     constructor(scene, meshData, solutionData = null, config = {}) {
         this.scene = scene;
         this.meshData = meshData;
-        this.solutionData = solutionData;  // Can be null for early creation
+        this.solutionData = solutionData;
         
         this.config = {
             show2DMesh: true,
             show3DExtrusion: false,
-            zFactor: 5.0,           // Z = zFactor * max(X, Y)
+            zFactor: 5.0,
             extrusionOpacity: 0.8,
             ...config
         };
@@ -28,13 +26,15 @@ export class MeshExtruderRect {
         this.mesh3D = null;
         this.group = new THREE.Group();
         
-        // Track if geometry is created (for incremental updates)
         this.geometryCreated = false;
+        
+        // Boundary edge data (computed once, used for geometry and color updates)
+        this.boundaryEdges = null;
+        this.wallNodeMap = null;  // Maps vertex index -> mesh node ID
         
         // Calculate bounds
         this.bounds = this.calculateBounds();
         
-        // Store original bounds for particle flow compatibility
         this.originalBounds = {
             xMin: this.bounds.xMin,
             xMax: this.bounds.xMax,
@@ -65,8 +65,6 @@ export class MeshExtruderRect {
         const xRange = xMax - xMin;
         const yRange = yMax - yMin;
         const maxDim = Math.max(xRange, yRange);
-        
-        // Z >> max(X, Y) for "infinite" extent representation
         const zExtent = maxDim * this.config.zFactor;
         
         console.log(`   Bounds: X[${xMin.toFixed(3)}, ${xMax.toFixed(3)}], Y[${yMin.toFixed(3)}, ${yMax.toFixed(3)}]`);
@@ -80,23 +78,163 @@ export class MeshExtruderRect {
         };
     }
     
-    // =========================================================================
-    // Geometry Creation (can be called early, before solution)
-    // =========================================================================
+    /**
+     * Build segment cache for rectangular SDF (same approach as cylindrical)
+     * For each X position, stores multiple Y segments (to handle bifurcation)
+     */
+    buildYRangeCache() {
+        const coords = this.meshData.coordinates;
+        const conn = this.meshData.connectivity;
+        const { xMin, xMax } = this.originalBounds;
+        
+        this.cacheResolution = 500;
+        this.ySegmentCache = new Array(this.cacheResolution);
+        
+        const xRange = xMax - xMin;
+        const gapThreshold = 0.05;  // Minimum gap to consider separate segments
+        
+        console.log('   Building Y-segment cache for rectangular SDF...');
+        
+        for (let i = 0; i < this.cacheResolution; i++) {
+            const x = xMin + (i / (this.cacheResolution - 1)) * xRange;
+            this.ySegmentCache[i] = this.computeYSegmentsAtX(x, coords, conn, gapThreshold);
+        }
+        
+        // Log segment info at a few X positions
+        const midIdx = Math.floor(this.cacheResolution / 2);
+        const endIdx = this.cacheResolution - 10;
+        console.log(`   At inlet: ${this.ySegmentCache[10]?.length || 0} segments`);
+        console.log(`   At middle: ${this.ySegmentCache[midIdx]?.length || 0} segments`);
+        console.log(`   At outlet: ${this.ySegmentCache[endIdx]?.length || 0} segments`);
+    }
     
     /**
-     * Create geometry only (no colors) - for early visualization
+     * Compute Y segments at a given X position (same logic as cylindrical SDF)
      */
+    computeYSegmentsAtX(x, coords, conn, gapThreshold) {
+        const yValues = [];
+        const tolerance = 0.001;
+        
+        // Find all elements that contain this X
+        for (const elem of conn) {
+            let elemXMin = Infinity, elemXMax = -Infinity;
+            let elemYMin = Infinity, elemYMax = -Infinity;
+            
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
+                const nx = coords.x[nodeId];
+                const ny = coords.y[nodeId];
+                
+                if (nx < elemXMin) elemXMin = nx;
+                if (nx > elemXMax) elemXMax = nx;
+                if (ny < elemYMin) elemYMin = ny;
+                if (ny > elemYMax) elemYMax = ny;
+            }
+            
+            if (x >= elemXMin - tolerance && x <= elemXMax + tolerance) {
+                yValues.push({ min: elemYMin, max: elemYMax });
+            }
+        }
+        
+        if (yValues.length === 0) return null;
+        
+        // Sort by Y min
+        yValues.sort((a, b) => a.min - b.min);
+        
+        // Merge overlapping ranges, but keep separate segments if gap > threshold
+        const segments = [];
+        let current = { ...yValues[0] };
+        
+        for (let i = 1; i < yValues.length; i++) {
+            const next = yValues[i];
+            if (next.min <= current.max + gapThreshold) {
+                // Overlapping or close - merge
+                current.max = Math.max(current.max, next.max);
+            } else {
+                // Gap detected - save current and start new segment
+                segments.push({ yMin: current.min, yMax: current.max });
+                current = { ...next };
+            }
+        }
+        segments.push({ yMin: current.min, yMax: current.max });
+        
+        return segments;
+    }
+    
+    /**
+     * Get Y segments at a given X position (from cache)
+     */
+    getYSegmentsAtX(x) {
+        const { xMin, xMax } = this.originalBounds;
+        
+        if (x < xMin || x > xMax) return null;
+        
+        const t = (x - xMin) / (xMax - xMin);
+        const idx = Math.floor(t * (this.cacheResolution - 1));
+        
+        if (idx < 0 || idx >= this.cacheResolution) return null;
+        
+        return this.ySegmentCache[idx];
+    }
+    
+    /**
+     * Rectangular SDF with multiple Y segments (handles bifurcation)
+     * Returns distance to nearest wall, negative inside, positive outside
+     */
+    rectangularSDF(x, y, z) {
+        const { xMin, xMax } = this.originalBounds;
+        const { zMin, zMax } = this.bounds;
+        
+        // Outside X range
+        if (x < xMin || x > xMax) {
+            return 1.0;
+        }
+        
+        const segments = this.getYSegmentsAtX(x);
+        if (!segments || segments.length === 0) {
+            return 1.0;
+        }
+        
+        // Find the segment that contains this Y, or the closest one
+        let minDist = Infinity;
+        
+        for (const seg of segments) {
+            const { yMin, yMax } = seg;
+            
+            // Distance to Y bounds of this segment
+            const dTop = y - yMax;      // positive when above
+            const dBottom = yMin - y;   // positive when below
+            const dY = Math.max(dTop, dBottom);  // positive when outside Y range
+            
+            // Distance to Z bounds
+            const dFront = z - zMax;
+            const dBack = zMin - z;
+            const dZ = Math.max(dFront, dBack);  // positive when outside Z range
+            
+            // If inside both Y and Z bounds, return max (closest wall, negative)
+            // If outside, return positive distance
+            const dist = Math.max(dY, dZ);
+            
+            if (dist < minDist) {
+                minDist = dist;
+            }
+        }
+        
+        return minDist;
+    }
+    
+    // =========================================================================
+    // Geometry Creation
+    // =========================================================================
+    
     createGeometryOnly() {
+        this.buildYRangeCache();
         this.create2DGeometry();
         this.create3DGeometry();
         this.geometryCreated = true;
         console.log('Geometry created (awaiting solution for colors)');
     }
     
-    /**
-     * Create 2D mesh geometry without colors
-     */
     create2DGeometry() {
         if (this.mesh2D) {
             this.group.remove(this.mesh2D);
@@ -105,8 +243,6 @@ export class MeshExtruderRect {
         }
         
         const geometry = this.createQuad8Geometry2D();
-        
-        // Apply neutral gray color initially
         this.applyNeutralColors(geometry);
         
         const material = new THREE.MeshBasicMaterial({
@@ -115,7 +251,6 @@ export class MeshExtruderRect {
         });
         
         this.mesh2D = new THREE.Mesh(geometry, material);
-        this.mesh2D.castShadow = true;
         this.mesh2D.visible = this.config.show2DMesh;
         
         this.fitMeshToView(this.mesh2D);
@@ -124,22 +259,89 @@ export class MeshExtruderRect {
         console.log('2D geometry created');
     }
     
-    /**
-     * Create 3D extruded geometry without colors
-     */
-    create3DGeometry() {
+    async create3DGeometry() {
         if (this.mesh3D) {
             this.group.remove(this.mesh3D);
             this.mesh3D.geometry.dispose();
             this.mesh3D.material.dispose();
         }
         
-        console.log('Creating 3D rectangular geometry...');
+        console.log('Creating 3D rectangular tube via Marching Cubes...');
         
-        const geometry = this.createExtrudedGeometry();
+        const iso = await this.loadIsosurface();
         
-        // Apply neutral gray color initially
-        this.applyNeutralColors(geometry);
+        const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
+        
+        // Add margin for marching cubes
+        const margin = 0.05;
+        const xRange = xMax - xMin;
+        const yRange = yMax - yMin;
+        const zRange = zMax - zMin;
+        
+        const mcBounds = {
+            xMin: xMin - xRange * margin,
+            xMax: xMax + xRange * margin,
+            yMin: yMin - yRange * margin,
+            yMax: yMax + yRange * margin,
+            zMin: zMin - zRange * margin,
+            zMax: zMax + zRange * margin
+        };
+        
+        const mcXRange = mcBounds.xMax - mcBounds.xMin;
+        const mcYRange = mcBounds.yMax - mcBounds.yMin;
+        const mcZRange = mcBounds.zMax - mcBounds.zMin;
+        
+        // Resolution for marching cubes
+        const resX = 120;
+        const resY = 80;
+        const resZ = 80;
+        
+        const sdfFunc = (gx, gy, gz) => {
+            const x = mcBounds.xMin + (gx / resX) * mcXRange;
+            const y = mcBounds.yMin + (gy / resY) * mcYRange;
+            const z = mcBounds.zMin + (gz / resZ) * mcZRange;
+            return this.rectangularSDF(x, y, z);
+        };
+        
+        const result = iso.surfaceNets(
+            [resX + 1, resY + 1, resZ + 1],
+            sdfFunc,
+            [[0, 0, 0], [resX, resY, resZ]]
+        );
+        
+        if (!result.positions || result.positions.length === 0) {
+            console.warn('Marching cubes produced no geometry');
+            return;
+        }
+        
+        const geometry = new THREE.BufferGeometry();
+        
+        // Convert positions from grid coords to world coords
+        const positions = new Float32Array(result.positions.length * 3);
+        for (let i = 0; i < result.positions.length; i++) {
+            const [gx, gy, gz] = result.positions[i];
+            positions[i * 3 + 0] = mcBounds.xMin + (gx / resX) * mcXRange;
+            positions[i * 3 + 1] = mcBounds.yMin + (gy / resY) * mcYRange;
+            positions[i * 3 + 2] = mcBounds.zMin + (gz / resZ) * mcZRange;
+        }
+        
+        // Convert indices
+        let indices = new Uint32Array(result.cells.length * 3);
+        for (let i = 0; i < result.cells.length; i++) {
+            indices[i * 3 + 0] = result.cells[i][0];
+            indices[i * 3 + 1] = result.cells[i][1];
+            indices[i * 3 + 2] = result.cells[i][2];
+        }
+        
+        // Remove end caps (inlet and outlet)
+        indices = this.removeEndCaps(positions, indices);
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+        geometry.computeVertexNormals();
+        
+        // Apply colors based on X position (gradient like SDF does)
+        this.addGradientColors(geometry);
         
         const material = new THREE.MeshBasicMaterial({
             vertexColors: true,
@@ -149,41 +351,104 @@ export class MeshExtruderRect {
         });
         
         this.mesh3D = new THREE.Mesh(geometry, material);
-        this.mesh3D.castShadow = true;
-        this.mesh3D.receiveShadow = true;
         this.mesh3D.visible = this.config.show3DExtrusion;
         
         this.fitMeshToView(this.mesh3D);
         this.group.add(this.mesh3D);
         
-        console.log('3D geometry created');
+        console.log(`   Created ${result.positions.length} vertices, ${indices.length / 3} triangles`);
+        console.log('3D rectangular tube created');
     }
     
     /**
-     * Apply neutral gray color to geometry (before solution is available)
+     * Remove triangles at inlet (xMin) and outlet (xMax)
      */
+    removeEndCaps(positions, indices) {
+        const { xMin, xMax } = this.originalBounds;
+        const tolerance = (xMax - xMin) * 0.02;
+        
+        const newIndices = [];
+        let removedInlet = 0, removedOutlet = 0;
+        
+        for (let i = 0; i < indices.length; i += 3) {
+            const i0 = indices[i + 0];
+            const i1 = indices[i + 1];
+            const i2 = indices[i + 2];
+            
+            const x0 = positions[i0 * 3 + 0];
+            const x1 = positions[i1 * 3 + 0];
+            const x2 = positions[i2 * 3 + 0];
+            
+            const allAtXMin = x0 < xMin + tolerance && x1 < xMin + tolerance && x2 < xMin + tolerance;
+            const allAtXMax = x0 > xMax - tolerance && x1 > xMax - tolerance && x2 > xMax - tolerance;
+            
+            if (allAtXMin) {
+                removedInlet++;
+            } else if (allAtXMax) {
+                removedOutlet++;
+            } else {
+                newIndices.push(i0, i1, i2);
+            }
+        }
+        
+        console.log(`   Removed end caps: inlet=${removedInlet}, outlet=${removedOutlet} triangles`);
+        
+        return new Uint32Array(newIndices);
+    }
+    
+    /**
+     * Load isosurface library (same as SDF version)
+     */
+    async loadIsosurface() {
+        if (window.isosurface) {
+            return window.isosurface;
+        }
+        
+        const module = await import('https://esm.sh/isosurface@1.0.0');
+        window.isosurface = module;
+        return module;
+    }
+    
+    /**
+     * Add gradient colors based on X position
+     */
+    addGradientColors(geometry) {
+        const positions = geometry.attributes.position;
+        const colors = new Float32Array(positions.count * 3);
+        
+        const { xMin, xMax } = this.originalBounds;
+        const xRange = xMax - xMin;
+        
+        for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i);
+            const t = (x - xMin) / xRange;
+            const color = this.valueToColor(1 - t);  // Red at inlet, blue at outlet
+            
+            colors[i * 3 + 0] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
+        }
+        
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    }
+    
     applyNeutralColors(geometry) {
         const positions = geometry.attributes.position;
         const colors = new Float32Array(positions.count * 3);
         
-        // Light gray color
         for (let i = 0; i < positions.count; i++) {
-            colors[i * 3 + 0] = 0.75;  // R
-            colors[i * 3 + 1] = 0.75;  // G
-            colors[i * 3 + 2] = 0.75;  // B
+            colors[i * 3 + 0] = 0.75;
+            colors[i * 3 + 1] = 0.75;
+            colors[i * 3 + 2] = 0.75;
         }
         
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
     // =========================================================================
-    // Color Updates (can be called incrementally during solve)
+    // Color Updates (O(n) using wallNodeMap)
     // =========================================================================
     
-    /**
-     * Update colors based on solution data (incremental update)
-     * @param {Object} solutionData - { values: [], range: [min, max] }
-     */
     updateSolutionColors(solutionData) {
         this.solutionData = solutionData;
         
@@ -196,10 +461,6 @@ export class MeshExtruderRect {
         }
     }
     
-    /**
-     * Update colors for incremental solution (compatible with solution_increment event)
-     * @param {Object} updateData - { solution_values: [], chunk_info: { min, max } }
-     */
     updateSolutionIncremental(updateData) {
         const { solution_values, chunk_info } = updateData;
         
@@ -217,9 +478,6 @@ export class MeshExtruderRect {
         }
     }
     
-    /**
-     * Update 2D mesh colors from current solution data
-     */
     updateMesh2DColors() {
         if (!this.mesh2D || !this.solutionData) return;
         
@@ -231,7 +489,7 @@ export class MeshExtruderRect {
         const conn = this.meshData.connectivity;
         
         let vertexIndex = 0;
-        for (let elem of conn) {
+        for (const elem of conn) {
             for (let i = 0; i < 8; i++) {
                 const nodeId = elem[i];
                 const value = values[nodeId] || 0;
@@ -250,67 +508,50 @@ export class MeshExtruderRect {
     }
     
     /**
-     * Update 3D mesh colors from current solution data
+     * Update 3D colors - for SDF geometry, use X-position based gradient
+     * (matching the solution gradient from inlet to outlet)
      */
     updateMesh3DColors() {
         if (!this.mesh3D || !this.solutionData) return;
         
         const geometry = this.mesh3D.geometry;
+        const positions = geometry.attributes.position;
         const colors = geometry.attributes.color.array;
         
-        const values = this.solutionData.values;
+        const { xMin, xMax } = this.originalBounds;
+        const xRange = xMax - xMin;
         const [min, max] = this.solutionData.range;
-        const conn = this.meshData.connectivity;
         
-        let vertexIndex = 0;
-        for (let elem of conn) {
-            // Front face (8 vertices) + Back face (8 vertices)
-            for (let face = 0; face < 2; face++) {
-                for (let i = 0; i < 8; i++) {
-                    const nodeId = elem[i];
-                    const value = values[nodeId] || 0;
-                    const normalized = (max > min) ? (value - min) / (max - min) : 0.5;
-                    const color = this.valueToColor(normalized);
-                    
-                    colors[vertexIndex * 3 + 0] = color.r;
-                    colors[vertexIndex * 3 + 1] = color.g;
-                    colors[vertexIndex * 3 + 2] = color.b;
-                    
-                    vertexIndex++;
-                }
-            }
+        // For SDF geometry, color based on X position (approximates solution)
+        for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i);
+            const t = (x - xMin) / xRange;
+            // Map X position to solution range (inlet=high, outlet=low)
+            const normalized = 1 - t;
+            const color = this.valueToColor(normalized);
+            
+            colors[i * 3 + 0] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
         }
         
         geometry.attributes.color.needsUpdate = true;
     }
     
     // =========================================================================
-    // Legacy Methods (for backward compatibility)
+    // Legacy Methods
     // =========================================================================
     
-    /**
-     * Create 2D mesh visualization (on XY plane) - legacy method
-     */
     create2DMesh() {
         this.create2DGeometry();
-        if (this.solutionData) {
-            this.updateMesh2DColors();
-        }
+        if (this.solutionData) this.updateMesh2DColors();
     }
     
-    /**
-     * Create 3D extruded mesh (rectangular slab) - legacy method
-     */
     create3DExtrusion() {
         this.create3DGeometry();
-        if (this.solutionData) {
-            this.updateMesh3DColors();
-        }
+        if (this.solutionData) this.updateMesh3DColors();
     }
     
-    /**
-     * Create all visualizations - legacy method
-     */
     createAll() {
         this.create2DMesh();
         this.create3DExtrusion();
@@ -318,12 +559,9 @@ export class MeshExtruderRect {
     }
     
     // =========================================================================
-    // Geometry Creation Helpers
+    // 2D Geometry (unchanged - full mesh for reference)
     // =========================================================================
     
-    /**
-     * Create Quad-8 geometry for 2D visualization
-     */
     createQuad8Geometry2D() {
         const coords = this.meshData.coordinates;
         const conn = this.meshData.connectivity;
@@ -332,14 +570,12 @@ export class MeshExtruderRect {
         const indices = [];
         let vertexIndex = 0;
         
-        for (let elem of conn) {
-            // Add all 8 vertices for this element (Z = 0)
+        for (const elem of conn) {
             for (let i = 0; i < 8; i++) {
                 const nodeId = elem[i];
                 vertices.push(coords.x[nodeId], coords.y[nodeId], 0);
             }
             
-            // 6-triangle subdivision for Quad-8
             indices.push(
                 vertexIndex + 0, vertexIndex + 1, vertexIndex + 7,
                 vertexIndex + 1, vertexIndex + 2, vertexIndex + 3,
@@ -360,86 +596,10 @@ export class MeshExtruderRect {
         return geometry;
     }
     
-    /**
-     * Create extruded geometry (front face, back face, connected as solid)
-     */
-    createExtrudedGeometry() {
-        const coords = this.meshData.coordinates;
-        const conn = this.meshData.connectivity;
-        const { zMin, zMax } = this.bounds;
-        
-        const vertices = [];
-        const indices = [];
-        let vertexIndex = 0;
-        
-        for (let elem of conn) {
-            // Front face (Z = zMax) - 8 vertices
-            for (let i = 0; i < 8; i++) {
-                const nodeId = elem[i];
-                vertices.push(coords.x[nodeId], coords.y[nodeId], zMax);
-            }
-            
-            // Back face (Z = zMin) - 8 vertices
-            for (let i = 0; i < 8; i++) {
-                const nodeId = elem[i];
-                vertices.push(coords.x[nodeId], coords.y[nodeId], zMin);
-            }
-            
-            const front = vertexIndex;      // Vertices 0-7: front face
-            const back = vertexIndex + 8;   // Vertices 8-15: back face
-            
-            // Front face triangles
-            indices.push(
-                front + 0, front + 1, front + 7,
-                front + 1, front + 2, front + 3,
-                front + 3, front + 4, front + 5,
-                front + 5, front + 6, front + 7,
-                front + 1, front + 3, front + 7,
-                front + 3, front + 5, front + 7
-            );
-            
-            // Back face triangles (reversed winding)
-            indices.push(
-                back + 0, back + 7, back + 1,
-                back + 1, back + 3, back + 2,
-                back + 3, back + 5, back + 4,
-                back + 5, back + 7, back + 6,
-                back + 1, back + 7, back + 3,
-                back + 3, back + 7, back + 5
-            );
-            
-            // Side faces connecting front and back
-            indices.push(front + 0, back + 0, front + 1);
-            indices.push(front + 1, back + 0, back + 1);
-            indices.push(front + 1, back + 1, front + 2);
-            indices.push(front + 2, back + 1, back + 2);
-            indices.push(front + 2, back + 2, front + 3);
-            indices.push(front + 3, back + 2, back + 3);
-            indices.push(front + 3, back + 3, front + 4);
-            indices.push(front + 4, back + 3, back + 4);
-            indices.push(front + 4, back + 4, front + 5);
-            indices.push(front + 5, back + 4, back + 5);
-            indices.push(front + 5, back + 5, front + 6);
-            indices.push(front + 6, back + 5, back + 6);
-            indices.push(front + 6, back + 6, front + 7);
-            indices.push(front + 7, back + 6, back + 7);
-            indices.push(front + 7, back + 7, front + 0);
-            indices.push(front + 0, back + 7, back + 0);
-            
-            vertexIndex += 16;
-        }
-        
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        geometry.setIndex(indices);
-        geometry.computeVertexNormals();
-        
-        return geometry;
-    }
+    // =========================================================================
+    // Helpers
+    // =========================================================================
     
-    /**
-     * Color map: blue (low) -> cyan -> green -> yellow -> red (high)
-     */
     valueToColor(t) {
         t = Math.max(0, Math.min(1, t));
         let r, g, b;
@@ -461,13 +621,9 @@ export class MeshExtruderRect {
         return { r, g, b };
     }
     
-    /**
-     * Fit mesh to view - scale based on X/Y only
-     */
     fitMeshToView(mesh) {
         const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
         
-        // Scale based on X/Y dimensions only (not Z)
         const xRange = xMax - xMin;
         const yRange = yMax - yMin;
         const maxXY = Math.max(xRange, yRange);
@@ -480,10 +636,7 @@ export class MeshExtruderRect {
         const centerX = (xMin + xMax) / 2;
         const centerZ = (zMin + zMax) / 2;
         
-        // Center horizontally, rest on floor (Y), center in Z
         mesh.position.set(-centerX * scale, -yMin * scale, -centerZ * scale);
-        
-        console.log(`   Fitted to view: scale=${scale.toFixed(4)} (based on X/Y only)`);
     }
     
     // =========================================================================
@@ -500,10 +653,6 @@ export class MeshExtruderRect {
         if (this.mesh3D) this.mesh3D.visible = visible;
     }
     
-    /**
-     * Set visualization mode
-     * @param {string} mode - '2d', '3d', or 'both'
-     */
     setVisualizationMode(mode) {
         switch (mode) {
             case '2d':
@@ -518,37 +667,18 @@ export class MeshExtruderRect {
                 this.set2DMeshVisible(true);
                 this.set3DExtrusionVisible(true);
                 break;
-            default:
-                console.warn(`Unknown visualization mode: ${mode}`);
         }
-        console.log(`Visualization mode: ${mode}`);
     }
     
     // =========================================================================
     // Particle Flow Compatibility
     // =========================================================================
     
-    /**
-     * Get Y segments at X position (for particle flow compatibility)
-     */
     getYSegmentsAtXCached(x) {
-        const { xMin, xMax, yMin, yMax } = this.bounds;
-        
-        if (x < xMin || x > xMax) {
-            return null;
-        }
-        
-        return [{
-            yMin: yMin,
-            yMax: yMax,
-            centerY: (yMin + yMax) / 2,
-            radius: (yMax - yMin) / 2
-        }];
+        // Use the segment cache we built (same as getYSegmentsAtX)
+        return this.getYSegmentsAtX(x);
     }
     
-    /**
-     * Check if point is inside the extruded volume
-     */
     isInsideTube(x, y, z) {
         const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
         
@@ -578,56 +708,34 @@ export class MeshExtruderRect {
     }
     
     // =========================================================================
-    // Real-time Appearance Controls (no regeneration needed)
+    // Real-time Appearance Controls
     // =========================================================================
     
-    /**
-     * Set brightness of the 3D mesh (multiplies vertex colors)
-     * @param {number} value - 0.0 (black) to 1.0 (full bright), default 1.0
-     */
     setBrightness(value) {
-        if (this.mesh3D && this.mesh3D.material) {
-            const v = Math.max(0, Math.min(1, value));
-            this.mesh3D.material.color.setRGB(v, v, v);
-        }
-        if (this.mesh2D && this.mesh2D.material) {
-            const v = Math.max(0, Math.min(1, value));
-            this.mesh2D.material.color.setRGB(v, v, v);
-        }
+        const v = Math.max(0, Math.min(1, value));
+        if (this.mesh3D?.material) this.mesh3D.material.color.setRGB(v, v, v);
+        if (this.mesh2D?.material) this.mesh2D.material.color.setRGB(v, v, v);
     }
     
-    /**
-     * Set opacity of the 3D mesh
-     * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque), default 0.8
-     */
     setOpacity(value) {
-        if (this.mesh3D && this.mesh3D.material) {
+        if (this.mesh3D?.material) {
             this.mesh3D.material.opacity = Math.max(0, Math.min(1, value));
         }
     }
     
-    /**
-     * Enable or disable transparency
-     * @param {boolean} enabled - true to enable transparency, false to disable
-     */
     setTransparent(enabled) {
-        if (this.mesh3D && this.mesh3D.material) {
+        if (this.mesh3D?.material) {
             this.mesh3D.material.transparent = enabled;
         }
     }
     
-    /**
-     * Get current appearance settings
-     * @returns {Object} Current brightness, opacity, and transparency values
-     */
     getAppearanceSettings() {
-        if (!this.mesh3D || !this.mesh3D.material) {
-            return null;
-        }
+        if (!this.mesh3D?.material) return null;
         return {
-            brightness: this.mesh3D.material.color.r,  // R=G=B for grayscale multiplier
+            brightness: this.mesh3D.material.color.r,
             opacity: this.mesh3D.material.opacity,
             transparent: this.mesh3D.material.transparent
         };
     }
 }
+

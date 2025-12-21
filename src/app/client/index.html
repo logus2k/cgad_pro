@@ -14,6 +14,7 @@
 	<link rel="stylesheet" href="style/window.css" />
 	<link rel="stylesheet" href="style/menu.css" />
 	<link rel="stylesheet" href="style/metrics.css" />	
+	<link rel="stylesheet" href="style/tabs.css" />	
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
@@ -117,25 +118,38 @@
 				</div>
 
 				<div class="hud settings" id="hud-settings" style="z-index: 15;">
-
 					<h1>CONFIGURATION SETTINGS</h1>
+					
 					<div class="sep"></div>
 
-					<div class="settings-container">
-						<input id="checkbox1" type="checkbox" class="ui-checkbox">
+					<!-- Tabs container -->
+					<div class="tabs-container">
+						<div class="tab active" data-tab="tab-a">Tab A</div>
+						<div class="tab" data-tab="tab-b">Tab B</div>
+						<!-- Add more tabs as needed -->
 					</div>
+					
+					<!-- Tab content containers -->
+					<div class="tab-content active" id="tab-a-content">
+						<div class="settings-container">
+							<input id="checkbox1" type="checkbox" class="ui-checkbox">
+						</div>
 
-					<!-- Brightness slider -->
-					<input type="range" min="0" max="1" step="0.05" value="1" 
-						oninput="setBrightness(this.value)">
+						<!-- Brightness slider -->
+						<input type="range" min="0" max="1" step="0.05" value="1" 
+							oninput="setBrightness(this.value)">
 
-					<!-- Opacity slider -->
-					<input type="range" min="0" max="1" step="0.05" value="0.8" 
-						oninput="setOpacity(this.value)">
+						<!-- Opacity slider -->
+						<input type="range" min="0" max="1" step="0.05" value="0.8" 
+							oninput="setOpacity(this.value)">
 
-					<!-- Transparency checkbox -->
-					<input type="checkbox" checked onchange="setTransparent(this.checked)">					
-
+						<!-- Transparency checkbox -->
+						<input type="checkbox" checked onchange="setTransparent(this.checked)">
+					</div>
+					
+					<div class="tab-content" id="tab-b-content">
+						<!-- Content for Tab B goes here -->
+					</div>
 				</div>
 
 				<div class="hud about" id="hud-about" style="z-index: 15;">
@@ -155,6 +169,7 @@
 	<script type="module" src="./script/perlin-horizon.js"></script>
 	<script type="module" src="./script/application_start.js"></script>
 	<script type="module" src="./script/menu.init.js"></script>
+	<script type="module" src="./script/tabs.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
 </body>
 </html>

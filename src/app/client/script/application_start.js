@@ -10,12 +10,12 @@ import { ParticleFlow } from '../script/particle-flow.js';
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = false;              // Use GPU renderer (false = CPU)
+const useGPU = true;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
-const extrusionType = 'cylindrical';  // 'cylindrical' | 'rectangular'
+const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
 
 // ============================================================================
 // Initialize Three.js scene
@@ -190,9 +190,9 @@ femClient.on('solve_complete', async (data) => {
                 window.velocityData = velocityData;
                 console.log('Velocity data loaded:', velocityData);
                 
-                // Create particle animation (only for cylindrical extrusion)
-                if (useParticleAnimation && extrusionType === 'cylindrical') {
-                    console.log('Creating particle flow animation...');
+                // Create particle animation (for both cylindrical and rectangular)
+                if (useParticleAnimation) {
+                    console.log(`Creating particle flow animation (${extrusionType} mode)...`);
                     
                     particleFlow = new ParticleFlow(
                         meshExtruder,
@@ -205,6 +205,7 @@ femClient.on('solve_complete', async (data) => {
                             particleOpacity: 0.9,
                             particleMaxLife: 8.0,
                             colorBySpeed: true,
+                            extrusionMode: extrusionType,  // Pass extrusion type
                         }
                     );
                     
