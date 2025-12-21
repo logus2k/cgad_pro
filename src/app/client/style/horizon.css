@@ -23,3 +23,11 @@ html {
     right: 120px;
     z-index: 1;
 }
+
+.pena-palace-caption {
+    font-family: 'Roboto', sans-serif;
+    font-size: 7px;
+    position: absolute;
+    top: calc(7%);
+    right: calc(71px);
+}
