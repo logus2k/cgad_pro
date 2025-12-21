@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<title>Three.js Grid + HTML Overlay</title>
+	<title>FEMulator Pro</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="style/theme.css" />
 	<link rel="stylesheet" href="style/horizon.css" />	
@@ -202,7 +202,7 @@
 		// ============================================================================
 		// Initialize FEM client and metrics display
 		// ============================================================================
-		const femClient = new FEMClient('http://localhost:4567');
+		const femClient = new FEMClient('https://logus2k.com/fem');
 		const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
 		
 		// Initialize mesh renderer (for 2D visualization)
@@ -282,7 +282,7 @@
 					velocityData = null;
 					try {
 						const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
-						const response = await fetch(`http://localhost:4567${velocityUrl}`);
+						const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
 						
 						if (response.ok) {
 							const buffer = await response.arrayBuffer();

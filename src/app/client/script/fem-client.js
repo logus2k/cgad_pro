@@ -3,10 +3,13 @@
  */
 export class FEMClient {
 
-    constructor(serverUrl = 'http://localhost:4567') {
+    constructor(serverUrl = window.location.origin) {
 
         this.serverUrl = serverUrl;
-        this.socket = io(serverUrl);
+        const socketOrigin = new URL(serverUrl).origin;
+        this.socket = io(socketOrigin, {
+            path: "/fem/socket.io",
+        });
         this.currentJobId = null;
         this.eventHandlers = {};
         
@@ -215,33 +218,34 @@ export class FEMClient {
      * Start a new solve job
      */
     async startSolve(params) {
-        try {
-            const response = await fetch(`${this.serverUrl}/solve`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(params)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            this.currentJobId = data.job_id;
-            
-            // Join Socket.IO room for this job
-            this.socket.emit('join_room', {job_id: data.job_id});
-            
-            console.log(`🚀 Job started: ${data.job_id}`);
-            this.triggerEvent('job_started', data);
-            
-            return data;
-            
-        } catch (error) {
-            console.error('Failed to start solve:', error);
-            this.triggerEvent('job_error', {error: error.message});
-            throw error;
+        const response = await fetch(`${this.serverUrl}/solve`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(params)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        this.currentJobId = data.job_id;
+
+        const join = () => {
+            this.socket.emit('join_room', { job_id: data.job_id });
+            console.log(`🔗 Joined room ${data.job_id}`);
+        };
+
+        if (this.socket.connected) {
+            join();
+        } else {
+            this.socket.once('connect', join);
+        }
+
+        console.log(`🚀 Job started: ${data.job_id}`);
+        this.triggerEvent('job_started', data);
+
+        return data;
     }
     
     /**

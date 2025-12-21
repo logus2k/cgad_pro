@@ -5,7 +5,7 @@ Usage:
     python fem_api_server.py
     
     Or with uvicorn:
-    uvicorn fem_api_server:app --host 0.0.0.0 --port 4567 --reload
+    uvicorn fem_api_server:app --host 0.0.0.0 --port 5867 --reload
 """
 import sys
 import io
@@ -17,6 +17,9 @@ sys.path.insert(0, str(PROJECT_ROOT / "shared"))
 sys.path.insert(0, str(PROJECT_ROOT / "cpu"))
 sys.path.insert(0, str(PROJECT_ROOT / "gpu"))
 
+# Add static files path for Web client 
+CLIENT_DIR = PROJECT_ROOT / "app" / "client"
+
 import asyncio
 import uuid
 from typing import Dict
@@ -25,6 +28,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import socketio
 
 import struct
@@ -34,16 +38,6 @@ from models import SolverParams, JobStatus, JobResult
 from progress_callback import ProgressCallback
 from solver_wrapper import SolverWrapper
 
-
-# ============================================================================
-# Socket.IO Setup
-# ============================================================================
-sio = socketio.AsyncServer(
-    async_mode='asgi',
-    cors_allowed_origins='*',  # In production, restrict this!
-    logger=True,
-    engineio_logger=True
-)
 
 # ============================================================================
 # FastAPI Setup
@@ -57,22 +51,32 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this!
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ============================================================================
+# Socket.IO Setup
+# ============================================================================
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins='*',
+    logger=True,
+    engineio_logger=True
+)
+
 # Combine FastAPI + Socket.IO
 socket_app = socketio.ASGIApp(
     socketio_server=sio,
-    other_asgi_app=app
+    other_asgi_app=app,
 )
 
 # ============================================================================
 # Job Management
 # ============================================================================
-jobs: Dict[str, dict] = {}  # In-memory job storage (use Redis in production)
+jobs: Dict[str, dict] = {}  # In-memory job storage
 
 
 # ============================================================================
@@ -95,7 +99,7 @@ async def join_room(sid, data):
     """Client joins a job room to receive updates"""
     job_id = data.get('job_id')
     if job_id:
-        await sio.enter_room(sid, job_id)  # ← Add await
+        await sio.enter_room(sid, job_id)
         await sio.emit('joined', {'job_id': job_id}, room=sid)
         print(f"Client {sid} joined room {job_id}")
 
@@ -182,14 +186,16 @@ async def run_solver_task(job_id: str, params: dict):
 # REST API Endpoints
 # ============================================================================
 
+"""
 @app.get("/")
 async def root():
-    """API health check"""
+    # API health check
     return {
         "status": "ok",
         "service": "FEMulator Pro API",
         "version": "1.0.0"
     }
+"""
 
 
 @app.get("/health")
@@ -463,21 +469,30 @@ async def get_velocity_binary(job_id: str):
     )
 
 # ============================================================================
+# Web Client App Setup
+# ============================================================================
+app.mount(
+    "/",
+    StaticFiles(directory=CLIENT_DIR, html=True),
+    name="frontend"
+)
+
+# ============================================================================
 # Main Entry Point
 # ============================================================================
 if __name__ == "__main__":
     print("\n" + "="*70)
     print("  FEMulator Pro API Server")
     print("="*70)
-    print(f"  Starting server on http://localhost:4567")
-    print(f"  Socket.IO endpoint: ws://localhost:4567/socket.io")
-    print(f"  API docs: http://localhost:4567/docs")
+    print(f"  Starting server on http://localhost:5867")
+    print(f"  Socket.IO endpoint: ws://localhost:5867/socket.io")
+    print(f"  API docs: http://localhost:5867/docs")
     print("="*70 + "\n")
     
     uvicorn.run(
         "fem_api_server:socket_app",  # Note: must use socket_app, not app
         host="0.0.0.0",
-        port=4567,
+        port=5867,
         reload=True,
         log_level="info"
     )

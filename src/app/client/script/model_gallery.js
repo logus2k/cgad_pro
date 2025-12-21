@@ -3,7 +3,7 @@
  * Handles .h5 file listing, rich metadata, and descriptive overlays.
  */
 export class ModelGallery {
-    constructor(serverUrl = 'http://localhost:4567') {
+    constructor(serverUrl = 'https://logus2k.com/fem') {
         this.serverUrl = serverUrl;
         this.models = [];
         this.originalModelsCount = 0;
