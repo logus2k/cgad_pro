@@ -50,7 +50,7 @@
 }
 
 .pm-menu button:hover {
-	color: #FFB000;
+	color: #55cb80;
 }
 
 .pm-menu button.active {
@@ -100,11 +100,9 @@
 }
 
 .pm-close:hover {
-    background: #ffcb8d;
+    background: #ff9e8d;
 	color: #333333;
 }
-
-/* ───────────────── Light Theme Menu ───────────────── */
 
 .pm-menu button {
     background: rgba(255, 255, 255, 0.55);
