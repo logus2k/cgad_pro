@@ -6,6 +6,7 @@
 	<title>Three.js Grid + HTML Overlay</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="style/theme.css" />
+	<link rel="stylesheet" href="style/horizon.css" />	
 	<link rel="stylesheet" href="style/gallery.css" />
 	<link rel="stylesheet" href="style/hud.css" />
 	<link rel="stylesheet" href="style/window.css" />
@@ -22,7 +23,12 @@
 		<div id="three-layer"></div>
 		<div id="ui-layer">
 			<div id="overlay">
-
+				<div class="scene">
+					<svg class="horizon-svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+						<path id="horizon-path" fill="none" stroke="#333333" stroke-width="0.2"/>
+					</svg>
+					<img class="pena-palace" src="./images/logo/pena_palace.png" alt="Pena Palace">
+				</div>
 				<div>
 					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
 						<defs>
@@ -112,6 +118,7 @@
 					<div class="sep"></div>
 
 					<div class="settings-container">
+						<input type="checkbox" class="ui-checkbox">
 					</div>
 
 				</div>
@@ -130,6 +137,44 @@
 			</div>
 		</div>
 	</div>
+
+	<script src="./script/perlin-horizon.js"></script>
+	<script>
+		function createHorizon() {
+			const screenWidth = window.innerWidth;
+			const horizon = new PerlinHorizon({
+				width: screenWidth,
+				centerY: 150,
+				amplitude: 10,
+				frequency: 0.008,
+				seed: 1,
+				strokeColor: '#000000',
+				strokeWidth: 2,
+				fillGradientAbove: {
+					color: '#87CEEB',
+					opacity: 0.15,
+					height: 600
+				},
+				fillGradientBelow: {
+					color: '#228B22',
+					opacity: 0.08,
+					height: 800
+				},
+				gap: {
+					start: screenWidth - 226,
+					end: screenWidth - 123
+				}            
+			});
+			
+			const svg = document.querySelector('.horizon-svg');
+			svg.setAttribute('viewBox', `0 0 ${screenWidth} 400`);
+			
+			horizon.applyTo('horizon-path');
+		}
+		
+		createHorizon();
+		window.addEventListener('resize', createHorizon);
+	</script>
 
 	<script type="module">
 		import { MillimetricScene } from './script/scene.js';
@@ -283,10 +328,10 @@
 							{
 								particleCount: 1000,
 								speedScale: 0.3,
-								particleSize: 0.4,
+								particleSize: 0.02,
 								particleOpacity: 0.9,
 								particleMaxLife: 8.0,
-								colorBySpeed: true
+								colorBySpeed: true,
 							}
 						);
 						
@@ -530,6 +575,7 @@
 		console.log('   updateParticles({ particleCount, speedScale, ... })');
 		console.log('   quickSolve()');
 	</script>
+
 	<script type="module" src="./script/menu.init.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
 

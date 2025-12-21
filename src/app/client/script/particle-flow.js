@@ -1,8 +1,22 @@
 import * as THREE from '../library/three.module.min.js';
+import { ParticleSphere } from './particles/particle-sphere.js';
+import { ParticlePoint } from './particles/particle-point.js';
+import { ParticleDroplet } from './particles/particle-droplet.js';
+import { ParticleBubble } from './particles/particle-bubble.js';
 
 /**
- * ParticleFlow - Animated particle flow visualization for tubes
- * Uses instanced spheres for better visibility and spatial grid for fast velocity lookup
+ * Available particle type classes
+ */
+const PARTICLE_TYPES = {
+    sphere: ParticleSphere,
+    point: ParticlePoint,
+    droplet: ParticleDroplet,
+    bubble: ParticleBubble
+};
+
+/**
+ * ParticleFlow - Main controller for particle flow visualization
+ * Manages velocity field, particle positions, and delegates rendering to particle type classes
  */
 export class ParticleFlow {
     constructor(meshExtruder, velocityData, renderCallback, config = {}) {
@@ -10,24 +24,26 @@ export class ParticleFlow {
         this.velocityData = velocityData;
         this.renderCallback = renderCallback;
         
+        // Default particle type
+        const particleType = config.particleType || 'sphere';
+        const ParticleClass = PARTICLE_TYPES[particleType];
+        
         this.config = {
+            particleType: particleType,
             particleCount: 800,
-            particleRadius: 0.015,
-            particleColor: 0x222222,
-            particleRoughness: 0.4,
-            particleMetalness: 0.1,
             speedScale: 0.5,
             particleMaxLife: 10.0,
-            colorBySpeed: false,
             gridResolution: 100,
             inflowDistance: 0.15,
             outflowDistance: 0.25,
-            tubeWallMargin: 0.02,  // Fixed margin from tube wall (in world units)
+            tubeWallMargin: 0.02,
+            // Merge type-specific defaults
+            ...ParticleClass.getDefaults(),
             ...config
         };
         
         this.group = new THREE.Group();
-        this.instancedMesh = null;
+        this.particleRenderer = null;
         this.isAnimating = false;
         this.animationId = null;
         this.lastTime = 0;
@@ -52,15 +68,26 @@ export class ParticleFlow {
             this.originalBounds.yMax - this.originalBounds.yMin
         );
         
+        // Compute offset
+        const { xMin, xMax, yMin } = this.originalBounds;
+        const centerX = (xMin + xMax) / 2;
+        this.offset = new THREE.Vector3(-centerX * this.scale, -yMin * this.scale, 0);
+        
         // Particle state arrays
         this.particlePositions = null;
+        this.particleVelocities = null;
         this.particleLifetimes = null;
-        this.tempMatrix = new THREE.Matrix4();
-        this.tempColor = new THREE.Color();
         
         meshExtruder.group.add(this.group);
         
         console.log('ParticleFlow initialized');
+    }
+    
+    /**
+     * Get list of available particle types
+     */
+    static getAvailableTypes() {
+        return Object.keys(PARTICLE_TYPES);
     }
     
     /**
@@ -155,12 +182,10 @@ export class ParticleFlow {
     
     /**
      * Get tube segment at X position, finding the best match for a given Y,Z position
-     * Uses radial distance to find which tube the particle is actually in
      */
     getSegmentAtPosition(x, y, z = 0) {
         const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
         
-        // Clamp X to original bounds for segment lookup
         const sampleX = Math.max(origXMin, Math.min(origXMax, x));
         const segments = this.meshExtruder.getYSegmentsAtXCached(sampleX);
         
@@ -168,13 +193,10 @@ export class ParticleFlow {
             return null;
         }
         
-        // If only one segment, return it
         if (segments.length === 1) {
             return segments[0];
         }
         
-        // Multiple segments (branches) - find which one the particle is in/closest to
-        // Use radial distance from each tube's centerline
         let bestSeg = segments[0];
         let bestRadialDist = Infinity;
         
@@ -182,16 +204,12 @@ export class ParticleFlow {
             const dy = y - seg.centerY;
             const radialDist = Math.sqrt(dy * dy + z * z);
             
-            // Prefer segment where particle is inside (radialDist < radius)
-            // If inside multiple or none, use closest
             if (radialDist < seg.radius) {
-                // Particle is inside this segment
                 if (radialDist < bestRadialDist || bestRadialDist >= bestSeg.radius) {
                     bestSeg = seg;
                     bestRadialDist = radialDist;
                 }
             } else if (bestRadialDist >= bestSeg.radius) {
-                // Not inside any segment yet, track closest
                 if (radialDist < bestRadialDist) {
                     bestSeg = seg;
                     bestRadialDist = radialDist;
@@ -204,7 +222,6 @@ export class ParticleFlow {
     
     /**
      * Constrain position to stay inside tube cross-section
-     * Accounts for particle radius so spheres don't clip through walls
      */
     constrainToTube(x, y, z) {
         const seg = this.getSegmentAtPosition(x, y, z);
@@ -215,12 +232,10 @@ export class ParticleFlow {
         
         const dy = y - seg.centerY;
         const radialDist = Math.sqrt(dy * dy + z * z);
-        
-        // Max radius = tube radius - fixed wall margin - particle radius
-        const maxRadius = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
+        const particleSize = this.config.particleSize || 0.015;
+        const maxRadius = seg.radius - this.config.tubeWallMargin - particleSize;
         
         if (radialDist > maxRadius && radialDist > 0.0001) {
-            // Push particle back inside
             const scale = maxRadius / radialDist;
             return {
                 y: seg.centerY + dy * scale,
@@ -233,83 +248,57 @@ export class ParticleFlow {
     }
     
     /**
-     * Create instanced mesh for particles (spheres)
+     * Check if particle is in valid flow region
      */
-    createParticles() {
-        if (this.instancedMesh) {
-            this.group.remove(this.instancedMesh);
-            this.instancedMesh.geometry.dispose();
-            this.instancedMesh.material.dispose();
-        }
+    isInFlowRegion(x, y, z) {
+        const seg = this.getSegmentAtPosition(x, y, z);
+        if (!seg) return false;
         
+        const dy = y - seg.centerY;
+        const radialDist = Math.sqrt(dy * dy + z * z);
+        const maxRadius = seg.radius - this.config.tubeWallMargin * 0.5;
+        
+        return radialDist < maxRadius;
+    }
+    
+    /**
+     * Initialize particle positions
+     */
+    initializeParticles() {
         const count = this.config.particleCount;
-        console.log(`Creating ${count} sphere particles...`);
-        
-        const geometry = new THREE.SphereGeometry(this.config.particleRadius, 12, 8);
-        
-        const material = new THREE.MeshStandardMaterial({
-            color: this.config.particleColor,
-            roughness: this.config.particleRoughness,
-            metalness: this.config.particleMetalness,
-            envMapIntensity: 0.5
-        });
-        
-        this.instancedMesh = new THREE.InstancedMesh(geometry, material, count);
-        this.instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-        
-        if (this.config.colorBySpeed) {
-            this.instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(
-                new Float32Array(count * 3), 3
-            );
-            this.instancedMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
-        }
         
         this.particlePositions = new Float32Array(count * 3);
+        this.particleVelocities = new Float32Array(count * 3);
         this.particleLifetimes = new Float32Array(count);
         
         for (let i = 0; i < count; i++) {
             this.respawnParticle(i, true);
         }
-        
-        this.updateInstanceMatrices();
-        
-        this.instancedMesh.scale.set(this.scale, this.scale, this.scale);
-        const { xMin, xMax, yMin } = this.originalBounds;
-        const centerX = (xMin + xMax) / 2;
-        this.instancedMesh.position.set(-centerX * this.scale, -yMin * this.scale, 0);
-        
-        this.group.add(this.instancedMesh);
-        
-        console.log('Sphere particle system created');
     }
     
     /**
-     * Respawn a particle at inlet or random position
+     * Respawn a particle
      */
     respawnParticle(index, randomPosition = false) {
         const { xMin: origXMin, xMax: origXMax } = this.originalBounds;
         const { xMin: extXMin } = this.bounds;
+        const particleSize = this.config.particleSize || 0.015;
         
         let x, y, z;
         let attempts = 0;
         
         do {
             if (randomPosition && Math.random() < 0.3) {
-                // 30% random along tube (for initial distribution)
                 x = origXMin + (origXMax - origXMin) * Math.random();
             } else {
-                // 70% spawn before inlet (in the extended region)
                 x = extXMin + (origXMin - extXMin) * Math.random();
             }
             
-            // Get tube cross-section
             const seg = this.getSegmentAtPosition(x, (this.originalBounds.yMin + this.originalBounds.yMax) / 2, 0);
             
             if (seg) {
-                // Random position in circular cross-section
-                // Account for wall margin and particle radius
                 const angle = Math.random() * Math.PI * 2;
-                const maxR = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
+                const maxR = seg.radius - this.config.tubeWallMargin - particleSize;
                 const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
                 
                 y = seg.centerY + Math.cos(angle) * r;
@@ -325,14 +314,13 @@ export class ParticleFlow {
             z = 0;
         }
         
-        // For spawns inside the tube (not at inlet), pick correct branch
+        // Handle multiple branches
         if (x >= origXMin) {
             const segments = this.meshExtruder.getYSegmentsAtXCached(x);
             if (segments && segments.length > 1) {
-                // Multiple branches - pick one randomly
                 const seg = segments[Math.floor(Math.random() * segments.length)];
                 const angle = Math.random() * Math.PI * 2;
-                const maxR = seg.radius - this.config.tubeWallMargin - this.config.particleRadius;
+                const maxR = seg.radius - this.config.tubeWallMargin - particleSize;
                 const r = Math.sqrt(Math.random()) * Math.max(0.001, maxR);
                 y = seg.centerY + Math.cos(angle) * r;
                 z = Math.sin(angle) * r;
@@ -344,87 +332,89 @@ export class ParticleFlow {
         this.particlePositions[idx + 1] = y;
         this.particlePositions[idx + 2] = z;
         
+        // Store velocity
+        const vel = this.getVelocityAt(x, y);
+        this.particleVelocities[idx + 0] = vel.vx;
+        this.particleVelocities[idx + 1] = vel.vy;
+        this.particleVelocities[idx + 2] = 0;
+        
         this.particleLifetimes[index] = Math.random() * this.config.particleMaxLife;
-        
-        if (this.config.colorBySpeed && this.instancedMesh.instanceColor) {
-            const vel = this.getVelocityAt(x, y);
-            const normalizedSpeed = this.maxSpeed > 0 ? vel.speed / this.maxSpeed : 0.5;
-            const color = this.speedToColor(normalizedSpeed);
-            this.instancedMesh.instanceColor.setXYZ(index, color.r, color.g, color.b);
-        }
     }
     
     /**
-     * Update all instance matrices from positions
+     * Create particle renderer of specified type
      */
-    updateInstanceMatrices() {
-        const count = this.config.particleCount;
-        
-        for (let i = 0; i < count; i++) {
-            const idx = i * 3;
-            this.tempMatrix.setPosition(
-                this.particlePositions[idx + 0],
-                this.particlePositions[idx + 1],
-                this.particlePositions[idx + 2]
-            );
-            this.instancedMesh.setMatrixAt(i, this.tempMatrix);
+    createParticleRenderer(type = null) {
+        // Dispose existing renderer
+        if (this.particleRenderer) {
+            this.particleRenderer.dispose();
         }
         
-        this.instancedMesh.instanceMatrix.needsUpdate = true;
+        const particleType = type || this.config.particleType;
+        const ParticleClass = PARTICLE_TYPES[particleType];
         
-        if (this.instancedMesh.instanceColor) {
-            this.instancedMesh.instanceColor.needsUpdate = true;
+        if (!ParticleClass) {
+            console.error(`Unknown particle type: ${particleType}`);
+            return;
         }
+        
+        this.config.particleType = particleType;
+        
+        // Create new renderer
+        this.particleRenderer = new ParticleClass(this.group, this.config);
+        this.particleRenderer.setTransform(this.scale, this.offset);
+        this.particleRenderer.create(this.config.particleCount);
+        
+        console.log(`Particle type set to: ${particleType}`);
     }
     
     /**
-     * Color by speed: blue (slow) -> cyan -> green -> yellow -> red (fast)
+     * Set particle type
      */
-    speedToColor(t) {
-        t = Math.max(0, Math.min(1, t));
-        let r, g, b;
-        
-        if (t < 0.25) {
-            const s = t / 0.25;
-            r = 0; g = s; b = 1;
-        } else if (t < 0.5) {
-            const s = (t - 0.25) / 0.25;
-            r = 0; g = 1; b = 1 - s;
-        } else if (t < 0.75) {
-            const s = (t - 0.5) / 0.25;
-            r = s; g = 1; b = 0;
-        } else {
-            const s = (t - 0.75) / 0.25;
-            r = 1; g = 1 - s; b = 0;
+    setParticleType(type) {
+        if (!PARTICLE_TYPES[type]) {
+            console.error(`Unknown particle type: ${type}. Available: ${Object.keys(PARTICLE_TYPES).join(', ')}`);
+            return;
         }
         
-        return { r, g, b };
+        const wasAnimating = this.isAnimating;
+        if (wasAnimating) this.stop();
+        
+        // Get defaults for new type
+        const ParticleClass = PARTICLE_TYPES[type];
+        const typeDefaults = ParticleClass.getDefaults();
+        
+        // Keep only flow-related settings, use new type's visual defaults
+        this.config = {
+            // Flow settings (keep these)
+            particleCount: this.config.particleCount,
+            speedScale: this.config.speedScale,
+            particleMaxLife: this.config.particleMaxLife,
+            gridResolution: this.config.gridResolution,
+            inflowDistance: this.config.inflowDistance,
+            outflowDistance: this.config.outflowDistance,
+            tubeWallMargin: this.config.tubeWallMargin,
+            // Type-specific visual settings (use new type's defaults)
+            ...typeDefaults,
+            // Set the type
+            particleType: type
+        };
+        
+        // Reinitialize particles with new count if different
+        if (typeDefaults.particleCount && typeDefaults.particleCount !== this.particlePositions?.length / 3) {
+            this.config.particleCount = typeDefaults.particleCount;
+            this.initializeParticles();
+        }
+        
+        this.createParticleRenderer(type);
+        
+        if (wasAnimating) this.start();
     }
     
     /**
-     * Check if particle is in valid flow region (extended bounds)
+     * Update particle simulation
      */
-    isInFlowRegion(x, y, z) {
-        // Get segment for this position (using Y and Z for proper branch detection)
-        const seg = this.getSegmentAtPosition(x, y, z);
-        if (!seg) return false;
-        
-        // Check radial distance
-        const dy = y - seg.centerY;
-        const radialDist = Math.sqrt(dy * dy + z * z);
-        
-        // Allow slightly outside (just wall margin, not particle radius)
-        const maxRadius = seg.radius - this.config.tubeWallMargin * 0.5;
-        
-        return radialDist < maxRadius;
-    }
-    
-    /**
-     * Update particles
-     */
-    update(deltaTime) {
-        if (!this.instancedMesh) return;
-        
+    updateParticles(deltaTime) {
         const { xMax: extXMax } = this.bounds;
         const speedScale = this.config.speedScale;
         const count = this.config.particleCount;
@@ -436,14 +426,19 @@ export class ParticleFlow {
             let y = this.particlePositions[idx + 1];
             let z = this.particlePositions[idx + 2];
             
-            // Get velocity at current position
+            // Get velocity
             const vel = this.getVelocityAt(x, y);
+            
+            // Store velocity for renderer (used for droplet stretching, coloring)
+            this.particleVelocities[idx + 0] = vel.vx;
+            this.particleVelocities[idx + 1] = vel.vy;
+            this.particleVelocities[idx + 2] = 0;
             
             // Move particle
             x += vel.vx * speedScale * deltaTime;
             y += vel.vy * speedScale * deltaTime;
             
-            // CONSTRAIN to tube cross-section (prevents escaping)
+            // Constrain to tube
             const constrained = this.constrainToTube(x, y, z);
             y = constrained.y;
             z = constrained.z;
@@ -451,29 +446,28 @@ export class ParticleFlow {
             // Update lifetime
             this.particleLifetimes[i] -= deltaTime;
             
-            // Check respawn conditions
-            const pastExtendedOutlet = x > extXMax;
+            // Check respawn
+            const pastOutlet = x > extXMax;
             const expired = this.particleLifetimes[i] <= 0;
-            
-            // Also check if completely outside flow region (shouldn't happen now with constraint)
             const outsideFlow = !this.isInFlowRegion(x, y, z);
             
-            if (pastExtendedOutlet || expired || outsideFlow) {
+            if (pastOutlet || expired || outsideFlow) {
                 this.respawnParticle(i, false);
             } else {
                 this.particlePositions[idx + 0] = x;
                 this.particlePositions[idx + 1] = y;
                 this.particlePositions[idx + 2] = z;
-                
-                if (this.config.colorBySpeed && this.instancedMesh.instanceColor) {
-                    const normalizedSpeed = this.maxSpeed > 0 ? vel.speed / this.maxSpeed : 0.5;
-                    const color = this.speedToColor(normalizedSpeed);
-                    this.instancedMesh.instanceColor.setXYZ(i, color.r, color.g, color.b);
-                }
             }
         }
         
-        this.updateInstanceMatrices();
+        // Update renderer
+        if (this.particleRenderer) {
+            this.particleRenderer.update(
+                this.particlePositions, 
+                this.particleVelocities, 
+                this.maxSpeed
+            );
+        }
     }
     
     /**
@@ -482,13 +476,22 @@ export class ParticleFlow {
     start() {
         if (this.isAnimating) return;
         
-        if (!this.instancedMesh) {
-            this.createParticles();
+        // Initialize particles if needed
+        if (!this.particlePositions) {
+            this.initializeParticles();
+        }
+        
+        // Create renderer if needed
+        if (!this.particleRenderer) {
+            this.createParticleRenderer();
         }
         
         this.isAnimating = true;
         this.lastTime = performance.now();
-        this.instancedMesh.visible = true;
+        
+        if (this.particleRenderer) {
+            this.particleRenderer.setVisible(true);
+        }
         
         console.log('Particle animation started');
         
@@ -499,7 +502,7 @@ export class ParticleFlow {
             const deltaTime = Math.min((now - this.lastTime) / 1000, 0.1);
             this.lastTime = now;
             
-            this.update(deltaTime);
+            this.updateParticles(deltaTime);
             
             if (this.renderCallback) {
                 this.renderCallback();
@@ -527,8 +530,8 @@ export class ParticleFlow {
      * Toggle visibility
      */
     setVisible(visible) {
-        if (this.instancedMesh) {
-            this.instancedMesh.visible = visible;
+        if (this.particleRenderer) {
+            this.particleRenderer.setVisible(visible);
         }
         
         if (visible && !this.isAnimating) {
@@ -539,14 +542,14 @@ export class ParticleFlow {
     }
     
     /**
-     * Set particle color (uniform)
+     * Set particle color
      */
     setColor(color) {
         this.config.particleColor = color;
         this.config.colorBySpeed = false;
         
-        if (this.instancedMesh) {
-            this.instancedMesh.material.color.setHex(color);
+        if (this.particleRenderer) {
+            this.particleRenderer.setColor(color);
         }
     }
     
@@ -556,64 +559,67 @@ export class ParticleFlow {
     setColorBySpeed(enabled) {
         this.config.colorBySpeed = enabled;
         
-        if (enabled && this.instancedMesh && !this.instancedMesh.instanceColor) {
-            const count = this.config.particleCount;
-            this.instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(
-                new Float32Array(count * 3), 3
-            );
-            this.instancedMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
-        }
-        
-        if (!enabled && this.instancedMesh) {
-            this.instancedMesh.material.color.setHex(this.config.particleColor);
+        if (this.particleRenderer) {
+            this.particleRenderer.setColorBySpeed(enabled);
         }
     }
     
     /**
-     * Update config and recreate particles
+     * Update configuration
      */
     updateConfig(newConfig) {
-        const needsRecreate = 
-            newConfig.particleCount !== undefined ||
-            newConfig.particleRadius !== undefined;
+        // Check if particle type is changing
+        if (newConfig.particleType && newConfig.particleType !== this.config.particleType) {
+            Object.assign(this.config, newConfig);
+            this.setParticleType(newConfig.particleType);
+            return;
+        }
+        
+        // Check if particle count is changing
+        const countChanging = newConfig.particleCount !== undefined && 
+                              newConfig.particleCount !== this.config.particleCount;
         
         Object.assign(this.config, newConfig);
         
+        // Update bounds if flow distances changed
         if (newConfig.inflowDistance !== undefined || newConfig.outflowDistance !== undefined) {
             this.bounds.xMin = this.originalBounds.xMin - this.config.inflowDistance * (this.originalBounds.xMax - this.originalBounds.xMin);
             this.bounds.xMax = this.originalBounds.xMax + this.config.outflowDistance * (this.originalBounds.xMax - this.originalBounds.xMin);
         }
         
-        if (needsRecreate) {
+        // Recreate if count changed
+        if (countChanging) {
             const wasAnimating = this.isAnimating;
             if (wasAnimating) this.stop();
-            this.createParticles();
+            
+            this.initializeParticles();
+            this.createParticleRenderer();
+            
             if (wasAnimating) this.start();
-        } else {
-            if (this.instancedMesh) {
-                if (newConfig.particleColor !== undefined && !this.config.colorBySpeed) {
-                    this.instancedMesh.material.color.setHex(this.config.particleColor);
-                }
-                if (newConfig.particleRoughness !== undefined) {
-                    this.instancedMesh.material.roughness = this.config.particleRoughness;
-                }
-                if (newConfig.particleMetalness !== undefined) {
-                    this.instancedMesh.material.metalness = this.config.particleMetalness;
-                }
+        } else if (this.particleRenderer) {
+            // Just update renderer config
+            const needsRecreate = this.particleRenderer.updateConfig(newConfig);
+            
+            if (needsRecreate) {
+                const wasAnimating = this.isAnimating;
+                if (wasAnimating) this.stop();
+                
+                this.particleRenderer.create(this.config.particleCount);
+                
+                if (wasAnimating) this.start();
             }
         }
     }
     
     /**
-     * Dispose
+     * Dispose all resources
      */
     dispose() {
         this.stop();
         
-        if (this.instancedMesh) {
-            this.group.remove(this.instancedMesh);
-            this.instancedMesh.geometry.dispose();
-            this.instancedMesh.material.dispose();
+        if (this.particleRenderer) {
+            this.particleRenderer.dispose();
+            this.particleRenderer = null;
         }
         
         this.meshExtruder.group.remove(this.group);

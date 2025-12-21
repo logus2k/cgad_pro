@@ -1,11 +1,20 @@
 /**
  * Metrics Display Manager - Updates HUD with real-time solver metrics
- */
+  */
 export class MetricsDisplay {
     constructor(hudElement) {
         this.container = hudElement.querySelector('.metrics-container');
         this.metrics = {};
+        
+        // Phase 1: Data buffering for the plot
+        this.residualHistory = [];
+        this.maxHistory = 80; // Number of points displayed on the X-axis
+        
         this.createMetricElements();
+        
+        // Initialize Canvas context
+        this.canvas = document.getElementById('convergence-plot');
+        this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     }
     
     createMetricElements() {
@@ -18,13 +27,17 @@ export class MetricsDisplay {
                 <span class="metric-label">Current Stage:</span>
                 <span class="metric-value" id="metric-stage">-</span>
             </div>
-            <div class="metric-row">
-                <span class="metric-label">Nodes:</span>
-                <span class="metric-value" id="metric-nodes">-</span>
+            
+            <div class="metric-row" style="flex-direction: column; align-items: flex-start; gap: 8px; margin: 10px 0;">
+                <span class="metric-label">Convergence Trend (Log Scale):</span>
+                <canvas id="convergence-plot" width="240" height="60" 
+                    style="width: 100%; height: 60px; background: rgba(0,0,0,0.05); border: 0.5px solid #9a9a9a; border-radius: 2px;">
+                </canvas>
             </div>
+
             <div class="metric-row">
-                <span class="metric-label">Elements:</span>
-                <span class="metric-value" id="metric-elements">-</span>
+                <span class="metric-label">Residual:</span>
+                <span class="metric-value" id="metric-residual" style="color: var(--hud-warm); font-weight: bold;">-</span>
             </div>
             <div class="metric-row">
                 <span class="metric-label">Progress:</span>
@@ -38,8 +51,8 @@ export class MetricsDisplay {
                 <span class="metric-value" id="metric-iteration">-</span>
             </div>
             <div class="metric-row">
-                <span class="metric-label">Residual:</span>
-                <span class="metric-value" id="metric-residual">-</span>
+                <span class="metric-label">Nodes / Elements:</span>
+                <span class="metric-value"><span id="metric-nodes">-</span> / <span id="metric-elements">-</span></span>
             </div>
             <div class="metric-row">
                 <span class="metric-label">ETR:</span>
@@ -77,18 +90,81 @@ export class MetricsDisplay {
         
         document.getElementById('progress-bar').style.width = `${percent}%`;
         document.getElementById('progress-text').textContent = `${percent}%`;
-        document.getElementById('metric-iteration').textContent = 
-            `${iteration} / ${maxIterations}`;
+        document.getElementById('metric-iteration').textContent = `${iteration} / ${maxIterations}`;
         document.getElementById('metric-residual').textContent = residual.toExponential(3);
         document.getElementById('metric-etr').textContent = this.formatTime(etr);
+
+        // Phase 1: Update Plot Data
+        if (residual > 0) {
+            this.residualHistory.push(residual);
+            if (this.residualHistory.length > this.maxHistory) {
+                this.residualHistory.shift();
+            }
+            this.drawPlot();
+        }
+    }
+
+    /**
+     * Renders the logarithmic sparkline to the HUD canvas
+     */
+    drawPlot() {
+        if (!this.ctx || this.residualHistory.length < 2) return;
+
+        const { ctx, canvas, residualHistory } = this;
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Convert residuals to log10 space for the scale
+        const logs = residualHistory.map(v => Math.log10(v));
+        const minLog = Math.min(...logs);
+        const maxLog = Math.max(...logs);
+        const range = maxLog - minLog || 1;
+
+        // Draw background grid (optional "blueprint" style lines)
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.lineWidth = 0.5;
+        for(let i = 1; i < 4; i++) {
+            const gy = (h / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(0, gy);
+            ctx.lineTo(w, gy);
+            ctx.stroke();
+        }
+
+        // Draw the convergence line
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#2266ff'; // Using --hud-accent (Blueprint Blue)
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+
+        for (let i = 0; i < logs.length; i++) {
+            // Horizontal spacing based on history capacity
+            const x = (i / (this.maxHistory - 1)) * w;
+            // Vertical mapping: lower residuals (lower logs) are plotted higher up or lower down?
+            // Convention: Better convergence (lower residual) goes "down" visually.
+            const y = h - ((logs[i] - minLog) / range) * (h - 10) - 5;
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Fill area under the curve
+        ctx.lineTo((logs.length - 1) / (this.maxHistory - 1) * w, h);
+        ctx.lineTo(0, h);
+        ctx.fillStyle = 'rgba(34, 102, 255, 0.05)';
+        ctx.fill();
     }
     
     updateTotalTime(seconds) {
-        document.getElementById('metric-total-time').textContent = 
-            this.formatTime(seconds);
+        document.getElementById('metric-total-time').textContent = this.formatTime(seconds);
     }
     
     formatTime(seconds) {
+        if (isNaN(seconds) || seconds < 0) return '-';
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
         return `${m}m ${s}s`;
@@ -96,11 +172,13 @@ export class MetricsDisplay {
     
     reset() {
         this.updateStatus('Idle');
+        this.residualHistory = [];
         document.getElementById('metric-stage').textContent = '-';
         document.getElementById('progress-bar').style.width = '0%';
         document.getElementById('progress-text').textContent = '0%';
         document.getElementById('metric-iteration').textContent = '-';
         document.getElementById('metric-residual').textContent = '-';
         document.getElementById('metric-etr').textContent = '-';
+        if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
