@@ -187,6 +187,7 @@
 		import { FEMMeshRendererCPU } from './script/fem-mesh-renderer-cpu.js';
 		import { FEMMeshRendererGPU } from './script/fem-mesh-renderer-gpu.js';
 		import { MeshExtruderSDF } from './script/mesh-extruder-sdf.js';
+		import { MeshExtruderRect } from './script/mesh-extruder-rect.js';
 		import { ParticleFlow } from './script/particle-flow.js';
 
 		// ============================================================================
@@ -195,6 +196,9 @@
 		const useGPU = false;              // Use GPU renderer (false = CPU)
 		const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 		const useParticleAnimation = true; // Enable particle flow animation
+		
+		// Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
+		const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
 
 		// ============================================================================
 		// Initialize Three.js scene
@@ -279,7 +283,7 @@
 			// ========================================================================
 			if (use3DExtrusion) {
 				try {
-					console.log('Creating 3D extruded visualization...');
+					console.log(`Creating 3D ${extrusionType} extrusion...`);
 					
 					// Fetch velocity data
 					velocityData = null;
@@ -298,17 +302,33 @@
 						console.warn('Could not fetch velocity:', velocityError);
 					}
 					
-					// Create mesh extruder with both 2D and 3D views
-					meshExtruder = new MeshExtruderSDF(
-						millimetricScene.getScene(),
-						window.currentMeshData,
-						solutionData,
-						{
-							show2DMesh: false,          // Hide 2D mesh by default
-							show3DExtrusion: true,      // Show 3D extrusion
-							tubeOpacity: 0.8
-						}
-					);
+					// Create mesh extruder based on type
+					if (extrusionType === 'cylindrical') {
+						// Cylindrical extrusion (SDF-based tube)
+						meshExtruder = new MeshExtruderSDF(
+							millimetricScene.getScene(),
+							window.currentMeshData,
+							solutionData,
+							{
+								show2DMesh: false,
+								show3DExtrusion: true,
+								tubeOpacity: 0.8
+							}
+						);
+					} else {
+						// Rectangular extrusion (standard FEM slab)
+						meshExtruder = new MeshExtruderRect(
+							millimetricScene.getScene(),
+							window.currentMeshData,
+							solutionData,
+							{
+								show2DMesh: false,
+								show3DExtrusion: true,
+								zFactor: 1.0,           // Z = 5x max(X,Y) for "infinite" representation
+								extrusionOpacity: 0.8
+							}
+						);
+					}
 
 					await meshExtruder.createAll();
 					millimetricScene.render();
@@ -317,7 +337,7 @@
 					window.meshExtruder = meshExtruder;
 					window.velocityData = velocityData;
 					
-					console.log('3D extrusion created successfully');
+					console.log(`3D ${extrusionType} extrusion created successfully`);
 					
 					// ================================================================
 					// Particle Animation
@@ -501,10 +521,10 @@
 		
 		/**
 		* Set visualization mode
-		* Usage: setMode('3d')      // 3D tube only
+		* Usage: setMode('3d')      // 3D extrusion only
 		*        setMode('2d')      // 2D mesh only
 		*        setMode('both')    // Both 2D and 3D
-		*        setMode('flow')    // 3D tube with particle animation
+		*        setMode('flow')    // 3D extrusion with particle animation
 		*/
 		window.setMode = (mode) => {
 			if (!meshExtruder) {
@@ -570,6 +590,7 @@
 		console.log('FEMulator Pro Configuration:');
 		console.log(`   GPU Rendering: ${useGPU ? 'Enabled' : 'Disabled'}`);
 		console.log(`   3D Extrusion: ${use3DExtrusion ? 'Enabled' : 'Disabled'}`);
+		console.log(`   Extrusion Type: ${extrusionType}`);
 		console.log(`   Particle Animation: ${useParticleAnimation ? 'Enabled' : 'Disabled'}`);
 		console.log('\nConsole helpers available:');
 		console.log('   toggle2DMesh(true/false)');
