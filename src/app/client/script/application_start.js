@@ -10,12 +10,12 @@ import { ParticleFlow } from '../script/particle-flow.js';
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = false;              // Use GPU renderer (false = CPU)
+const useGPU = true;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
-const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
+const extrusionType = 'cylindrical';  // 'cylindrical' | 'rectangular'
 
 // ============================================================================
 // Initialize Three.js scene
@@ -29,12 +29,12 @@ const millimetricScene = new MillimetricScene(container);
 const femClient = new FEMClient('https://logus2k.com/fem');
 const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
 
-// Initialize mesh renderer (for 2D visualization)
+// Initialize mesh renderer (for 2D visualization fallback)
 const meshRenderer = useGPU 
     ? new FEMMeshRendererGPU(millimetricScene.getScene()) 
     : new FEMMeshRendererCPU(millimetricScene.getScene());
 
-// 3D mesh extruder (initialized after solve completes)
+// 3D mesh extruder (initialized when mesh is loaded)
 let meshExtruder = null;
 let particleFlow = null;
 let velocityData = null;
@@ -53,20 +53,69 @@ femClient.on('stage_start', (data) => {
     metricsDisplay.updateStatus('Running');
 });
 
-femClient.on('mesh_loaded', (data) => {
+// ============================================================================
+// Mesh Loaded - Create 3D geometry EARLY (before solve)
+// ============================================================================
+femClient.on('mesh_loaded', async (data) => {
     metricsDisplay.updateMesh(data.nodes, data.elements);
     
     // Store mesh data for later use
     window.currentMeshData = data;
     
-    // Render mesh if coordinates are available
-    if (data.coordinates && data.connectivity) {
-        if (!use3DExtrusion) {
-            // Standard 2D visualization
-            meshRenderer.loadMesh(data);
+    // ========================================================================
+    // Create 3D geometry EARLY (before solve starts)
+    // ========================================================================
+    if (use3DExtrusion && data.coordinates && data.connectivity) {
+        console.log(`Creating ${extrusionType} geometry early...`);
+        
+        try {
+            // Dispose existing extruder if any
+            if (meshExtruder) {
+                meshExtruder.dispose();
+                meshExtruder = null;
+            }
+            
+            // Create extruder without solution data (null)
+            if (extrusionType === 'cylindrical') {
+                meshExtruder = new MeshExtruderSDF(
+                    millimetricScene.getScene(),
+                    data,
+                    null,  // No solution yet
+                    {
+                        show2DMesh: false,
+                        show3DExtrusion: true,
+                        tubeOpacity: 0.8
+                    }
+                );
+                await meshExtruder.createGeometryOnly();
+            } else {
+                meshExtruder = new MeshExtruderRect(
+                    millimetricScene.getScene(),
+                    data,
+                    null,  // No solution yet
+                    {
+                        show2DMesh: false,
+                        show3DExtrusion: true,
+                        zFactor: 1.0,
+                        extrusionOpacity: 0.8
+                    }
+                );
+                meshExtruder.createGeometryOnly();
+            }
+            
+            window.meshExtruder = meshExtruder;
             millimetricScene.render();
+            
+            console.log('3D geometry created (awaiting solution colors)');
+            
+        } catch (error) {
+            console.error('Failed to create early geometry:', error);
         }
-        // If using 3D extrusion, we'll render after solve completes
+    }
+    // Standard 2D visualization (if not using 3D extrusion)
+    else if (data.coordinates && data.connectivity) {
+        meshRenderer.loadMesh(data);
+        millimetricScene.render();
     }
 });
 
@@ -79,12 +128,35 @@ femClient.on('solve_progress', (data) => {
     );
 });
 
+// ============================================================================
+// Solution Increment - Update colors incrementally during solve
+// ============================================================================
+femClient.on('solution_increment', (data) => {
+    if (use3DExtrusion && meshExtruder) {
+        // Update 3D extruder colors incrementally
+        meshExtruder.updateSolutionIncremental(data);
+        millimetricScene.render();
+        
+        console.log(`3D color update: iter ${data.iteration}, ` +
+                    `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+    } else if (!use3DExtrusion) {
+        // Standard 2D renderer update
+        meshRenderer.updateSolutionIncremental(data);
+        millimetricScene.render();
+        
+        console.log(`Solution update: iter ${data.iteration}, ` +
+                    `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+    }
+});
+
+// ============================================================================
+// Solve Complete - Final updates and particle animation
+// ============================================================================
 femClient.on('solve_complete', async (data) => {
     metricsDisplay.updateStatus('Complete');
     metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
     console.log('Solve complete!', data);
     
-    // Check if we have solution data
     if (!data.solution_field) {
         console.error('No solution field in results');
         return;
@@ -96,122 +168,64 @@ femClient.on('solve_complete', async (data) => {
     };
     
     // ========================================================================
-    // 3D Extrusion Mode
+    // 3D Extrusion Mode - Final color update
     // ========================================================================
-    if (use3DExtrusion) {
+    if (use3DExtrusion && meshExtruder) {
+        // Final color update with complete solution
+        meshExtruder.updateSolutionColors(solutionData);
+        millimetricScene.render();
+        
+        console.log('Final 3D colors applied');
+        
+        // ====================================================================
+        // Fetch velocity data and create particle animation
+        // ====================================================================
         try {
-            console.log(`Creating 3D ${extrusionType} extrusion...`);
+            const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
+            const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
             
-            // Fetch velocity data
-            velocityData = null;
-            try {
-                const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
-                const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
+            if (response.ok) {
+                const buffer = await response.arrayBuffer();
+                velocityData = parseVelocityBinary(buffer, data.mesh_info.elements);
+                window.velocityData = velocityData;
+                console.log('Velocity data loaded:', velocityData);
                 
-                if (response.ok) {
-                    const buffer = await response.arrayBuffer();
-                    velocityData = parseVelocityBinary(buffer, data.mesh_info.elements);
-                    console.log('Velocity data loaded:', velocityData);
-                } else {
-                    console.warn('Velocity data not available, using solution only');
+                // Create particle animation (only for cylindrical extrusion)
+                if (useParticleAnimation && extrusionType === 'cylindrical') {
+                    console.log('Creating particle flow animation...');
+                    
+                    particleFlow = new ParticleFlow(
+                        meshExtruder,
+                        velocityData,
+                        () => millimetricScene.render(),
+                        {
+                            particleCount: 1000,
+                            speedScale: 0.3,
+                            particleSize: 0.02,
+                            particleOpacity: 0.9,
+                            particleMaxLife: 8.0,
+                            colorBySpeed: true,
+                        }
+                    );
+                    
+                    window.particleFlow = particleFlow;
+                    particleFlow.start();
+                    
+                    console.log('Particle animation started');
                 }
-            } catch (velocityError) {
-                console.warn('Could not fetch velocity:', velocityError);
-            }
-            
-            // Create mesh extruder based on type
-            if (extrusionType === 'cylindrical') {
-                // Cylindrical extrusion (SDF-based tube)
-                meshExtruder = new MeshExtruderSDF(
-                    millimetricScene.getScene(),
-                    window.currentMeshData,
-                    solutionData,
-                    {
-                        show2DMesh: false,
-                        show3DExtrusion: true,
-                        tubeOpacity: 0.8
-                    }
-                );
             } else {
-                // Rectangular extrusion (standard FEM slab)
-                meshExtruder = new MeshExtruderRect(
-                    millimetricScene.getScene(),
-                    window.currentMeshData,
-                    solutionData,
-                    {
-                        show2DMesh: false,
-                        show3DExtrusion: true,
-                        zFactor: 1.0,
-                        extrusionOpacity: 0.8
-                    }
-                );
+                console.warn('Velocity data not available');
             }
-
-            await meshExtruder.createAll();
-            millimetricScene.render();
-
-            // Expose to window
-            window.meshExtruder = meshExtruder;
-            window.velocityData = velocityData;
-            
-            console.log(`3D ${extrusionType} extrusion created successfully`);
-            
-            // ================================================================
-            // Particle Animation
-            // ================================================================
-            if (useParticleAnimation && velocityData) {
-                console.log('Creating particle flow animation...');
-                
-                particleFlow = new ParticleFlow(
-                    meshExtruder,
-                    velocityData,
-                    () => millimetricScene.render(),
-                    {
-                        particleCount: 1000,
-                        speedScale: 0.3,
-                        particleSize: 0.02,
-                        particleOpacity: 0.9,
-                        particleMaxLife: 8.0,
-                        colorBySpeed: true,
-                    }
-                );
-                
-                window.particleFlow = particleFlow;
-                
-                // Start animation
-                particleFlow.start();
-                
-                console.log('Particle animation started');
-            }
-            
-        } catch (error) {
-            console.error('Failed to create 3D extrusion:', error);
-            
-            // Fallback to standard 2D visualization
-            console.log('Falling back to 2D visualization');
-            meshRenderer.loadMesh(window.currentMeshData);
-            meshRenderer.updateSolution(solutionData);
-            millimetricScene.render();
+        } catch (velocityError) {
+            console.warn('Could not fetch velocity:', velocityError);
         }
-    } 
+    }
     // ========================================================================
     // Standard 2D Mode
     // ========================================================================
-    else {
-        console.log('Using standard 2D visualization');
+    else if (!use3DExtrusion) {
         meshRenderer.updateSolution(solutionData);
         millimetricScene.render();
-    }
-});
-
-femClient.on('solution_increment', (data) => {
-    // Only update during solve if NOT using 3D extrusion
-    if (!use3DExtrusion) {
-        meshRenderer.updateSolutionIncremental(data);
-        millimetricScene.render();
-        
-        console.log(`Solution update: iter ${data.iteration}, ` +
-                    `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
     }
 });
 
@@ -227,7 +241,6 @@ function parseVelocityBinary(buffer, expectedElements) {
     const view = new DataView(buffer);
     let offset = 0;
     
-    // Read header (number of elements)
     const count = view.getUint32(offset, true);
     offset += 4;
     
@@ -237,19 +250,16 @@ function parseVelocityBinary(buffer, expectedElements) {
         console.warn(`Element count mismatch: got ${count}, expected ${expectedElements}`);
     }
     
-    // Read velocity vectors
     const vel = [];
     const abs_vel = [];
     
-    // Calculate expected buffer size
-    const expectedSize = 4 + (count * 2 * 4); // header + (count * 2 floats * 4 bytes)
+    const expectedSize = 4 + (count * 2 * 4);
     
     if (buffer.byteLength < expectedSize) {
         throw new Error(`Buffer too small: ${buffer.byteLength} < ${expectedSize}`);
     }
     
     for (let i = 0; i < count; i++) {
-        // Check bounds before reading
         if (offset + 8 > buffer.byteLength) {
             console.error(`Buffer overflow at element ${i}, offset ${offset}`);
             break;
@@ -283,10 +293,6 @@ window.millimetricScene = millimetricScene;
 // Console Helper Functions
 // ============================================================================
 
-/**
-* Toggle 2D mesh visibility
-* Usage: toggle2DMesh(false)  // Hide 2D mesh
-*/
 window.toggle2DMesh = (visible) => {
     if (meshExtruder) {
         meshExtruder.set2DMeshVisible(visible);
@@ -297,10 +303,6 @@ window.toggle2DMesh = (visible) => {
     }
 };
 
-/**
-* Toggle 3D extrusion visibility
-* Usage: toggle3DExtrusion(true)  // Show 3D extrusion
-*/
 window.toggle3DExtrusion = (visible) => {
     if (meshExtruder) {
         meshExtruder.set3DExtrusionVisible(visible);
@@ -311,17 +313,11 @@ window.toggle3DExtrusion = (visible) => {
     }
 };
 
-/**
-* Toggle particle animation
-* Usage: toggleParticles(true)  // Start particles
-*        toggleParticles(false) // Stop particles
-*/
 window.toggleParticles = (visible) => {
     if (particleFlow) {
         particleFlow.setVisible(visible);
         console.log(`Particles: ${visible ? 'visible' : 'hidden'}`);
     } else if (visible && velocityData && meshExtruder) {
-        // Create particle flow if it doesn't exist
         particleFlow = new ParticleFlow(
             meshExtruder,
             velocityData,
@@ -336,13 +332,6 @@ window.toggleParticles = (visible) => {
     }
 };
 
-/**
-* Set visualization mode
-* Usage: setMode('3d')      // 3D extrusion only
-*        setMode('2d')      // 2D mesh only
-*        setMode('both')    // Both 2D and 3D
-*        setMode('flow')    // 3D extrusion with particle animation
-*/
 window.setMode = (mode) => {
     if (!meshExtruder) {
         console.warn('Mesh extruder not initialized');
@@ -375,10 +364,6 @@ window.setMode = (mode) => {
     console.log(`Visualization mode: ${mode}`);
 };
 
-/**
-* Update particle configuration
-* Usage: updateParticles({ particleCount: 2000, speedScale: 0.5 })
-*/
 window.updateParticles = (config) => {
     if (particleFlow) {
         particleFlow.updateConfig(config);
@@ -388,10 +373,6 @@ window.updateParticles = (config) => {
     }
 };
 
-/**
-* Quick test: Start a solve
-* Usage: quickSolve()
-*/
 window.quickSolve = () => {
     femClient.startSolve({
         mesh_file: '/home/logus/env/iscte/cgad_pro/data/input/converted_mesh_v5.h5',

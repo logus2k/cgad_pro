@@ -3,12 +3,15 @@ import * as THREE from '../library/three.module.min.js';
 /**
  * SDF-based Mesh Extruder using Marching Cubes
  * Creates 3D tube from 2D mesh with proper branch handling
+ * 
+ * Supports incremental color updates during solve (for 2D mesh).
+ * 3D tube colors are based on X position (gradient), not solution values.
  */
 export class MeshExtruderSDF {
-    constructor(scene, meshData, solutionData, config = {}) {
+    constructor(scene, meshData, solutionData = null, config = {}) {
         this.scene = scene;
         this.meshData = meshData;
-        this.solutionData = solutionData;
+        this.solutionData = solutionData;  // Can be null for early creation
         
         this.config = {
             show2DMesh: true,
@@ -22,6 +25,9 @@ export class MeshExtruderSDF {
         this.mesh2D = null;
         this.mesh3D = null;
         this.group = new THREE.Group();
+        
+        // Track if geometry is created
+        this.geometryCreated = false;
         
         // Step 1: Calculate original XY bounds (for positioning)
         this.originalBounds = this.calculateOriginalBounds();
@@ -59,261 +65,234 @@ export class MeshExtruderSDF {
         }
 
         console.log(`   Original bounds: X[${xMin.toFixed(3)}, ${xMax.toFixed(3)}], Y[${yMin.toFixed(3)}, ${yMax.toFixed(3)}]`);
-        
+
         return { xMin, xMax, yMin, yMax };
     }
     
     /**
-     * Calculate expanded bounds (with margin) - for marching cubes
+     * Calculate expanded bounds (with margin for marching cubes)
      */
     calculateExpandedBounds() {
         const { xMin, xMax, yMin, yMax } = this.originalBounds;
+        const xRange = xMax - xMin;
+        const yRange = yMax - yMin;
         
-        const margin = Math.max(xMax - xMin, yMax - yMin) * 0.05;
+        const margin = 0.02;
         
-        return { 
-            xMin: xMin - margin, 
-            xMax: xMax + margin, 
-            yMin: yMin - margin, 
-            yMax: yMax + margin 
+        return {
+            xMin: xMin - xRange * margin,
+            xMax: xMax + xRange * margin,
+            yMin: yMin - yRange * margin,
+            yMax: yMax + yRange * margin
         };
     }
     
     /**
-     * Calculate Z bounds based on maximum radius in segment cache
+     * Calculate Z bounds based on max tube radius
      */
     calculateZBounds() {
         let maxRadius = 0;
         
-        for (const segments of this.segmentCache) {
-            if (!segments) continue;
-            for (const seg of segments) {
-                if (seg.radius > maxRadius) {
-                    maxRadius = seg.radius;
+        for (const entry of Object.values(this.segmentCache)) {
+            if (entry && entry.segments) {
+                for (const seg of entry.segments) {
+                    if (seg.radius > maxRadius) {
+                        maxRadius = seg.radius;
+                    }
                 }
             }
         }
         
-        const zExtent = maxRadius * 1.1;
+        maxRadius = maxRadius || 0.5;
+        const zMargin = maxRadius * 0.1;
         
-        console.log(`   Max radius found: ${maxRadius.toFixed(3)}, Z extent: +/-${zExtent.toFixed(3)}`);
+        console.log(`   Max radius: ${maxRadius.toFixed(3)}, Z range: [${(-maxRadius - zMargin).toFixed(3)}, ${(maxRadius + zMargin).toFixed(3)}]`);
         
-        return { zMin: -zExtent, zMax: zExtent, maxRadius };
+        return {
+            zMin: -maxRadius - zMargin,
+            zMax: maxRadius + zMargin,
+            maxRadius
+        };
     }
     
     /**
-     * Pre-compute Y segments at each X position
+     * Build segment cache for fast Y-range lookup at each X
      */
     buildSegmentCache() {
+        const { xMin, xMax, yMin, yMax } = this.bounds;
         const coords = this.meshData.coordinates;
-        const { xMin, xMax, yMin, yMax } = this.originalBounds;
-        const yRange = yMax - yMin;
+        const conn = this.meshData.connectivity;
         
-        const cacheResolution = this.config.resolution[0] * 2;
-        this.segmentCache = [];
-        this.segmentCacheResolution = cacheResolution;
+        const numSamples = 200;
+        this.segmentCache = {};
         
-        const dx = (xMax - xMin) / cacheResolution;
-        const tolerance = dx * 1.5;
-        const gapThreshold = yRange * this.config.gapThreshold;
-        
-        console.log(`   Building segment cache: ${cacheResolution} X positions...`);
-        
-        for (let i = 0; i <= cacheResolution; i++) {
-            const x = xMin + i * dx;
-            
-            const yValues = [];
-            for (let j = 0; j < coords.x.length; j += 3) {
-                if (Math.abs(coords.x[j] - x) < tolerance) {
-                    yValues.push(coords.y[j]);
-                }
-            }
-            
-            if (yValues.length === 0) {
-                this.segmentCache[i] = null;
-                continue;
-            }
-            
-            yValues.sort((a, b) => a - b);
-            
-            const segments = [];
-            let segStart = yValues[0];
-            let segEnd = yValues[0];
-            
-            for (let j = 1; j < yValues.length; j++) {
-                const gap = yValues[j] - yValues[j - 1];
-                
-                if (gap > gapThreshold) {
-                    segments.push({ 
-                        yMin: segStart, 
-                        yMax: segEnd,
-                        centerY: (segStart + segEnd) / 2,
-                        radius: (segEnd - segStart) / 2
-                    });
-                    segStart = yValues[j];
-                }
-                segEnd = yValues[j];
-            }
-            
-            segments.push({ 
-                yMin: segStart, 
-                yMax: segEnd,
-                centerY: (segStart + segEnd) / 2,
-                radius: (segEnd - segStart) / 2
-            });
-            
-            this.segmentCache[i] = segments;
+        for (let i = 0; i <= numSamples; i++) {
+            const x = xMin + (i / numSamples) * (xMax - xMin);
+            this.segmentCache[i] = this.computeYSegmentsAtX(x, coords, conn);
         }
         
-        console.log(`   Segment cache built: ${cacheResolution + 1} entries`);
+        this.segmentCacheXMin = xMin;
+        this.segmentCacheXMax = xMax;
+        this.segmentCacheNum = numSamples;
+        
+        console.log(`   Segment cache built: ${numSamples} samples`);
     }
     
     /**
-     * Get cached Y segments at X (O(1) lookup)
+     * Get Y segments at X position from cache
      */
     getYSegmentsAtXCached(x) {
         const { xMin, xMax } = this.originalBounds;
         
-        const t = (x - xMin) / (xMax - xMin);
-        const idx = Math.round(t * this.segmentCacheResolution);
-        
-        if (idx < 0 || idx > this.segmentCacheResolution) {
+        if (x < xMin || x > xMax) {
             return null;
         }
         
-        return this.segmentCache[idx];
+        const t = (x - this.segmentCacheXMin) / (this.segmentCacheXMax - this.segmentCacheXMin);
+        const i = Math.round(t * this.segmentCacheNum);
+        const clampedI = Math.max(0, Math.min(this.segmentCacheNum, i));
+        
+        const entry = this.segmentCache[clampedI];
+        return entry ? entry.segments : null;
     }
     
     /**
-     * Signed Distance Function (FAST cached version)
+     * Compute Y segments at a given X position
      */
-    sdf(x, y, z) {
-        const { xMin, xMax, yMin, yMax } = this.bounds;
+    computeYSegmentsAtX(x, coords, conn) {
+        const yValues = [];
+        const tolerance = 0.001;
         
-        if (x < xMin || x > xMax || y < yMin || y > yMax) {
-            return 1.0;
-        }
-        
-        const segments = this.getYSegmentsAtXCached(x);
-        
-        if (!segments || segments.length === 0) {
-            return 1.0;
-        }
-        
-        let bestSDF = Infinity;
-        
-        for (const seg of segments) {
-            const distFromCenter = Math.sqrt(
-                (y - seg.centerY) * (y - seg.centerY) + z * z
-            );
+        for (let elem of conn) {
+            let elemXMin = Infinity, elemXMax = -Infinity;
+            let elemYMin = Infinity, elemYMax = -Infinity;
             
-            const segSDF = distFromCenter - seg.radius;
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
+                const nx = coords.x[nodeId];
+                const ny = coords.y[nodeId];
+                
+                if (nx < elemXMin) elemXMin = nx;
+                if (nx > elemXMax) elemXMax = nx;
+                if (ny < elemYMin) elemYMin = ny;
+                if (ny > elemYMax) elemYMax = ny;
+            }
             
-            if (segSDF < bestSDF) {
-                bestSDF = segSDF;
+            if (x >= elemXMin - tolerance && x <= elemXMax + tolerance) {
+                yValues.push({ min: elemYMin, max: elemYMax });
             }
         }
         
-        return bestSDF;
-    }
-
-    /**
-     * Check if point is inside tube
-     */
-    isInsideTube(x, y, z) {
-        return this.sdf(x, y, z) < 0;
-    }
-
-    /**
-     * Remove end cap faces to open the tube ends
-     */
-    removeEndCaps(positions, indices) {
-        let meshXMin = Infinity, meshXMax = -Infinity;
-        for (let i = 0; i < positions.length; i += 3) {
-            const x = positions[i];
-            if (x < meshXMin) meshXMin = x;
-            if (x > meshXMax) meshXMax = x;
-        }
+        if (yValues.length === 0) return null;
         
-        console.log(`   Mesh X range: [${meshXMin.toFixed(3)}, ${meshXMax.toFixed(3)}]`);
+        yValues.sort((a, b) => a.min - b.min);
         
-        const xRange = meshXMax - meshXMin;
-        const tolerance = xRange * 0.015;
+        const merged = [];
+        let current = { ...yValues[0] };
         
-        const newIndices = [];
-        let removedInlet = 0;
-        let removedOutlet = 0;
-        
-        for (let i = 0; i < indices.length; i += 3) {
-            const i0 = indices[i];
-            const i1 = indices[i + 1];
-            const i2 = indices[i + 2];
-            
-            const x0 = positions[i0 * 3];
-            const x1 = positions[i1 * 3];
-            const x2 = positions[i2 * 3];
-            
-            const atInlet = (
-                x0 < meshXMin + tolerance &&
-                x1 < meshXMin + tolerance &&
-                x2 < meshXMin + tolerance
-            );
-            
-            const atOutlet = (
-                x0 > meshXMax - tolerance &&
-                x1 > meshXMax - tolerance &&
-                x2 > meshXMax - tolerance
-            );
-            
-            if (atInlet) {
-                removedInlet++;
-            } else if (atOutlet) {
-                removedOutlet++;
+        for (let i = 1; i < yValues.length; i++) {
+            const next = yValues[i];
+            if (next.min <= current.max + this.config.gapThreshold) {
+                current.max = Math.max(current.max, next.max);
             } else {
-                newIndices.push(i0, i1, i2);
+                merged.push(current);
+                current = { ...next };
             }
         }
+        merged.push(current);
         
-        console.log(`   Removed ${removedInlet} inlet faces, ${removedOutlet} outlet faces`);
+        const segments = merged.map(seg => ({
+            yMin: seg.min,
+            yMax: seg.max,
+            centerY: (seg.min + seg.max) / 2,
+            radius: (seg.max - seg.min) / 2
+        }));
         
-        return new Uint32Array(newIndices);
+        return { segments };
     }
     
-    async create3DExtrusion() {
+    // =========================================================================
+    // Geometry Creation (can be called early, before solution)
+    // =========================================================================
+    
+    /**
+     * Create geometry only (no solution colors) - for early visualization
+     */
+    async createGeometryOnly() {
+        this.create2DGeometry();
+        await this.create3DGeometry();
+        this.geometryCreated = true;
+        console.log('Geometry created (awaiting solution for colors)');
+    }
+    
+    /**
+     * Create 2D mesh geometry without solution colors
+     */
+    create2DGeometry() {
+        if (this.mesh2D) {
+            this.group.remove(this.mesh2D);
+            this.mesh2D.geometry.dispose();
+            this.mesh2D.material.dispose();
+        }
+        
+        const geometry = this.createQuad8Geometry();
+        
+        // Apply neutral gray color initially
+        this.applyNeutralColors(geometry);
+        
+        const material = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            side: THREE.DoubleSide
+        });
+        
+        this.mesh2D = new THREE.Mesh(geometry, material);
+        this.mesh2D.castShadow = true;
+        this.mesh2D.visible = this.config.show2DMesh;
+        
+        this.fitMeshToView(this.mesh2D);
+        this.group.add(this.mesh2D);
+        
+        console.log('2D geometry created');
+    }
+    
+    /**
+     * Create 3D tube geometry (uses gradient colors, not solution)
+     */
+    async create3DGeometry() {
         if (this.mesh3D) {
             this.group.remove(this.mesh3D);
             this.mesh3D.geometry.dispose();
             this.mesh3D.material.dispose();
         }
         
-        console.log('Creating 3D tube using Marching Cubes...');
+        console.log('Creating 3D tube via Marching Cubes...');
         
-        const isosurface = await this.loadIsosurface();
+        const iso = await this.loadIsosurface();
         
-        const { xMin, xMax, yMin, yMax, zMin, zMax, maxRadius } = this.bounds;
-        const yRange = yMax - yMin;
-        const xRange = xMax - xMin;
-        const zRange = zMax - zMin;
-        
+        const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
         const [resX, resY, resZ] = this.config.resolution;
         
-        console.log(`   Resolution: ${resX}x${resY}x${resZ}`);
-        console.log(`   Bounds: X[${xMin.toFixed(2)}, ${xMax.toFixed(2)}], Y[${yMin.toFixed(2)}, ${yMax.toFixed(2)}], Z[${zMin.toFixed(2)}, ${zMax.toFixed(2)}]`);
-        console.log(`   Max tube radius: ${maxRadius.toFixed(3)}`);
+        const xRange = xMax - xMin;
+        const yRange = yMax - yMin;
+        const zRange = zMax - zMin;
         
-        const result = isosurface.marchingCubes(
-            [resX, resY, resZ],
-            (gx, gy, gz) => {
-                const wx = xMin + (gx / resX) * xRange;
-                const wy = yMin + (gy / resY) * yRange;
-                const wz = zMin + (gz / resZ) * zRange;
-                
-                return this.sdf(wx, wy, wz);
-            },
+        const sdfFunc = (gx, gy, gz) => {
+            const x = xMin + (gx / resX) * xRange;
+            const y = yMin + (gy / resY) * yRange;
+            const z = zMin + (gz / resZ) * zRange;
+            return this.sdf(x, y, z);
+        };
+        
+        const result = iso.surfaceNets(
+            [resX + 1, resY + 1, resZ + 1],
+            sdfFunc,
             [[0, 0, 0], [resX, resY, resZ]]
         );
         
-        console.log(`   Marching cubes: ${result.positions.length} vertices, ${result.cells.length} faces`);
+        if (!result.positions || result.positions.length === 0) {
+            console.warn('Marching cubes produced no geometry');
+            return;
+        }
         
         const geometry = new THREE.BufferGeometry();
         
@@ -338,6 +317,7 @@ export class MeshExtruderSDF {
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
         geometry.computeVertexNormals();
         
+        // Apply gradient colors (based on X position)
         this.addSolutionColorsToGeometry(geometry);
         
         const material = new THREE.MeshPhongMaterial({
@@ -349,12 +329,151 @@ export class MeshExtruderSDF {
         });
         
         this.mesh3D = new THREE.Mesh(geometry, material);
+        this.mesh3D.castShadow = true;
+        this.mesh3D.receiveShadow = true;
         this.mesh3D.visible = this.config.show3DExtrusion;
         
         this.fitMeshToView(this.mesh3D);
         this.group.add(this.mesh3D);
         
-        console.log('3D tube created via Marching Cubes');
+        console.log('3D tube geometry created');
+    }
+    
+    /**
+     * Apply neutral gray color to geometry
+     */
+    applyNeutralColors(geometry) {
+        const positions = geometry.attributes.position;
+        const colors = new Float32Array(positions.count * 3);
+        
+        for (let i = 0; i < positions.count; i++) {
+            colors[i * 3 + 0] = 0.75;
+            colors[i * 3 + 1] = 0.75;
+            colors[i * 3 + 2] = 0.75;
+        }
+        
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    }
+    
+    // =========================================================================
+    // Color Updates (can be called incrementally during solve)
+    // =========================================================================
+    
+    /**
+     * Update colors based on solution data
+     * @param {Object} solutionData - { values: [], range: [min, max] }
+     */
+    updateSolutionColors(solutionData) {
+        this.solutionData = solutionData;
+        
+        if (this.mesh2D) {
+            this.updateMesh2DColors();
+        }
+        
+        // Note: 3D tube uses position-based gradient, not solution values
+    }
+    
+    /**
+     * Update colors for incremental solution (compatible with solution_increment event)
+     * @param {Object} updateData - { solution_values: [], chunk_info: { min, max } }
+     */
+    updateSolutionIncremental(updateData) {
+        const { solution_values, chunk_info } = updateData;
+        
+        this.solutionData = {
+            values: solution_values,
+            range: [chunk_info.min, chunk_info.max]
+        };
+        
+        if (this.mesh2D) {
+            this.updateMesh2DColors();
+        }
+    }
+    
+    /**
+     * Update 2D mesh colors from current solution data
+     */
+    updateMesh2DColors() {
+        if (!this.mesh2D || !this.solutionData) return;
+        
+        const geometry = this.mesh2D.geometry;
+        const colors = geometry.attributes.color.array;
+        
+        const values = this.solutionData.values;
+        const [min, max] = this.solutionData.range;
+        const conn = this.meshData.connectivity;
+        
+        let vertexIndex = 0;
+        for (let elem of conn) {
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
+                const value = values[nodeId] || 0;
+                const normalized = (max > min) ? (value - min) / (max - min) : 0.5;
+                const color = this.valueToColor(normalized);
+                
+                colors[vertexIndex * 3 + 0] = color.r;
+                colors[vertexIndex * 3 + 1] = color.g;
+                colors[vertexIndex * 3 + 2] = color.b;
+                
+                vertexIndex++;
+            }
+        }
+        
+        geometry.attributes.color.needsUpdate = true;
+    }
+    
+    // =========================================================================
+    // SDF and Marching Cubes
+    // =========================================================================
+    
+    sdf(x, y, z) {
+        const segments = this.getYSegmentsAtXCached(x);
+        
+        if (!segments || segments.length === 0) {
+            return 1.0;
+        }
+        
+        let minDist = Infinity;
+        
+        for (const seg of segments) {
+            const dy = y - seg.centerY;
+            const radialDist = Math.sqrt(dy * dy + z * z);
+            const dist = radialDist - seg.radius;
+            
+            if (dist < minDist) {
+                minDist = dist;
+            }
+        }
+        
+        return minDist;
+    }
+    
+    removeEndCaps(positions, indices) {
+        const { xMin, xMax } = this.originalBounds;
+        const tolerance = (xMax - xMin) * 0.02;
+        
+        const newIndices = [];
+        
+        for (let i = 0; i < indices.length; i += 3) {
+            const i0 = indices[i + 0];
+            const i1 = indices[i + 1];
+            const i2 = indices[i + 2];
+            
+            const x0 = positions[i0 * 3 + 0];
+            const x1 = positions[i1 * 3 + 0];
+            const x2 = positions[i2 * 3 + 0];
+            
+            const allAtXMin = x0 < xMin + tolerance && x1 < xMin + tolerance && x2 < xMin + tolerance;
+            const allAtXMax = x0 > xMax - tolerance && x1 > xMax - tolerance && x2 > xMax - tolerance;
+            
+            if (!allAtXMin && !allAtXMax) {
+                newIndices.push(i0, i1, i2);
+            }
+        }
+        
+        console.log(`   Removed end caps: ${indices.length / 3} -> ${newIndices.length / 3} triangles`);
+        
+        return new Uint32Array(newIndices);
     }
     
     async loadIsosurface() {
@@ -387,50 +506,39 @@ export class MeshExtruderSDF {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
-    valueToColor(t) {
-        t = Math.max(0, Math.min(1, t));
-        let r, g, b;
-        
-        if (t < 0.25) {
-            const s = t / 0.25;
-            r = 0; g = s; b = 1;
-        } else if (t < 0.5) {
-            const s = (t - 0.25) / 0.25;
-            r = 0; g = 1; b = 1 - s;
-        } else if (t < 0.75) {
-            const s = (t - 0.5) / 0.25;
-            r = s; g = 1; b = 0;
-        } else {
-            const s = (t - 0.75) / 0.25;
-            r = 1; g = 1 - s; b = 0;
+    // =========================================================================
+    // Legacy Methods (for backward compatibility)
+    // =========================================================================
+    
+    /**
+     * Create 2D mesh - legacy method
+     */
+    create2DMesh() {
+        this.create2DGeometry();
+        if (this.solutionData) {
+            this.updateMesh2DColors();
         }
-        
-        return new THREE.Color(r, g, b);
     }
     
-    create2DMesh() {
-        if (this.mesh2D) {
-            this.group.remove(this.mesh2D);
-            this.mesh2D.geometry.dispose();
-            this.mesh2D.material.dispose();
-        }
-        
-        const geometry = this.createQuad8Geometry();
-        this.addSolutionColors(geometry);
-        
-        const material = new THREE.MeshBasicMaterial({
-            vertexColors: true,
-            side: THREE.DoubleSide
-        });
-        
-        this.mesh2D = new THREE.Mesh(geometry, material);
-        this.mesh2D.visible = this.config.show2DMesh;
-        
-        this.fitMeshToView(this.mesh2D);
-        this.group.add(this.mesh2D);
-        
-        console.log('2D mesh created');
+    /**
+     * Create 3D extrusion - legacy method
+     */
+    async create3DExtrusion() {
+        await this.create3DGeometry();
     }
+    
+    /**
+     * Create all - legacy method
+     */
+    async createAll() {
+        this.create2DMesh();
+        await this.create3DExtrusion();
+        this.geometryCreated = true;
+    }
+    
+    // =========================================================================
+    // Helper Methods
+    // =========================================================================
     
     createQuad8Geometry() {
         const coords = this.meshData.coordinates;
@@ -467,6 +575,11 @@ export class MeshExtruderSDF {
     }
     
     addSolutionColors(geometry) {
+        if (!this.solutionData) {
+            this.applyNeutralColors(geometry);
+            return;
+        }
+        
         const positions = geometry.attributes.position;
         const colors = new Float32Array(positions.count * 3);
         
@@ -493,22 +606,48 @@ export class MeshExtruderSDF {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
+    valueToColor(t) {
+        t = Math.max(0, Math.min(1, t));
+        let r, g, b;
+        
+        if (t < 0.25) {
+            const s = t / 0.25;
+            r = 0; g = s; b = 1;
+        } else if (t < 0.5) {
+            const s = (t - 0.25) / 0.25;
+            r = 0; g = 1; b = 1 - s;
+        } else if (t < 0.75) {
+            const s = (t - 0.5) / 0.25;
+            r = s; g = 1; b = 0;
+        } else {
+            const s = (t - 0.75) / 0.25;
+            r = 1; g = 1 - s; b = 0;
+        }
+        
+        return { r, g, b };
+    }
+    
     fitMeshToView(mesh) {
         const { xMin, xMax, yMin, yMax } = this.originalBounds;
-
+        const { zMin, zMax } = this.bounds;
+        
         const sizeX = xMax - xMin;
         const sizeY = yMax - yMin;
         const maxDim = Math.max(sizeX, sizeY);
         const targetSize = 50;
         const scale = targetSize / maxDim;
-
+        
         mesh.scale.set(scale, scale, scale);
-
+        
         const centerX = (xMin + xMax) / 2;
-        mesh.position.set(-centerX * scale, -yMin * scale, 0);
-
-        console.log(`   Fitted to view: scale=${scale.toFixed(4)}`);
+        const centerZ = (zMin + zMax) / 2;
+        
+        mesh.position.set(-centerX * scale, -yMin * scale, -centerZ * scale);
     }
+    
+    // =========================================================================
+    // Visibility Controls
+    // =========================================================================
     
     set2DMeshVisible(visible) {
         this.config.show2DMesh = visible;
@@ -520,10 +659,6 @@ export class MeshExtruderSDF {
         if (this.mesh3D) this.mesh3D.visible = visible;
     }
     
-    /**
-     * Set visualization mode
-     * @param {string} mode - '2d', '3d', or 'both'
-     */
     setVisualizationMode(mode) {
         switch (mode) {
             case '2d':
@@ -544,10 +679,9 @@ export class MeshExtruderSDF {
         console.log(`Visualization mode: ${mode}`);
     }
     
-    async createAll() {
-        this.create2DMesh();
-        await this.create3DExtrusion();
-    }
+    // =========================================================================
+    // Cleanup
+    // =========================================================================
     
     dispose() {
         this.scene.remove(this.group);

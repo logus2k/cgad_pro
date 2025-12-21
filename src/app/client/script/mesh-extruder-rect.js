@@ -7,17 +7,19 @@ import * as THREE from '../library/three.module.min.js';
  * Standard FEM visualization where Z represents "infinite" extent.
  * 
  * Z >> max(X, Y) to represent plane strain/plane flow assumption.
+ * 
+ * Supports incremental color updates during solve.
  */
 export class MeshExtruderRect {
-    constructor(scene, meshData, solutionData, config = {}) {
+    constructor(scene, meshData, solutionData = null, config = {}) {
         this.scene = scene;
         this.meshData = meshData;
-        this.solutionData = solutionData;
+        this.solutionData = solutionData;  // Can be null for early creation
         
         this.config = {
             show2DMesh: true,
             show3DExtrusion: false,
-            zFactor: 1.0,           // Z = zFactor * max(X, Y)
+            zFactor: 5.0,           // Z = zFactor * max(X, Y)
             extrusionOpacity: 0.8,
             ...config
         };
@@ -26,8 +28,19 @@ export class MeshExtruderRect {
         this.mesh3D = null;
         this.group = new THREE.Group();
         
+        // Track if geometry is created (for incremental updates)
+        this.geometryCreated = false;
+        
         // Calculate bounds
         this.bounds = this.calculateBounds();
+        
+        // Store original bounds for particle flow compatibility
+        this.originalBounds = {
+            xMin: this.bounds.xMin,
+            xMax: this.bounds.xMax,
+            yMin: this.bounds.yMin,
+            yMax: this.bounds.yMax
+        };
         
         this.scene.add(this.group);
         
@@ -67,10 +80,24 @@ export class MeshExtruderRect {
         };
     }
     
+    // =========================================================================
+    // Geometry Creation (can be called early, before solution)
+    // =========================================================================
+    
     /**
-     * Create 2D mesh visualization (on XY plane)
+     * Create geometry only (no colors) - for early visualization
      */
-    create2DMesh() {
+    createGeometryOnly() {
+        this.create2DGeometry();
+        this.create3DGeometry();
+        this.geometryCreated = true;
+        console.log('Geometry created (awaiting solution for colors)');
+    }
+    
+    /**
+     * Create 2D mesh geometry without colors
+     */
+    create2DGeometry() {
         if (this.mesh2D) {
             this.group.remove(this.mesh2D);
             this.mesh2D.geometry.dispose();
@@ -78,7 +105,9 @@ export class MeshExtruderRect {
         }
         
         const geometry = this.createQuad8Geometry2D();
-        this.addSolutionColors(geometry);
+        
+        // Apply neutral gray color initially
+        this.applyNeutralColors(geometry);
         
         const material = new THREE.MeshBasicMaterial({
             vertexColors: true,
@@ -86,28 +115,31 @@ export class MeshExtruderRect {
         });
         
         this.mesh2D = new THREE.Mesh(geometry, material);
+        this.mesh2D.castShadow = true;
         this.mesh2D.visible = this.config.show2DMesh;
         
         this.fitMeshToView(this.mesh2D);
         this.group.add(this.mesh2D);
         
-        console.log('2D mesh created');
+        console.log('2D geometry created');
     }
     
     /**
-     * Create 3D extruded mesh (rectangular slab)
+     * Create 3D extruded geometry without colors
      */
-    create3DExtrusion() {
+    create3DGeometry() {
         if (this.mesh3D) {
             this.group.remove(this.mesh3D);
             this.mesh3D.geometry.dispose();
             this.mesh3D.material.dispose();
         }
         
-        console.log('Creating 3D rectangular extrusion...');
+        console.log('Creating 3D rectangular geometry...');
         
         const geometry = this.createExtrudedGeometry();
-        this.addSolutionColorsToExtrusion(geometry);
+        
+        // Apply neutral gray color initially
+        this.applyNeutralColors(geometry);
         
         const material = new THREE.MeshPhongMaterial({
             vertexColors: true,
@@ -118,13 +150,177 @@ export class MeshExtruderRect {
         });
         
         this.mesh3D = new THREE.Mesh(geometry, material);
+        this.mesh3D.castShadow = true;
+        this.mesh3D.receiveShadow = true;
         this.mesh3D.visible = this.config.show3DExtrusion;
         
         this.fitMeshToView(this.mesh3D);
         this.group.add(this.mesh3D);
         
-        console.log('3D rectangular extrusion created');
+        console.log('3D geometry created');
     }
+    
+    /**
+     * Apply neutral gray color to geometry (before solution is available)
+     */
+    applyNeutralColors(geometry) {
+        const positions = geometry.attributes.position;
+        const colors = new Float32Array(positions.count * 3);
+        
+        // Light gray color
+        for (let i = 0; i < positions.count; i++) {
+            colors[i * 3 + 0] = 0.75;  // R
+            colors[i * 3 + 1] = 0.75;  // G
+            colors[i * 3 + 2] = 0.75;  // B
+        }
+        
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    }
+    
+    // =========================================================================
+    // Color Updates (can be called incrementally during solve)
+    // =========================================================================
+    
+    /**
+     * Update colors based on solution data (incremental update)
+     * @param {Object} solutionData - { values: [], range: [min, max] }
+     */
+    updateSolutionColors(solutionData) {
+        this.solutionData = solutionData;
+        
+        if (this.mesh2D) {
+            this.updateMesh2DColors();
+        }
+        
+        if (this.mesh3D) {
+            this.updateMesh3DColors();
+        }
+    }
+    
+    /**
+     * Update colors for incremental solution (compatible with solution_increment event)
+     * @param {Object} updateData - { solution_values: [], chunk_info: { min, max } }
+     */
+    updateSolutionIncremental(updateData) {
+        const { solution_values, chunk_info } = updateData;
+        
+        this.solutionData = {
+            values: solution_values,
+            range: [chunk_info.min, chunk_info.max]
+        };
+        
+        if (this.mesh2D) {
+            this.updateMesh2DColors();
+        }
+        
+        if (this.mesh3D) {
+            this.updateMesh3DColors();
+        }
+    }
+    
+    /**
+     * Update 2D mesh colors from current solution data
+     */
+    updateMesh2DColors() {
+        if (!this.mesh2D || !this.solutionData) return;
+        
+        const geometry = this.mesh2D.geometry;
+        const colors = geometry.attributes.color.array;
+        
+        const values = this.solutionData.values;
+        const [min, max] = this.solutionData.range;
+        const conn = this.meshData.connectivity;
+        
+        let vertexIndex = 0;
+        for (let elem of conn) {
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
+                const value = values[nodeId] || 0;
+                const normalized = (max > min) ? (value - min) / (max - min) : 0.5;
+                const color = this.valueToColor(normalized);
+                
+                colors[vertexIndex * 3 + 0] = color.r;
+                colors[vertexIndex * 3 + 1] = color.g;
+                colors[vertexIndex * 3 + 2] = color.b;
+                
+                vertexIndex++;
+            }
+        }
+        
+        geometry.attributes.color.needsUpdate = true;
+    }
+    
+    /**
+     * Update 3D mesh colors from current solution data
+     */
+    updateMesh3DColors() {
+        if (!this.mesh3D || !this.solutionData) return;
+        
+        const geometry = this.mesh3D.geometry;
+        const colors = geometry.attributes.color.array;
+        
+        const values = this.solutionData.values;
+        const [min, max] = this.solutionData.range;
+        const conn = this.meshData.connectivity;
+        
+        let vertexIndex = 0;
+        for (let elem of conn) {
+            // Front face (8 vertices) + Back face (8 vertices)
+            for (let face = 0; face < 2; face++) {
+                for (let i = 0; i < 8; i++) {
+                    const nodeId = elem[i];
+                    const value = values[nodeId] || 0;
+                    const normalized = (max > min) ? (value - min) / (max - min) : 0.5;
+                    const color = this.valueToColor(normalized);
+                    
+                    colors[vertexIndex * 3 + 0] = color.r;
+                    colors[vertexIndex * 3 + 1] = color.g;
+                    colors[vertexIndex * 3 + 2] = color.b;
+                    
+                    vertexIndex++;
+                }
+            }
+        }
+        
+        geometry.attributes.color.needsUpdate = true;
+    }
+    
+    // =========================================================================
+    // Legacy Methods (for backward compatibility)
+    // =========================================================================
+    
+    /**
+     * Create 2D mesh visualization (on XY plane) - legacy method
+     */
+    create2DMesh() {
+        this.create2DGeometry();
+        if (this.solutionData) {
+            this.updateMesh2DColors();
+        }
+    }
+    
+    /**
+     * Create 3D extruded mesh (rectangular slab) - legacy method
+     */
+    create3DExtrusion() {
+        this.create3DGeometry();
+        if (this.solutionData) {
+            this.updateMesh3DColors();
+        }
+    }
+    
+    /**
+     * Create all visualizations - legacy method
+     */
+    createAll() {
+        this.create2DMesh();
+        this.create3DExtrusion();
+        this.geometryCreated = true;
+    }
+    
+    // =========================================================================
+    // Geometry Creation Helpers
+    // =========================================================================
     
     /**
      * Create Quad-8 geometry for 2D visualization
@@ -167,7 +363,6 @@ export class MeshExtruderRect {
     
     /**
      * Create extruded geometry (front face, back face, connected as solid)
-     * For rectangular extrusion, we simply duplicate the 2D mesh at two Z positions
      */
     createExtrudedGeometry() {
         const coords = this.meshData.coordinates;
@@ -214,37 +409,21 @@ export class MeshExtruderRect {
                 back + 3, back + 7, back + 5
             );
             
-            // Side faces connecting front and back (along the element edges)
-            // Connect corresponding vertices on front and back faces
-            // Edge 0-1 (and corresponding back edge)
+            // Side faces connecting front and back
             indices.push(front + 0, back + 0, front + 1);
             indices.push(front + 1, back + 0, back + 1);
-            
-            // Edge 1-2
             indices.push(front + 1, back + 1, front + 2);
             indices.push(front + 2, back + 1, back + 2);
-            
-            // Edge 2-3
             indices.push(front + 2, back + 2, front + 3);
             indices.push(front + 3, back + 2, back + 3);
-            
-            // Edge 3-4
             indices.push(front + 3, back + 3, front + 4);
             indices.push(front + 4, back + 3, back + 4);
-            
-            // Edge 4-5
             indices.push(front + 4, back + 4, front + 5);
             indices.push(front + 5, back + 4, back + 5);
-            
-            // Edge 5-6
             indices.push(front + 5, back + 5, front + 6);
             indices.push(front + 6, back + 5, back + 6);
-            
-            // Edge 6-7
             indices.push(front + 6, back + 6, front + 7);
             indices.push(front + 7, back + 6, back + 7);
-            
-            // Edge 7-0
             indices.push(front + 7, back + 7, front + 0);
             indices.push(front + 0, back + 7, back + 0);
             
@@ -257,71 +436,6 @@ export class MeshExtruderRect {
         geometry.computeVertexNormals();
         
         return geometry;
-    }
-    
-    /**
-     * Add solution-based colors to 2D geometry
-     */
-    addSolutionColors(geometry) {
-        const positions = geometry.attributes.position;
-        const colors = new Float32Array(positions.count * 3);
-        
-        const values = this.solutionData.values;
-        const [min, max] = this.solutionData.range;
-        const conn = this.meshData.connectivity;
-        
-        let vertexIndex = 0;
-        for (let elem of conn) {
-            for (let i = 0; i < 8; i++) {
-                const nodeId = elem[i];
-                const value = values[nodeId];
-                const normalized = (value - min) / (max - min);
-                const color = this.valueToColor(normalized);
-                
-                colors[vertexIndex * 3 + 0] = color.r;
-                colors[vertexIndex * 3 + 1] = color.g;
-                colors[vertexIndex * 3 + 2] = color.b;
-                
-                vertexIndex++;
-            }
-        }
-        
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    }
-    
-    /**
-     * Add solution-based colors to extruded geometry
-     * Colors front face, back face, and side faces
-     */
-    addSolutionColorsToExtrusion(geometry) {
-        const positions = geometry.attributes.position;
-        const colors = new Float32Array(positions.count * 3);
-        
-        const values = this.solutionData.values;
-        const [min, max] = this.solutionData.range;
-        const conn = this.meshData.connectivity;
-        
-        let vertexIndex = 0;
-        for (let elem of conn) {
-            // Front face vertices (8) + Back face vertices (8) = 16 per element
-            // Both get the same colors based on node values
-            for (let face = 0; face < 2; face++) {
-                for (let i = 0; i < 8; i++) {
-                    const nodeId = elem[i];
-                    const value = values[nodeId];
-                    const normalized = (value - min) / (max - min);
-                    const color = this.valueToColor(normalized);
-                    
-                    colors[vertexIndex * 3 + 0] = color.r;
-                    colors[vertexIndex * 3 + 1] = color.g;
-                    colors[vertexIndex * 3 + 2] = color.b;
-                    
-                    vertexIndex++;
-                }
-            }
-        }
-        
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
     /**
@@ -345,11 +459,11 @@ export class MeshExtruderRect {
             r = 1; g = 1 - s; b = 0;
         }
         
-        return new THREE.Color(r, g, b);
+        return { r, g, b };
     }
     
     /**
-     * Fit mesh to view - scale based on X/Y only, Z scales proportionally
+     * Fit mesh to view - scale based on X/Y only
      */
     fitMeshToView(mesh) {
         const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
@@ -373,9 +487,10 @@ export class MeshExtruderRect {
         console.log(`   Fitted to view: scale=${scale.toFixed(4)} (based on X/Y only)`);
     }
     
-    /**
-     * Visibility controls
-     */
+    // =========================================================================
+    // Visibility Controls
+    // =========================================================================
+    
     set2DMeshVisible(visible) {
         this.config.show2DMesh = visible;
         if (this.mesh2D) this.mesh2D.visible = visible;
@@ -410,20 +525,20 @@ export class MeshExtruderRect {
         console.log(`Visualization mode: ${mode}`);
     }
     
+    // =========================================================================
+    // Particle Flow Compatibility
+    // =========================================================================
+    
     /**
      * Get Y segments at X position (for particle flow compatibility)
-     * For rectangular extrusion, returns the Y range at given X
      */
     getYSegmentsAtXCached(x) {
         const { xMin, xMax, yMin, yMax } = this.bounds;
         
-        // Check if X is within bounds
         if (x < xMin || x > xMax) {
             return null;
         }
         
-        // For rectangular extrusion, the entire Y range is valid
-        // Return a single segment covering the full height
         return [{
             yMin: yMin,
             yMax: yMax,
@@ -445,17 +560,10 @@ export class MeshExtruderRect {
         );
     }
     
-    /**
-     * Create all visualizations
-     */
-    createAll() {
-        this.create2DMesh();
-        this.create3DExtrusion();
-    }
+    // =========================================================================
+    // Cleanup
+    // =========================================================================
     
-    /**
-     * Dispose resources
-     */
     dispose() {
         this.scene.remove(this.group);
         
