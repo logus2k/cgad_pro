@@ -347,6 +347,11 @@ export class CameraController {
             if (this.millimetricScene && this.millimetricScene.setGridInterpolation) {
                 this.millimetricScene.setGridInterpolation(easedProgress, this.targetCenterY);
             }
+            
+            // Gradually flatten particles to Z=0
+            if (this.particleFlow) {
+                this.particleFlow.setZFlatten(easedProgress);
+            }
         } else {
             // During transition to 3D, move perspective camera from ortho position
             this.perspectiveCamera.position.copy(currentPosition);
@@ -357,6 +362,11 @@ export class CameraController {
             // Interpolate grid from 2D (backdrop) back to 3D (floor)
             if (this.millimetricScene && this.millimetricScene.setGridInterpolation) {
                 this.millimetricScene.setGridInterpolation(1 - easedProgress, this.targetCenterY);
+            }
+            
+            // Gradually restore particles to full Z
+            if (this.particleFlow) {
+                this.particleFlow.setZFlatten(1 - easedProgress);
             }
         }
         
@@ -448,8 +458,9 @@ export class CameraController {
                 this.particleFlow.set2DMode(true);
             }
             
-            // Switch to orthographic camera
-            this.activeCamera = this.orthoCamera;
+            // Stay with perspective camera to avoid flickering
+            // (particles are flattened to Z=0, so perspective distortion is minimal)
+            this.activeCamera = this.perspectiveCamera;
             this.is2DMode = true;
             
             console.log('Transition to 2D complete');

@@ -568,8 +568,9 @@ export class ParticleFlow {
             } else {
                 this.particlePositions[idx + 0] = x;
                 this.particlePositions[idx + 1] = y;
-                // In 2D mode, flatten to Z=0
-                this.particlePositions[idx + 2] = this.is2DMode ? 0 : z;
+                // Interpolate Z based on flatten factor (0 = full Z, 1 = Z=0)
+                const flattenFactor = this.zFlattenFactor !== undefined ? this.zFlattenFactor : (this.is2DMode ? 1 : 0);
+                this.particlePositions[idx + 2] = z * (1 - flattenFactor);
             }
         }
         
@@ -646,6 +647,14 @@ export class ParticleFlow {
     set2DMode(enabled) {
         this.is2DMode = enabled;
         console.log(`ParticleFlow 2D mode: ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    /**
+     * Set Z flatten factor for gradual transition
+     * @param {number} factor - 0 = full 3D (normal Z), 1 = fully flattened (Z=0)
+     */
+    setZFlatten(factor) {
+        this.zFlattenFactor = Math.max(0, Math.min(1, factor));
     }
     
     /**
