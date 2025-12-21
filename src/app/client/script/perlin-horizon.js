@@ -224,3 +224,38 @@ class PerlinHorizon {
         element.setAttribute('stroke-width', this.strokeWidth);
     }
 }
+
+function createHorizon() {
+    const screenWidth = window.innerWidth;
+    const horizon = new PerlinHorizon({
+        width: screenWidth,
+        centerY: 150,
+        amplitude: 10,
+        frequency: 0.008,
+        seed: 1,
+        strokeColor: '#000000',
+        strokeWidth: 2,
+        fillGradientAbove: {
+            color: '#87CEEB',
+            opacity: 0.15,
+            height: 600
+        },
+        fillGradientBelow: {
+            color: '#228B22',
+            opacity: 0.08,
+            height: 800
+        },
+        gap: {
+            start: screenWidth - 226,
+            end: screenWidth - 123
+        }            
+    });
+    
+    const svg = document.querySelector('.horizon-svg');
+    svg.setAttribute('viewBox', `0 0 ${screenWidth} 400`);
+    
+    horizon.applyTo('horizon-path');
+}
+
+createHorizon();
+window.addEventListener('resize', createHorizon);
