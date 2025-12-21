@@ -61,12 +61,25 @@ export class MillimetricScene {
         this.render();
     }
 
-    render() {
-        this.renderer.render(this.scene, this.camera);
+    render(customCamera = null) {
+        const camera = customCamera || this.camera;
+        this.renderer.render(this.scene, camera);
     }
 
     getScene() {
         return this.scene;
+    }
+    
+    getCamera() {
+        return this.camera;
+    }
+    
+    getControls() {
+        return this.controls;
+    }
+    
+    getRenderer() {
+        return this.renderer;
     }    
 
     #addLights() {
@@ -78,6 +91,9 @@ export class MillimetricScene {
 
     #addMillimetricGrid() {
         const size = 100;
+        
+        // Create a group to hold all grids - this allows us to rotate them together
+        this.gridGroup = new THREE.Group();
         
         // Grey for the smallest squares (most frequent grid lines)
         const grid1 = new THREE.GridHelper(size, size, 0xd8d8d8, 0xd8d8d8); // Light grey
@@ -95,7 +111,57 @@ export class MillimetricScene {
         grid10.material.transparent = true;
 
         this.gridSize = size;
-        this.scene.add(grid1, grid5, grid10);
+        this.grids = [grid1, grid5, grid10];
+        
+        // Add grids to group
+        this.gridGroup.add(grid1, grid5, grid10);
+        this.scene.add(this.gridGroup);
+        
+        // Store initial (3D) and target (2D) states
+        this.grid3DRotation = new THREE.Euler(0, 0, 0);
+        this.grid3DPosition = new THREE.Vector3(0, 0, 0);
+        this.grid2DRotation = new THREE.Euler(Math.PI / 2, 0, 0);  // Rotated to XY plane
+        this.grid2DPosition = new THREE.Vector3(0, 0, -1);  // Slightly behind
+    }
+    
+    /**
+     * Set grid interpolation between 3D and 2D modes
+     * @param {number} t - Interpolation factor (0 = 3D, 1 = 2D)
+     * @param {number} centerY - Center Y position for 2D mode
+     */
+    setGridInterpolation(t, centerY = 0) {
+        if (!this.gridGroup) return;
+        
+        // Interpolate rotation
+        const startRot = this.grid3DRotation;
+        const endRot = this.grid2DRotation;
+        
+        this.gridGroup.rotation.x = startRot.x + (endRot.x - startRot.x) * t;
+        this.gridGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
+        this.gridGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
+        
+        // Interpolate position (Y moves to centerY in 2D mode)
+        const startPos = this.grid3DPosition;
+        const endPosY = centerY;
+        const endPosZ = this.grid2DPosition.z;
+        
+        this.gridGroup.position.x = startPos.x;
+        this.gridGroup.position.y = startPos.y + (endPosY - startPos.y) * t;
+        this.gridGroup.position.z = startPos.z + (endPosZ - startPos.z) * t;
+    }
+    
+    /**
+     * Set grid mode directly (for immediate switch without animation)
+     */
+    setGridMode2D(enabled) {
+        this.setGridInterpolation(enabled ? 1 : 0, this.lastCenterY || 0);
+    }
+    
+    /**
+     * Store center Y for grid positioning
+     */
+    set2DGridCenterY(centerY) {
+        this.lastCenterY = centerY;
     }
 
     #fitGridToView(gridSize) {
@@ -130,7 +196,7 @@ export class MillimetricScene {
         // Create vertical gradient
         const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
         gradient.addColorStop(0, '#fafafa');     // Very light grey at top
-        gradient.addColorStop(1, '#555556ff');     // Soft bluish grey at bottom
+        gradient.addColorStop(1, '#555556ff');   // Soft bluish grey at bottom
         
         context.fillStyle = gradient;
         context.fillRect(0, 0, canvas.width, canvas.height);

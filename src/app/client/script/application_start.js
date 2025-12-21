@@ -6,11 +6,12 @@ import { FEMMeshRendererGPU } from '../script/fem-mesh-renderer-gpu.js';
 import { MeshExtruderSDF } from '../script/mesh-extruder-sdf.js';
 import { MeshExtruderRect } from '../script/mesh-extruder-rect.js';
 import { ParticleFlow } from '../script/particle-flow.js';
+import { CameraController } from '../script/camera-controller.js';
 
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = true;              // Use GPU renderer (false = CPU)
+const useGPU = false;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
@@ -38,6 +39,31 @@ const meshRenderer = useGPU
 let meshExtruder = null;
 let particleFlow = null;
 let velocityData = null;
+
+// Camera controller for 2D/3D transitions
+let cameraController = null;
+
+// Initialize camera controller
+cameraController = new CameraController(
+    millimetricScene.getCamera(),
+    millimetricScene.getScene(),
+    millimetricScene.getRenderer(),
+    millimetricScene.getControls(),
+    {
+        transitionDuration: 1.5,
+        margin: 0.1
+    }
+);
+
+// Set reference to millimetricScene for grid switching
+cameraController.setMillimetricScene(millimetricScene);
+
+// Set up render callback
+cameraController.onUpdate = (camera) => {
+    millimetricScene.render(camera);
+};
+
+window.cameraController = cameraController;
 
 // ============================================================================
 // Socket.IO Event Handlers
@@ -104,6 +130,12 @@ femClient.on('mesh_loaded', async (data) => {
             }
             
             window.meshExtruder = meshExtruder;
+            
+            // Register mesh extruder with camera controller
+            if (cameraController) {
+                cameraController.setMeshExtruder(meshExtruder);
+            }
+            
             millimetricScene.render();
             
             console.log('3D geometry created (awaiting solution colors)');
@@ -471,3 +503,55 @@ console.log('   setBrightness(0.0 - 1.0)');
 console.log('   setOpacity(0.0 - 1.0)');
 console.log('   setTransparent(true/false)');
 console.log('   getAppearance()');
+console.log('\nCamera/View controls:');
+console.log('   to2D()          - Animate to 2D view (orthographic, XY plane)');
+console.log('   to3D()          - Animate back to 3D view');
+console.log('   toggleView()    - Toggle between 2D and 3D');
+console.log('   setViewMargin(0.1)      - Set 2D view margin (0-1)');
+console.log('   setViewDuration(1.5)    - Set transition duration (seconds)');
+
+// ============================================================================
+// Camera/View Console Commands
+// ============================================================================
+
+window.to2D = () => {
+    if (cameraController) {
+        cameraController.transitionTo2D();
+    } else {
+        console.warn('Camera controller not initialized');
+    }
+};
+
+window.to3D = () => {
+    if (cameraController) {
+        cameraController.transitionTo3D();
+    } else {
+        console.warn('Camera controller not initialized');
+    }
+};
+
+window.toggleView = () => {
+    if (cameraController) {
+        cameraController.toggle();
+    } else {
+        console.warn('Camera controller not initialized');
+    }
+};
+
+window.setViewMargin = (margin) => {
+    if (cameraController) {
+        cameraController.setMargin(margin);
+        console.log(`View margin set to ${margin}`);
+    } else {
+        console.warn('Camera controller not initialized');
+    }
+};
+
+window.setViewDuration = (seconds) => {
+    if (cameraController) {
+        cameraController.setTransitionDuration(seconds);
+        console.log(`Transition duration set to ${seconds}s`);
+    } else {
+        console.warn('Camera controller not initialized');
+    }
+};

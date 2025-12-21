@@ -631,6 +631,9 @@ export class MeshExtruderRect {
         const targetSize = 50;
         const scale = targetSize / maxXY;
         
+        // Store scale for camera controller
+        this.scale = scale;
+        
         mesh.scale.set(scale, scale, scale);
         
         const centerX = (xMin + xMax) / 2;
