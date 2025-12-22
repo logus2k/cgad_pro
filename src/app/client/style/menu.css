@@ -1,28 +1,3 @@
-@font-face {
-	font-family: 'Material Symbols Outlined';
-	font-style: normal;
-	font-weight: 400;
-	src: url('../fonts/material.symbols.outlined.v3.woff2') format('woff2');
-	font-display: fallback;
-}
-
-.material-symbols-outlined {
-	font-family: 'Material Symbols Outlined';
-	font-weight: normal;
-	font-style: normal;
-	font-size: 20px;
-	line-height: 1;
-	letter-spacing: normal;
-	text-transform: none;
-	display: inline-block;
-	white-space: nowrap;
-	word-wrap: normal;
-	direction: ltr;
-	font-feature-settings: 'liga';
-	-webkit-font-feature-settings: 'liga';
-	-webkit-font-smoothing: antialiased;
-}
-
 .pm-menu,
 .hud {
 	pointer-events: auto;
@@ -39,9 +14,9 @@
 .pm-menu button {
 	outline: none;
 	border: none;
-	border-radius: 8px;
 	width: 36px;
 	height: 36px;
+	border-radius: 8px;
 	background-color: transparent;
 }
 
@@ -49,20 +24,20 @@
     display: grid;
     place-items: center;
     cursor: pointer;
-    fill: #646464;
+	border-radius: 8px;
+	border: 0.5px outset #c9c9c9;
+	fill: #646464;
     stroke: #646464;
     padding: 5px;
-    border: 0.5px solid transparent;
-    border-radius: 8px;		
+	background-color: #ffffffcc;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .pm-menu button:hover .svg-icon {
-    border: 0.5px solid #c9c9c9;
+    border: 0.5px outset #c9c9c9;
     border-radius: 8px;	
 	fill: #57b379;
     stroke: #57b379;
-	background-color: #ffffffcc;
-	box-shadow: rgba(50, 50, 93, 0.15) 0px 50px 100px -20px, rgba(0, 0, 0, 0.2) 0px 30px 60px -30px, rgba(10, 37, 64, 0.25) 0px -2px 6px 0px inset;
 }
 
 .pm-menu button.active .svg-icon {
@@ -71,9 +46,11 @@
 	background-color: #adfecbcc;
 	fill: #1b7e1bcc;
 	stroke: #1b7e1b;
+	box-shadow: none;
 }
 
 .pm-menu button.active:hover .svg-icon {
+	border: 0.5px inset #c9c9c9;
 	box-shadow: none;
 }
 
