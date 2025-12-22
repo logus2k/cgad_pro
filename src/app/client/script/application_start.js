@@ -13,10 +13,10 @@ import { CameraController } from '../script/camera-controller.js';
 // ============================================================================
 const useGPU = false;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
-const useParticleAnimation = false; // Enable particle flow animation
+const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
-const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
+const extrusionType = 'cylindrical';  // 'cylindrical' | 'rectangular'
 
 // ============================================================================
 // Initialize Three.js scene
@@ -408,7 +408,90 @@ window.updateParticles = (config) => {
         particleFlow.updateConfig(config);
         console.log('Particle config updated:', config);
     } else {
-        console.warn('Particle flow not initialized');
+        console.warn('Particle flow not initialized. Use startParticles() first.');
+    }
+};
+
+/**
+ * Start particle animation after mesh is rendered
+ * Call this if you rendered without particles initially
+ * Usage: startParticles()
+ * Options: startParticles({ particleCount: 500, speedScale: 0.5 })
+ */
+window.startParticles = async (options = {}) => {
+    if (!meshExtruder) {
+        console.warn('Mesh extruder not initialized. Render a mesh first.');
+        return;
+    }
+    
+    if (!velocityData) {
+        console.log('Fetching velocity data...');
+        try {
+            const response = await fetch(`https://logus2k.com/fem/solve/${femClient.currentJobId}/velocity/binary`);
+            if (!response.ok) throw new Error('Failed to fetch velocity');
+            const buffer = await response.arrayBuffer();
+            velocityData = parseVelocityBinary(buffer, meshExtruder.meshData.connectivity.length);
+            window.velocityData = velocityData;
+            console.log('Velocity data loaded');
+        } catch (err) {
+            console.error('Could not fetch velocity data:', err);
+            return;
+        }
+    }
+    
+    if (particleFlow) {
+        console.log('Particle flow already exists, restarting...');
+        particleFlow.start();
+        particleFlow.setVisible(true);
+        millimetricScene.render();
+        return;
+    }
+    
+    const extrusionType = meshExtruder.constructor.name === 'MeshExtruderSDF' ? 'cylindrical' : 'rectangular';
+    
+    const config = {
+        particleCount: 1000,
+        speedScale: 0.3,
+        particleSize: 0.02,
+        particleOpacity: 0.9,
+        particleMaxLife: 8.0,
+        colorBySpeed: true,
+        extrusionMode: extrusionType,
+        ...options
+    };
+    
+    console.log(`Creating particle flow (${extrusionType} mode)...`);
+    
+    particleFlow = new ParticleFlow(
+        meshExtruder,
+        velocityData,
+        () => millimetricScene.render(),
+        config
+    );
+    
+    window.particleFlow = particleFlow;
+    
+    // Register with camera controller for 2D mode
+    if (cameraController) {
+        cameraController.setParticleFlow(particleFlow);
+    }
+    
+    particleFlow.start();
+    console.log('Particle animation started');
+};
+
+/**
+ * Stop and remove particles
+ * Usage: stopParticles()
+ */
+window.stopParticles = () => {
+    if (particleFlow) {
+        particleFlow.stop();
+        particleFlow.setVisible(false);
+        millimetricScene.render();
+        console.log('Particles stopped');
+    } else {
+        console.warn('No particle flow to stop');
     }
 };
 
