@@ -495,6 +495,22 @@ window.stopParticles = () => {
     }
 };
 
+/**
+ * Toggle grid visibility
+ * Usage: toggleGrid() or toggleGrid(true/false)
+ */
+window.toggleGrid = (visible) => {
+    if (millimetricScene) {
+        if (visible === undefined) {
+            visible = millimetricScene.toggleGrid();
+        } else {
+            millimetricScene.setGridVisible(visible);
+        }
+        millimetricScene.render();
+        console.log(`Grid: ${visible ? 'visible' : 'hidden'}`);
+    }
+};
+
 // ============================================================================
 // Appearance Controls (ready for UI binding)
 // ============================================================================

@@ -9,6 +9,7 @@ export class MillimetricScene {
     constructor(container) {
 
         this.container = container;
+        this.gridEnabled = true;  // Track user's grid visibility preference
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xf5f5f3); // Light theme background
@@ -188,6 +189,13 @@ export class MillimetricScene {
         this.gridGroup.position.y = startPos.y + (endPosY - startPos.y) * t;
         this.gridGroup.position.z = startPos.z + (endPosZ - startPos.z) * t;
         
+        // Respect user's grid visibility preference
+        if (!this.gridEnabled) {
+            this.gridGroup.visible = false;
+            if (this.grid2DGroup) this.grid2DGroup.visible = false;
+            return;
+        }
+        
         // Fade out 3D grid, fade in 2D background grid
         // 3D grid fades out in first half, 2D grid fades in second half
         if (t < 0.5) {
@@ -200,6 +208,36 @@ export class MillimetricScene {
                 this.grid2DGroup.position.y = centerY;
             }
         }
+    }
+    
+    /**
+     * Set grid visibility (user preference)
+     */
+    setGridVisible(visible) {
+        this.gridEnabled = visible;
+        if (!visible) {
+            if (this.gridGroup) this.gridGroup.visible = false;
+            if (this.grid2DGroup) this.grid2DGroup.visible = false;
+        } else {
+            // Restore correct grid based on current mode
+            // Check if we're in 2D mode (grid rotated to XY plane)
+            const is2DMode = this.gridGroup && Math.abs(this.gridGroup.rotation.x - Math.PI / 2) < 0.1;
+            if (is2DMode) {
+                if (this.gridGroup) this.gridGroup.visible = false;
+                if (this.grid2DGroup) this.grid2DGroup.visible = true;
+            } else {
+                if (this.gridGroup) this.gridGroup.visible = true;
+                if (this.grid2DGroup) this.grid2DGroup.visible = false;
+            }
+        }
+    }
+    
+    /**
+     * Toggle grid visibility
+     */
+    toggleGrid() {
+        this.setGridVisible(!this.gridEnabled);
+        return this.gridEnabled;
     }
     
     /**

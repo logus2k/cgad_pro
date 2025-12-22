@@ -1,0 +1,20 @@
+{
+	"meshes": [
+		{
+			"name": "Y-shaped Bifurcating Tube",
+			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
+			"file": "./mesh/h5/tube1_195k.h5",
+			"nodes": 195853,
+			"elements": 46607,
+			"thumbnail": "./mesh/images/tube1_195k.png"
+		},
+		{
+			"name": "Y-shaped Bifurcating Tube",
+			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
+			"file": "./mesh/h5/tube1_1_3m.h5",
+			"nodes": 1357953,
+			"elements": 338544,
+			"thumbnail": "./mesh/images/tube1_1_3m.png"
+		}
+	]
+}
