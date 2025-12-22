@@ -184,18 +184,19 @@ export class MenuManager {
         const isResizable = (id !== 'settings' && id !== 'about');
         const headerEl = panel.querySelector('h1');
 
+        const padding = 10; // Define your padding constant
+
         const mv = new Moveable(document.body, {
             target: panel,
             draggable: true,
             resizable: isResizable,
             origin: false,
-            // NEW: Constraint properties
             snappable: true,
             bounds: { 
-                left: 0, 
-                top: 0, 
-                right: window.innerWidth, 
-                bottom: window.innerHeight 
+                left: padding, 
+                top: padding, 
+                right: window.innerWidth - padding, 
+                bottom: window.innerHeight - padding 
             }
         });
 
@@ -331,15 +332,16 @@ export class MenuManager {
     }
 
     #handleWindowResize() {
+        const padding = 10;
         const newBounds = { 
-            left: 0, 
-            top: 0, 
-            right: window.innerWidth, 
-            bottom: window.innerHeight 
+            left: padding, 
+            top: padding, 
+            right: window.innerWidth - padding, 
+            bottom: window.innerHeight - padding 
         };
 
         this.moveables.forEach((mv, panel) => {
-            // 1. Update the Moveable instance bounds
+            // 1. Update the Moveable instance bounds constraint
             mv.bounds = newBounds;
             
             // 2. Get current position data
@@ -349,28 +351,37 @@ export class MenuManager {
             let adjustedX = pos.x;
             let adjustedY = pos.y;
 
-            // 3. Logic to "push" the window back inside if the browser shrank
-            // Check right edge
-            if (rect.right > window.innerWidth) {
-                adjustedX -= (rect.right - window.innerWidth);
+            // 3. Logic to "push" the window back inside including the 10px margin
+            
+            // Check right edge (current right > window width - 10)
+            if (rect.right > (window.innerWidth - padding)) {
+                adjustedX -= (rect.right - (window.innerWidth - padding));
             }
-            // Check bottom edge
-            if (rect.bottom > window.innerHeight) {
-                adjustedY -= (rect.bottom - window.innerHeight);
+            
+            // Check bottom edge (current bottom > window height - 10)
+            if (rect.bottom > (window.innerHeight - padding)) {
+                adjustedY -= (rect.bottom - (window.innerHeight - padding));
             }
-            // Ensure it doesn't go past top/left (0,0)
-            if (rect.left < 0) adjustedX -= rect.left;
-            if (rect.top < 0) adjustedY -= rect.top;
 
-            // 4. Apply adjustments if needed
+            // Check left edge (must be at least 10)
+            if (rect.left < padding) {
+                adjustedX += (padding - rect.left);
+            }
+
+            // Check top edge (must be at least 10)
+            if (rect.top < padding) {
+                adjustedY += (padding - rect.top);
+            }
+
+            // 4. Apply adjustments
             if (adjustedX !== pos.x || adjustedY !== pos.y) {
                 pos.x = adjustedX;
                 pos.y = adjustedY;
                 panel.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
             }
 
-            // 5. Refresh Moveable's internal cache
+            // 5. Refresh Moveable
             mv.updateRect();
         });
-    }    
+    }   
 }
