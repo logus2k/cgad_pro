@@ -311,6 +311,37 @@ export class MeshExtruderSDF {
             indices[i * 3 + 2] = result.cells[i][2];
         }
         
+        // =====================================================================
+        // Correct MC geometry bounds BEFORE removing end caps
+        // MC produces geometry slightly smaller than intended bounds
+        // =====================================================================
+        let geoXMin = Infinity, geoXMax = -Infinity;
+        let geoYMin = Infinity, geoYMax = -Infinity;
+        for (let i = 0; i < positions.length; i += 3) {
+            if (positions[i] < geoXMin) geoXMin = positions[i];
+            if (positions[i] > geoXMax) geoXMax = positions[i];
+            if (positions[i + 1] < geoYMin) geoYMin = positions[i + 1];
+            if (positions[i + 1] > geoYMax) geoYMax = positions[i + 1];
+        }
+        
+        const origBounds = this.originalBounds;
+        const geoWidth = geoXMax - geoXMin;
+        const geoHeight = geoYMax - geoYMin;
+        const intendedWidth = origBounds.xMax - origBounds.xMin;
+        const intendedHeight = origBounds.yMax - origBounds.yMin;
+        
+        const scaleCorrectX = intendedWidth / geoWidth;
+        const scaleCorrectY = intendedHeight / geoHeight;
+        
+        // Stretch vertices to match intended bounds
+        for (let i = 0; i < positions.length; i += 3) {
+            positions[i] = origBounds.xMin + (positions[i] - geoXMin) * scaleCorrectX;
+            positions[i + 1] = origBounds.yMin + (positions[i + 1] - geoYMin) * scaleCorrectY;
+        }
+        
+        console.log(`   MC bounds correction: X[${geoXMin.toFixed(4)}, ${geoXMax.toFixed(4)}] -> [${origBounds.xMin}, ${origBounds.xMax}]`);
+        
+        // Remove end caps (inlet and outlet) - AFTER bounds correction
         indices = this.removeEndCaps(positions, indices);
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -448,11 +479,19 @@ export class MeshExtruderSDF {
         return minDist;
     }
     
+    /**
+     * Remove triangles at inlet (xMin) and outlet (xMax)
+     * Detects flat end cap faces by checking if triangle is perpendicular to X axis
+     */
     removeEndCaps(positions, indices) {
         const { xMin, xMax } = this.originalBounds;
-        const tolerance = (xMax - xMin) * 0.02;
+        // Distance from boundary to consider as "at the end"
+        const endDistance = 0.05;
+        // Max X spread within a triangle to be considered a flat cap
+        const flatThreshold = 0.02;
         
         const newIndices = [];
+        let removedInlet = 0, removedOutlet = 0;
         
         for (let i = 0; i < indices.length; i += 3) {
             const i0 = indices[i + 0];
@@ -463,15 +502,25 @@ export class MeshExtruderSDF {
             const x1 = positions[i1 * 3 + 0];
             const x2 = positions[i2 * 3 + 0];
             
-            const allAtXMin = x0 < xMin + tolerance && x1 < xMin + tolerance && x2 < xMin + tolerance;
-            const allAtXMax = x0 > xMax - tolerance && x1 > xMax - tolerance && x2 > xMax - tolerance;
+            // Check if triangle is flat (all vertices have similar X)
+            const xSpread = Math.max(x0, x1, x2) - Math.min(x0, x1, x2);
+            const isFlat = xSpread < flatThreshold;
             
-            if (!allAtXMin && !allAtXMax) {
+            // Check if at inlet or outlet
+            const avgX = (x0 + x1 + x2) / 3;
+            const atInlet = avgX < xMin + endDistance && isFlat;
+            const atOutlet = avgX > xMax - endDistance && isFlat;
+            
+            if (atInlet) {
+                removedInlet++;
+            } else if (atOutlet) {
+                removedOutlet++;
+            } else {
                 newIndices.push(i0, i1, i2);
             }
         }
         
-        console.log(`   Removed end caps: ${indices.length / 3} -> ${newIndices.length / 3} triangles`);
+        console.log(`   Removed end caps: inlet=${removedInlet}, outlet=${removedOutlet} triangles`);
         
         return new Uint32Array(newIndices);
     }
