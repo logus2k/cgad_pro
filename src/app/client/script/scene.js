@@ -126,6 +126,41 @@ export class MillimetricScene {
         this.grid3DPosition = new THREE.Vector3(0, 0, 0);
         this.grid2DRotation = new THREE.Euler(Math.PI / 2, 0, 0);  // Rotated to XY plane
         this.grid2DPosition = new THREE.Vector3(0, 0, -1);  // Slightly behind
+        
+        // Create a separate large grid for 2D mode (graph paper background)
+        this.#create2DBackgroundGrid();
+    }
+    
+    #create2DBackgroundGrid() {
+        const size = 1000;  // Large enough to cover any viewport
+        
+        this.grid2DGroup = new THREE.Group();
+        
+        // Grey for the smallest squares (1 unit)
+        const grid1 = new THREE.GridHelper(size, size, 0xd8d8d8, 0xd8d8d8);
+        grid1.material.opacity = 0.50;
+        grid1.material.transparent = true;
+
+        // Soft blue for medium squares (5 units)
+        const grid5 = new THREE.GridHelper(size, size / 5, 0xb3d1ff, 0xb3d1ff);
+        grid5.material.opacity = 0.80;
+        grid5.material.transparent = true;
+
+        // Soft blue for larger squares (10 units)
+        const grid10 = new THREE.GridHelper(size, size / 10, 0x99c2ff, 0x99c2ff);
+        grid10.material.opacity = 0.90;
+        grid10.material.transparent = true;
+
+        this.grid2DGroup.add(grid1, grid5, grid10);
+        
+        // Rotate to XY plane and position behind scene
+        this.grid2DGroup.rotation.x = Math.PI / 2;
+        this.grid2DGroup.position.z = -1;
+        
+        // Hidden by default
+        this.grid2DGroup.visible = false;
+        
+        this.scene.add(this.grid2DGroup);
     }
     
     /**
@@ -136,7 +171,7 @@ export class MillimetricScene {
     setGridInterpolation(t, centerY = 0) {
         if (!this.gridGroup) return;
         
-        // Interpolate rotation
+        // Interpolate 3D grid rotation
         const startRot = this.grid3DRotation;
         const endRot = this.grid2DRotation;
         
@@ -144,7 +179,7 @@ export class MillimetricScene {
         this.gridGroup.rotation.y = startRot.y + (endRot.y - startRot.y) * t;
         this.gridGroup.rotation.z = startRot.z + (endRot.z - startRot.z) * t;
         
-        // Interpolate position (Y moves to centerY in 2D mode)
+        // Interpolate 3D grid position (Y moves to centerY in 2D mode)
         const startPos = this.grid3DPosition;
         const endPosY = centerY;
         const endPosZ = this.grid2DPosition.z;
@@ -152,6 +187,19 @@ export class MillimetricScene {
         this.gridGroup.position.x = startPos.x;
         this.gridGroup.position.y = startPos.y + (endPosY - startPos.y) * t;
         this.gridGroup.position.z = startPos.z + (endPosZ - startPos.z) * t;
+        
+        // Fade out 3D grid, fade in 2D background grid
+        // 3D grid fades out in first half, 2D grid fades in second half
+        if (t < 0.5) {
+            this.gridGroup.visible = true;
+            if (this.grid2DGroup) this.grid2DGroup.visible = false;
+        } else {
+            this.gridGroup.visible = false;
+            if (this.grid2DGroup) {
+                this.grid2DGroup.visible = true;
+                this.grid2DGroup.position.y = centerY;
+            }
+        }
     }
     
     /**
