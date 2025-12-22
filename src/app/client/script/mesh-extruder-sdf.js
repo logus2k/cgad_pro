@@ -486,9 +486,9 @@ export class MeshExtruderSDF {
     removeEndCaps(positions, indices) {
         const { xMin, xMax } = this.originalBounds;
         // Distance from boundary to consider as "at the end"
-        const endDistance = 0.05;
+        const endDistance = 0.02;
         // Max X spread within a triangle to be considered a flat cap
-        const flatThreshold = 0.02;
+        const flatThreshold = 0.01;
         
         const newIndices = [];
         let removedInlet = 0, removedOutlet = 0;
