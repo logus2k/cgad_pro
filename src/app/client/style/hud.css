@@ -7,7 +7,7 @@
     --hud-bg: #dfdfdf;            /* Pure paper white */
     --hud-bg-hover: #fcfcfc;
     --hud-border: #000000;        /* Strong ink line */
-    --hud-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* "Hard" drop shadow for a 2D feel */
+    --hud-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1); /* "Hard" drop shadow for a 2D feel */
 }
 
 /* Moveable.js CSS rules */
@@ -84,11 +84,11 @@
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-    background-color: #ffffff;
+    background-color: #fff4e5c5;
 }
 
 .hud.gallery:hover {
-    background-color: #ffffff;
+    background-color: #fff4e5;
 	cursor: text;
 	cursor: pointer;
 }

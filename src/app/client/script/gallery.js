@@ -283,7 +283,7 @@ let meshGallery;
 
 document.addEventListener('DOMContentLoaded', () => {
     meshGallery = new MeshGallery({
-        jsonPath: 'gallery_files.json',
+        jsonPath: './config/gallery_files.json',
         itemsPerView: 3
     });
     
