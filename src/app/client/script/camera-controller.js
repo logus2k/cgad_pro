@@ -118,7 +118,7 @@ export class CameraController {
         // =====================================================================
         // FIXED 2D POSITION - used by both ortho and perspective cameras
         // =====================================================================
-        const cameraZ = 100;
+        const cameraZ = 200;  // Landing distance for 2D view (higher = more zoomed out)
         this.fixed2DPosition = new THREE.Vector3(worldCenterX, worldCenterY, cameraZ);
         this.fixed2DQuaternion = new THREE.Quaternion();
         this.fixed2DUp = new THREE.Vector3(0, 1, 0);
@@ -463,6 +463,9 @@ export class CameraController {
             this.activeCamera = this.perspectiveCamera;
             this.is2DMode = true;
             
+            // Enable 2D zoom (Z-axis only)
+            this.enable2DZoom(true);
+            
             console.log('Transition to 2D complete');
         } else {
             // Stay with perspective camera
@@ -481,6 +484,9 @@ export class CameraController {
             if (this.particleFlow) {
                 this.particleFlow.set2DMode(false);
             }
+            
+            // Disable 2D zoom
+            this.enable2DZoom(false);
             
             // Re-enable orbit controls
             if (this.orbitControls) {
@@ -532,10 +538,60 @@ export class CameraController {
     }
     
     /**
+     * Enable/disable 2D zoom (Z-axis only)
+     */
+    enable2DZoom(enabled) {
+        if (enabled) {
+            // Create bound handler if not exists
+            if (!this._zoom2DHandler) {
+                this._zoom2DHandler = this.handle2DZoom.bind(this);
+            }
+            this.renderer.domElement.addEventListener('wheel', this._zoom2DHandler, { passive: false });
+        } else {
+            if (this._zoom2DHandler) {
+                this.renderer.domElement.removeEventListener('wheel', this._zoom2DHandler);
+            }
+        }
+    }
+    
+    /**
+     * Handle mouse wheel for 2D zoom (Z-axis only)
+     */
+    handle2DZoom(event) {
+        if (!this.is2DMode) return;
+        
+        event.preventDefault();
+        
+        const zoomSpeed = 0.1;
+        const minZ = 10;   // Minimum camera distance
+        const maxZ = 500;  // Maximum camera distance
+        
+        // Get current Z position
+        let z = this.perspectiveCamera.position.z;
+        
+        // Adjust Z based on scroll direction
+        // Scroll up (negative deltaY) = zoom in (decrease Z)
+        // Scroll down (positive deltaY) = zoom out (increase Z)
+        z += event.deltaY * zoomSpeed;
+        
+        // Clamp to limits
+        z = Math.max(minZ, Math.min(maxZ, z));
+        
+        // Update camera position (only Z changes)
+        this.perspectiveCamera.position.z = z;
+        
+        // Trigger render
+        if (this.onUpdate) {
+            this.onUpdate(this.activeCamera);
+        }
+    }
+    
+    /**
      * Clean up
      */
     dispose() {
         this.cancelTransition();
+        this.enable2DZoom(false);  // Remove event listener
         this.orthoCamera = null;
         this.meshExtruder = null;
         this.mesh2D = null;
