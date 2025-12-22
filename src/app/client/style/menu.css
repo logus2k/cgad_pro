@@ -37,31 +37,42 @@
 }
 
 .pm-menu button {
-	width: var(--pm-icon, 36px);
-	height: var(--pm-icon, 16px);
+	outline: none;
+	border: none;
+}
+
+.pm-menu button .svg-icon {
 	display: grid;
 	place-items: center;
-	border: none;
+	border: 0.5px solid #cecece;
 	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.6);
-	color: #363636;
 	cursor: pointer;
+	fill: #646464;
+	stroke: #646464;
+	padding: 5px;
 }
 
-.pm-menu button:hover {
-	color: #55cb80;
-}
-
-.pm-menu button.active {
-    outline: none;
-    border: 1px solid #55cb80;
-    box-shadow: 0 0 6px #55cb80;
+.pm-menu button:hover .svg-icon {
     color: #1c9649;
-    background-color: #adfecb;
+    background-color: #fefefe;	
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 }
 
-.pm-menu .material-symbols-outlined {
-	font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+.pm-menu button.active .svg-icon {
+	border: 0.5px solid #cecece;
+	border-style: inset;
+	background-color: #adfecb;
+	fill: #1b7e1b;
+	stroke: #1b7e1b;
+}
+
+.pm-menu button.active:hover .svg-icon {
+	box-shadow: none;
+}
+
+.svg-icon {
+	fill: currentColor;
+	stroke: currentColor;
 }
 
 .pm-top-left {
@@ -101,12 +112,6 @@
 .pm-close:hover {
     background: #ff9e8d;
 	color: #363636;
-}
-
-.pm-menu button {
-    background: rgba(255, 255, 255, 0.25);
-    color: #222;
-    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .pm-bottom-center {

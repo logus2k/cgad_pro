@@ -16,6 +16,7 @@ const menuManager = new MenuManager({
 export class MenuManager {
 
     constructor(config = {}) {
+
         this.cfg = {
             menuTargetId: config.menuTargetId || 'application-menu-container',
             menuPosition: config.menuPosition || 'bottom-center',
@@ -30,6 +31,7 @@ export class MenuManager {
         this.moveables = new Map();
         this.topZ = 10;
         this.positions = new WeakMap();
+        this.svgCache = new Map();
 
         this.tx = 0;
         this.ty = 0;
@@ -71,9 +73,9 @@ export class MenuManager {
 
         const items = [
             { id: 'gallery', icon: 'deployed_code', label: 'Gallery' },
-            { id: 'metrics', icon: 'equalizer', label: 'Metrics' },
-            { id: 'benchmark', icon: 'emoji_events', label: 'Benchmark' },
-            { id: 'report', icon: 'description', label: 'Report' },
+            { id: 'metrics', icon: 'finance', label: 'Metrics' },
+            { id: 'benchmark', icon: 'trophy', label: 'Benchmark' },
+            { id: 'report', icon: 'assignment', label: 'Report' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
@@ -84,8 +86,7 @@ export class MenuManager {
             b.type = 'button';
             b.title = label;
             const i = document.createElement('span');
-            i.className = 'material-symbols-outlined';
-            i.textContent = icon;
+            this.#getSVGIconByName(i, icon, label);
             b.appendChild(i);
             b.addEventListener('click', () => {
                 const isVisible = this.#isPanelShown(id);
@@ -97,6 +98,27 @@ export class MenuManager {
 
         target.appendChild(wrap);
         this.menuEl = wrap;
+    }
+
+    async #getSVGIconByName(element, icon, alt) {
+
+        const url = `./icons/${icon}.svg`;
+
+        if (!this.svgCache.has(url)) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`SVG load failed: ${url}`);
+
+            const text = await res.text();
+            const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+            this.svgCache.set(url, doc.documentElement);
+        }
+
+        const svg = this.svgCache.get(url).cloneNode(true);
+
+        svg.classList.add("svg-icon");
+        if (alt) svg.setAttribute("aria-label", alt);
+
+        element.replaceChildren(svg);
     }
 
     #initPanels() {
