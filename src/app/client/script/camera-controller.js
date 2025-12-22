@@ -512,7 +512,11 @@ export class CameraController {
     onResize(width, height) {
         const aspect = width / height;
         
-        // Update orthographic camera
+        // Update perspective camera aspect
+        this.perspectiveCamera.aspect = aspect;
+        this.perspectiveCamera.updateProjectionMatrix();
+        
+        // Update orthographic camera aspect (maintain height, adjust width)
         const frustumHeight = this.orthoCamera.top - this.orthoCamera.bottom;
         const frustumWidth = frustumHeight * aspect;
         
@@ -520,10 +524,7 @@ export class CameraController {
         this.orthoCamera.right = frustumWidth / 2;
         this.orthoCamera.updateProjectionMatrix();
         
-        // If in 2D mode, refit to mesh
-        if (this.is2DMode) {
-            this.updateOrthoCameraToFitMesh();
-        }
+        // Don't reset camera position - preserve current view
     }
     
     /**

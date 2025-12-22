@@ -53,8 +53,12 @@ export class MillimetricScene {
 
         this.#addLights();
         this.#addMillimetricGrid();
+        
+        // Initial camera positioning
+        this.#fitGridToView(this.gridSize);
+        
+        // Handle resize (aspect ratio only, no camera repositioning)
         this.#onResize();
-
         window.addEventListener('resize', () => this.#onResize());
         
         // Initial Draw
@@ -216,6 +220,8 @@ export class MillimetricScene {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(w, h);
 
-        this.#fitGridToView(this.gridSize);
+        // Only fit grid on initial setup, not on every resize
+        // Camera position should be preserved
+        this.render();
     }
 }
