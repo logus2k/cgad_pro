@@ -21,7 +21,7 @@ export class MenuManager {
             menuTargetId: config.menuTargetId || 'application-menu-container',
             menuPosition: config.menuPosition || 'bottom-center',
             iconSize: config.menuIconSize || 36,
-            margin: config.menuMargin || 16,
+            margin: config.menuMargin || 20,
             panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'settings', 'about'],
             initialVisibility: config.initialVisibility || {},
         };
