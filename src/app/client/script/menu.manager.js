@@ -38,6 +38,7 @@ export class MenuManager {
 
         this.#initMenu();
         this.#initPanels();
+        this.#initGlobalHoverCheck();
         this.#applyInitialVisibility();
 
         window.addEventListener('resize', () => this.#handleWindowResize());
@@ -145,12 +146,47 @@ export class MenuManager {
             };
 
             this.#makeDraggable(el, id);
+        });
+    }
 
-            el.addEventListener('mousedown', () => {
-                this.topZ += 1; 
-                el.style.zIndex = String(this.topZ);
+    #initGlobalHoverCheck() {
+        document.addEventListener('mousemove', (e) => {
+            this.moveables.forEach((mv, panel) => {
+                const controlBox = mv.selfElement;
+                if (!controlBox) return;
+                
+                const isOccluded = this.#isOccludedByHigherPanel(panel, e.clientX, e.clientY);
+                
+                controlBox.querySelectorAll('.moveable-control').forEach(ctrl => {
+                    if (isOccluded) {
+                        ctrl.style.pointerEvents = 'none';
+                        ctrl.style.cursor = 'default';
+                    } else {
+                        ctrl.style.pointerEvents = '';
+                        ctrl.style.cursor = '';
+                    }
+                });
             });
         });
+    }
+
+    #isOccludedByHigherPanel(panel, clientX, clientY) {
+        const panelZ = parseInt(panel.style.zIndex) || 0;
+        const elements = document.elementsFromPoint(clientX, clientY);
+        
+        for (const el of elements) {
+            // If we hit our panel first, we're not occluded
+            if (el === panel) return false;
+            
+            // Check if this is another panel with higher z-index
+            if (el.classList.contains('hud') && el !== panel) {
+                const elZ = parseInt(el.style.zIndex) || 0;
+                if (elZ > panelZ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #makeDraggable(panel, id) {
@@ -181,10 +217,10 @@ export class MenuManager {
         // Reset transform to 0,0 since we just moved the element's actual top/left
         panel.style.transform = 'translate(0px, 0px)';
 
-        const isResizable = (id !== 'settings' && id !== 'about');
+        const isResizable = true;
         const headerEl = panel.querySelector('h1');
 
-        const padding = 10; // Define your padding constant
+        const padding = 10;
 
         const mv = new Moveable(document.body, {
             target: panel,
@@ -200,6 +236,24 @@ export class MenuManager {
             }
         });
 
+        // Sync control box z-index with panel
+        const syncZIndex = () => {
+            const controlBox = mv.selfElement;
+            if (controlBox) {
+                controlBox.style.zIndex = panel.style.zIndex;
+            }
+        };
+
+        // Sync on creation
+        syncZIndex();
+
+        // Sync when panel gains focus
+        panel.addEventListener('mousedown', () => {
+            this.topZ += 1;
+            panel.style.zIndex = String(this.topZ);
+            syncZIndex();
+        });
+
         let allowDrag = false;
         
         // Initialize or reset position tracker to 0,0 because we normalized the top/left above
@@ -207,6 +261,14 @@ export class MenuManager {
         this.positions.set(panel, pos);
 
         mv.on('dragStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.#isOccludedByHigherPanel(panel, clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             const t = e.inputEvent && e.inputEvent.target;
             allowDrag = !!(headerEl && t && (t === headerEl || headerEl.contains(t)));
             if (!allowDrag) { e.stop && e.stop(); return; }
@@ -224,6 +286,14 @@ export class MenuManager {
             allowDrag = false;
         })
         .on('resizeStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.#isOccludedByHigherPanel(panel, clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             e.setOrigin(['%', '%']);
             if (e.dragStart) e.dragStart.set([pos.x, pos.y]);
         })
