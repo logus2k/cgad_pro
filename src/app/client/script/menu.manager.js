@@ -24,6 +24,7 @@ export class MenuManager {
             margin: config.menuMargin || 20,
             panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'settings', 'about'],
             initialVisibility: config.initialVisibility || {},
+            nonResizable: config.nonResizable || ['settings', 'about'],
         };
 
         this.menuEl = null;
@@ -217,7 +218,7 @@ export class MenuManager {
         // Reset transform to 0,0 since we just moved the element's actual top/left
         panel.style.transform = 'translate(0px, 0px)';
 
-        const isResizable = true;
+        const isResizable = !this.cfg.nonResizable.includes(id);
         const headerEl = panel.querySelector('h1');
 
         const padding = 10;
