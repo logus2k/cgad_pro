@@ -83,14 +83,15 @@
 }
 
 .hud.gallery {
-	top: 85px;
-	left: 20px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	width: 800px;
 	height: 450px;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-    background-color: #fff4e5c5;
+	background-color: #fff4e5c5;
 }
 
 .hud.gallery:hover {
