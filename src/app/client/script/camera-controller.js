@@ -54,6 +54,12 @@ export class CameraController {
         this.targetPosition = new THREE.Vector3();
         this.targetQuaternion = new THREE.Quaternion();
         this.targetUp = new THREE.Vector3(0, 1, 0);
+
+        // Default 2D view position (looking at origin from Z axis)
+        this.fixed2DPosition = new THREE.Vector3(0, 0, 200);
+        this.fixed2DQuaternion = new THREE.Quaternion();
+        this.fixed2DUp = new THREE.Vector3(0, 1, 0);
+        this.targetCenterY = 0;        
         
         // Callback for render updates
         this.onUpdate = null;
@@ -227,7 +233,7 @@ export class CameraController {
         }
         
         console.log('Transitioning to 2D view...');
-        
+
         // Save current 3D state
         this.save3DState();
         

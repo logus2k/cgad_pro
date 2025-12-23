@@ -54,6 +54,10 @@
 	-webkit-font-smoothing: antialiased;
 }
 
+:root {
+	--horizon-top: max(8%, 90px);
+}
+
 html, body {
 	margin: 0;
 	padding: 0;
@@ -73,6 +77,10 @@ html, body {
 	position: absolute;
 	inset: 0;
 	z-index: 0;
+	background: linear-gradient(to top, #fffdef, #dfdfdf, #f6fcf6);
+	background-size: 100% calc(100% - var(--horizon-top) + 1);
+	background-position: bottom;
+	background-repeat: no-repeat;
 }
 
 /* HTML overlay layer */

@@ -25,6 +25,7 @@ export class MillimetricScene {
         // Renderer Setup
         this.renderer = new THREE.WebGLRenderer({ 
             antialias: true,
+            alpha: true,
             powerPreference: "low-power" // Prefers integrated GPU to save energy
         });
         
@@ -50,7 +51,7 @@ export class MillimetricScene {
         // ON-DEMAND RENDERING: No requestAnimationFrame loop.
         // The scene only draws when the camera actually moves.
         // ---------------------------------------------------------
-        this.controls.addEventListener('change', () => this.render());
+        // this.controls.addEventListener('change', () => this.render());
 
         this.#addLights();
         this.#addMillimetricGrid();
@@ -70,6 +71,10 @@ export class MillimetricScene {
         const camera = customCamera || this.camera;
         this.renderer.render(this.scene, camera);
     }
+
+    setBackgroundEnabled(enabled) {
+        this.scene.background = enabled ? new THREE.Color(0xf5f5f3) : null;
+    }    
 
     getScene() {
         return this.scene;

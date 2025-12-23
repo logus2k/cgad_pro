@@ -9,7 +9,7 @@ html {
 
 .horizon-svg {
     position: absolute;
-    top: max(calc(8%), 90px);
+    top: var(--horizon-top);
     left: 0;
     width: 100%;
     height: 30px;
@@ -19,7 +19,7 @@ html {
 .pena-palace {
     position: absolute;
     width: 110px;
-    top: max(calc(8% - 44px), 46px);
+    top: calc(var(--horizon-top) - 44px);
     right: 120px;
     z-index: 1;
 }
@@ -28,6 +28,6 @@ html {
     font-family: 'Roboto', sans-serif;
     font-size: 6px;
     position: absolute;
-    top: max(calc(8%), 90px);
+    top: var(--horizon-top);
     right: 77px;
 }

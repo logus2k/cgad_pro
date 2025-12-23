@@ -1,4 +1,5 @@
 import { MillimetricScene } from '../script/scene.js';
+import { WaveBackground } from '../script/wave-background.js';
 import { FEMClient } from '../script/fem-client.js';
 import { MetricsDisplay } from '../script/metrics-display.js';
 import { FEMMeshRendererCPU } from '../script/fem-mesh-renderer-cpu.js';
@@ -23,6 +24,7 @@ const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
 // ============================================================================
 const container = document.getElementById('three-layer');
 const millimetricScene = new MillimetricScene(container);
+millimetricScene.setBackgroundEnabled(false);
 
 // ============================================================================
 // Initialize FEM client and metrics display
@@ -58,10 +60,34 @@ cameraController = new CameraController(
 // Set reference to millimetricScene for grid switching
 cameraController.setMillimetricScene(millimetricScene);
 
-// Set up render callback
-cameraController.onUpdate = (camera) => {
-    millimetricScene.render(camera);
+// Set wave background (pass main scene and camera)
+const waveBackground = new WaveBackground(
+    millimetricScene.getRenderer(),
+    millimetricScene.getScene(),
+    millimetricScene.getCamera(),
+    {
+        speed: 2.5,
+        bottomOffset: 0.35
+    }
+);
+
+// Start the animation loop
+waveBackground.start();
+
+// Override millimetricScene.render to always include waves
+const originalRender = millimetricScene.render.bind(millimetricScene);
+millimetricScene.render = (customCamera) => {
+    if (waveBackground && waveBackground.running) {
+        // WaveBackground will render both scenes in its loop
+        // Just trigger an immediate frame
+        waveBackground.renderOnce(customCamera);
+    } else {
+        originalRender(customCamera);
+    }
 };
+
+// Expose for console control
+window.waveBackground = waveBackground;
 
 window.cameraController = cameraController;
 
