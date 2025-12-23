@@ -30,7 +30,8 @@
 }
 
 .metrics-container {
-    margin: 0px 3px;
+    margin: 0px;
+    padding: 5px 10px 5px 10px;
 }
 
 .metric-row {

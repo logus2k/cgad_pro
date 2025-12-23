@@ -83,16 +83,17 @@
 
 .pm-close {
     position: absolute;
-    top: 8px;
-    right: 10px;
+    top: 6px;
+    right: 8px;
     width: 20px;
-    height: 20px;
+    height: 18px;
     border: none;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.1);
     color: #aaaaaa;
     cursor: pointer;
     line-height: 1;
+    text-align: center;
 }
 
 .pm-close:hover {

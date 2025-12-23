@@ -39,7 +39,7 @@
     color: var(--hud-fg);
     border: 0.5px solid #9a9a9a;
     box-shadow: var(--hud-shadow);
-    padding: 10px;
+    padding: 0px;
     font-family: 'Roboto', sans-serif;
     border-radius: 8px;
     user-select: none;
@@ -235,10 +235,11 @@
     font-size: 11px;
     font-family: 'Roboto', sans-serif;
     letter-spacing: 1px;
-    margin: 2px 0px 6px 2px;
     color: #363636;
     font-weight: 900;
     cursor: move;
+    padding: 10px 5px 3px 10px;
+    margin: 0px 0px 0px 0px;
 }
 
 .hud.dragging {
@@ -380,7 +381,7 @@ summary::-webkit-details-marker {
 .hud .sep {
     height: 0.5px;
     background: #c4c4c4b5;
-    margin: 0px 0px 10px 0px;
+    margin: 0px 10px 0px 10px;
 }
 
 .inline-controls {
