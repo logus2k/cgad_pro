@@ -12,9 +12,9 @@ import { CameraController } from '../script/camera-controller.js';
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = false;              // Use GPU renderer (false = CPU)
+const useGPU = true;              // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
-const useParticleAnimation = true; // Enable particle flow animation
+const useParticleAnimation = false; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
 const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'

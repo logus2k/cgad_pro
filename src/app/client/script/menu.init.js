@@ -7,7 +7,7 @@ const menuManager = new MenuManager({
 	iconSize: 36,
 	menuMargin: 20,
 	initialVisibility: {
-		gallery: true,
+		gallery: false,
 		metrics: false,
 		benchmark: false,
 		report: false,
