@@ -72,13 +72,12 @@ html, body {
 	height: 100%;
 }
 
-/* Three.js canvas layer */
 #three-layer {
 	position: absolute;
 	inset: 0;
 	z-index: 0;
-	background: linear-gradient(to top, #fffdef, #dfdfdf, #f6fcf6);
-	background-size: 100% calc(100% - var(--horizon-top) + 1);
+	background: linear-gradient(to top, #fffef9, #f3fff3);
+	background-size: 100% calc(100% - var(--horizon-top) - 12px);
 	background-position: bottom;
 	background-repeat: no-repeat;
 }
