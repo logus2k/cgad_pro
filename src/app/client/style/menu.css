@@ -29,11 +29,12 @@
 	fill: #646464;
     stroke: #646464;
     padding: 5px;
-	background-color: #ffffffcc;
+	background-color: #ffffff96;
 	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .pm-menu button:hover .svg-icon {
+    background-color: #ffffff;
     border: 0.5px outset #c9c9c9;
     border-radius: 8px;	
 	fill: #57b379;
@@ -42,11 +43,12 @@
 
 .pm-menu button.active .svg-icon {
     border: 0.5px inset #c9c9c9;
-    border-radius: 8px;	
-	background-color: #adfecbcc;
-	fill: #1b7e1bcc;
-	stroke: #1b7e1b;
-	box-shadow: none;
+    border-radius: 8px;
+    background-color: #adfecbcc;
+    fill: #1b7e1bcc;
+    stroke: #1b7e1b;
+    box-shadow: none;
+    stroke-width: 20px;
 }
 
 .pm-menu button.active:hover .svg-icon {

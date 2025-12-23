@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Moveable – Two Panels</title>
+
+	<style>
+		html, body {
+			margin: 0;
+			width: 100%;
+			height: 100%;
+			background: #0f1115;
+			font-family: system-ui, sans-serif;
+			overflow: hidden;
+		}
+
+		.panel {
+			position: absolute;
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			border-radius: 8px;
+			color: #ddd;
+			padding: 12px;
+			box-sizing: border-box;
+			user-select: none;
+		}
+
+		#panelA {
+			width: 240px;
+			height: 160px;
+			transform: translate(60px, 60px);
+		}
+
+		#panelB {
+			width: 260px;
+			height: 180px;
+			transform: translate(360px, 120px);
+		}
+	</style>
+</head>
+<body>
+
+	<div id="panelA" class="panel">Panel A</div>
+	<div id="panelB" class="panel">Panel B</div>
+
+	<script src="https://unpkg.com/moveable/dist/moveable.min.js"></script>
+	<script>
+		const panels = document.querySelectorAll(".panel");
+
+		const moveable = new Moveable(document.body, {
+			target: panels[0],
+			draggable: true,
+			resizable: true,
+			keepRatio: false,
+			origin: false,
+		});
+
+		moveable
+			.on("drag", e => {
+				e.target.style.transform = e.transform;
+			})
+			.on("resize", e => {
+				const { width, height, drag } = e;
+				e.target.style.width = `${width}px`;
+				e.target.style.height = `${height}px`;
+				e.target.style.transform = drag.transform;
+			});
+
+		// Switch active panel on click
+		panels.forEach(panel => {
+			panel.addEventListener("mousedown", () => {
+				moveable.target = panel;
+			});
+		});
+	</script>
+</body>
+</html>
