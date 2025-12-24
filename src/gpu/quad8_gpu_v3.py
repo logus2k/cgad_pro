@@ -1063,6 +1063,7 @@ class Quad8FEMSolverGPU:
 			results['pressure'] = self.pressure
 		
 		# --- Emit Final Completion Event ---
+		"""
 		if self.progress_callback:
 			self.progress_callback.on_solve_complete(
 				converged=self.converged,
@@ -1071,6 +1072,7 @@ class Quad8FEMSolverGPU:
 				solution_stats=results['solution_stats'],
 				mesh_info=results['mesh_info']
 			)
+		"""
 		
 		# --- Console Output (if verbose) ---
 		if self.verbose:

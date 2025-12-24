@@ -110,21 +110,17 @@ async def join_room(sid, data):
 async def run_solver_task(job_id: str, params: dict):
     """Run solver in background with Socket.IO callbacks"""
     try:
-        # Update job status
         jobs[job_id]['status'] = 'running'
         
-        # Create callback with event loop reference
         loop = asyncio.get_event_loop()
         callback = ProgressCallback(sio, job_id, loop)
         
-        # Create and run solver
         wrapper = SolverWrapper(
             solver_type=params['solver_type'],
             params=params,
             progress_callback=callback
         )
         
-        # Run in executor to not block event loop
         results = await loop.run_in_executor(None, wrapper.run)
         
         # Convert CuPy arrays to NumPy before storing
@@ -132,7 +128,6 @@ async def run_solver_task(job_id: str, params: dict):
         if hasattr(solution, 'get'):
             solution = solution.get()
         
-        # Extract and convert velocity/derived fields
         velocity = results.get('vel')
         abs_velocity = results.get('abs_vel')
         pressure = results.get('pressure')
@@ -144,16 +139,7 @@ async def run_solver_task(job_id: str, params: dict):
         if pressure is not None and hasattr(pressure, 'get'):
             pressure = pressure.get()
         
-        # Debug output
-        print(f"\n[DEBUG] Results from solver:")
-        print(f"  Keys: {list(results.keys())}")
-        if velocity is not None:
-            print(f"  ✅ vel shape: {velocity.shape}")
-            print(f"  ✅ vel range: [{velocity.min():.3f}, {velocity.max():.3f}]")
-        else:
-            print(f"  ❌ vel is None!")
-        
-        # Update job with results
+        # Update job with results FIRST
         jobs[job_id].update({
             'status': 'completed',
             'results': {
@@ -169,7 +155,18 @@ async def run_solver_task(job_id: str, params: dict):
             }
         })
         
-        print(f"✅ Job {job_id} completed and stored successfully\n")
+        print(f"Job {job_id} completed and stored successfully\n")
+        
+        # THEN emit solve_complete event
+        await sio.emit('solve_complete', {
+            'job_id': job_id,
+            'converged': results['converged'],
+            'iterations': results['iterations'],
+            'timing_metrics': results['timing_metrics'],
+            'solution_stats': results['solution_stats'],
+            'mesh_info': results['mesh_info'],
+            'solution_url': f'/solve/{job_id}/solution/binary',
+        }, room=job_id)
         
     except Exception as e:
         jobs[job_id]['status'] = 'failed'
@@ -178,7 +175,7 @@ async def run_solver_task(job_id: str, params: dict):
             'job_id': job_id,
             'error': str(e)
         }, room=job_id)
-        print(f"❌ Job {job_id} failed: {e}")
+        print(f"Job {job_id} failed: {e}")
         import traceback
         traceback.print_exc()
 

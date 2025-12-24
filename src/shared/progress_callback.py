@@ -127,7 +127,7 @@ class ProgressCallback:
         else:
             force_send = False
         
-        if not force_send and current_time - self.last_solution_update < 2.0:
+        if not force_send and current_time - self.last_solution_update < 0.5:
             print(f"[DEBUG] Throttled (last update {current_time - self.last_solution_update:.2f}s ago)")
             return
         

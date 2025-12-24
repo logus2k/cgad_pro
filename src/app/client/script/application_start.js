@@ -12,7 +12,7 @@ import { CameraController } from '../script/camera-controller.js';
 // ============================================================================
 // Configuration
 // ============================================================================
-const useGPU = true;              // Use GPU renderer (false = CPU)
+const useGPU = true;               // Use GPU renderer (false = CPU)
 const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
@@ -86,6 +86,26 @@ millimetricScene.render = (customCamera) => {
     }
 };
 
+let meshExtruderPromise = null;
+let resolveMeshExtruder = null;
+
+function getMeshExtruderPromise() {
+    if (meshExtruder) {
+        return Promise.resolve(meshExtruder);
+    }
+    if (!meshExtruderPromise) {
+        meshExtruderPromise = new Promise((resolve) => {
+            resolveMeshExtruder = resolve;
+        });
+    }
+    return meshExtruderPromise;
+}
+
+function resetMeshExtruderPromise() {
+    meshExtruderPromise = null;
+    resolveMeshExtruder = null;
+}
+
 // Expose for console control
 window.waveBackground = waveBackground;
 
@@ -109,7 +129,11 @@ femClient.on('stage_start', (data) => {
 // Clear Scene - Called when starting a new solve
 // ============================================================================
 function clearScene() {
+
     console.log('Clearing scene for new solve...');
+
+    // Reset meshExtruder promise
+    resetMeshExtruderPromise();
     
     // Clear 2D mesh renderer
     if (meshRenderer) {
@@ -216,6 +240,11 @@ femClient.on('mesh_loaded', async (data) => {
             millimetricScene.render();
             
             console.log('3D geometry created (awaiting solution colors)');
+
+            // Resolve the promise for any waiting handlers
+            if (resolveMeshExtruder) {
+                resolveMeshExtruder(meshExtruder);
+            }            
             
         } catch (error) {
             console.error('Failed to create early geometry:', error);
@@ -279,61 +308,70 @@ femClient.on('solve_complete', async (data) => {
     // ========================================================================
     // 3D Extrusion Mode - Final color update
     // ========================================================================
-    if (use3DExtrusion && meshExtruder) {
-        // Final color update with complete solution
-        meshExtruder.updateSolutionColors(solutionData);
-        millimetricScene.render();
+    if (use3DExtrusion) {
+        // Wait for meshExtruder to be ready (Promise-based, no timeout)
+        console.log('Waiting for meshExtruder...');
         
-        console.log('Final 3D colors applied');
-        
-        // ====================================================================
-        // Fetch velocity data and create particle animation
-        // ====================================================================
         try {
-            const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
-            const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
+            const extruder = await getMeshExtruderPromise();
+            console.log('meshExtruder ready');
             
-            if (response.ok) {
-                const buffer = await response.arrayBuffer();
-                velocityData = parseVelocityBinary(buffer, data.mesh_info.elements);
-                window.velocityData = velocityData;
-                console.log('Velocity data loaded:', velocityData);
+            // Final color update with complete solution
+            extruder.updateSolutionColors(solutionData);
+            millimetricScene.render();
+            
+            console.log('Final 3D colors applied');
+            
+            // ====================================================================
+            // Fetch velocity data and create particle animation
+            // ====================================================================
+            try {
+                const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
+                const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
                 
-                // Create particle animation (for both cylindrical and rectangular)
-                if (useParticleAnimation) {
-                    console.log(`Creating particle flow animation (${extrusionType} mode)...`);
+                if (response.ok) {
+                    const buffer = await response.arrayBuffer();
+                    velocityData = parseVelocityBinary(buffer, data.mesh_info.elements);
+                    window.velocityData = velocityData;
+                    console.log('Velocity data loaded:', velocityData);
                     
-                    particleFlow = new ParticleFlow(
-                        meshExtruder,
-                        velocityData,
-                        () => millimetricScene.render(),
-                        {
-                            particleCount: 1000,
-                            speedScale: 0.3,
-                            particleSize: 0.02,
-                            particleOpacity: 0.9,
-                            particleMaxLife: 8.0,
-                            colorBySpeed: true,
-                            extrusionMode: extrusionType,  // Pass extrusion type
+                    // Create particle animation
+                    if (useParticleAnimation) {
+                        console.log(`Creating particle flow animation (${extrusionType} mode)...`);
+                        
+                        particleFlow = new ParticleFlow(
+                            meshExtruder,
+                            velocityData,
+                            () => millimetricScene.render(),
+                            {
+                                particleCount: 1000,
+                                speedScale: 0.3,
+                                particleSize: 0.02,
+                                particleOpacity: 0.9,
+                                particleMaxLife: 8.0,
+                                colorBySpeed: true,
+                                extrusionMode: extrusionType,
+                            }
+                        );
+                        
+                        window.particleFlow = particleFlow;
+                        
+                        if (cameraController) {
+                            cameraController.setParticleFlow(particleFlow);
                         }
-                    );
-                    
-                    window.particleFlow = particleFlow;
-                    
-                    // Register with camera controller for 2D mode
-                    if (cameraController) {
-                        cameraController.setParticleFlow(particleFlow);
+                        
+                        particleFlow.start();
+                        
+                        console.log('Particle animation started');
                     }
-                    
-                    particleFlow.start();
-                    
-                    console.log('Particle animation started');
+                } else {
+                    console.warn('Velocity data not available');
                 }
-            } else {
-                console.warn('Velocity data not available');
+            } catch (velocityError) {
+                console.warn('Could not fetch velocity:', velocityError);
             }
-        } catch (velocityError) {
-            console.warn('Could not fetch velocity:', velocityError);
+        } catch (err) {
+            console.error('Error waiting for meshExtruder:', err);
         }
     }
     // ========================================================================
@@ -375,6 +413,9 @@ function parseVelocityBinary(buffer, expectedElements) {
         throw new Error(`Buffer too small: ${buffer.byteLength} < ${expectedSize}`);
     }
     
+    let minSpeed = Infinity;
+    let maxSpeed = -Infinity;
+    
     for (let i = 0; i < count; i++) {
         if (offset + 8 > buffer.byteLength) {
             console.error(`Buffer overflow at element ${i}, offset ${offset}`);
@@ -386,12 +427,17 @@ function parseVelocityBinary(buffer, expectedElements) {
         const vy = view.getFloat32(offset, true);
         offset += 4;
         
+        const speed = Math.sqrt(vx * vx + vy * vy);
+        
         vel.push([vx, vy]);
-        abs_vel.push(Math.sqrt(vx * vx + vy * vy));
+        abs_vel.push(speed);
+        
+        if (speed < minSpeed) minSpeed = speed;
+        if (speed > maxSpeed) maxSpeed = speed;
     }
     
     console.log(`Parsed ${vel.length} velocity vectors`);
-    console.log(`   Speed range: [${Math.min(...abs_vel).toFixed(3)}, ${Math.max(...abs_vel).toFixed(3)}]`);
+    console.log(`   Speed range: [${minSpeed.toFixed(3)}, ${maxSpeed.toFixed(3)}]`);
     
     return { vel, abs_vel };
 }
