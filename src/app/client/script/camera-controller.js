@@ -161,8 +161,13 @@ export class CameraController {
      */
     setMeshExtruder(meshExtruder) {
         this.meshExtruder = meshExtruder;
-        this.mesh2D = meshExtruder.mesh2D;
-        this.mesh3D = meshExtruder.mesh3D;
+        if (meshExtruder) {
+            this.mesh2D = meshExtruder.mesh2D;
+            this.mesh3D = meshExtruder.mesh3D;
+        } else {
+            this.mesh2D = null;
+            this.mesh3D = null;
+        }
     }
     
     /**

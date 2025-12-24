@@ -174,11 +174,14 @@ export class MetricsDisplay {
         this.updateStatus('Idle');
         this.residualHistory = [];
         document.getElementById('metric-stage').textContent = '-';
+        document.getElementById('metric-nodes').textContent = '-';
+        document.getElementById('metric-elements').textContent = '-';
         document.getElementById('progress-bar').style.width = '0%';
         document.getElementById('progress-text').textContent = '0%';
         document.getElementById('metric-iteration').textContent = '-';
         document.getElementById('metric-residual').textContent = '-';
         document.getElementById('metric-etr').textContent = '-';
+        document.getElementById('metric-total-time').textContent = '-';
         if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }

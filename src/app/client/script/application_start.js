@@ -106,6 +106,57 @@ femClient.on('stage_start', (data) => {
 });
 
 // ============================================================================
+// Clear Scene - Called when starting a new solve
+// ============================================================================
+function clearScene() {
+    console.log('Clearing scene for new solve...');
+    
+    // Clear 2D mesh renderer
+    if (meshRenderer) {
+        meshRenderer.clear();
+    }
+    
+    // Dispose and clear 3D extruded mesh
+    if (meshExtruder) {
+        meshExtruder.dispose();
+        meshExtruder = null;
+        window.meshExtruder = null;
+    }
+    
+    // Stop and dispose particle flow
+    if (particleFlow) {
+        particleFlow.stop();
+        particleFlow.dispose();
+        particleFlow = null;
+        window.particleFlow = null;
+    }
+    
+    // Clear velocity data
+    velocityData = null;
+    window.velocityData = null;
+    
+    // Clear mesh data
+    window.currentMeshData = null;
+    
+    // Clear camera controller references
+    if (cameraController) {
+        cameraController.setMeshExtruder(null);
+        cameraController.setParticleFlow(null);
+    }
+    
+    // Render cleared scene
+    millimetricScene.render();
+}
+
+window.clearScene = clearScene;
+
+femClient.on('job_started', (data) => {
+    console.log('Job started:', data.job_id);
+    clearScene();
+    metricsDisplay.reset();
+});
+
+// ============================================================================
 // Mesh Loaded - Create 3D geometry EARLY (before solve)
 // ============================================================================
 femClient.on('mesh_loaded', async (data) => {
