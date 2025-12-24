@@ -9,6 +9,7 @@ Usage:
 """
 import sys
 import io
+import time
 from pathlib import Path
 
 # Add parent directories to Python path
@@ -102,6 +103,20 @@ async def join_room(sid, data):
         await sio.enter_room(sid, job_id)
         await sio.emit('joined', {'job_id': job_id}, room=sid)
         print(f"Client {sid} joined room {job_id}")
+        
+        # Check if we need to replay missed events for fast jobs
+        if job_id in jobs:
+            job = jobs[job_id]
+            
+            # Replay mesh_loaded if mesh was already loaded
+            if job.get('mesh_loaded_data'):
+                print(f"Replaying mesh_loaded for {job_id}")
+                await sio.emit('mesh_loaded', job['mesh_loaded_data'], room=sid)
+            
+            # Replay solve_complete if job already completed
+            if job['status'] == 'completed' and job.get('solve_complete_data'):
+                print(f"Replaying solve_complete for {job_id}")
+                await sio.emit('solve_complete', job['solve_complete_data'], room=sid)
 
 
 # ============================================================================
@@ -114,6 +129,24 @@ async def run_solver_task(job_id: str, params: dict):
         
         loop = asyncio.get_event_loop()
         callback = ProgressCallback(sio, job_id, loop)
+        
+        # Intercept on_mesh_loaded to store data for replay
+        original_on_mesh_loaded = callback.on_mesh_loaded
+        def on_mesh_loaded_with_store(nodes, elements, coordinates, connectivity):
+            # Store mesh_loaded data for replay if client joins late
+            mesh_loaded_data = {
+                'job_id': job_id,
+                'nodes': nodes,
+                'elements': elements,
+                'binary_url': f'/solve/{job_id}/mesh/binary',
+                'timestamp': time.time()
+            }
+            jobs[job_id]['mesh_loaded_data'] = mesh_loaded_data
+            jobs[job_id]['mesh_info'] = {'nodes': nodes, 'elements': elements}
+            # Call original callback
+            original_on_mesh_loaded(nodes, elements, coordinates, connectivity)
+        
+        callback.on_mesh_loaded = on_mesh_loaded_with_store
         
         wrapper = SolverWrapper(
             solver_type=params['solver_type'],
@@ -139,9 +172,21 @@ async def run_solver_task(job_id: str, params: dict):
         if pressure is not None and hasattr(pressure, 'get'):
             pressure = pressure.get()
         
-        # Update job with results FIRST
+        # Prepare solve_complete data
+        solve_complete_data = {
+            'job_id': job_id,
+            'converged': results['converged'],
+            'iterations': results['iterations'],
+            'timing_metrics': results['timing_metrics'],
+            'solution_stats': results['solution_stats'],
+            'mesh_info': results['mesh_info'],
+            'solution_url': f'/solve/{job_id}/solution/binary',
+        }
+        
+        # Update job with results FIRST (before emitting event)
         jobs[job_id].update({
             'status': 'completed',
+            'solve_complete_data': solve_complete_data,
             'results': {
                 'converged': results['converged'],
                 'iterations': results['iterations'],
@@ -158,15 +203,7 @@ async def run_solver_task(job_id: str, params: dict):
         print(f"Job {job_id} completed and stored successfully\n")
         
         # THEN emit solve_complete event
-        await sio.emit('solve_complete', {
-            'job_id': job_id,
-            'converged': results['converged'],
-            'iterations': results['iterations'],
-            'timing_metrics': results['timing_metrics'],
-            'solution_stats': results['solution_stats'],
-            'mesh_info': results['mesh_info'],
-            'solution_url': f'/solve/{job_id}/solution/binary',
-        }, room=job_id)
+        await sio.emit('solve_complete', solve_complete_data, room=job_id)
         
     except Exception as e:
         jobs[job_id]['status'] = 'failed'
@@ -242,7 +279,10 @@ async def start_solve(params: SolverParams):
         'status': 'queued',
         'params': params_dict,
         'results': None,
-        'error': None
+        'error': None,
+        'mesh_loaded_data': None,
+        'mesh_info': None,
+        'solve_complete_data': None
     }
     
     # Start solver task in background
@@ -392,7 +432,7 @@ async def get_solution_binary(job_id: str):
     # Extract solution array (might be NumPy or CuPy)
     solution = results['u']
     
-    # ← FIX: Handle CuPy arrays
+    # Handle CuPy arrays
     if hasattr(solution, 'get'):
         # CuPy array - transfer to CPU first
         solution = solution.get()
