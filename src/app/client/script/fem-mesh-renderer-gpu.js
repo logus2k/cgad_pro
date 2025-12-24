@@ -76,11 +76,16 @@ export class FEMMeshRendererGPU {
      * Incremental solution update (Called by solver during iterations)
      */
     updateSolutionIncremental(updateData) {
-        if (!this.meshObject) return;
-        const { solution_values, chunk_info } = updateData;
-        
-        // chunk_info typically contains the current global min/max for the colormap
-        this.#applyValuesToAttributes(solution_values, chunk_info.min, chunk_info.max);
+        if (!this.meshObject) {
+            console.warn('updateSolutionIncremental: meshObject not ready');
+            return;
+        }
+        if (!this.meshData) {
+            console.warn('updateSolutionIncremental: meshData not ready');
+            return;
+        }
+        console.log('updateSolutionIncremental: applying update');
+        // ... rest of method
     }
 
     /**

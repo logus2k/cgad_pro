@@ -13,7 +13,7 @@ import { CameraController } from '../script/camera-controller.js';
 // Configuration
 // ============================================================================
 const useGPU = true;               // Use GPU renderer (false = CPU)
-const use3DExtrusion = true;       // Enable 3D extrusion of mesh
+const use3DExtrusion = false;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
@@ -41,6 +41,9 @@ const meshRenderer = useGPU
 let meshExtruder = null;
 let particleFlow = null;
 let velocityData = null;
+
+// Queue for incremental updates that arrive before renderer is ready
+let pendingIncrements = [];
 
 // Camera controller for 2D/3D transitions
 let cameraController = null;
@@ -134,6 +137,9 @@ function clearScene() {
 
     // Reset meshExtruder promise
     resetMeshExtruderPromise();
+    
+    // Clear pending increments
+    pendingIncrements = [];
     
     // Clear 2D mesh renderer
     if (meshRenderer) {
@@ -244,7 +250,16 @@ femClient.on('mesh_loaded', async (data) => {
             // Resolve the promise for any waiting handlers
             if (resolveMeshExtruder) {
                 resolveMeshExtruder(meshExtruder);
-            }            
+            }
+            
+            // Apply any queued solution increments
+            if (pendingIncrements.length > 0) {
+                const latest = pendingIncrements[pendingIncrements.length - 1];
+                console.log(`Applying queued 3D increment from iter ${latest.iteration}`);
+                meshExtruder.updateSolutionIncremental(latest);
+                millimetricScene.render();
+                pendingIncrements = [];
+            }
             
         } catch (error) {
             console.error('Failed to create early geometry:', error);
@@ -254,6 +269,15 @@ femClient.on('mesh_loaded', async (data) => {
     else if (data.coordinates && data.connectivity) {
         meshRenderer.loadMesh(data);
         millimetricScene.render();
+        
+        // Apply any queued solution increments for 2D mode
+        if (pendingIncrements.length > 0) {
+            const latest = pendingIncrements[pendingIncrements.length - 1];
+            console.log(`Applying queued 2D increment from iter ${latest.iteration}`);
+            meshRenderer.updateSolutionIncremental(latest);
+            millimetricScene.render();
+            pendingIncrements = [];
+        }
     }
 });
 
@@ -270,20 +294,32 @@ femClient.on('solve_progress', (data) => {
 // Solution Increment - Update colors incrementally during solve
 // ============================================================================
 femClient.on('solution_increment', (data) => {
-    if (use3DExtrusion && meshExtruder) {
-        // Update 3D extruder colors incrementally
-        meshExtruder.updateSolutionIncremental(data);
-        millimetricScene.render();
-        
-        console.log(`3D color update: iter ${data.iteration}, ` +
-                    `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
-    } else if (!use3DExtrusion) {
-        // Standard 2D renderer update
-        meshRenderer.updateSolutionIncremental(data);
-        millimetricScene.render();
-        
-        console.log(`Solution update: iter ${data.iteration}, ` +
-                    `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+    if (use3DExtrusion) {
+        if (meshExtruder) {
+            // meshExtruder is ready - apply update directly
+            meshExtruder.updateSolutionIncremental(data);
+            millimetricScene.render();
+            
+            console.log(`3D color update: iter ${data.iteration}, ` +
+                        `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+        } else {
+            // Queue for later - keep only most recent
+            pendingIncrements = [data];
+            console.log(`Queued 3D increment iter ${data.iteration} (meshExtruder not ready)`);
+        }
+    } else {
+        if (meshRenderer.meshObject) {
+            // 2D renderer is ready - apply update directly
+            meshRenderer.updateSolutionIncremental(data);
+            millimetricScene.render();
+            
+            console.log(`Solution update: iter ${data.iteration}, ` +
+                        `range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
+        } else {
+            // Queue for later - keep only most recent
+            pendingIncrements = [data];
+            console.log(`Queued 2D increment iter ${data.iteration} (meshRenderer not ready)`);
+        }
     }
 });
 
@@ -375,11 +411,27 @@ femClient.on('solve_complete', async (data) => {
         }
     }
     // ========================================================================
-    // Standard 2D Mode
+    // Standard 2D Mode - Wait for meshRenderer to be ready
     // ========================================================================
-    else if (!use3DExtrusion) {
+    else {
+        // Wait for meshRenderer.meshObject to be ready
+        const maxWait = 60000; // 60 seconds max for large meshes
+        const startWait = Date.now();
+        
+        while (!meshRenderer.meshObject && (Date.now() - startWait) < maxWait) {
+            console.log('Waiting for meshRenderer...');
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        if (!meshRenderer.meshObject) {
+            console.error('Timeout waiting for meshRenderer');
+            return;
+        }
+        
+        console.log('meshRenderer ready');
         meshRenderer.updateSolution(solutionData);
         millimetricScene.render();
+        console.log('Final 2D colors applied');
     }
 });
 

@@ -14,6 +14,7 @@ export class FEMClient {
         });
         this.currentJobId = null;
         this.eventHandlers = {};
+        this.pendingMeshFetch = null;  // Track early mesh fetch
         
         this.setupConnectionHandlers();
     }
@@ -41,12 +42,29 @@ export class FEMClient {
             this.triggerEvent('stage_complete', data);
         });
         
-        // Mesh loaded - fetch binary
+        // Mesh loaded - use early fetch if available, otherwise fetch now
         this.socket.on('mesh_loaded', async (data) => {
             console.log(`Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
             
-            // Fetch binary mesh data
-            if (data.binary_url) {
+            // Check if we already have mesh data from early fetch
+            if (this.pendingMeshFetch) {
+                try {
+                    const meshData = await this.pendingMeshFetch;
+                    data.coordinates = meshData.coordinates;
+                    data.connectivity = meshData.connectivity;
+                    console.log('Using early-fetched mesh data');
+                } catch (error) {
+                    console.error('Early mesh fetch failed, retrying:', error);
+                    // Fallback to fetching now
+                    if (data.binary_url) {
+                        const meshData = await this.fetchBinaryMesh(data.binary_url);
+                        data.coordinates = meshData.coordinates;
+                        data.connectivity = meshData.connectivity;
+                    }
+                }
+                this.pendingMeshFetch = null;
+            } else if (data.binary_url) {
+                // No early fetch, fetch now
                 try {
                     const meshData = await this.fetchBinaryMesh(data.binary_url);
                     data.coordinates = meshData.coordinates;
@@ -222,6 +240,9 @@ export class FEMClient {
      * Start a new solve job
      */
     async startSolve(params) {
+        // Clear any pending mesh fetch from previous job
+        this.pendingMeshFetch = null;
+        
         const response = await fetch(`${this.serverUrl}${this.basePath}/solve`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -238,6 +259,11 @@ export class FEMClient {
         const join = () => {
             this.socket.emit('join_room', { job_id: data.job_id });
             console.log(`Joined room ${data.job_id}`);
+            
+            // Start mesh fetch immediately (don't await - let it run in parallel)
+            const meshUrl = `/solve/${data.job_id}/mesh/binary`;
+            console.log('Starting early mesh fetch...');
+            this.pendingMeshFetch = this.fetchBinaryMesh(meshUrl);
         };
 
         if (this.socket.connected) {

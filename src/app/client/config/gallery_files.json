@@ -43,28 +43,6 @@
 			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
-		},
-		{
-			"name": "Y-Shaped Tube (Medium)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
-			"file": "./mesh/y_tube1_195k.h5",
-			"nodes": 195853,
-			"elements": 46607,
-			"thumbnail": "./images/mesh/y_tube1_195k.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "Y-Shaped Tube (Large)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
-			"file": "./mesh/y_tube1_1_3m.h5",
-			"nodes": 1357953,
-			"elements": 338544,
-			"thumbnail": "./images/mesh/y_tube1_1_3m.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		}		
+		}
 	]
 }
