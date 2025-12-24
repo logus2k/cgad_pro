@@ -13,7 +13,7 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/src/app/server/fem_api_server.py",
             "console": "integratedTerminal"
         }
     ]

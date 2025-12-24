@@ -117,7 +117,7 @@ export class FEMClient {
      */
     async fetchBinaryMesh(url) {
         // url already includes basePath from server
-        const response = await fetch(`${this.serverUrl}${url}`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}${url}`);
         const buffer = await response.arrayBuffer();
         
         return this.parseBinaryMesh(buffer);

@@ -224,22 +224,32 @@ async def start_solve(params: SolverParams):
     # Generate unique job ID
     job_id = str(uuid.uuid4())
     
-    # Validate mesh file exists
+    # Resolve mesh file path
     mesh_path = Path(params.mesh_file)
+    
+    # If relative path, resolve against client/mesh directory
+    if not mesh_path.is_absolute():
+        base_dir = Path(__file__).parent.parent / "client" / "mesh"
+        mesh_path = base_dir / mesh_path.name
+    
     if not mesh_path.exists():
-        raise HTTPException(status_code=404, detail=f"Mesh file not found: {params.mesh_file}")
+        raise HTTPException(status_code=404, detail=f"Mesh file not found: {mesh_path}")
+    
+    # Update params with resolved path
+    params_dict = params.dict()
+    params_dict['mesh_file'] = str(mesh_path)
     
     # Create job record
     jobs[job_id] = {
         'job_id': job_id,
         'status': 'queued',
-        'params': params.dict(),
+        'params': params_dict,
         'results': None,
         'error': None
     }
     
     # Start solver task in background
-    asyncio.create_task(run_solver_task(job_id, params.dict()))
+    asyncio.create_task(run_solver_task(job_id, params_dict))
     
     return JobStatus(
         job_id=job_id,

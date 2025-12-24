@@ -3,7 +3,7 @@
 		{
 			"name": "Y-Shaped Tube (Small)",
 			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
-			"file": "./mesh/y_tube1_53.h5",
+			"file": "/mesh/y_tube1_53.h5",
 			"nodes": 202,
 			"elements": 53,
 			"thumbnail": "./images/mesh/y_tube1_53.png",
