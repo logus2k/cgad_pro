@@ -272,8 +272,8 @@ class MeshGallery {
     }
     
     close() {
-        if (this.gallery) {
-            this.gallery.style.display = 'none';
+        if (window.menuManager) {
+            window.menuManager.hidePanel('gallery');
         }
     }
     

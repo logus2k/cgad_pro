@@ -46,9 +46,20 @@ export class MenuManager {
     }
 
     // ------------------ public API ------------------
-    showPanel(name) { this.#setPanelDisplay(name, true); }
-    hidePanel(name) { this.#setPanelDisplay(name, false); }
-    hideAll() { this.cfg.panelIds.forEach(id => this.hidePanel(id)); }
+    showPanel(name) { 
+        this.#setPanelDisplay(name, true); 
+        this.#syncMenuBtn(name, true);
+    }
+
+    hidePanel(name) { 
+        this.#setPanelDisplay(name, false); 
+        this.#syncMenuBtn(name, false);
+    }
+    
+    hideAll() { 
+        this.cfg.panelIds.forEach(id => this.hidePanel(id)); 
+    }
+
     destroy() {
         this.moveables.forEach(m => m.destroy && m.destroy());
         this.moveables.clear();
