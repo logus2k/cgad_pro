@@ -80,6 +80,7 @@ html, body {
 	background-size: 100% calc(100% - var(--horizon-top) - 12px);
 	background-position: bottom;
 	background-repeat: no-repeat;
+    height: 100dvh;
 }
 
 /* HTML overlay layer */
