@@ -3,12 +3,14 @@
  */
 export class FEMClient {
 
-    constructor(serverUrl = window.location.origin) {
+    constructor(serverUrl = window.location.origin, basePath = '/fem') {
 
         this.serverUrl = serverUrl;
+        this.basePath = basePath;
+        
         const socketOrigin = new URL(serverUrl).origin;
         this.socket = io(socketOrigin, {
-            path: "/fem/socket.io",
+            path: `${basePath}/socket.io`,
         });
         this.currentJobId = null;
         this.eventHandlers = {};
@@ -19,29 +21,29 @@ export class FEMClient {
     setupConnectionHandlers() {
 
         this.socket.on('connect', () => {
-            console.log('✅ Connected to FEM server');
+            console.log('Connected to FEM server');
             this.triggerEvent('connected');
         });
         
         this.socket.on('disconnect', () => {
-            console.log('❌ Disconnected from FEM server');
+            console.log('Disconnected from FEM server');
             this.triggerEvent('disconnected');
         });
         
         // Stage events
         this.socket.on('stage_start', (data) => {
-            console.log(`📍 Stage started: ${data.stage}`);
+            console.log(`Stage started: ${data.stage}`);
             this.triggerEvent('stage_start', data);
         });
         
         this.socket.on('stage_complete', (data) => {
-            console.log(`✅ Stage complete: ${data.stage} (${data.duration.toFixed(2)}s)`);
+            console.log(`Stage complete: ${data.stage} (${data.duration.toFixed(2)}s)`);
             this.triggerEvent('stage_complete', data);
         });
         
         // Mesh loaded - fetch binary
         this.socket.on('mesh_loaded', async (data) => {
-            console.log(`📐 Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
+            console.log(`Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
             
             // Fetch binary mesh data
             if (data.binary_url) {
@@ -88,7 +90,7 @@ export class FEMClient {
         
         // Solve complete
         this.socket.on('solve_complete', async (data) => {
-            console.log(`🎉 Solve complete! Converged: ${data.converged}, Iterations: ${data.iterations}`);
+            console.log(`Solve complete! Converged: ${data.converged}, Iterations: ${data.iterations}`);
             
             // Fetch final solution binary
             if (data.solution_url) {
@@ -105,7 +107,7 @@ export class FEMClient {
         
         // Error
         this.socket.on('solve_error', (data) => {
-            console.error(`❌ Solver error at ${data.stage}:`, data.error);
+            console.error(`Solver error at ${data.stage}:`, data.error);
             this.triggerEvent('solve_error', data);
         });
     }
@@ -114,6 +116,7 @@ export class FEMClient {
      * Fetch binary mesh data
      */
     async fetchBinaryMesh(url) {
+        // url already includes basePath from server
         const response = await fetch(`${this.serverUrl}${url}`);
         const buffer = await response.arrayBuffer();
         
@@ -193,6 +196,7 @@ export class FEMClient {
      * Fetch binary solution data
      */
     async fetchBinarySolution(url) {
+        // url already includes basePath from server
         const response = await fetch(`${this.serverUrl}${url}`);
         const buffer = await response.arrayBuffer();
         
@@ -218,7 +222,7 @@ export class FEMClient {
      * Start a new solve job
      */
     async startSolve(params) {
-        const response = await fetch(`${this.serverUrl}/solve`, {
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(params)
@@ -233,7 +237,7 @@ export class FEMClient {
 
         const join = () => {
             this.socket.emit('join_room', { job_id: data.job_id });
-            console.log(`🔗 Joined room ${data.job_id}`);
+            console.log(`Joined room ${data.job_id}`);
         };
 
         if (this.socket.connected) {
@@ -242,7 +246,7 @@ export class FEMClient {
             this.socket.once('connect', join);
         }
 
-        console.log(`🚀 Job started: ${data.job_id}`);
+        console.log(`Job started: ${data.job_id}`);
         this.triggerEvent('job_started', data);
 
         return data;
@@ -252,7 +256,7 @@ export class FEMClient {
      * Get current job status
      */
     async getJobStatus(jobId) {
-        const response = await fetch(`${this.serverUrl}/solve/${jobId}/status`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve/${jobId}/status`);
         return response.json();
     }
     
@@ -260,7 +264,7 @@ export class FEMClient {
      * Get job results
      */
     async getJobResults(jobId) {
-        const response = await fetch(`${this.serverUrl}/solve/${jobId}/results`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve/${jobId}/results`);
         return response.json();
     }
     
@@ -268,7 +272,7 @@ export class FEMClient {
      * Get available meshes
      */
     async getMeshes() {
-        const response = await fetch(`${this.serverUrl}/meshes`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/meshes`);
         return response.json();
     }
     

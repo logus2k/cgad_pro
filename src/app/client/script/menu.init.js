@@ -15,3 +15,5 @@ const menuManager = new MenuManager({
 		about: false,
 	}
 });
+
+window.menuManager = menuManager;

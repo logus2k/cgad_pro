@@ -88,7 +88,7 @@ export class MenuManager {
             b.type = 'button';
             b.title = label;
             const i = document.createElement('span');
-            this.#getSVGIconByName(i, icon, label);
+            this.getSVGIconByName(i, icon, label);
             b.appendChild(i);
             b.addEventListener('click', () => {
                 const isVisible = this.#isPanelShown(id);
@@ -102,7 +102,7 @@ export class MenuManager {
         this.menuEl = wrap;
     }
 
-    async #getSVGIconByName(element, icon, alt) {
+    async getSVGIconByName(element, icon, alt) {
 
         const url = `./icons/${icon}.svg`;
 

@@ -29,7 +29,7 @@ millimetricScene.setBackgroundEnabled(false);
 // ============================================================================
 // Initialize FEM client and metrics display
 // ============================================================================
-const femClient = new FEMClient('https://logus2k.com/fem');
+const femClient = new FEMClient('https://logus2k.com');
 const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
 
 // Initialize mesh renderer (for 2D visualization fallback)

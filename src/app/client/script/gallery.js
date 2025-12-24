@@ -19,6 +19,14 @@ class MeshGallery {
         this.selectBtn = document.getElementById('selectBtn');
         this.cancelBtn = document.getElementById('cancelBtn');
         this.gallery = document.getElementById('hud-gallery');
+
+        // Clear existing text
+        prevBtn.textContent = '';
+        nextBtn.textContent = '';
+
+        // Load SVG icons
+        window.menuManager.getSVGIconByName(prevBtn, 'previous', 'Previous');
+        window.menuManager.getSVGIconByName(nextBtn, 'next', 'Next');        
         
         this.init();
     }
@@ -229,10 +237,18 @@ class MeshGallery {
         console.log('=== MESH SELECTION CONFIRMED ===');
         console.log('Name:', selected.name);
         console.log('File:', selected.file);
-        console.log('Nodes:', selected.nodes);
-        console.log('Elements:', selected.elements);
-        console.log('Description:', selected.description);
+        console.log('Solver:', selected.solver_type);
         console.log('================================');
+        
+        // Start the solver with the selected mesh
+        if (window.femClient) {
+            window.femClient.startSolve({
+                mesh_file: selected.file,
+                solver_type: selected.solver_type,
+                max_iterations: selected.max_iterations,
+                progress_interval: selected.progress_interval
+            });
+        }
         
         // Dispatch custom event for external listeners
         const event = new CustomEvent('meshSelected', {
