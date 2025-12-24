@@ -197,7 +197,7 @@ export class FEMClient {
      */
     async fetchBinarySolution(url) {
         // url already includes basePath from server
-        const response = await fetch(`${this.serverUrl}${url}`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}${url}`);
         const buffer = await response.arrayBuffer();
         
         const view = new DataView(buffer);
