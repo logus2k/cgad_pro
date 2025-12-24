@@ -18,7 +18,7 @@
 			"nodes": 195853,
 			"elements": 46607,
 			"thumbnail": "./images/mesh/y_tube1_195k.png",
-			"solver_type": "gpu",
+			"solver_type": "cpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},

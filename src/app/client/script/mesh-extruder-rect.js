@@ -6,7 +6,7 @@ import * as THREE from '../library/three.module.min.js';
  * Creates a hollow 3D tube by extruding only the BOUNDARY edges of the 2D mesh.
  * Inlet (xMin) and outlets (xMax) are left open for particle flow.
  * 
- * Supports incremental color updates during solve.
+ * Supports incremental color updates during solve with proper solution interpolation.
  */
 export class MeshExtruderRect {
     constructor(scene, meshData, solutionData = null, config = {}) {
@@ -30,7 +30,11 @@ export class MeshExtruderRect {
         
         // Boundary edge data (computed once, used for geometry and color updates)
         this.boundaryEdges = null;
-        this.wallNodeMap = null;  // Maps vertex index -> mesh node ID
+        this.wallNodeMap = null;
+        
+        // Solution interpolation mapping (MC vertex -> FEM element + local coords)
+        this.vertexElementMap = null;
+        this.elementGrid = null;
         
         // Calculate bounds
         this.bounds = this.calculateBounds();
@@ -47,9 +51,6 @@ export class MeshExtruderRect {
         console.log('MeshExtruderRect initialized');
     }
     
-    /**
-     * Calculate mesh bounds and Z extent
-     */
     calculateBounds() {
         const coords = this.meshData.coordinates;
         let xMin = Infinity, xMax = -Infinity;
@@ -78,10 +79,6 @@ export class MeshExtruderRect {
         };
     }
     
-    /**
-     * Build segment cache for rectangular SDF (same approach as cylindrical)
-     * For each X position, stores multiple Y segments (to handle bifurcation)
-     */
     buildYRangeCache() {
         const coords = this.meshData.coordinates;
         const conn = this.meshData.connectivity;
@@ -91,7 +88,7 @@ export class MeshExtruderRect {
         this.ySegmentCache = new Array(this.cacheResolution);
         
         const xRange = xMax - xMin;
-        const gapThreshold = 0.05;  // Minimum gap to consider separate segments
+        const gapThreshold = 0.05;
         
         console.log('   Building Y-segment cache for rectangular SDF...');
         
@@ -100,7 +97,6 @@ export class MeshExtruderRect {
             this.ySegmentCache[i] = this.computeYSegmentsAtX(x, coords, conn, gapThreshold);
         }
         
-        // Log segment info at a few X positions
         const midIdx = Math.floor(this.cacheResolution / 2);
         const endIdx = this.cacheResolution - 10;
         console.log(`   At inlet: ${this.ySegmentCache[10]?.length || 0} segments`);
@@ -108,14 +104,10 @@ export class MeshExtruderRect {
         console.log(`   At outlet: ${this.ySegmentCache[endIdx]?.length || 0} segments`);
     }
     
-    /**
-     * Compute Y segments at a given X position (same logic as cylindrical SDF)
-     */
     computeYSegmentsAtX(x, coords, conn, gapThreshold) {
         const yValues = [];
         const tolerance = 0.001;
         
-        // Find all elements that contain this X
         for (const elem of conn) {
             let elemXMin = Infinity, elemXMax = -Infinity;
             let elemYMin = Infinity, elemYMax = -Infinity;
@@ -138,20 +130,16 @@ export class MeshExtruderRect {
         
         if (yValues.length === 0) return null;
         
-        // Sort by Y min
         yValues.sort((a, b) => a.min - b.min);
         
-        // Merge overlapping ranges, but keep separate segments if gap > threshold
         const segments = [];
         let current = { ...yValues[0] };
         
         for (let i = 1; i < yValues.length; i++) {
             const next = yValues[i];
             if (next.min <= current.max + gapThreshold) {
-                // Overlapping or close - merge
                 current.max = Math.max(current.max, next.max);
             } else {
-                // Gap detected - save current and start new segment
                 segments.push({ yMin: current.min, yMax: current.max });
                 current = { ...next };
             }
@@ -161,9 +149,6 @@ export class MeshExtruderRect {
         return segments;
     }
     
-    /**
-     * Get Y segments at a given X position (from cache)
-     */
     getYSegmentsAtX(x) {
         const { xMin, xMax } = this.originalBounds;
         
@@ -177,15 +162,10 @@ export class MeshExtruderRect {
         return this.ySegmentCache[idx];
     }
     
-    /**
-     * Rectangular SDF with multiple Y segments (handles bifurcation)
-     * Returns distance to nearest wall, negative inside, positive outside
-     */
     rectangularSDF(x, y, z) {
         const { xMin, xMax } = this.originalBounds;
         const { zMin, zMax } = this.bounds;
         
-        // Outside X range
         if (x < xMin || x > xMax) {
             return 1.0;
         }
@@ -195,24 +175,19 @@ export class MeshExtruderRect {
             return 1.0;
         }
         
-        // Find the segment that contains this Y, or the closest one
         let minDist = Infinity;
         
         for (const seg of segments) {
             const { yMin, yMax } = seg;
             
-            // Distance to Y bounds of this segment
-            const dTop = y - yMax;      // positive when above
-            const dBottom = yMin - y;   // positive when below
-            const dY = Math.max(dTop, dBottom);  // positive when outside Y range
+            const dTop = y - yMax;
+            const dBottom = yMin - y;
+            const dY = Math.max(dTop, dBottom);
             
-            // Distance to Z bounds
             const dFront = z - zMax;
             const dBack = zMin - z;
-            const dZ = Math.max(dFront, dBack);  // positive when outside Z range
+            const dZ = Math.max(dFront, dBack);
             
-            // If inside both Y and Z bounds, return max (closest wall, negative)
-            // If outside, return positive distance
             const dist = Math.max(dY, dZ);
             
             if (dist < minDist) {
@@ -224,11 +199,180 @@ export class MeshExtruderRect {
     }
     
     // =========================================================================
+    // Spatial Index for FEM Elements (for solution interpolation)
+    // =========================================================================
+    
+    buildElementGrid() {
+        const coords = this.meshData.coordinates;
+        const conn = this.meshData.connectivity;
+        const { xMin, xMax, yMin, yMax } = this.originalBounds;
+        
+        const gridResX = 50;
+        const gridResY = 50;
+        
+        const xRange = xMax - xMin;
+        const yRange = yMax - yMin;
+        const cellWidth = xRange / gridResX;
+        const cellHeight = yRange / gridResY;
+        
+        this.elementGrid = {
+            resX: gridResX,
+            resY: gridResY,
+            xMin, xMax, yMin, yMax,
+            cellWidth, cellHeight,
+            cells: new Array(gridResX * gridResY).fill(null).map(() => [])
+        };
+        
+        console.log(`   Building element grid (${gridResX}x${gridResY})...`);
+        
+        for (let elemIdx = 0; elemIdx < conn.length; elemIdx++) {
+            const elem = conn[elemIdx];
+            
+            let elemXMin = Infinity, elemXMax = -Infinity;
+            let elemYMin = Infinity, elemYMax = -Infinity;
+            
+            for (let i = 0; i < 8; i++) {
+                const nodeId = elem[i];
+                const nx = coords.x[nodeId];
+                const ny = coords.y[nodeId];
+                
+                if (nx < elemXMin) elemXMin = nx;
+                if (nx > elemXMax) elemXMax = nx;
+                if (ny < elemYMin) elemYMin = ny;
+                if (ny > elemYMax) elemYMax = ny;
+            }
+            
+            const iMin = Math.max(0, Math.floor((elemXMin - xMin) / cellWidth));
+            const iMax = Math.min(gridResX - 1, Math.floor((elemXMax - xMin) / cellWidth));
+            const jMin = Math.max(0, Math.floor((elemYMin - yMin) / cellHeight));
+            const jMax = Math.min(gridResY - 1, Math.floor((elemYMax - yMin) / cellHeight));
+            
+            for (let i = iMin; i <= iMax; i++) {
+                for (let j = jMin; j <= jMax; j++) {
+                    this.elementGrid.cells[j * gridResX + i].push(elemIdx);
+                }
+            }
+        }
+        
+        let maxPerCell = 0, totalEntries = 0;
+        for (const cell of this.elementGrid.cells) {
+            if (cell.length > maxPerCell) maxPerCell = cell.length;
+            totalEntries += cell.length;
+        }
+        console.log(`   Element grid built: max ${maxPerCell} elements/cell, avg ${(totalEntries / this.elementGrid.cells.length).toFixed(1)}`);
+    }
+    
+    findContainingElement(x, y) {
+        if (!this.elementGrid) return null;
+        
+        const { resX, resY, xMin, yMin, cellWidth, cellHeight, cells } = this.elementGrid;
+        const coords = this.meshData.coordinates;
+        const conn = this.meshData.connectivity;
+        
+        const i = Math.floor((x - xMin) / cellWidth);
+        const j = Math.floor((y - yMin) / cellHeight);
+        
+        if (i < 0 || i >= resX || j < 0 || j >= resY) return null;
+        
+        const cellElements = cells[j * resX + i];
+        
+        for (const elemIdx of cellElements) {
+            const elem = conn[elemIdx];
+            
+            const x0 = coords.x[elem[0]], y0 = coords.y[elem[0]];
+            const x2 = coords.x[elem[2]], y2 = coords.y[elem[2]];
+            const x4 = coords.x[elem[4]], y4 = coords.y[elem[4]];
+            const x6 = coords.x[elem[6]], y6 = coords.y[elem[6]];
+            
+            const bxMin = Math.min(x0, x2, x4, x6);
+            const bxMax = Math.max(x0, x2, x4, x6);
+            const byMin = Math.min(y0, y2, y4, y6);
+            const byMax = Math.max(y0, y2, y4, y6);
+            
+            if (x < bxMin || x > bxMax || y < byMin || y > byMax) continue;
+            
+            const xi = 2 * (x - (bxMin + bxMax) / 2) / (bxMax - bxMin);
+            const eta = 2 * (y - (byMin + byMax) / 2) / (byMax - byMin);
+            
+            if (xi >= -1.1 && xi <= 1.1 && eta >= -1.1 && eta <= 1.1) {
+                return { 
+                    elemIdx, 
+                    xi: Math.max(-1, Math.min(1, xi)), 
+                    eta: Math.max(-1, Math.min(1, eta)) 
+                };
+            }
+        }
+        
+        return null;
+    }
+    
+    quad8ShapeFunctions(xi, eta) {
+        const xi2 = xi * xi;
+        const eta2 = eta * eta;
+        
+        const N0 = 0.25 * (1 - xi) * (1 - eta) * (-xi - eta - 1);
+        const N2 = 0.25 * (1 + xi) * (1 - eta) * (xi - eta - 1);
+        const N4 = 0.25 * (1 + xi) * (1 + eta) * (xi + eta - 1);
+        const N6 = 0.25 * (1 - xi) * (1 + eta) * (-xi + eta - 1);
+        
+        const N1 = 0.5 * (1 - xi2) * (1 - eta);
+        const N3 = 0.5 * (1 + xi) * (1 - eta2);
+        const N5 = 0.5 * (1 - xi2) * (1 + eta);
+        const N7 = 0.5 * (1 - xi) * (1 - eta2);
+        
+        return [N0, N1, N2, N3, N4, N5, N6, N7];
+    }
+    
+    interpolateSolution(elemIdx, xi, eta, solutionValues) {
+        const elem = this.meshData.connectivity[elemIdx];
+        const N = this.quad8ShapeFunctions(xi, eta);
+        
+        let value = 0;
+        for (let i = 0; i < 8; i++) {
+            const nodeId = elem[i];
+            value += N[i] * (solutionValues[nodeId] || 0);
+        }
+        
+        return value;
+    }
+    
+    buildVertexElementMapping(positions) {
+        if (!this.elementGrid) {
+            this.buildElementGrid();
+        }
+        
+        const vertexCount = positions.count;
+        this.vertexElementMap = new Array(vertexCount);
+        
+        let mapped = 0, unmapped = 0;
+        
+        console.log(`   Building vertex-element mapping for ${vertexCount} vertices...`);
+        
+        for (let i = 0; i < vertexCount; i++) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            
+            const result = this.findContainingElement(x, y);
+            
+            if (result) {
+                this.vertexElementMap[i] = result;
+                mapped++;
+            } else {
+                this.vertexElementMap[i] = null;
+                unmapped++;
+            }
+        }
+        
+        console.log(`   Vertex mapping: ${mapped} mapped, ${unmapped} unmapped (${(100 * mapped / vertexCount).toFixed(1)}%)`);
+    }
+    
+    // =========================================================================
     // Geometry Creation
     // =========================================================================
     
     createGeometryOnly() {
         this.buildYRangeCache();
+        this.buildElementGrid();
         this.create2DGeometry();
         this.create3DGeometry();
         this.geometryCreated = true;
@@ -272,7 +416,6 @@ export class MeshExtruderRect {
         
         const { xMin, xMax, yMin, yMax, zMin, zMax } = this.bounds;
         
-        // Add margin for marching cubes
         const margin = 0.05;
         const xRange = xMax - xMin;
         const yRange = yMax - yMin;
@@ -291,7 +434,6 @@ export class MeshExtruderRect {
         const mcYRange = mcBounds.yMax - mcBounds.yMin;
         const mcZRange = mcBounds.zMax - mcBounds.zMin;
         
-        // Resolution for marching cubes
         const resX = 120;
         const resY = 80;
         const resZ = 80;
@@ -316,7 +458,6 @@ export class MeshExtruderRect {
         
         const geometry = new THREE.BufferGeometry();
         
-        // Convert positions from grid coords to world coords
         const positions = new Float32Array(result.positions.length * 3);
         for (let i = 0; i < result.positions.length; i++) {
             const [gx, gy, gz] = result.positions[i];
@@ -325,7 +466,6 @@ export class MeshExtruderRect {
             positions[i * 3 + 2] = mcBounds.zMin + (gz / resZ) * mcZRange;
         }
         
-        // Convert indices
         let indices = new Uint32Array(result.cells.length * 3);
         for (let i = 0; i < result.cells.length; i++) {
             indices[i * 3 + 0] = result.cells[i][0];
@@ -333,10 +473,6 @@ export class MeshExtruderRect {
             indices[i * 3 + 2] = result.cells[i][2];
         }
         
-        // =====================================================================
-        // Correct MC geometry bounds BEFORE removing end caps
-        // MC produces geometry slightly smaller than intended bounds
-        // =====================================================================
         let geoXMin = Infinity, geoXMax = -Infinity;
         let geoYMin = Infinity, geoYMax = -Infinity;
         for (let i = 0; i < positions.length; i += 3) {
@@ -355,7 +491,6 @@ export class MeshExtruderRect {
         const scaleCorrectX = intendedWidth / geoWidth;
         const scaleCorrectY = intendedHeight / geoHeight;
         
-        // Stretch vertices to match intended bounds
         for (let i = 0; i < positions.length; i += 3) {
             positions[i] = origBounds.xMin + (positions[i] - geoXMin) * scaleCorrectX;
             positions[i + 1] = origBounds.yMin + (positions[i + 1] - geoYMin) * scaleCorrectY;
@@ -363,15 +498,13 @@ export class MeshExtruderRect {
         
         console.log(`   MC bounds correction: X[${geoXMin.toFixed(4)}, ${geoXMax.toFixed(4)}] -> [${origBounds.xMin}, ${origBounds.xMax}]`);
         
-        // Remove end caps (inlet and outlet) - AFTER bounds correction
         indices = this.removeEndCaps(positions, indices);
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setIndex(new THREE.BufferAttribute(indices, 1));
         geometry.computeVertexNormals();
         
-        // Apply colors based on X position (gradient like SDF does)
-        this.addGradientColors(geometry);
+        this.applyNeutralColors(geometry);
         
         const material = new THREE.MeshBasicMaterial({
             vertexColors: true,
@@ -388,17 +521,13 @@ export class MeshExtruderRect {
         
         console.log(`   Created ${result.positions.length} vertices, ${indices.length / 3} triangles`);
         console.log('3D rectangular tube created');
+        
+        this.buildVertexElementMapping(geometry.attributes.position);
     }
     
-    /**
-     * Remove triangles at inlet (xMin) and outlet (xMax)
-     * Detects flat end cap faces by checking if triangle is perpendicular to X axis
-     */
     removeEndCaps(positions, indices) {
         const { xMin, xMax } = this.originalBounds;
-        // Distance from boundary to consider as "at the end"
         const endDistance = 0.02;
-        // Max X spread within a triangle to be considered a flat cap
         const flatThreshold = 0.01;
         
         const newIndices = [];
@@ -413,11 +542,9 @@ export class MeshExtruderRect {
             const x1 = positions[i1 * 3 + 0];
             const x2 = positions[i2 * 3 + 0];
             
-            // Check if triangle is flat (all vertices have similar X)
             const xSpread = Math.max(x0, x1, x2) - Math.min(x0, x1, x2);
             const isFlat = xSpread < flatThreshold;
             
-            // Check if at inlet or outlet
             const avgX = (x0 + x1 + x2) / 3;
             const atInlet = avgX < xMin + endDistance && isFlat;
             const atOutlet = avgX > xMax - endDistance && isFlat;
@@ -436,9 +563,6 @@ export class MeshExtruderRect {
         return new Uint32Array(newIndices);
     }
     
-    /**
-     * Load isosurface library (same as SDF version)
-     */
     async loadIsosurface() {
         if (window.isosurface) {
             return window.isosurface;
@@ -449,9 +573,6 @@ export class MeshExtruderRect {
         return module;
     }
     
-    /**
-     * Add gradient colors based on X position
-     */
     addGradientColors(geometry) {
         const positions = geometry.attributes.position;
         const colors = new Float32Array(positions.count * 3);
@@ -462,7 +583,7 @@ export class MeshExtruderRect {
         for (let i = 0; i < positions.count; i++) {
             const x = positions.getX(i);
             const t = (x - xMin) / xRange;
-            const color = this.valueToColor(1 - t);  // Red at inlet, blue at outlet
+            const color = this.valueToColor(1 - t);
             
             colors[i * 3 + 0] = color.r;
             colors[i * 3 + 1] = color.g;
@@ -477,16 +598,16 @@ export class MeshExtruderRect {
         const colors = new Float32Array(positions.count * 3);
         
         for (let i = 0; i < positions.count; i++) {
-            colors[i * 3 + 0] = 0.75;
-            colors[i * 3 + 1] = 0.75;
-            colors[i * 3 + 2] = 0.75;
+            colors[i * 3 + 0] = 0.6;
+            colors[i * 3 + 1] = 0.6;
+            colors[i * 3 + 2] = 0.7;
         }
         
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
     
     // =========================================================================
-    // Color Updates (O(n) using wallNodeMap)
+    // Color Updates with Solution Interpolation
     // =========================================================================
     
     updateSolutionColors(solutionData) {
@@ -547,10 +668,6 @@ export class MeshExtruderRect {
         geometry.attributes.color.needsUpdate = true;
     }
     
-    /**
-     * Update 3D colors - for SDF geometry, use X-position based gradient
-     * (matching the solution gradient from inlet to outlet)
-     */
     updateMesh3DColors() {
         if (!this.mesh3D || !this.solutionData) return;
         
@@ -560,14 +677,24 @@ export class MeshExtruderRect {
         
         const { xMin, xMax } = this.originalBounds;
         const xRange = xMax - xMin;
+        const values = this.solutionData.values;
         const [min, max] = this.solutionData.range;
         
-        // For SDF geometry, color based on X position (approximates solution)
+        const hasMapping = this.vertexElementMap && this.vertexElementMap.length === positions.count;
+        
         for (let i = 0; i < positions.count; i++) {
-            const x = positions.getX(i);
-            const t = (x - xMin) / xRange;
-            // Map X position to solution range (inlet=high, outlet=low)
-            const normalized = 1 - t;
+            let value;
+            
+            if (hasMapping && this.vertexElementMap[i]) {
+                const { elemIdx, xi, eta } = this.vertexElementMap[i];
+                value = this.interpolateSolution(elemIdx, xi, eta, values);
+            } else {
+                const x = positions.getX(i);
+                const t = (x - xMin) / xRange;
+                value = max * (1 - t) + min * t;
+            }
+            
+            const normalized = (max > min) ? (value - min) / (max - min) : 0.5;
             const color = this.valueToColor(normalized);
             
             colors[i * 3 + 0] = color.r;
@@ -597,10 +724,6 @@ export class MeshExtruderRect {
         this.create3DExtrusion();
         this.geometryCreated = true;
     }
-    
-    // =========================================================================
-    // 2D Geometry (unchanged - full mesh for reference)
-    // =========================================================================
     
     createQuad8Geometry2D() {
         const coords = this.meshData.coordinates;
@@ -636,10 +759,6 @@ export class MeshExtruderRect {
         return geometry;
     }
     
-    // =========================================================================
-    // Helpers
-    // =========================================================================
-    
     valueToColor(t) {
         t = Math.max(0, Math.min(1, t));
         let r, g, b;
@@ -662,7 +781,6 @@ export class MeshExtruderRect {
     }
     
     fitMeshToView(mesh) {
-        // Use originalBounds for XY (exact FEM bounds) and bounds for Z
         const { xMin, xMax, yMin, yMax } = this.originalBounds;
         const { zMin, zMax } = this.bounds;
         
@@ -673,7 +791,6 @@ export class MeshExtruderRect {
         const targetSize = 50;
         const scale = targetSize / maxXY;
         
-        // Store scale for camera controller
         this.scale = scale;
         
         mesh.scale.set(scale, scale, scale);
@@ -683,10 +800,6 @@ export class MeshExtruderRect {
         
         mesh.position.set(-centerX * scale, -yMin * scale, -centerZ * scale);
     }
-    
-    // =========================================================================
-    // Visibility Controls
-    // =========================================================================
     
     set2DMeshVisible(visible) {
         this.config.show2DMesh = visible;
@@ -715,12 +828,7 @@ export class MeshExtruderRect {
         }
     }
     
-    // =========================================================================
-    // Particle Flow Compatibility
-    // =========================================================================
-    
     getYSegmentsAtXCached(x) {
-        // Use the segment cache we built (same as getYSegmentsAtX)
         return this.getYSegmentsAtX(x);
     }
     
@@ -734,10 +842,6 @@ export class MeshExtruderRect {
         );
     }
     
-    // =========================================================================
-    // Cleanup
-    // =========================================================================
-    
     dispose() {
         this.scene.remove(this.group);
         
@@ -750,11 +854,10 @@ export class MeshExtruderRect {
             this.mesh3D.geometry.dispose();
             this.mesh3D.material.dispose();
         }
+        
+        this.vertexElementMap = null;
+        this.elementGrid = null;
     }
-    
-    // =========================================================================
-    // Real-time Appearance Controls
-    // =========================================================================
     
     setBrightness(value) {
         const v = Math.max(0, Math.min(1, value));
@@ -783,4 +886,3 @@ export class MeshExtruderRect {
         };
     }
 }
-

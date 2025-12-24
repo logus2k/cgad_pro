@@ -1,7 +1,12 @@
 /**
  * Mesh Gallery Carousel
  * Handles carousel navigation, item selection, and model loading
+ * 
+ * Now includes mesh preloading - starts loading mesh data when user
+ * selects an item (before confirming), so geometry is ready faster.
  */
+
+import { meshLoader } from './mesh-loader.js';
 
 class MeshGallery {
     constructor(options = {}) {
@@ -10,6 +15,10 @@ class MeshGallery {
         this.meshes = [];
         this.currentIndex = 0;
         this.selectedIndex = 0;
+        
+        // Preloaded mesh data (ready before solve starts)
+        this.preloadedMeshData = null;
+        this.preloadingUrl = null;
         
         // DOM elements
         this.track = document.getElementById('carouselTrack');
@@ -21,12 +30,17 @@ class MeshGallery {
         this.gallery = document.getElementById('hud-gallery');
 
         // Clear existing text
-        prevBtn.textContent = '';
-        nextBtn.textContent = '';
+        this.prevBtn.textContent = '';
+        this.nextBtn.textContent = '';
 
         // Load SVG icons
-        window.menuManager.getSVGIconByName(prevBtn, 'previous', 'Previous');
-        window.menuManager.getSVGIconByName(nextBtn, 'next', 'Next');        
+        window.menuManager.getSVGIconByName(this.prevBtn, 'previous', 'Previous');
+        window.menuManager.getSVGIconByName(this.nextBtn, 'next', 'Next');        
+        
+        // Set up mesh loader progress callback
+        meshLoader.setProgressCallback((stage, progress) => {
+            this.onMeshLoadProgress(stage, progress);
+        });
         
         this.init();
     }
@@ -67,6 +81,10 @@ class MeshGallery {
                 <div class="model-image-container">
                     <img class="model-image" src="${mesh.thumbnail}" alt="${mesh.name}" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22><rect fill=%22%23f0f0f0%22 width=%22200%22 height=%22150%22/><text x=%22100%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2214%22>No Preview</text></svg>'">
+                    <div class="preload-indicator" style="display: none;">
+                        <div class="preload-spinner"></div>
+                        <span class="preload-text">Loading mesh...</span>
+                    </div>
                 </div>
                 <div class="model-name">${mesh.name}</div>
                 <div class="model-description">${mesh.description}</div>
@@ -207,6 +225,49 @@ class MeshGallery {
         }
     }
     
+    /**
+     * Handle mesh load progress updates
+     */
+    onMeshLoadProgress(stage, progress) {
+        const item = this.track?.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
+        if (!item) return;
+        
+        const indicator = item.querySelector('.preload-indicator');
+        const text = item.querySelector('.preload-text');
+        
+        if (!indicator) return;
+        
+        switch (stage) {
+            case 'init_h5wasm':
+                indicator.style.display = 'flex';
+                text.textContent = 'Initializing...';
+                break;
+            case 'downloading':
+                indicator.style.display = 'flex';
+                if (progress !== null) {
+                    text.textContent = `Downloading ${Math.round(progress * 100)}%`;
+                } else {
+                    text.textContent = 'Downloading...';
+                }
+                break;
+            case 'parsing':
+                text.textContent = 'Parsing HDF5...';
+                break;
+            case 'complete':
+                indicator.style.display = 'none';
+                // Add a "ready" indicator
+                item.classList.add('mesh-ready');
+                break;
+            case 'error':
+                indicator.style.display = 'none';
+                item.classList.add('mesh-error');
+                break;
+        }
+    }
+    
+    /**
+     * Select an item and start preloading its mesh
+     */
     selectItem(index) {
         if (index < 0 || index >= this.meshes.length) return;
         
@@ -216,6 +277,10 @@ class MeshGallery {
         const items = this.track.querySelectorAll('.carousel-item');
         items.forEach((item, i) => {
             item.classList.toggle('selected-indicator', i === index);
+            // Reset preload indicators
+            item.classList.remove('mesh-ready', 'mesh-error');
+            const indicator = item.querySelector('.preload-indicator');
+            if (indicator) indicator.style.display = 'none';
         });
         
         // Ensure selected item is visible
@@ -224,43 +289,113 @@ class MeshGallery {
             this.goToPage(page);
         }
         
-        console.log(`Selected: ${this.meshes[index].name}`);
+        const mesh = this.meshes[index];
+        console.log(`Selected: ${mesh.name}`);
+        
+        // Start preloading mesh data immediately
+        this.preloadMesh(mesh);
     }
     
-    confirmSelection() {
+    /**
+     * Preload mesh data (non-blocking)
+     */
+    async preloadMesh(mesh) {
+        const meshUrl = mesh.file;
+        
+        // Skip if already preloading this mesh
+        if (this.preloadingUrl === meshUrl) {
+            return;
+        }
+        
+        // Skip if already cached
+        if (meshLoader.isCached(meshUrl)) {
+            console.log(`Mesh already cached: ${mesh.name}`);
+            this.preloadedMeshData = meshLoader.getCached(meshUrl);
+            
+            // Show ready indicator
+            const item = this.track?.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
+            if (item) item.classList.add('mesh-ready');
+            return;
+        }
+        
+        this.preloadingUrl = meshUrl;
+        this.preloadedMeshData = null;
+        
+        try {
+            console.log(`Preloading mesh: ${mesh.name} (${meshUrl})`);
+            const meshData = await meshLoader.preload(meshUrl);
+            
+            // Only store if still the selected mesh
+            if (this.meshes[this.selectedIndex]?.file === meshUrl) {
+                this.preloadedMeshData = meshData;
+                console.log(`Mesh preloaded and ready: ${mesh.name}`);
+            }
+        } catch (error) {
+            console.error(`Failed to preload mesh: ${mesh.name}`, error);
+            this.preloadedMeshData = null;
+        } finally {
+            if (this.preloadingUrl === meshUrl) {
+                this.preloadingUrl = null;
+            }
+        }
+    }
+    
+    /**
+     * Confirm selection and dispatch event with preloaded mesh data
+     */
+    async confirmSelection() {
         const selected = this.meshes[this.selectedIndex];
         if (!selected) {
             console.warn('No mesh selected');
             return;
         }
         
+        // Determine solver type based on mesh size
+        const solverType = selected.elements > 10000 ? 'gpu' : 'gpu';
+        
         console.log('=== MESH SELECTION CONFIRMED ===');
         console.log('Name:', selected.name);
         console.log('File:', selected.file);
-        console.log('Solver:', selected.solver_type);
+        console.log('Solver:', solverType);
         console.log('================================');
         
-        // Start the solver with the selected mesh
-        if (window.femClient) {
-            window.femClient.startSolve({
-                mesh_file: selected.file,
-                solver_type: selected.solver_type,
-                max_iterations: selected.max_iterations,
-                progress_interval: selected.progress_interval
-            });
+        // Close gallery immediately for better UX
+        this.close();
+        
+        // Wait for mesh preload if still in progress
+        let meshData = this.preloadedMeshData;
+        if (!meshData && this.preloadingUrl === selected.file) {
+            console.log('Waiting for mesh preload to complete...');
+            try {
+                meshData = await meshLoader.load(selected.file);
+                this.preloadedMeshData = meshData;
+            } catch (error) {
+                console.error('Mesh preload failed:', error);
+            }
         }
         
-        // Dispatch custom event for external listeners
+        // Dispatch event with preloaded data for immediate geometry creation
         const event = new CustomEvent('meshSelected', {
             detail: {
                 mesh: selected,
-                index: this.selectedIndex
+                index: this.selectedIndex,
+                preloadedData: meshData,  // May be null if preload failed
+                meshLoader: meshLoader
             }
         });
         document.dispatchEvent(event);
         
-        // Close gallery after selection
-        this.close();
+        // Start the solver (uses existing femClient from window)
+        if (window.femClient) {
+            window.femClient.startSolve({
+                mesh_file: selected.file,
+                solver_type: solverType,
+                max_iterations: 50000,
+                progress_interval: 100
+            });
+        } else {
+            console.error('femClient not found on window');
+        }
     }
     
     // Public methods for external control
@@ -272,8 +407,8 @@ class MeshGallery {
     }
     
     close() {
-        if (window.menuManager) {
-            window.menuManager.hidePanel('gallery');
+        if (this.gallery) {
+            this.gallery.style.display = 'none';
         }
     }
     
@@ -292,6 +427,20 @@ class MeshGallery {
     getSelectedMesh() {
         return this.meshes[this.selectedIndex] || null;
     }
+    
+    /**
+     * Get preloaded mesh data (if available)
+     */
+    getPreloadedMeshData() {
+        return this.preloadedMeshData;
+    }
+    
+    /**
+     * Check if mesh is ready (preloaded)
+     */
+    isMeshReady() {
+        return this.preloadedMeshData !== null;
+    }
 }
 
 // Initialize gallery when DOM is ready
@@ -305,9 +454,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Expose to window for console access
     window.meshGallery = meshGallery;
+    window.meshLoader = meshLoader;
 });
 
 // Console helper functions
 window.openGallery = () => meshGallery?.open();
 window.closeGallery = () => meshGallery?.close();
 window.toggleGallery = () => meshGallery?.toggle();
+
+export { MeshGallery, meshGallery };

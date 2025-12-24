@@ -13,7 +13,7 @@ import { CameraController } from '../script/camera-controller.js';
 // Configuration
 // ============================================================================
 const useGPU = true;               // Use GPU renderer (false = CPU)
-const use3DExtrusion = false;       // Enable 3D extrusion of mesh
+const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
@@ -180,14 +180,123 @@ function clearScene() {
 
 window.clearScene = clearScene;
 
-femClient.on('job_started', (data) => {
-    console.log('Job started:', data.job_id);
+// ============================================================================
+// Mesh Selected - Create geometry IMMEDIATELY from preloaded data
+// This runs BEFORE job_started, so geometry is ready for progressive updates
+// ============================================================================
+document.addEventListener('meshSelected', async (event) => {
+    const { mesh, preloadedData, meshLoader } = event.detail;
+    
+    console.log('Mesh selected:', mesh.name);
+    console.log('Preloaded data available:', preloadedData ? 'Yes' : 'No');
+    
+    // Clear scene for new mesh
     clearScene();
     metricsDisplay.reset();
+    metricsDisplay.updateStatus('Loading mesh...');
+    
+    // Get mesh data - either preloaded or wait for it
+    let meshData = preloadedData;
+    
+    if (!meshData && meshLoader) {
+        console.log('Waiting for mesh data...');
+        try {
+            meshData = await meshLoader.load(mesh.file);
+        } catch (error) {
+            console.error('Failed to load mesh:', error);
+            metricsDisplay.updateStatus('Mesh load failed');
+            return;
+        }
+    }
+    
+    if (!meshData) {
+        console.warn('No mesh data available, geometry will be created when mesh_loaded event arrives');
+        return;
+    }
+    
+    // Create geometry immediately with preloaded data
+    metricsDisplay.updateMesh(meshData.nodes, meshData.elements);
+    metricsDisplay.updateStatus('Creating geometry...');
+    
+    // Store mesh data for later use
+    window.currentMeshData = meshData;
+    
+    // Create geometry based on mode
+    if (use3DExtrusion) {
+        console.log(`Creating ${extrusionType} geometry from preloaded data...`);
+        
+        try {
+            if (extrusionType === 'cylindrical') {
+                meshExtruder = new MeshExtruderSDF(
+                    millimetricScene.getScene(),
+                    meshData,
+                    null,  // No solution yet - will show skeleton
+                    {
+                        show2DMesh: false,
+                        show3DExtrusion: true,
+                        tubeOpacity: 0.8
+                    }
+                );
+                await meshExtruder.createGeometryOnly();
+            } else {
+                meshExtruder = new MeshExtruderRect(
+                    millimetricScene.getScene(),
+                    meshData,
+                    null,  // No solution yet - will show skeleton
+                    {
+                        show2DMesh: false,
+                        show3DExtrusion: true,
+                        zFactor: 1.0,
+                        extrusionOpacity: 0.8
+                    }
+                );
+                meshExtruder.createGeometryOnly();
+            }
+            
+            window.meshExtruder = meshExtruder;
+            
+            // Register with camera controller
+            if (cameraController) {
+                cameraController.setMeshExtruder(meshExtruder);
+            }
+            
+            millimetricScene.render();
+            
+            console.log('3D geometry created from preloaded data (awaiting solution)');
+            
+            // Resolve promise for any handlers waiting for meshExtruder
+            if (resolveMeshExtruder) {
+                resolveMeshExtruder(meshExtruder);
+            }
+            
+            metricsDisplay.updateStatus('Awaiting solver...');
+            
+        } catch (error) {
+            console.error('Failed to create geometry from preloaded data:', error);
+            metricsDisplay.updateStatus('Geometry creation failed');
+        }
+    } else {
+        // 2D mode
+        console.log('Creating 2D mesh from preloaded data...');
+        meshRenderer.loadMesh(meshData);
+        millimetricScene.render();
+        console.log('2D mesh created from preloaded data');
+        metricsDisplay.updateStatus('Awaiting solver...');
+    }
+});
+
+femClient.on('job_started', (data) => {
+    console.log('Job started:', data.job_id);
+    // Don't clear scene here - meshSelected already did it
+    // Only reset metrics if geometry wasn't preloaded
+    if (!meshExtruder && !meshRenderer.meshObject) {
+        clearScene();
+    }
+    metricsDisplay.updateStatus('Running');
 });
 
 // ============================================================================
-// Mesh Loaded - Create 3D geometry EARLY (before solve)
+// Mesh Loaded - Create 3D geometry (fallback if not preloaded)
 // ============================================================================
 femClient.on('mesh_loaded', async (data) => {
     metricsDisplay.updateMesh(data.nodes, data.elements);
@@ -196,10 +305,41 @@ femClient.on('mesh_loaded', async (data) => {
     window.currentMeshData = data;
     
     // ========================================================================
-    // Create 3D geometry EARLY (before solve starts)
+    // Skip geometry creation if already done from preloaded data
+    // ========================================================================
+    if (use3DExtrusion && meshExtruder) {
+        console.log('3D geometry already created from preloaded data, skipping');
+        
+        // Apply any queued solution increments
+        if (pendingIncrements.length > 0) {
+            const latest = pendingIncrements[pendingIncrements.length - 1];
+            console.log(`Applying queued 3D increment from iter ${latest.iteration}`);
+            meshExtruder.updateSolutionIncremental(latest);
+            millimetricScene.render();
+            pendingIncrements = [];
+        }
+        return;
+    }
+    
+    if (!use3DExtrusion && meshRenderer.meshObject) {
+        console.log('2D mesh already created from preloaded data, skipping');
+        
+        // Apply any queued solution increments
+        if (pendingIncrements.length > 0) {
+            const latest = pendingIncrements[pendingIncrements.length - 1];
+            console.log(`Applying queued 2D increment from iter ${latest.iteration}`);
+            meshRenderer.updateSolutionIncremental(latest);
+            millimetricScene.render();
+            pendingIncrements = [];
+        }
+        return;
+    }
+    
+    // ========================================================================
+    // Create 3D geometry (fallback - only if not preloaded)
     // ========================================================================
     if (use3DExtrusion && data.coordinates && data.connectivity) {
-        console.log(`Creating ${extrusionType} geometry early...`);
+        console.log(`Creating ${extrusionType} geometry (fallback, not preloaded)...`);
         
         try {
             // Dispose existing extruder if any
@@ -411,27 +551,11 @@ femClient.on('solve_complete', async (data) => {
         }
     }
     // ========================================================================
-    // Standard 2D Mode - Wait for meshRenderer to be ready
+    // Standard 2D Mode
     // ========================================================================
-    else {
-        // Wait for meshRenderer.meshObject to be ready
-        const maxWait = 60000; // 60 seconds max for large meshes
-        const startWait = Date.now();
-        
-        while (!meshRenderer.meshObject && (Date.now() - startWait) < maxWait) {
-            console.log('Waiting for meshRenderer...');
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
-        
-        if (!meshRenderer.meshObject) {
-            console.error('Timeout waiting for meshRenderer');
-            return;
-        }
-        
-        console.log('meshRenderer ready');
+    else if (!use3DExtrusion) {
         meshRenderer.updateSolution(solutionData);
         millimetricScene.render();
-        console.log('Final 2D colors applied');
     }
 });
 
