@@ -17,7 +17,7 @@ const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
-const extrusionType = 'cylindrical';  // 'cylindrical' | 'rectangular'
+const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
 
 // ============================================================================
 // Initialize Three.js scene
