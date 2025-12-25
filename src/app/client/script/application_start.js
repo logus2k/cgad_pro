@@ -618,7 +618,7 @@ femClient.on('solve_complete', async (data) => {
             // Fetch velocity data and create particle animation
             // ====================================================================
             try {
-                metricsDisplay.updateStatus('Loading velocity...');
+                metricsDisplay.updateStatus('Loading velocity data...');
                 
                 const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
                 const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
