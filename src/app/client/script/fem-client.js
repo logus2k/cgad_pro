@@ -84,17 +84,20 @@ export class FEMClient {
         
         // Incremental solution update
         this.socket.on('solution_update', (data) => {
-            // Decode base64 binary chunk
-            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
-            data.binary_chunk = new Float32Array(binaryData);
+            // Handle binary data directly (Socket.IO binary support)
+            const solutionChunk = data.chunk_data instanceof ArrayBuffer 
+                ? new Float32Array(data.chunk_data)
+                : new Float32Array(data.chunk_data.buffer || data.chunk_data);
+            data.binary_chunk = solutionChunk;
             this.triggerEvent('solution_update', data);
         });
 
         // Incremental solution update
         this.socket.on('solution_increment', (data) => {
-            // Decode base64 binary chunk
-            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
-            const solutionChunk = new Float32Array(binaryData);
+            // Handle binary data directly (Socket.IO binary support)
+            const solutionChunk = data.chunk_data instanceof ArrayBuffer 
+                ? new Float32Array(data.chunk_data)
+                : new Float32Array(data.chunk_data.buffer || data.chunk_data);
             
             // Reconstruct full solution from subsampled data
             const fullSolution = this.reconstructSolution(

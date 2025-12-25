@@ -115,9 +115,7 @@ class ProgressCallback:
         })
 
     def on_solution_increment(self, iteration: int, solution):
-        """Send incremental solution update as binary"""
-        
-        print(f"[DEBUG] on_solution_increment called: iteration={iteration}, solution shape={solution.shape}")
+        """Send incremental solution update as binary (native Socket.IO binary support)"""
         
         # Throttle updates
         current_time = time.time()
@@ -128,11 +126,9 @@ class ProgressCallback:
             force_send = False
         
         if not force_send and current_time - self.last_solution_update < 0.5:
-            print(f"[DEBUG] Throttled (last update {current_time - self.last_solution_update:.2f}s ago)")
             return
         
         self.last_solution_update = current_time
-        print(f"[DEBUG] Sending solution increment...")
         
         # Handle CuPy arrays
         import numpy as np
@@ -146,23 +142,17 @@ class ProgressCallback:
         sol_min = float(solution_f32.min())
         sol_max = float(solution_f32.max())
         
-        print(f"[DEBUG] Solution range: [{sol_min:.3f}, {sol_max:.3f}]")
-        
         # Subsample
         stride = 10
         solution_subsample = solution_f32[::stride]
         
-        # Convert to base64
-        import base64
+        # Send binary data directly (Socket.IO handles binary natively)
         solution_bytes = solution_subsample.tobytes()
-        chunk_b64 = base64.b64encode(solution_bytes).decode('ascii')
-        
-        print(f"[DEBUG] Emitting solution_increment event (size: {len(chunk_b64)} bytes)")
         
         self._emit_sync('solution_increment', {
             'job_id': self.job_id,
             'iteration': iteration,
-            'chunk_data': chunk_b64,
+            'chunk_data': solution_bytes,  # Raw bytes - Socket.IO sends as binary
             'chunk_info': {
                 'stride': stride,
                 'total_nodes': len(solution_f32),
@@ -171,9 +161,7 @@ class ProgressCallback:
                 'max': sol_max
             },
             'timestamp': time.time()
-        })
-        
-        print(f"[DEBUG] solution_increment event emitted")     
+        })     
     
     def on_error(self, stage: str, error: str):
         """Called when an error occurs"""
