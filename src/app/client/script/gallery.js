@@ -359,13 +359,16 @@ class MeshGallery {
         // Close gallery
         this.close();
         
-        // Determine solver type based on mesh size
-        const solverType = selected.elements > 10000 ? 'gpu' : 'gpu';
+        // Use solver_type from config, or default based on mesh size
+        const solverType = selected.solver_type || (selected.elements > 10000 ? 'gpu' : 'cpu');
+        const maxIterations = selected.max_iterations || 50000;
+        const progressInterval = selected.progress_interval || 100;
         
         console.log('=== MESH SELECTION CONFIRMED ===');
         console.log('Name:', selected.name);
         console.log('File:', selected.file);
         console.log('Solver:', solverType);
+        console.log('Max Iterations:', maxIterations);
         console.log('================================');
         
         // Get preloaded data if available (don't wait if not ready)
@@ -387,8 +390,8 @@ class MeshGallery {
             window.femClient.startSolve({
                 mesh_file: selected.file,
                 solver_type: solverType,
-                max_iterations: 50000,
-                progress_interval: 100
+                max_iterations: maxIterations,
+                progress_interval: progressInterval
             });
         } else {
             console.error('femClient not found on window');
