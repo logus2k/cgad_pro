@@ -562,6 +562,9 @@ export class ParticleFlow {
             let y = this.particlePositions[idx + 1];
             let z = this.particlePositions[idx + 2];
             
+            // Get segment at current position (before movement)
+            const segBefore = this.getSegmentAtPosition(x, y, z);
+            
             // Get velocity
             const vel = this.getVelocityAt(x, y);
             
@@ -573,6 +576,28 @@ export class ParticleFlow {
             // Move particle
             x += vel.vx * speedScale * deltaTime;
             y += vel.vy * speedScale * deltaTime;
+            
+            // Cylindrical mode: scale radial position based on tube radius change
+            // This makes particles expand/contract with the tube geometry
+            if (this.config.extrusionMode === 'cylindrical' && segBefore) {
+                const segAfter = this.getSegmentAtPosition(x, y, z);
+                if (segAfter && segBefore.radius > 0.001 && segAfter.radius > 0.001) {
+                    // Calculate radial position relative to tube center
+                    const dyBefore = y - segBefore.centerY;
+                    const radialDistBefore = Math.sqrt(dyBefore * dyBefore + z * z);
+                    
+                    if (radialDistBefore > 0.0001) {
+                        // Scale radial position by ratio of new radius to old radius
+                        const radiusRatio = segAfter.radius / segBefore.radius;
+                        const radialDistAfter = radialDistBefore * radiusRatio;
+                        
+                        // Compute angle and apply new radial distance
+                        const angle = Math.atan2(z, dyBefore);
+                        y = segAfter.centerY + Math.cos(angle) * radialDistAfter;
+                        z = Math.sin(angle) * radialDistAfter;
+                    }
+                }
+            }
             
             // Constrain to tube
             const constrained = this.constrainToTube(x, y, z);

@@ -226,11 +226,23 @@ function buildYRangeCacheOptimized(meshData, bounds, cacheResolution, xIndex) {
             if (next.min <= current.max + gapThreshold) {
                 current.max = Math.max(current.max, next.max);
             } else {
-                segments.push({ yMin: current.min, yMax: current.max });
+                // Add segment with centerY and radius for cylindrical particle mode
+                segments.push({
+                    yMin: current.min,
+                    yMax: current.max,
+                    centerY: (current.min + current.max) / 2,
+                    radius: (current.max - current.min) / 2
+                });
                 current = { ...next };
             }
         }
-        segments.push({ yMin: current.min, yMax: current.max });
+        // Add final segment with all properties
+        segments.push({
+            yMin: current.min,
+            yMax: current.max,
+            centerY: (current.min + current.max) / 2,
+            radius: (current.max - current.min) / 2
+        });
         
         cache[i] = segments;
     }
