@@ -540,7 +540,7 @@ function buildVertexElementMapping(positions, meshData, bounds, elementGrid) {
         const x = positions[i * 3 + 0];
         const y = positions[i * 3 + 1];
         
-        const result = findContainingElement(x, y, meshData, bounds, elementGrid);
+        const result = findNearestElement(x, y, meshData, bounds, elementGrid);
         
         if (result) {
             mapping[i] = result;
@@ -554,44 +554,80 @@ function buildVertexElementMapping(positions, meshData, bounds, elementGrid) {
     return { mapping, mapped, unmapped };
 }
 
-function findContainingElement(x, y, meshData, bounds, elementGrid) {
+function findNearestElement(x, y, meshData, bounds, elementGrid) {
     const { resX, resY, xMin, yMin, cellWidth, cellHeight, cells } = elementGrid;
     const coords = meshData.coordinates;
     const conn = meshData.connectivity;
     
+    // Calculate grid cell for this point
     const i = Math.floor((x - xMin) / cellWidth);
     const j = Math.floor((y - yMin) / cellHeight);
     
-    if (i < 0 || i >= resX || j < 0 || j >= resY) return null;
+    // Search in expanding rings around the target cell
+    let bestResult = null;
+    let bestDistSq = Infinity;
     
-    const cellElements = cells[j * resX + i];
+    // Start with radius 0 (just the target cell), expand if needed
+    const maxRadius = Math.max(resX, resY);
     
-    for (const elemIdx of cellElements) {
-        const elem = conn[elemIdx];
-        
-        const x0 = coords.x[elem[0]], y0 = coords.y[elem[0]];
-        const x2 = coords.x[elem[2]], y2 = coords.y[elem[2]];
-        const x4 = coords.x[elem[4]], y4 = coords.y[elem[4]];
-        const x6 = coords.x[elem[6]], y6 = coords.y[elem[6]];
-        
-        const bxMin = Math.min(x0, x2, x4, x6);
-        const bxMax = Math.max(x0, x2, x4, x6);
-        const byMin = Math.min(y0, y2, y4, y6);
-        const byMax = Math.max(y0, y2, y4, y6);
-        
-        if (x < bxMin || x > bxMax || y < byMin || y > byMax) continue;
-        
-        const xi = 2 * (x - (bxMin + bxMax) / 2) / (bxMax - bxMin);
-        const eta = 2 * (y - (byMin + byMax) / 2) / (byMax - byMin);
-        
-        if (xi >= -1.1 && xi <= 1.1 && eta >= -1.1 && eta <= 1.1) {
-            return { 
-                elemIdx, 
-                xi: Math.max(-1, Math.min(1, xi)), 
-                eta: Math.max(-1, Math.min(1, eta)) 
-            };
+    for (let radius = 0; radius <= maxRadius && bestResult === null; radius++) {
+        // Check all cells at this radius
+        for (let di = -radius; di <= radius; di++) {
+            for (let dj = -radius; dj <= radius; dj++) {
+                // Only check cells on the perimeter of current radius (optimization)
+                if (radius > 0 && Math.abs(di) !== radius && Math.abs(dj) !== radius) continue;
+                
+                const ci = i + di;
+                const cj = j + dj;
+                
+                if (ci < 0 || ci >= resX || cj < 0 || cj >= resY) continue;
+                
+                const cellElements = cells[cj * resX + ci];
+                
+                for (const elemIdx of cellElements) {
+                    const elem = conn[elemIdx];
+                    
+                    // Get corner nodes (0, 2, 4, 6 are corners in Quad-8)
+                    const x0 = coords.x[elem[0]], y0 = coords.y[elem[0]];
+                    const x2 = coords.x[elem[2]], y2 = coords.y[elem[2]];
+                    const x4 = coords.x[elem[4]], y4 = coords.y[elem[4]];
+                    const x6 = coords.x[elem[6]], y6 = coords.y[elem[6]];
+                    
+                    // Element bounding box
+                    const bxMin = Math.min(x0, x2, x4, x6);
+                    const bxMax = Math.max(x0, x2, x4, x6);
+                    const byMin = Math.min(y0, y2, y4, y6);
+                    const byMax = Math.max(y0, y2, y4, y6);
+                    
+                    // Element center
+                    const cx = (bxMin + bxMax) / 2;
+                    const cy = (byMin + byMax) / 2;
+                    
+                    // Distance squared from point to element center
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const distSq = dx * dx + dy * dy;
+                    
+                    if (distSq < bestDistSq) {
+                        // Calculate parametric coordinates
+                        const xi = 2 * (x - cx) / (bxMax - bxMin);
+                        const eta = 2 * (y - cy) / (byMax - byMin);
+                        
+                        bestDistSq = distSq;
+                        bestResult = {
+                            elemIdx,
+                            xi: Math.max(-1, Math.min(1, xi)),
+                            eta: Math.max(-1, Math.min(1, eta))
+                        };
+                    }
+                }
+            }
         }
+        
+        // If we found something in this radius, we can stop
+        // (elements in further cells will be farther away)
+        if (bestResult !== null) break;
     }
     
-    return null;
+    return bestResult;
 }
