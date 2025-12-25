@@ -43,6 +43,17 @@
 			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
-		}
+		},
+		{
+			"name": "Venturi (Medium)",
+			"description": "A 2D longitudinal cross-section of a Venturi tube with smooth converging and diverging sections. The channel narrows at the throat to accelerate flow, then expands to recover pressure. Used for potential flow FEM analysis (velocity potential computation).",
+			"file": "./mesh/venturi_194k.h5",
+			"nodes": 194325,
+			"elements": 64334,
+			"thumbnail": "./images/mesh/venturi_194k.png",
+			"solver_type": "gpu",
+			"max_iterations": 10000,
+			"progress_interval": 50
+		}		
 	]
 }

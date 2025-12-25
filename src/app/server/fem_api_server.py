@@ -215,6 +215,23 @@ async def run_solver_task(job_id: str, params: dict):
         print(f"Job {job_id} failed: {e}")
         import traceback
         traceback.print_exc()
+    
+    finally:
+        # Clean up GPU memory after each job to prevent state contamination
+        try:
+            import cupy as cp
+            # Synchronize GPU to ensure all operations are complete
+            cp.cuda.Stream.null.synchronize()
+            # Clear the memory pool to release all cached allocations
+            mempool = cp.get_default_memory_pool()
+            pinned_mempool = cp.get_default_pinned_memory_pool()
+            mempool.free_all_blocks()
+            pinned_mempool.free_all_blocks()
+            print(f"GPU memory cleared after job {job_id}")
+        except ImportError:
+            pass  # CuPy not available (CPU mode)
+        except Exception as cleanup_err:
+            print(f"Warning: GPU cleanup failed: {cleanup_err}")
 
 # ============================================================================
 # REST API Endpoints

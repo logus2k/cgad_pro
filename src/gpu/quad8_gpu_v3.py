@@ -535,12 +535,14 @@ class Quad8FEMSolverGPU:
 		quad8_cp = cp.asarray(self.quad8, dtype=cp.int32)
 		
 		# 1. Pre-allocate COO buffers
+		# CRITICAL: Use zeros() instead of empty() to prevent uninitialized memory
+		# from previous larger meshes contaminating the current computation
 		N_NZ_per_el = 64
 		total_nnz = self.Nels * N_NZ_per_el
 		
-		self._rows = cp.empty(total_nnz, dtype=cp.int32)
-		self._cols = cp.empty(total_nnz, dtype=cp.int32)
-		self._vals = cp.empty(total_nnz, dtype=cp.float64) 
+		self._rows = cp.zeros(total_nnz, dtype=cp.int32)
+		self._cols = cp.zeros(total_nnz, dtype=cp.int32)
+		self._vals = cp.zeros(total_nnz, dtype=cp.float64) 
 
 		# 2. Vectorized Global Index Generation (ON GPU)
 		local_i, local_j = cp.mgrid[0:8, 0:8]
@@ -567,6 +569,16 @@ class Quad8FEMSolverGPU:
 		))
 		
 		cp.cuda.Stream.null.synchronize()
+		
+		# DIAGNOSTIC: Check assembly results
+		print(f"\n{'='*70}")
+		print(f"DIAGNOSTIC: After Assembly (before BCs)")
+		print(f"  _vals: min={float(self._vals.min()):.6e}, max={float(self._vals.max()):.6e}, mean={float(self._vals.mean()):.6e}")
+		print(f"  _vals NaN count: {int(cp.isnan(self._vals).sum())}")
+		print(f"  _vals Inf count: {int(cp.isinf(self._vals).sum())}")
+		print(f"  fg: min={float(self.fg.min()):.6e}, max={float(self.fg.max()):.6e}, norm={float(cp.linalg.norm(self.fg)):.6e}")
+		print(f"  fg NaN count: {int(cp.isnan(self.fg).sum())}")
+		print(f"{'='*70}\n")
 
 
 	# --------------------
@@ -579,6 +591,12 @@ class Quad8FEMSolverGPU:
 		x_min = self.x_cpu.min()
 		x_max = self.x_cpu.max()
 		
+		# DIAGNOSTIC: Print boundary detection info
+		print(f"\n{'='*70}")
+		print(f"DIAGNOSTIC: Boundary Conditions")
+		print(f"  x_min = {x_min:.6f}, x_max = {x_max:.6f}")
+		print(f"  bc_tolerance = {self.bc_tolerance}")
+		
 		# CRITICAL FIX: Define the high penalty factor (REQUIRED for convergence)
 		PENALTY_FACTOR = 1.0e12 
 
@@ -586,10 +604,18 @@ class Quad8FEMSolverGPU:
 		exit_nodes = np.where(self.x_cpu == x_max)[0]
 		exit_nodes_gpu = cp.asarray(exit_nodes, dtype=cp.int32)
 		
+		print(f"  Dirichlet (outlet) nodes found: {len(exit_nodes)}")
+		if len(exit_nodes) > 0:
+			print(f"    First few exit node IDs: {exit_nodes[:5].tolist()}")
+			print(f"    X values at exit nodes: {self.x_cpu[exit_nodes[:5]].tolist()}")
+		
 		# Robin BC on minimum-x boundary (inlet)
 		boundary_nodes = set(
 			np.where(np.abs(self.x_cpu - x_min) < self.bc_tolerance)[0].tolist()
 		)
+		
+		print(f"  Robin (inlet) nodes found: {len(boundary_nodes)}")
+		print(f"{'='*70}\n")
 
 		# ---------------------------------
 		# Robin BCs (temporary CPU buffers)
@@ -948,6 +974,16 @@ class Quad8FEMSolverGPU:
 			self.progress_callback.on_stage_start(stage='load_mesh')
 		
 		self._time_step('load_mesh', self.load_mesh)
+		
+		# DIAGNOSTIC: Print mesh bounds for debugging cross-mesh issues
+		print(f"\n{'='*70}")
+		print(f"DIAGNOSTIC: Mesh loaded")
+		print(f"  Mesh file: {self.mesh_file}")
+		print(f"  Nodes: {self.Nnds}, Elements: {self.Nels}")
+		print(f"  X range: [{self.x_cpu.min():.6f}, {self.x_cpu.max():.6f}]")
+		print(f"  Y range: [{self.y_cpu.min():.6f}, {self.y_cpu.max():.6f}]")
+		print(f"  GPU x ptr: {self.x.data.ptr}, GPU y ptr: {self.y.data.ptr}")
+		print(f"{'='*70}\n")
 		
 		if self.progress_callback:
 			self.progress_callback.on_stage_complete(

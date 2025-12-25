@@ -172,20 +172,44 @@ export class ParticleFlow {
     getVelocityAt(x, y) {
         const { xMin, xMax, yMin, yMax } = this.originalBounds;
         
-        const clampedX = Math.max(xMin, Math.min(xMax, x));
+        // Clamp Y to mesh bounds for grid lookup
         const clampedY = Math.max(yMin, Math.min(yMax, y));
-        
-        const gi = Math.floor((clampedX - xMin) / this.gridDx);
         const gj = Math.floor((clampedY - yMin) / this.gridDy);
+        const gjClamped = Math.max(0, Math.min(this.gridRes - 1, gj));
         
-        if (gi >= 0 && gi < this.gridRes && gj >= 0 && gj < this.gridRes) {
-            const cell = this.velocityGrid[gi][gj];
+        // Before inlet: use velocity at inlet (x = xMin)
+        if (x < xMin) {
+            const gi = 0;
+            const cell = this.velocityGrid[gi][gjClamped];
             if (cell.count > 0) {
                 return { vx: cell.vx, vy: cell.vy, speed: cell.speed };
             }
+            // Fallback: move toward inlet with modest speed
+            return { vx: this.maxSpeed * 0.3, vy: 0, speed: this.maxSpeed * 0.3 };
         }
         
-        return { vx: this.maxSpeed * 0.5, vy: 0, speed: this.maxSpeed * 0.5 };
+        // After outlet: use velocity at outlet (x = xMax)
+        if (x > xMax) {
+            const gi = this.gridRes - 1;
+            const cell = this.velocityGrid[gi][gjClamped];
+            if (cell.count > 0) {
+                return { vx: cell.vx, vy: cell.vy, speed: cell.speed };
+            }
+            // Fallback: continue with modest speed
+            return { vx: this.maxSpeed * 0.3, vy: 0, speed: this.maxSpeed * 0.3 };
+        }
+        
+        // Inside mesh bounds: use grid velocity
+        const gi = Math.floor((x - xMin) / this.gridDx);
+        const giClamped = Math.max(0, Math.min(this.gridRes - 1, gi));
+        
+        const cell = this.velocityGrid[giClamped][gjClamped];
+        if (cell.count > 0) {
+            return { vx: cell.vx, vy: cell.vy, speed: cell.speed };
+        }
+        
+        // Empty grid cell inside bounds - interpolate from neighbors or use fallback
+        return { vx: this.maxSpeed * 0.3, vy: 0, speed: this.maxSpeed * 0.3 };
     }
     
     /**
