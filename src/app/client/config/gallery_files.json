@@ -40,7 +40,7 @@
 			"nodes": 1357953,
 			"elements": 338544,
 			"thumbnail": "./images/mesh/y_tube1_1_3m.png",
-			"solver_type": "cpu",
+			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},
@@ -51,7 +51,7 @@
 			"nodes": 194325,
 			"elements": 64334,
 			"thumbnail": "./images/mesh/venturi_194k.png",
-			"solver_type": "cpu",
+			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		}		
