@@ -583,7 +583,7 @@ femClient.on('solution_increment', (data) => {
 // Solve Complete - Final updates and particle animation
 // ============================================================================
 femClient.on('solve_complete', async (data) => {
-    metricsDisplay.updateStatus('Complete');
+    metricsDisplay.updateStatus('Applying colors...');
     metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
     console.log('Solve complete!', data);
     
@@ -618,6 +618,8 @@ femClient.on('solve_complete', async (data) => {
             // Fetch velocity data and create particle animation
             // ====================================================================
             try {
+                metricsDisplay.updateStatus('Loading velocity...');
+                
                 const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
                 const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
                 
@@ -629,6 +631,7 @@ femClient.on('solve_complete', async (data) => {
                     
                     // Create particle animation
                     if (useParticleAnimation) {
+                        metricsDisplay.updateStatus('Building particles...');
                         console.log(`Creating particle flow animation (${extrusionType} mode)...`);
                         
                         particleFlow = new ParticleFlow(
@@ -654,16 +657,22 @@ femClient.on('solve_complete', async (data) => {
                         
                         particleFlow.start();
                         
+                        metricsDisplay.updateStatus('Ready');
                         console.log('Particle animation started');
+                    } else {
+                        metricsDisplay.updateStatus('Ready');
                     }
                 } else {
                     console.warn('Velocity data not available');
+                    metricsDisplay.updateStatus('Ready (no velocity)');
                 }
             } catch (velocityError) {
                 console.warn('Could not fetch velocity:', velocityError);
+                metricsDisplay.updateStatus('Ready (velocity error)');
             }
         } catch (err) {
             console.error('Error waiting for meshExtruder:', err);
+            metricsDisplay.updateStatus('Error');
         }
     }
     // ========================================================================
@@ -672,6 +681,7 @@ femClient.on('solve_complete', async (data) => {
     else if (!use3DExtrusion) {
         meshRenderer.updateSolution(solutionData);
         millimetricScene.render();
+        metricsDisplay.updateStatus('Ready');
     }
 });
 
