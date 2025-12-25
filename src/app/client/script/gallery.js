@@ -29,13 +29,19 @@ class MeshGallery {
         this.cancelBtn = document.getElementById('cancelBtn');
         this.gallery = document.getElementById('hud-gallery');
 
-        // Clear existing text
-        this.prevBtn.textContent = '';
-        this.nextBtn.textContent = '';
-
-        // Load SVG icons
-        window.menuManager.getSVGIconByName(this.prevBtn, 'previous', 'Previous');
-        window.menuManager.getSVGIconByName(this.nextBtn, 'next', 'Next');        
+        // Clear existing text and load SVG icons (if menuManager available)
+        if (this.prevBtn) {
+            this.prevBtn.textContent = '';
+            if (window.menuManager) {
+                window.menuManager.getSVGIconByName(this.prevBtn, 'previous', 'Previous');
+            }
+        }
+        if (this.nextBtn) {
+            this.nextBtn.textContent = '';
+            if (window.menuManager) {
+                window.menuManager.getSVGIconByName(this.nextBtn, 'next', 'Next');
+            }
+        }
         
         // Set up mesh loader progress callback
         meshLoader.setProgressCallback((stage, progress) => {
@@ -343,12 +349,15 @@ class MeshGallery {
     /**
      * Confirm selection and dispatch event with preloaded mesh data
      */
-    async confirmSelection() {
+    confirmSelection() {
         const selected = this.meshes[this.selectedIndex];
         if (!selected) {
             console.warn('No mesh selected');
             return;
         }
+        
+        // Close gallery
+        this.close();
         
         // Determine solver type based on mesh size
         const solverType = selected.elements > 10000 ? 'gpu' : 'gpu';
@@ -359,27 +368,15 @@ class MeshGallery {
         console.log('Solver:', solverType);
         console.log('================================');
         
-        // Close gallery immediately for better UX
-        this.close();
+        // Get preloaded data if available (don't wait if not ready)
+        const meshData = this.preloadedMeshData;
         
-        // Wait for mesh preload if still in progress
-        let meshData = this.preloadedMeshData;
-        if (!meshData && this.preloadingUrl === selected.file) {
-            console.log('Waiting for mesh preload to complete...');
-            try {
-                meshData = await meshLoader.load(selected.file);
-                this.preloadedMeshData = meshData;
-            } catch (error) {
-                console.error('Mesh preload failed:', error);
-            }
-        }
-        
-        // Dispatch event with preloaded data for immediate geometry creation
+        // Dispatch event with preloaded data (may be null if still loading)
         const event = new CustomEvent('meshSelected', {
             detail: {
                 mesh: selected,
                 index: this.selectedIndex,
-                preloadedData: meshData,  // May be null if preload failed
+                preloadedData: meshData,
                 meshLoader: meshLoader
             }
         });
@@ -402,18 +399,36 @@ class MeshGallery {
     
     open() {
         if (this.gallery) {
-            this.gallery.style.display = 'block';
+            this.gallery.classList.add('visible');
         }
     }
     
     close() {
         if (this.gallery) {
-            this.gallery.style.display = 'none';
+            // Disable transition for immediate hide
+            this.gallery.style.transition = 'none';
+            this.gallery.classList.remove('visible');
+            // Force reflow to apply the change immediately
+            void this.gallery.offsetHeight;
+            // Re-enable transition for future animations
+            this.gallery.style.transition = '';
+            
+            // Sync menu button state (deactivate the gallery button)
+            if (window.menuManager) {
+                const menuEl = window.menuManager.menuEl;
+                if (menuEl) {
+                    const btns = Array.from(menuEl.querySelectorAll('button'));
+                    const galleryIdx = window.menuManager.cfg.panelIds.indexOf('gallery');
+                    if (galleryIdx >= 0 && btns[galleryIdx]) {
+                        btns[galleryIdx].classList.remove('active');
+                    }
+                }
+            }
         }
     }
     
     isVisible() {
-        return this.gallery && this.gallery.style.display !== 'none';
+        return this.gallery && this.gallery.classList.contains('visible');
     }
     
     toggle() {

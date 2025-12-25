@@ -885,4 +885,108 @@ export class MeshExtruderRect {
             transparent: this.mesh3D.material.transparent
         };
     }
+    
+    // =========================================================================
+    // Worker Integration - Apply pre-computed geometry from Web Worker
+    // =========================================================================
+    
+    /**
+     * Apply geometry computed by Web Worker
+     * This replaces the synchronous createGeometryOnly() for better UI responsiveness
+     */
+    applyWorkerResult(result) {
+        const { bounds, originalBounds, geometry2D, geometry3D, vertexMapping, elementGrid, ySegmentCache } = result;
+        
+        // Store computed data
+        this.bounds = bounds;
+        this.originalBounds = originalBounds;
+        this.ySegmentCache = ySegmentCache;
+        this.cacheResolution = ySegmentCache.length;
+        this.elementGrid = elementGrid;
+        this.vertexElementMap = vertexMapping.mapping;
+        
+        console.log(`   Bounds: X[${bounds.xMin.toFixed(3)}, ${bounds.xMax.toFixed(3)}], Y[${bounds.yMin.toFixed(3)}, ${bounds.yMax.toFixed(3)}]`);
+        console.log(`   Vertex mapping: ${vertexMapping.mapped} mapped, ${vertexMapping.unmapped} unmapped`);
+        
+        // Create 2D geometry from Worker data
+        this.create2DGeometryFromArrays(geometry2D);
+        
+        // Create 3D geometry from Worker data
+        this.create3DGeometryFromArrays(geometry3D);
+        
+        this.geometryCreated = true;
+        console.log('Geometry created from Worker result (awaiting solution for colors)');
+    }
+    
+    /**
+     * Create 2D Three.js geometry from pre-computed arrays
+     */
+    create2DGeometryFromArrays(data) {
+        if (this.mesh2D) {
+            this.group.remove(this.mesh2D);
+            this.mesh2D.geometry.dispose();
+            this.mesh2D.material.dispose();
+        }
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(data.positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(data.indices, 1));
+        geometry.computeVertexNormals();
+        
+        // Apply neutral colors
+        this.applyNeutralColors(geometry);
+        
+        const material = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            side: THREE.DoubleSide
+        });
+        
+        this.mesh2D = new THREE.Mesh(geometry, material);
+        this.mesh2D.visible = this.config.show2DMesh;
+        
+        this.fitMeshToView(this.mesh2D);
+        this.group.add(this.mesh2D);
+        
+        console.log('2D geometry created from Worker arrays');
+    }
+    
+    /**
+     * Create 3D Three.js geometry from pre-computed arrays
+     */
+    create3DGeometryFromArrays(data) {
+        if (this.mesh3D) {
+            this.group.remove(this.mesh3D);
+            this.mesh3D.geometry.dispose();
+            this.mesh3D.material.dispose();
+        }
+        
+        if (data.positions.length === 0) {
+            console.warn('No 3D geometry data from Worker');
+            return;
+        }
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(data.positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(data.indices, 1));
+        geometry.computeVertexNormals();
+        
+        // Apply neutral colors initially
+        this.applyNeutralColors(geometry);
+        
+        const material = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: this.config.extrusionOpacity
+        });
+        
+        this.mesh3D = new THREE.Mesh(geometry, material);
+        this.mesh3D.visible = this.config.show3DExtrusion;
+        
+        this.fitMeshToView(this.mesh3D);
+        this.group.add(this.mesh3D);
+        
+        console.log(`   Created ${data.vertexCount} vertices, ${data.indices.length / 3} triangles`);
+        console.log('3D geometry created from Worker arrays');
+    }
 }

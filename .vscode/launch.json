@@ -10,11 +10,32 @@
             "sourceFolder": "${workspaceFolder}"
         },
         {
-            "name": "Python Debugger: Current File",
+            "name": "Python Debugger",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/app/server/fem_api_server.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Brave",
+            "type": "chrome",
+            "request": "launch",
+            "url": "https://logus2k.com/fem",
+            "userDataDir": true,
+            "webRoot": "${workspaceFolder}/src/app/client",
+            "runtimeExecutable": "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
+        }        
+    ],
+
+    "compounds": [
+
+        {
+            "name": "Client & Server Debug",
+            "configurations": [
+                "Python Debugger",
+                "Brave"
+            ],
+            "stopAll": true
         }
-    ]
+    ]    
 }

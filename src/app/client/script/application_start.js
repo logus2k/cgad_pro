@@ -181,20 +181,73 @@ function clearScene() {
 window.clearScene = clearScene;
 
 // ============================================================================
-// Mesh Selected - Create geometry IMMEDIATELY from preloaded data
-// This runs BEFORE job_started, so geometry is ready for progressive updates
+// Geometry Worker - runs heavy computation off main thread
 // ============================================================================
-document.addEventListener('meshSelected', async (event) => {
+let geometryWorker = null;
+let pendingGeometryCallback = null;
+
+function initGeometryWorker() {
+    if (geometryWorker) return;
+    
+    geometryWorker = new Worker('./script/geometry-worker.js', { type: 'module' });
+    
+    geometryWorker.onmessage = (e) => {
+        const { type, stage, message, result, error } = e.data;
+        
+        switch (type) {
+            case 'progress':
+                console.log(`Worker: ${message}`);
+                metricsDisplay.updateStatus(message);
+                break;
+                
+            case 'complete':
+                console.log('Worker: Geometry computation complete');
+                if (pendingGeometryCallback) {
+                    pendingGeometryCallback(result);
+                    pendingGeometryCallback = null;
+                }
+                break;
+                
+            case 'error':
+                console.error('Worker error:', error);
+                metricsDisplay.updateStatus('Geometry creation failed');
+                pendingGeometryCallback = null;
+                break;
+        }
+    };
+    
+    geometryWorker.onerror = (e) => {
+        console.error('Worker error:', e);
+        metricsDisplay.updateStatus('Worker error');
+    };
+}
+
+// ============================================================================
+// Mesh Selected - Use Worker for geometry creation (non-blocking)
+// ============================================================================
+document.addEventListener('meshSelected', (event) => {
     const { mesh, preloadedData, meshLoader } = event.detail;
     
     console.log('Mesh selected:', mesh.name);
     console.log('Preloaded data available:', preloadedData ? 'Yes' : 'No');
     
-    // Clear scene for new mesh
+    // Clear scene and update metrics IMMEDIATELY (lightweight operations)
     clearScene();
     metricsDisplay.reset();
-    metricsDisplay.updateStatus('Loading mesh...');
     
+    // Update mesh info immediately (from gallery metadata or preloaded data)
+    const nodes = preloadedData?.nodes || mesh.nodes;
+    const elements = preloadedData?.elements || mesh.elements;
+    if (nodes && elements) {
+        metricsDisplay.updateMesh(nodes, elements);
+    }
+    metricsDisplay.updateStatus('Creating geometry...');
+    
+    // Handle geometry creation asynchronously
+    handleGeometryCreation(mesh, preloadedData, meshLoader);
+});
+
+async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
     // Get mesh data - either preloaded or wait for it
     let meshData = preloadedData;
     
@@ -214,57 +267,61 @@ document.addEventListener('meshSelected', async (event) => {
         return;
     }
     
-    // Create geometry immediately with preloaded data
-    metricsDisplay.updateMesh(meshData.nodes, meshData.elements);
-    metricsDisplay.updateStatus('Creating geometry...');
-    
     // Store mesh data for later use
     window.currentMeshData = meshData;
     
     // Create geometry based on mode
-    if (use3DExtrusion) {
-        console.log(`Creating ${extrusionType} geometry from preloaded data...`);
+    if (use3DExtrusion && extrusionType === 'rectangular') {
+        // Use Worker for rectangular extrusion (heavy computation)
+        console.log('Starting Worker-based geometry creation...');
+        initGeometryWorker();
         
-        try {
-            if (extrusionType === 'cylindrical') {
-                meshExtruder = new MeshExtruderSDF(
-                    millimetricScene.getScene(),
-                    meshData,
-                    null,  // No solution yet - will show skeleton
-                    {
-                        show2DMesh: false,
-                        show3DExtrusion: true,
-                        tubeOpacity: 0.8
-                    }
-                );
-                await meshExtruder.createGeometryOnly();
-            } else {
-                meshExtruder = new MeshExtruderRect(
-                    millimetricScene.getScene(),
-                    meshData,
-                    null,  // No solution yet - will show skeleton
-                    {
-                        show2DMesh: false,
-                        show3DExtrusion: true,
-                        zFactor: 1.0,
-                        extrusionOpacity: 0.8
-                    }
-                );
-                meshExtruder.createGeometryOnly();
+        // Set up callback for when Worker completes
+        pendingGeometryCallback = (result) => {
+            createThreeJSGeometryFromWorkerResult(result, meshData);
+        };
+        
+        // Send data to Worker
+        geometryWorker.postMessage({
+            type: 'createGeometry',
+            payload: {
+                meshData: {
+                    coordinates: meshData.coordinates,
+                    connectivity: meshData.connectivity,
+                    nodes: meshData.nodes,
+                    elements: meshData.elements
+                },
+                config: {
+                    zFactor: 1.0
+                }
             }
+        });
+        
+    } else if (use3DExtrusion && extrusionType === 'cylindrical') {
+        // Cylindrical mode - use existing synchronous approach
+        console.log('Creating cylindrical geometry...');
+        try {
+            meshExtruder = new MeshExtruderSDF(
+                millimetricScene.getScene(),
+                meshData,
+                null,
+                {
+                    show2DMesh: false,
+                    show3DExtrusion: true,
+                    tubeOpacity: 0.8
+                }
+            );
+            await meshExtruder.createGeometryOnly();
             
             window.meshExtruder = meshExtruder;
             
-            // Register with camera controller
             if (cameraController) {
                 cameraController.setMeshExtruder(meshExtruder);
             }
             
             millimetricScene.render();
+            console.log('3D geometry created (cylindrical)');
             
-            console.log('3D geometry created from preloaded data (awaiting solution)');
-            
-            // Resolve promise for any handlers waiting for meshExtruder
             if (resolveMeshExtruder) {
                 resolveMeshExtruder(meshExtruder);
             }
@@ -272,7 +329,7 @@ document.addEventListener('meshSelected', async (event) => {
             metricsDisplay.updateStatus('Awaiting solver...');
             
         } catch (error) {
-            console.error('Failed to create geometry from preloaded data:', error);
+            console.error('Failed to create cylindrical geometry:', error);
             metricsDisplay.updateStatus('Geometry creation failed');
         }
     } else {
@@ -283,13 +340,72 @@ document.addEventListener('meshSelected', async (event) => {
         console.log('2D mesh created from preloaded data');
         metricsDisplay.updateStatus('Awaiting solver...');
     }
-});
+}
+
+/**
+ * Create Three.js geometry from Worker result
+ */
+function createThreeJSGeometryFromWorkerResult(result, meshData) {
+    console.log('Creating Three.js geometry from Worker result...');
+    
+    const { bounds, originalBounds, geometry2D, geometry3D, vertexMapping, elementGrid, ySegmentCache } = result;
+    
+    // Dispose previous meshExtruder if it exists
+    if (meshExtruder) {
+        meshExtruder.dispose();
+        meshExtruder = null;
+        window.meshExtruder = null;
+    }
+    
+    // Create MeshExtruderRect with pre-computed data
+    meshExtruder = new MeshExtruderRect(
+        millimetricScene.getScene(),
+        meshData,
+        null,  // No solution yet
+        {
+            show2DMesh: false,
+            show3DExtrusion: true,
+            zFactor: 1.0,
+            extrusionOpacity: 0.8
+        }
+    );
+    
+    // Apply pre-computed data from Worker
+    meshExtruder.applyWorkerResult({
+        bounds,
+        originalBounds,
+        geometry2D,
+        geometry3D,
+        vertexMapping,
+        elementGrid,
+        ySegmentCache
+    });
+    
+    window.meshExtruder = meshExtruder;
+    
+    // Register with camera controller
+    if (cameraController) {
+        cameraController.setMeshExtruder(meshExtruder);
+    }
+    
+    millimetricScene.render();
+    
+    console.log('3D geometry created from Worker result');
+    console.log(`   Vertices: ${geometry3D.vertexCount}, Mapping: ${vertexMapping.mapped} mapped, ${vertexMapping.unmapped} unmapped`);
+    
+    // Resolve promise for any handlers waiting for meshExtruder
+    if (resolveMeshExtruder) {
+        resolveMeshExtruder(meshExtruder);
+    }
+    
+    metricsDisplay.updateStatus('Awaiting solver...');
+}
 
 femClient.on('job_started', (data) => {
     console.log('Job started:', data.job_id);
     // Don't clear scene here - meshSelected already did it
-    // Only reset metrics if geometry wasn't preloaded
-    if (!meshExtruder && !meshRenderer.meshObject) {
+    // Only reset metrics if geometry wasn't preloaded AND no Worker is pending
+    if (!meshExtruder && !meshRenderer.meshObject && !pendingGeometryCallback) {
         clearScene();
     }
     metricsDisplay.updateStatus('Running');
@@ -524,7 +640,7 @@ femClient.on('solve_complete', async (data) => {
                                 speedScale: 0.3,
                                 particleSize: 0.02,
                                 particleOpacity: 0.9,
-                                particleMaxLife: 8.0,
+                                particleMaxLife: 10.0,
                                 colorBySpeed: true,
                                 extrusionMode: extrusionType,
                             }
