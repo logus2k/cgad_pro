@@ -17,7 +17,7 @@ const use3DExtrusion = true;       // Enable 3D extrusion of mesh
 const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
-const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
+const extrusionType = 'cylindrical';  // 'cylindrical' | 'rectangular'
 
 // ============================================================================
 // Initialize Three.js scene
@@ -126,6 +126,12 @@ femClient.on('connected', () => {
 femClient.on('stage_start', (data) => {
     metricsDisplay.updateStage(data.stage);
     metricsDisplay.updateStatus('Running');
+});
+
+// Assembly progress - show element count during assembly stage
+femClient.on('assembly_progress', (data) => {
+    const { elements_done, total_elements } = data;
+    metricsDisplay.updateStatus(`${elements_done.toLocaleString()} / ${total_elements.toLocaleString()} elements`);
 });
 
 // ============================================================================
@@ -618,7 +624,7 @@ femClient.on('solve_complete', async (data) => {
             // Fetch velocity data and create particle animation
             // ====================================================================
             try {
-                metricsDisplay.updateStatus('Loading velocity data...');
+                metricsDisplay.updateStatus('Loading velocity...');
                 
                 const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
                 const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);

@@ -570,15 +570,9 @@ class Quad8FEMSolverGPU:
 		
 		cp.cuda.Stream.null.synchronize()
 		
-		# DIAGNOSTIC: Check assembly results
-		print(f"\n{'='*70}")
-		print(f"DIAGNOSTIC: After Assembly (before BCs)")
-		print(f"  _vals: min={float(self._vals.min()):.6e}, max={float(self._vals.max()):.6e}, mean={float(self._vals.mean()):.6e}")
-		print(f"  _vals NaN count: {int(cp.isnan(self._vals).sum())}")
-		print(f"  _vals Inf count: {int(cp.isinf(self._vals).sum())}")
-		print(f"  fg: min={float(self.fg.min()):.6e}, max={float(self.fg.max()):.6e}, norm={float(cp.linalg.norm(self.fg)):.6e}")
-		print(f"  fg NaN count: {int(cp.isnan(self.fg).sum())}")
-		print(f"{'='*70}\n")
+		# Report assembly complete (GPU does all elements in one kernel launch)
+		if self.progress_callback:
+			self.progress_callback.on_assembly_progress(self.Nels, self.Nels)
 
 
 	# --------------------

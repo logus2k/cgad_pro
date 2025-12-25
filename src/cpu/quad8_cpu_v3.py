@@ -290,8 +290,12 @@ class Quad8FEMSolver:
                 for j in range(8):
                     self.Kg[edofs[i], edofs[j]] += Ke[i, j]
             
-            if self.verbose and (e + 1) % self.assembly_print_every == 0:
-                print(f"  {e + 1}/{self.Nels} elements assembled")
+            # Report progress every 1000 elements
+            if (e + 1) % 1000 == 0 or (e + 1) == self.Nels:
+                if self.progress_callback:
+                    self.progress_callback.on_assembly_progress(e + 1, self.Nels)
+                if self.verbose and (e + 1) % self.assembly_print_every == 0:
+                    print(f"  {e + 1}/{self.Nels} elements assembled")
     
     def apply_boundary_conditions(self) -> None:
         """Apply Robin (inlet) and Dirichlet (outlet) boundary conditions."""

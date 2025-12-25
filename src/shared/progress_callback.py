@@ -41,6 +41,16 @@ class ProgressCallback:
             'timestamp': time.time()
         })
     
+    def on_assembly_progress(self, elements_done: int, total_elements: int):
+        """Called during element assembly to report progress"""
+        self._emit_sync('assembly_progress', {
+            'job_id': self.job_id,
+            'elements_done': elements_done,
+            'total_elements': total_elements,
+            'progress_percent': 100.0 * elements_done / total_elements,
+            'timestamp': time.time()
+        })
+    
     def on_mesh_loaded(self, nodes: int, elements: int, 
                        coordinates: Optional[dict], connectivity: Optional[list]):
         """Called after mesh is loaded - send metadata only"""

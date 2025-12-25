@@ -77,6 +77,11 @@ export class FEMClient {
             this.triggerEvent('mesh_loaded', data);
         });
         
+        // Assembly progress
+        this.socket.on('assembly_progress', (data) => {
+            this.triggerEvent('assembly_progress', data);
+        });
+        
         // Solving progress
         this.socket.on('solve_progress', (data) => {
             this.triggerEvent('solve_progress', data);
