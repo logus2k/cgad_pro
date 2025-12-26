@@ -443,6 +443,12 @@ femClient.on('mesh_loaded', async (data) => {
         return;
     }
     
+    // Skip if Worker is still creating geometry (will be applied when Worker completes)
+    if (use3DExtrusion && pendingGeometryCallback) {
+        console.log('Worker geometry creation in progress, skipping fallback');
+        return;
+    }
+    
     if (!use3DExtrusion && meshRenderer.meshObject) {
         console.log('2D mesh already created from preloaded data, skipping');
         
@@ -624,7 +630,7 @@ femClient.on('solve_complete', async (data) => {
             // Fetch velocity data and create particle animation
             // ====================================================================
             try {
-                metricsDisplay.updateStatus('Loading velocity...');
+                metricsDisplay.updateStatus('Loading velocity data...');
                 
                 const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
                 const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
