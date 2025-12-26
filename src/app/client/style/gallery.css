@@ -38,7 +38,7 @@
 /* Individual Gallery Item - 3 items per view */
 .carousel-item {
     flex: 0 0 calc((100% - 20px) / 3);  /* 3 items minus gaps */
-    min-width: 0;
+    min-width: 243px;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -47,6 +47,7 @@
     user-select: none;
     transition: all 0.3s ease;
     box-sizing: border-box;
+    max-width: 243px;
 }
 
 .selected-indicator {
