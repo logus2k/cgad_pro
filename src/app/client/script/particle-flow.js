@@ -3,16 +3,25 @@ import { ParticleSphere } from './particles/particle-sphere.js';
 import { ParticlePoint } from './particles/particle-point.js';
 import { ParticleDroplet } from './particles/particle-droplet.js';
 import { ParticleBubble } from './particles/particle-bubble.js';
+import { ParticleFluid } from './particles/particle-fluid.js';
+import { FluidVolume } from './fluid-volume.js';
 
 /**
  * Available particle type classes
+ * 'fluid-volume' is handled specially - it's not a particle renderer
  */
 const PARTICLE_TYPES = {
     sphere: ParticleSphere,
     point: ParticlePoint,
     droplet: ParticleDroplet,
-    bubble: ParticleBubble
+    bubble: ParticleBubble,
+    fluid: ParticleFluid
 };
+
+/**
+ * Special render modes (not particle-based)
+ */
+const SPECIAL_MODES = ['fluid-volume'];
 
 /**
  * ParticleFlow - Main controller for particle flow visualization
@@ -46,6 +55,7 @@ export class ParticleFlow {
         
         this.group = new THREE.Group();
         this.particleRenderer = null;
+        this.fluidVolume = null;  // For fluid-volume mode
         this.isAnimating = false;
         this.animationId = null;
         this.lastTime = 0;
@@ -505,16 +515,29 @@ export class ParticleFlow {
     }
     
     /**
-     * Set particle type
+     * Set particle type or special mode
+     * @param {string} type - 'sphere', 'point', 'droplet', 'bubble', 'fluid', or 'fluid-volume'
      */
     setParticleType(type) {
+        // Check if it's a special mode
+        if (SPECIAL_MODES.includes(type)) {
+            this.setSpecialMode(type);
+            return;
+        }
+        
         if (!PARTICLE_TYPES[type]) {
-            console.error(`Unknown particle type: ${type}. Available: ${Object.keys(PARTICLE_TYPES).join(', ')}`);
+            console.error(`Unknown particle type: ${type}. Available: ${Object.keys(PARTICLE_TYPES).join(', ')}, ${SPECIAL_MODES.join(', ')}`);
             return;
         }
         
         const wasAnimating = this.isAnimating;
         if (wasAnimating) this.stop();
+        
+        // Dispose fluid volume if switching away from it
+        if (this.fluidVolume) {
+            this.fluidVolume.dispose();
+            this.fluidVolume = null;
+        }
         
         // Get defaults for new type
         const ParticleClass = PARTICLE_TYPES[type];
@@ -530,6 +553,7 @@ export class ParticleFlow {
             inflowDistance: this.config.inflowDistance,
             outflowDistance: this.config.outflowDistance,
             tubeWallMargin: this.config.tubeWallMargin,
+            extrusionMode: this.config.extrusionMode,
             // Type-specific visual settings (use new type's defaults)
             ...typeDefaults,
             // Set the type
@@ -543,6 +567,41 @@ export class ParticleFlow {
         }
         
         this.createParticleRenderer(type);
+        
+        if (wasAnimating) this.start();
+    }
+    
+    /**
+     * Set special rendering mode (non-particle based)
+     * @param {string} mode - 'fluid-volume'
+     */
+    setSpecialMode(mode) {
+        const wasAnimating = this.isAnimating;
+        if (wasAnimating) this.stop();
+        
+        // Dispose particle renderer
+        if (this.particleRenderer) {
+            this.particleRenderer.dispose();
+            this.particleRenderer = null;
+        }
+        
+        if (mode === 'fluid-volume') {
+            // Create fluid volume if not exists
+            if (!this.fluidVolume) {
+                this.fluidVolume = new FluidVolume(
+                    this.meshExtruder.group,  // Add to meshExtruder's group (visible in scene)
+                    this.meshExtruder,
+                    this.velocityData,
+                    {
+                        opacity: 0.6,
+                        flowSpeed: this.config.speedScale
+                    }
+                );
+            }
+            this.fluidVolume.create();
+            this.config.particleType = 'fluid-volume';
+            console.log('Switched to fluid-volume mode');
+        }
         
         if (wasAnimating) this.start();
     }
@@ -700,22 +759,32 @@ export class ParticleFlow {
     start() {
         if (this.isAnimating) return;
         
-        // Initialize particles if needed
-        if (!this.particlePositions) {
-            this.initializeParticles();
+        // For fluid-volume mode, we don't need particles
+        const isFluidVolumeMode = this.config.particleType === 'fluid-volume';
+        
+        if (!isFluidVolumeMode) {
+            // Initialize particles if needed
+            if (!this.particlePositions) {
+                this.initializeParticles();
+            }
+            
+            // Create renderer if needed
+            if (!this.particleRenderer) {
+                this.createParticleRenderer();
+            }
+            
+            if (this.particleRenderer) {
+                this.particleRenderer.setVisible(true);
+            }
         }
         
-        // Create renderer if needed
-        if (!this.particleRenderer) {
-            this.createParticleRenderer();
+        // Show fluid volume if in that mode
+        if (this.fluidVolume) {
+            this.fluidVolume.setVisible(true);
         }
         
         this.isAnimating = true;
         this.lastTime = performance.now();
-        
-        if (this.particleRenderer) {
-            this.particleRenderer.setVisible(true);
-        }
         
         console.log('Particle animation started');
         
@@ -726,7 +795,14 @@ export class ParticleFlow {
             const deltaTime = Math.min((now - this.lastTime) / 1000, 0.1);
             this.lastTime = now;
             
-            this.updateParticles(deltaTime);
+            // Update particles or fluid volume
+            if (isFluidVolumeMode) {
+                if (this.fluidVolume) {
+                    this.fluidVolume.update(deltaTime);
+                }
+            } else {
+                this.updateParticles(deltaTime);
+            }
             
             if (this.renderCallback) {
                 this.renderCallback();
@@ -861,6 +937,11 @@ export class ParticleFlow {
         if (this.particleRenderer) {
             this.particleRenderer.dispose();
             this.particleRenderer = null;
+        }
+        
+        if (this.fluidVolume) {
+            this.fluidVolume.dispose();
+            this.fluidVolume = null;
         }
         
         this.meshExtruder.group.remove(this.group);
