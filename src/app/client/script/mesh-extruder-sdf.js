@@ -351,17 +351,14 @@ export class MeshExtruderSDF {
         // Apply gradient colors (based on X position)
         this.addSolutionColorsToGeometry(geometry);
         
-        const material = new THREE.MeshPhongMaterial({
+        const material = new THREE.MeshBasicMaterial({
             vertexColors: true,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: this.config.tubeOpacity,
-            shininess: 30
+            opacity: this.config.tubeOpacity
         });
         
         this.mesh3D = new THREE.Mesh(geometry, material);
-        this.mesh3D.castShadow = true;
-        this.mesh3D.receiveShadow = true;
         this.mesh3D.visible = this.config.show3DExtrusion;
         
         this.fitMeshToView(this.mesh3D);
