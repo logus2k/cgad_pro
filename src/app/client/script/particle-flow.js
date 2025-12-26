@@ -565,6 +565,10 @@ export class ParticleFlow {
             // Get segment at current position (before movement)
             const segBefore = this.getSegmentAtPosition(x, y, z);
             
+            // Store original Y and Z for radial calculations (before any updates)
+            const yOriginal = y;
+            const zOriginal = z;
+            
             // Get velocity
             const vel = this.getVelocityAt(x, y);
             
@@ -582,17 +586,47 @@ export class ParticleFlow {
             if (this.config.extrusionMode === 'cylindrical' && segBefore) {
                 const segAfter = this.getSegmentAtPosition(x, y, z);
                 if (segAfter && segBefore.radius > 0.001 && segAfter.radius > 0.001) {
-                    // Calculate radial position relative to tube center
-                    const dyBefore = y - segBefore.centerY;
-                    const radialDistBefore = Math.sqrt(dyBefore * dyBefore + z * z);
+                    // Check if transitioning between different segments (bifurcation)
+                    const centerDiff = Math.abs(segBefore.centerY - segAfter.centerY);
+                    const isBifurcation = centerDiff > 0.01;
                     
-                    if (radialDistBefore > 0.0001) {
-                        // Scale radial position by ratio of new radius to old radius
-                        const radiusRatio = segAfter.radius / segBefore.radius;
-                        const radialDistAfter = radialDistBefore * radiusRatio;
+                    // Calculate radial position relative to ORIGINAL segment's center
+                    const dyBefore = yOriginal - segBefore.centerY;
+                    const radialDistBefore = Math.sqrt(dyBefore * dyBefore + zOriginal * zOriginal);
+                    
+                    if (isBifurcation && radialDistBefore > 0.0001) {
+                        // Bifurcation: remap from half of inlet to full branch
+                        // Upper branch receives particles from top half of inlet (dyBefore > 0)
+                        // Lower branch receives particles from bottom half of inlet (dyBefore < 0)
                         
-                        // Compute angle and apply new radial distance
-                        const angle = Math.atan2(z, dyBefore);
+                        const goingToUpperBranch = segAfter.centerY > segBefore.centerY;
+                        
+                        // Calculate how far the particle is within its "feeding half" of the inlet
+                        // dyBefore ranges from 0 to +radius (upper) or 0 to -radius (lower)
+                        // Normalize to 0-1 range within that half
+                        const halfRadius = segBefore.radius;
+                        const distFromCenter = Math.abs(dyBefore);
+                        const normalizedInHalf = Math.min(1.0, distFromCenter / halfRadius);
+                        
+                        // Map to full branch: 0 (center of inlet) -> -radius (bottom of branch)
+                        //                     1 (edge of inlet)   -> +radius (top of branch)
+                        // So normalized 0-1 maps to -1 to +1 in the branch
+                        const mappedDy = (normalizedInHalf * 2 - 1) * segAfter.radius;
+                        
+                        // Preserve Z proportion
+                        const zNormalized = zOriginal / Math.max(0.001, radialDistBefore);
+                        const newRadialDist = Math.abs(mappedDy);
+                        const newZ = zNormalized * Math.sqrt(Math.max(0, segAfter.radius * segAfter.radius - mappedDy * mappedDy));
+                        
+                        y = segAfter.centerY + mappedDy;
+                        z = zOriginal >= 0 ? Math.abs(newZ) : -Math.abs(newZ);
+                        
+                    } else if (radialDistBefore > 0.0001) {
+                        // Same segment or very small movement - simple radial scaling
+                        const normalizedRadial = Math.min(1.0, radialDistBefore / segBefore.radius);
+                        const radialDistAfter = normalizedRadial * segAfter.radius;
+                        const angle = Math.atan2(zOriginal, dyBefore);
+                        
                         y = segAfter.centerY + Math.cos(angle) * radialDistAfter;
                         z = Math.sin(angle) * radialDistAfter;
                     }
