@@ -638,6 +638,33 @@ export class ParticleFlow {
             y = constrained.y;
             z = constrained.z;
             
+            // Cylindrical mode: check if particle visual would extend past curved boundary
+            // If so, and it's not at the exit, deflect the particle to contour around obstacle
+            if (this.config.extrusionMode === 'cylindrical') {
+                const { xMax: origXMax } = this.originalBounds;
+                const particleRadius = this.config.particleSize || 0.015;
+                const lookAheadX = x + particleRadius;
+                
+                // Only apply contouring if NOT at the mesh exit
+                if (lookAheadX < origXMax) {
+                    const segAhead = this.getSegmentAtPosition(lookAheadX, y, z);
+                    if (segAhead) {
+                        const dy = y - segAhead.centerY;
+                        const currentRadialDist = Math.sqrt(dy * dy + z * z);
+                        const maxAllowedRadius = segAhead.radius - this.config.tubeWallMargin;
+                        
+                        // If particle visual would extend outside tube at look-ahead position
+                        if (currentRadialDist > maxAllowedRadius) {
+                            // Deflect: push particle inward radially instead of letting it cross
+                            // This simulates fluid contouring around an obstacle
+                            const scale = maxAllowedRadius / currentRadialDist;
+                            y = segAhead.centerY + dy * scale;
+                            z = z * scale;
+                        }
+                    }
+                }
+            }
+            
             // Update lifetime
             this.particleLifetimes[i] -= deltaTime;
             
