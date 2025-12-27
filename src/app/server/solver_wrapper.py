@@ -5,11 +5,16 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Add parent directories to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "cpu"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "gpu"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "numba"))
-sys.path.insert(0, str(Path(__file__).parent.parent / "numba_cuda"))
+# Add solver directories to path
+# solver_wrapper.py is in /src/app/server/
+# Solver modules are in /src/cpu/, /src/gpu/, /src/numba/, /src/numba_cuda/
+HERE = Path(__file__).resolve().parent
+SRC_DIR = HERE.parent.parent  # /src/app/server -> /src
+
+sys.path.insert(0, str(SRC_DIR / "cpu"))
+sys.path.insert(0, str(SRC_DIR / "gpu"))
+sys.path.insert(0, str(SRC_DIR / "numba"))
+sys.path.insert(0, str(SRC_DIR / "numba_cuda"))
 
 from quad8_cpu_v3 import Quad8FEMSolver as CPUSolver
 from quad8_gpu_v3 import Quad8FEMSolverGPU as GPUSolver
