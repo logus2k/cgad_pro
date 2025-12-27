@@ -9,6 +9,7 @@ import { MeshExtruderRect } from '../script/mesh-extruder-rect.js';
 import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
 import { SettingsManager } from './settings.manager.js';
+import { initMetricsManager } from './metrics/MetricsManager.js';
 
 
 // ============================================================================
@@ -135,6 +136,9 @@ femClient.on('connected', () => {
 femClient.on('stage_start', (data) => {
     metricsDisplay.updateStage(data.stage);
     metricsDisplay.updateStatus('Running');
+    
+    // Dispatch event for metrics system
+    document.dispatchEvent(new CustomEvent('fem:stageStart', { detail: data }));
 });
 
 // Assembly progress - show element count during assembly stage
@@ -424,6 +428,9 @@ femClient.on('job_started', (data) => {
         clearScene();
     }
     metricsDisplay.updateStatus('Running');
+    
+    // Dispatch event for metrics system
+    document.dispatchEvent(new CustomEvent('fem:jobStarted', { detail: data }));
 });
 
 // ============================================================================
@@ -565,6 +572,9 @@ femClient.on('solve_progress', (data) => {
         data.residual,
         data.etr_seconds
     );
+    
+    // Dispatch event for metrics system
+    document.dispatchEvent(new CustomEvent('fem:solveProgress', { detail: data }));
 });
 
 // ============================================================================
@@ -607,6 +617,9 @@ femClient.on('solve_complete', async (data) => {
     metricsDisplay.updateStatus('Applying colors...');
     metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
     console.log('Solve complete!', data);
+    
+    // Dispatch event for metrics system (early, so panels can update while colors apply)
+    document.dispatchEvent(new CustomEvent('fem:solveComplete', { detail: data }));
     
     if (!data.solution_field) {
         console.error('No solution field in results');
@@ -1154,3 +1167,9 @@ window.setHUDOpacity = (value) => {
 };
 
 window.settingsManager = new SettingsManager();
+
+// ============================================================================
+// Initialize Metrics System
+// ============================================================================
+const metricsManager = initMetricsManager();
+window.metricsManager = metricsManager;
