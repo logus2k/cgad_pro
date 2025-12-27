@@ -142,6 +142,11 @@ export class BaseMetric {
             this.moveable = null;
         }
         
+        // Remove previous mousedown handler if any
+        if (this._boundHandlers.onPanelMouseDown) {
+            this.panel.removeEventListener('mousedown', this._boundHandlers.onPanelMouseDown);
+        }
+        
         // Normalize positioning to top-left (required by Moveable)
         const rect = this.panel.getBoundingClientRect();
         this.panel.style.top = `${rect.top}px`;
@@ -171,10 +176,30 @@ export class BaseMetric {
             }
         });
         
+        // Sync control box z-index on creation
+        this.syncControlBoxZ();
+        
+        // Bring to front on ANY mousedown (not just drag/resize)
+        this._boundHandlers.onPanelMouseDown = () => {
+            this.bringToFront();
+        };
+        this.panel.addEventListener('mousedown', this._boundHandlers.onPanelMouseDown);
+        
+        // Setup global hover check for occlusion
+        this.setupOcclusionCheck();
+        
         let allowDrag = false;
         
         // Drag events
         this.moveable.on('dragStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.isOccludedByHigherPanel(clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             const t = e.inputEvent && e.inputEvent.target;
             allowDrag = !!(headerEl && t && (t === headerEl || headerEl.contains(t)));
             if (!allowDrag) {
@@ -183,11 +208,6 @@ export class BaseMetric {
             }
             if (e.set) e.set([this.moveablePos.x, this.moveablePos.y]);
             e.inputEvent.stopPropagation();
-            
-            // Bring to front
-            this.topZ += 1;
-            this.panel.style.zIndex = String(this.topZ);
-            this.syncControlBoxZ();
         })
         .on('drag', e => {
             if (!allowDrag) return;
@@ -202,13 +222,16 @@ export class BaseMetric {
         
         // Resize events
         this.moveable.on('resizeStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.isOccludedByHigherPanel(clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             e.setOrigin(['%', '%']);
             if (e.dragStart) e.dragStart.set([this.moveablePos.x, this.moveablePos.y]);
-            
-            // Bring to front
-            this.topZ += 1;
-            this.panel.style.zIndex = String(this.topZ);
-            this.syncControlBoxZ();
         })
         .on('resize', e => {
             const { target, width, height, drag } = e;
@@ -232,7 +255,76 @@ export class BaseMetric {
         
         // Apply initial control styles
         this.applyControlStyles();
+    }
+    
+    /**
+     * Bring panel to front (update z-index)
+     */
+    bringToFront() {
+        // Get the highest z-index among all HUD panels
+        const allPanels = document.querySelectorAll('.hud');
+        let maxZ = this.topZ;
+        allPanels.forEach(p => {
+            const z = parseInt(p.style.zIndex) || 0;
+            if (z > maxZ) maxZ = z;
+        });
+        
+        this.topZ = maxZ + 1;
+        this.panel.style.zIndex = String(this.topZ);
         this.syncControlBoxZ();
+    }
+    
+    /**
+     * Setup global mousemove listener for occlusion checking
+     */
+    setupOcclusionCheck() {
+        // Only setup once
+        if (this._boundHandlers.onMouseMoveOcclusion) {
+            document.removeEventListener('mousemove', this._boundHandlers.onMouseMoveOcclusion);
+        }
+        
+        this._boundHandlers.onMouseMoveOcclusion = (e) => {
+            if (!this.moveable) return;
+            
+            const controlBox = this.moveable.selfElement;
+            if (!controlBox) return;
+            
+            const isOccluded = this.isOccludedByHigherPanel(e.clientX, e.clientY);
+            
+            controlBox.querySelectorAll('.moveable-control').forEach(ctrl => {
+                if (isOccluded) {
+                    ctrl.style.pointerEvents = 'none';
+                    ctrl.style.cursor = 'default';
+                } else {
+                    ctrl.style.pointerEvents = '';
+                    ctrl.style.cursor = '';
+                }
+            });
+        };
+        
+        document.addEventListener('mousemove', this._boundHandlers.onMouseMoveOcclusion);
+    }
+    
+    /**
+     * Check if a point is occluded by a higher z-index panel
+     */
+    isOccludedByHigherPanel(clientX, clientY) {
+        const panelZ = parseInt(this.panel.style.zIndex) || 0;
+        const elements = document.elementsFromPoint(clientX, clientY);
+        
+        for (const el of elements) {
+            // If we hit our panel first, we're not occluded
+            if (el === this.panel) return false;
+            
+            // Check if this is another panel with higher z-index
+            if (el.classList.contains('hud') && el !== this.panel) {
+                const elZ = parseInt(el.style.zIndex) || 0;
+                if (elZ > panelZ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     /**
@@ -273,9 +365,22 @@ export class BaseMetric {
     }
     
     /**
-     * Destroy Moveable instance
+     * Destroy Moveable instance and cleanup related listeners
      */
     destroyMoveable() {
+        // Remove mousedown handler
+        if (this._boundHandlers.onPanelMouseDown && this.panel) {
+            this.panel.removeEventListener('mousedown', this._boundHandlers.onPanelMouseDown);
+            this._boundHandlers.onPanelMouseDown = null;
+        }
+        
+        // Remove occlusion check listener
+        if (this._boundHandlers.onMouseMoveOcclusion) {
+            document.removeEventListener('mousemove', this._boundHandlers.onMouseMoveOcclusion);
+            this._boundHandlers.onMouseMoveOcclusion = null;
+        }
+        
+        // Destroy Moveable
         if (this.moveable) {
             this.moveable.destroy();
             this.moveable = null;
