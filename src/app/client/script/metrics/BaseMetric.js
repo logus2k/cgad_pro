@@ -352,6 +352,58 @@ export class BaseMetric {
         // Listen for catalog configuration changes
         this._boundHandlers.onConfigChanged = (e) => this.onConfigChanged(e);
         document.addEventListener('metricsConfigChanged', this._boundHandlers.onConfigChanged);
+        
+        // Listen for window resize to update Moveable bounds
+        this._boundHandlers.onWindowResize = () => this.handleWindowResize();
+        window.addEventListener('resize', this._boundHandlers.onWindowResize);
+    }
+    
+    /**
+     * Handle window resize - update Moveable bounds
+     */
+    handleWindowResize() {
+        if (!this.moveable || !this.panel) return;
+        
+        const padding = 10;
+        const newBounds = {
+            left: padding,
+            top: padding,
+            right: window.innerWidth - padding,
+            bottom: window.innerHeight - padding
+        };
+        
+        // Update bounds
+        this.moveable.bounds = newBounds;
+        
+        // Get current position and adjust if needed
+        const rect = this.panel.getBoundingClientRect();
+        let adjustedX = this.moveablePos.x;
+        let adjustedY = this.moveablePos.y;
+        
+        // Push panel back inside viewport if needed
+        if (rect.right > window.innerWidth - padding) {
+            adjustedX -= (rect.right - (window.innerWidth - padding));
+        }
+        if (rect.bottom > window.innerHeight - padding) {
+            adjustedY -= (rect.bottom - (window.innerHeight - padding));
+        }
+        if (rect.left < padding) {
+            adjustedX += (padding - rect.left);
+        }
+        if (rect.top < padding) {
+            adjustedY += (padding - rect.top);
+        }
+        
+        // Apply adjustments if needed
+        if (adjustedX !== this.moveablePos.x || adjustedY !== this.moveablePos.y) {
+            this.moveablePos.x = adjustedX;
+            this.moveablePos.y = adjustedY;
+            this.panel.style.transform = `translate(${adjustedX}px, ${adjustedY}px)`;
+        }
+        
+        // Refresh Moveable
+        this.moveable.updateRect();
+        this.applyControlStyles();
     }
     
     /**
@@ -361,9 +413,11 @@ export class BaseMetric {
         const enabledMetrics = event.detail?.enabledMetrics || [];
         const shouldBeVisible = enabledMetrics.includes(this.id);
         
+        console.log(`[${this.id}] onConfigChanged: enabled=${shouldBeVisible}, hasData=${this.hasData}, visible=${this.visible}`);
+        
         if (shouldBeVisible && this.hasData) {
             this.show();
-        } else {
+        } else if (!shouldBeVisible && this.visible) {
             this.hide();
         }
     }
@@ -444,19 +498,26 @@ export class BaseMetric {
      * @returns {boolean}
      */
     isEnabled() {
-        // Check localStorage for saved config
-        try {
-            const saved = localStorage.getItem('femulator-metrics-config');
-            if (saved) {
-                const enabled = JSON.parse(saved);
-                return enabled.includes(this.id);
-            }
-        } catch (e) {
-            // Ignore errors
+        // Check if metricsCatalog is available (lazy-loaded)
+        if (window.metricsCatalog) {
+            return window.metricsCatalog.isMetricEnabled(this.id);
         }
         
-        // Return default from catalog (subclass should override)
-        return true;
+        // Catalog not initialized yet - use defaults
+        const defaultEnabled = [
+            'progress-ring',
+            'convergence-plot',
+            'stage-timeline',
+            'residual-display',
+            'solution-range',
+            'velocity-stats',
+            'convergence-quality',
+            'timing-waterfall',
+            'solver-comparison',
+            'speedup-factors',
+            'mesh-stats'
+        ];
+        return defaultEnabled.includes(this.id);
     }
     
     /**
@@ -466,6 +527,9 @@ export class BaseMetric {
         // Remove event listeners
         if (this._boundHandlers.onConfigChanged) {
             document.removeEventListener('metricsConfigChanged', this._boundHandlers.onConfigChanged);
+        }
+        if (this._boundHandlers.onWindowResize) {
+            window.removeEventListener('resize', this._boundHandlers.onWindowResize);
         }
         
         // Disconnect resize observer

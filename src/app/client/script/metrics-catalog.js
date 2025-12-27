@@ -217,16 +217,7 @@ export class MetricsCatalog {
     }
     
     loadState() {
-        try {
-            const saved = localStorage.getItem(this.options.storageKey);
-            if (saved) {
-                return new Set(JSON.parse(saved));
-            }
-        } catch (e) {
-            console.warn('[MetricsCatalog] Could not load saved state:', e);
-        }
-        
-        // Build default set from catalog
+        // Always start with defaults on page load
         const defaults = new Set();
         Object.values(METRICS_CATALOG).forEach(category => {
             category.metrics.forEach(metric => {
@@ -239,14 +230,7 @@ export class MetricsCatalog {
     }
     
     saveState() {
-        try {
-            localStorage.setItem(
-                this.options.storageKey, 
-                JSON.stringify([...this.enabledMetrics])
-            );
-        } catch (e) {
-            console.warn('[MetricsCatalog] Could not save state:', e);
-        }
+        // No persistence - state resets on page reload
     }
     
     render() {
@@ -266,15 +250,6 @@ export class MetricsCatalog {
             
             <div class="metrics-status">
                 <span class="metrics-status-count">${enabledCount}</span> of ${totalCount} metrics enabled
-            </div>
-            
-            <div class="metrics-catalog-actions">
-                <button class="metrics-catalog-btn secondary" id="metrics-reset-btn">
-                    Reset to Defaults
-                </button>
-                <button class="metrics-catalog-btn primary" id="metrics-apply-btn">
-                    Apply Changes
-                </button>
             </div>
         `;
     }
@@ -338,7 +313,7 @@ export class MetricsCatalog {
             });
         });
         
-        // Metric checkboxes
+        // Metric checkboxes - apply changes immediately
         this.container.querySelectorAll('.metric-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 const metricId = e.target.dataset.metricId;
@@ -353,6 +328,7 @@ export class MetricsCatalog {
                 }
                 
                 this.updateCounts();
+                this.applyChanges(); // Apply immediately
             });
         });
         
@@ -363,18 +339,6 @@ export class MetricsCatalog {
                 this.applyQuickFilter(filter);
             });
         });
-        
-        // Reset button
-        const resetBtn = this.container.querySelector('#metrics-reset-btn');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => this.resetToDefaults());
-        }
-        
-        // Apply button
-        const applyBtn = this.container.querySelector('#metrics-apply-btn');
-        if (applyBtn) {
-            applyBtn.addEventListener('click', () => this.applyChanges());
-        }
     }
     
     applyQuickFilter(filter) {
@@ -412,6 +376,7 @@ export class MetricsCatalog {
         });
         
         this.updateCounts();
+        this.applyChanges(); // Apply immediately
     }
     
     updateCounts() {
@@ -462,14 +427,11 @@ export class MetricsCatalog {
         });
         
         this.updateCounts();
-        this.saveState();
         
         console.log('[MetricsCatalog] Reset to defaults');
     }
     
     applyChanges() {
-        this.saveState();
-        
         // Dispatch event for other components to react
         const event = new CustomEvent('metricsConfigChanged', {
             detail: {

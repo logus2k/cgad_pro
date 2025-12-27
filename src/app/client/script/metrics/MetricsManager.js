@@ -154,20 +154,16 @@ export class MetricsManager {
     }
     
     /**
-     * Get list of enabled metric IDs from localStorage
+     * Get list of enabled metric IDs
      * @returns {string[]}
      */
     getEnabledMetricIds() {
-        try {
-            const saved = localStorage.getItem('femulator-metrics-config');
-            if (saved) {
-                return JSON.parse(saved);
-            }
-        } catch (e) {
-            // Ignore errors
+        // Check if metricsCatalog is available
+        if (window.metricsCatalog) {
+            return window.metricsCatalog.getEnabledMetrics();
         }
         
-        // Return defaults if nothing saved
+        // Catalog not initialized yet - return defaults
         return [
             'progress-ring',
             'convergence-plot', 
