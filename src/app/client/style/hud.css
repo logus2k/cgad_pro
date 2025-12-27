@@ -70,11 +70,11 @@
     flex-direction: column;
     align-self: flex-end;
     width: 280px;
-    height: 350px;
+    height: 400px;
     min-width: 280px;
-    min-height: 310px;
+    min-height: 400px;
     max-width: 280px;
-    max-height: 310px;
+    max-height: 400px;
     background-color: #fff4e5c5;
 }
 

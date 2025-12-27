@@ -359,6 +359,11 @@ class MeshGallery {
         // Close gallery
         this.close();
         
+        // Auto-open Metrics panel to show solver progress
+        if (window.menuManager) {
+            window.menuManager.showPanel('metrics');
+        }
+        
         // Use solver_type from config, or default based on mesh size
         const solverType = selected.solver_type || (selected.elements > 10000 ? 'gpu' : 'cpu');
         const maxIterations = selected.max_iterations || 50000;

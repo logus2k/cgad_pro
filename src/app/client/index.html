@@ -60,7 +60,7 @@
 
 				<div class="hud gallery" id="hud-gallery" style="z-index: 15;">
 
-					<h1>MESH GALLERY</h1>
+					<h1>GALLERY</h1>
 					<div class="sep"></div>
 
 					<div class="gallery-container" class="gallery-container">
@@ -87,17 +87,31 @@
 
 				<div class="hud metrics" id="hud-metrics" style="z-index: 15;">
 
-					<h1>PERFORMANCE METRICS</h1>
+					<h1>METRICS</h1>
 					<div class="sep"></div>
 
-					<div class="metrics-container">
+					<!-- Tabs container -->
+					<div class="tabs-container">
+						<div class="tab active" data-tab="tab-progress-report">Progress</div>
+						<div class="tab" data-tab="tab-metrics-catalog">Catalog</div>
+						<!-- Add more tabs as needed -->
 					</div>
+					
+					<!-- Tab content containers -->
+					<div class="tab-content active" id="tab-progress-report-content">
+						<div class="metrics-container">
+						</div>
+					</div>
+					
+					<div class="tab-content" id="tab-metrics-catalog-content">
+						Metrics Catalog will go here...
+					</div>					
 
 				</div>
 
 				<div class="hud benchmark" id="hud-benchmark" style="z-index: 15;">
 
-					<h1>BENCHMARK ANALYSIS</h1>
+					<h1>BENCHMARK</h1>
 					<div class="sep"></div>
 
 					<div class="benchmark-container">
@@ -107,7 +121,7 @@
 
 				<div class="hud report" id="hud-report" style="z-index: 15;">
 
-					<h1>PROJECT REPORT</h1>
+					<h1>REPORT</h1>
 					<div class="sep"></div>
 
 					<div class="report-container">
@@ -116,7 +130,7 @@
 				</div>
 
 				<div class="hud settings" id="hud-settings" style="z-index: 15;">
-					<h1>CONFIGURATION SETTINGS</h1>
+					<h1>SETTINGS</h1>
 					
 					<div class="sep"></div>
 
