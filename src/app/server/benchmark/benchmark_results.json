@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2025-12-27T23:02:05.244958Z",
+  "updated_at": "2025-12-27T23:37:19.282577Z",
   "server_config": {
     "hostname": "MERCURY",
     "os": "Linux 6.6.87.2-microsoft-standard-WSL2",
@@ -537,6 +537,186 @@
         ],
         "u_mean": 6.018248189492737,
         "u_std": 4.364892150778065
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Linux 6.6.87.2-microsoft-standard-WSL2",
+        "os_version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "8e7a3d49-f323-47f5-b3ed-7fc87c8fa8ce",
+      "timestamp": "2025-12-27T23:18:59.651847Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "venturi_194k.h5",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4040,
+      "timings": {
+        "load_mesh": 0.18639619401074015,
+        "assemble_system": 0.046309152006870136,
+        "apply_bc": 2.497116817976348,
+        "convert_to_cpu": 0.07184907599003054,
+        "solve_system": 3.8416995879961178,
+        "compute_derived": 0.004772765008965507,
+        "total_workflow": 6.586255419999361,
+        "total_program_time": 6.587116278009489
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640230315
+        ],
+        "u_mean": 6.018248189493566,
+        "u_std": 4.3648921507784735
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Linux 6.6.87.2-microsoft-standard-WSL2",
+        "os_version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "a95b5fea-fd0a-4046-9212-4e670b8c8292",
+      "timestamp": "2025-12-27T23:26:22.202597Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "venturi_194k.h5",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4038,
+      "timings": {
+        "load_mesh": 0.18064711001352407,
+        "assemble_system": 0.044446864019846544,
+        "apply_bc": 2.478634241007967,
+        "convert_to_cpu": 0.07004230900201946,
+        "solve_system": 3.9655290379887447,
+        "compute_derived": 0.003981109999585897,
+        "total_workflow": 6.683565129991621,
+        "total_program_time": 6.684455971000716
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640181364
+        ],
+        "u_mean": 6.018248189493949,
+        "u_std": 4.364892150778899
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Linux 6.6.87.2-microsoft-standard-WSL2",
+        "os_version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "58c43906-1669-4319-b4a3-e01358572768",
+      "timestamp": "2025-12-27T23:33:07.222330Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "venturi_194k.h5",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4041,
+      "timings": {
+        "load_mesh": 0.17441701499046758,
+        "assemble_system": 0.04558433897909708,
+        "apply_bc": 2.665631301002577,
+        "convert_to_cpu": 0.07485880702733994,
+        "solve_system": 3.703325798007427,
+        "compute_derived": 0.0056450419942848384,
+        "total_workflow": 6.607637514011003,
+        "total_program_time": 6.608542175003095
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640241813
+        ],
+        "u_mean": 6.0182481894930255,
+        "u_std": 4.364892150778072
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Linux 6.6.87.2-microsoft-standard-WSL2",
+        "os_version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "b9f04153-639e-422a-8fdf-c1b48e1cf9e3",
+      "timestamp": "2025-12-27T23:37:19.282560Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "venturi_194k.h5",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4038,
+      "timings": {
+        "load_mesh": 0.008918664010707289,
+        "assemble_system": 0.047615567018510774,
+        "apply_bc": 2.6827894640155137,
+        "convert_to_cpu": 0.021414886025013402,
+        "solve_system": 3.812120001006406,
+        "compute_derived": 0.002473397005815059,
+        "total_workflow": 6.564571519993478,
+        "total_program_time": 6.564867386012338
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640185359
+        ],
+        "u_mean": 6.01824818949301,
+        "u_std": 4.364892150778241
       },
       "server_config": {
         "hostname": "MERCURY",

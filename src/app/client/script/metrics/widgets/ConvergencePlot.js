@@ -18,8 +18,8 @@ export class ConvergencePlot extends BaseMetric {
     constructor(options = {}) {
         super('convergence-plot', {
             title: 'Convergence',
-            defaultWidth: 400,
-            defaultHeight: 280,
+            defaultWidth: 360,
+            defaultHeight: 260,
             position: { top: '120px', right: '400px' },
             ...options
         });
