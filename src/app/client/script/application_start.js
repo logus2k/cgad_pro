@@ -10,6 +10,7 @@ import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
 import { SettingsManager } from './settings.manager.js';
 
+
 // ============================================================================
 // Configuration
 // ============================================================================
@@ -19,6 +20,13 @@ const useParticleAnimation = true; // Enable particle flow animation
 
 // Extrusion type: 'cylindrical' (SDF tube) or 'rectangular' (standard FEM slab)
 const extrusionType = 'rectangular';  // 'cylindrical' | 'rectangular'
+
+// Change these from const to window properties
+window.useGPU = true;               
+window.use3DExtrusion = true;       
+window.useParticleAnimation = true; 
+window.extrusionType = 'rectangular'; 
+window.autoSwitchToMetrics = true; // New variable for your requested logic
 
 // ============================================================================
 // Initialize Three.js scene
@@ -1102,4 +1110,47 @@ window.setViewDuration = (seconds) => {
 // **********************
 // CONFIGURATION SETTINGS
 // **********************
+// === UI BINDING EXPOSURES ===
+// Toggle particle animation live
+window.setParticleAnimation = (enabled) => {
+    window.useParticleAnimation = enabled;
+    if (enabled) {
+        window.startParticles(); // Uses existing helper
+    } else {
+        window.stopParticles();  // Uses existing helper
+    }
+};
+
+// Update Particle Density
+window.setParticleDensity = (value) => {
+    if (window.particleFlow) {
+        // Map the 0.1 - 2.0 slider to a base count (e.g., 1000 * value)
+        window.particleFlow.updateConfig({ 
+            particleCount: Math.floor(1000 * parseFloat(value)) 
+        });
+    }
+};
+
+// Toggle 3D Extrusion live
+window.set3DExtrusion = (enabled) => {
+    window.use3DExtrusion = enabled;
+    window.toggle3DExtrusion(enabled); // Uses existing helper
+};
+
+// Background Wave Speed
+window.setWaveSpeed = (value) => {
+    if (window.waveBackground) {
+        window.waveBackground.setSpeed(parseFloat(value));
+    }
+};
+
+// HUD Opacity (CSS Variable Bridge)
+window.setHUDOpacity = (value) => {
+    document.documentElement.style.setProperty('--hud-opacity', value);
+    // Alternatively, if you want to apply to all .hud panels directly:
+    document.querySelectorAll('.hud').forEach(el => {
+        el.style.opacity = value;
+    });
+};
+
 window.settingsManager = new SettingsManager();

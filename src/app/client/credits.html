@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie-Style Scrolling Credits</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Adelle:wght@400;700&family=Adelle+Condensed:wght@400;700&display=swap');
+        
+        *,
+        *::after,
+        *::before {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        body {
+            font-size: 1.6rem;
+            background-color: #060606;
+            color: #c7c6ac;
+            font-family: 'Adelle', serif;
+            font-variant-ligatures: common-ligatures;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            height: 100vh;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        h1 {
+            font-family: 'Adelle Condensed', serif;
+            text-align: center;
+            font-weight: 400;
+            font-variant-caps: all-small-caps;
+            font-size: 6rem;
+            margin-bottom: 3rem;
+        }
+
+        h1 em {
+            font-variant-caps: normal;
+            font-size: .8em;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 2.5rem;
+            margin-top: 5rem;
+            margin-bottom: .5rem;
+            font-variant-caps: all-small-caps;
+        }
+
+        h3 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h4 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 1.8rem;
+        }
+
+        p {
+            font-size: 1.6rem;
+            text-align: center;
+        }
+
+        .smcaps {
+            font-variant-caps: all-small-caps;
+        }
+
+        .credits {
+            position: absolute;
+            top: 100vh;
+            width: 100%;
+            font-size: 1.85rem;
+            line-height: 1.2;
+            padding: 1rem;
+        }
+
+        .credits-content {
+            position: relative;
+            animation: scrollUp 60s linear infinite;
+        }
+
+        .credits-content::after {
+            content: "";
+            display: block;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 100%;
+            left: 0;
+        }
+
+        .credits__single {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0 2rem;
+            text-align: center;
+        }
+
+        .credits__single dt {
+            font-variant-caps: all-small-caps;
+            margin-top: 1.7rem;
+        }
+
+        .credits__single dd {
+            margin-top: .6rem;
+        }
+
+        .credits__double {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0 2rem;
+        }
+
+        .credits__double dt {
+            text-align: right;
+            font-variant-caps: all-small-caps;
+            margin-top: 1.7rem;
+        }
+
+        .credits__double dd {
+            text-align: left;
+            grid-column: 2 / 3;
+            margin-top: .6rem;
+        }
+
+        .credits__double dt + dd {
+            margin-top: 1.7rem;
+        }
+
+        .credits__inline {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.7rem;
+        }
+
+        .credits__inline li {
+            padding: .3rem .8rem;
+        }
+
+        .credits__music {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.7rem;
+        }
+
+        .credits__music dl {
+            text-align: center;
+            padding: 0 2rem 2rem 2rem;
+            flex-basis: 30rem;
+        }
+
+        .credits__music dt {
+            font-style: italic;
+            margin-bottom: .5rem;
+        }
+
+        .credits__music dd {
+            font-size: 1.5rem;
+        }
+
+        footer {
+            margin: 3rem;
+            text-align: center;
+        }
+
+        @keyframes scrollUp {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-200%);
+            }
+        }
+
+        .title {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            opacity: 0.9;
+            animation: fadeOut 10s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+
+        .title h1 {
+            margin-bottom: 2rem;
+        }
+
+        .title p {
+            font-size: 1.8rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h1><b>FEM</b>ULATOR<em> Pro</em></h1>
+            <p>A movie-like graphical application</p>
+        </div>
+        
+        <section class="credits">
+            <div class="credits-content">
+                <!--
+                <header>
+                    <h1><b>FEM</b>ULATOR<em> Pro</em></h1>
+                </header>
+                -->
+
+                <dl class="credits__single">
+                    <dt>Directed by</dt>
+                    <dd>Marge Longskin</dd>
+                    <dt>Written by</dt>
+                    <dd>Sally Peeps</dd>
+                    <dt>Director of Photography</dt>
+                    <dd>Benjarmin Külksteedér</dd>
+                    <dt>Executive Producer</dt>
+                    <dd>Filbert Montery</dd>
+                </dl>
+
+                <h2>Cast</h2>
+                <dl class="credits__double">
+                    <dt>Carol</dt>
+                    <dd>Jane Closter</dd>
+                    <dt>Jimmy Stickbürger</dt>
+                    <dd>George Farmstand</dd>
+                    <dt>Steweart Pinkbelly</dt>
+                    <dd>Ed "Singin' Ed" Butters</dd>
+                    <dt>The Corn Bucket Gang</dt>
+                    <dd>Steve Sugarbean</dd>
+                    <dd>Kelly Kelen</dd>
+                    <dd>Carl Whereist</dd>
+                    <dd>Tom Guyman</dd>
+                    <dt>Random Dude</dt>
+                    <dd>Scott Oilier</dd>
+                    <dt>Awful Co&#8209;Worker</dt>
+                    <dd>Jeff MacAfloat</dd>
+                    <dt>@replier</dt>
+                    <dd>Manny Splain</dd>
+                </dl>
+
+                <h2>Crew</h2>
+                <dl class="credits__double">
+                    <dt>Grip</dt>
+                    <dd>Roberto Chinwaggon</dd>
+                    <dt>Sound Mixer</dt>
+                    <dd>Laura Palmn</dd>
+                    <dt>Rain Manager</dt>
+                    <dd>Larry Presstown</dd>
+                    <dt>Stunt Coordinator</dt>
+                    <dd>Jeorge Chuckles</dd>
+                    <dt>Deer Attendant</dt>
+                    <dd>Tobias Freemason</dd>
+                    <dt>Foley Artist</dt>
+                    <dd>Dave Lamason</dd>
+                    <dt>Craft Services</dt>
+                    <dd>Peas, Peas & Peas</dd>
+                    <dd>Lobster Shoppe West</dd>
+                    <dt>Dental Services</dt>
+                    <dd>The Freelance Dentist</dd>
+                    <dt>Cat Council</dt>
+                    <dd>Fergus</dd>
+                    <dd>Francy</dd>
+                </dl>
+
+                <h2>Special Thanks</h2>
+                <ul class="credits__inline">
+                    <li>Baywood Woester</li>
+                    <li>Friend & Friend Associates</li>
+                    <li>The Dimestore</li>
+                    <li>Gill & Falinda Bates</li>
+                    <li>The Staple Factory</li>
+                    <li>Sink & Bath Metalworks</li>
+                    <li>The "Car" Store</li>
+                    <li>Steam Floaters</li>
+                    <li>Billy Williams</li>
+                    <li>The Wax Store</li>
+                    <li>Rock Murphy</li>
+                    <li>Salmon Dean</li>
+                    <li>Sherraden Hogworth</li>
+                    <li>Philip Converse</li>
+                </ul>
+
+                <h2>Music</h2>
+                <div class="credits__music">
+                    <dl>
+                        <dt>The Earth Ate my Butt</dt>
+                        <dd><em>Performed by</em> Lamp Toast Esquire</dd>
+                        <dd><em>Written by</em> Sammy Syrup</dd>
+                    </dl>
+                    <dl>
+                        <dt>It's All Pun and Games</dt>
+                        <dd><em>Performed by</em> Lake Pond</dd>
+                        <dd><em>Written by</em> Kathy Steam</dd>
+                    </dl>
+                    <dl>
+                        <dt>Seriously, Where's my Socks<br>(I Can't Find my Socks)</dt>
+                        <dd><em>Performed by</em> Ed "Singin' Ed" Butters</dd>
+                        <dd><em>Written by</em> Ed "Singin' Ed" Butters</dd>
+                    </dl>
+                    <dl>
+                        <dt>Follow me to the Bread Store</dt>
+                        <dd><em>Performed by</em> Elemeno Pea</dd>
+                        <dd><em>Written by</em> Carla Carrot</dd>
+                    </dl>
+                    <dl>
+                        <dt>Pink Butter</dt>
+                        <dd><em>Performed by</em> DJ Shrimpz</dd>
+                        <dd><em>Written by</em> DJ Shrimpz</dd>
+                    </dl>
+                </div>
+
+                <p>Original Soundtrack available on My Brother's Speaker Records</p>
+
+                <footer>
+                    <h3>Adopt Don't Shop</h3>
+                    <h4>&copy<span class="smcaps">MCMXVIII</span> Kmart Parking Lot Pictures</h4>
+                </footer>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
