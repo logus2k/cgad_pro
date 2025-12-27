@@ -10,8 +10,8 @@
  */
 
 import { TimingWaterfall } from './widgets/TimingWaterfall.js';
+import { ConvergencePlot } from './widgets/ConvergencePlot.js';
 // Future imports:
-// import { ConvergencePlot } from './widgets/ConvergencePlot.js';
 // import { ProgressRing } from './widgets/ProgressRing.js';
 // import { SpeedupFactors } from './widgets/SpeedupFactors.js';
 
@@ -55,9 +55,9 @@ export class MetricsManager {
     registerMetrics() {
         // Performance metrics
         this.register(new TimingWaterfall());
+        this.register(new ConvergencePlot());
         
         // Future metrics (uncomment as implemented):
-        // this.register(new ConvergencePlot());
         // this.register(new ProgressRing());
         // this.register(new SpeedupFactors());
         // this.register(new SolverComparison());
