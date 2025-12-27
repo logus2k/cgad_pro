@@ -1,9 +1,11 @@
 {
 	"extraPaths": [
 		"./src/cpu",
-		"./src/gpu",
+		"./src/cpu_threaded",
+		"./src/cpu_multiprocess",
 		"./src/numba",
 		"./src/numba_cuda",
+		"./src/gpu",
 		"./src/shared",
 	]
 }

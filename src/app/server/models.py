@@ -8,7 +8,7 @@ from typing import Optional, Literal
 class SolverParams(BaseModel):
     """Parameters for starting a FEM solve"""
     mesh_file: str = Field(..., description="Path to mesh file (.h5, .npz, .xlsx)")
-    solver_type: Literal["cpu", "gpu", "numba", "numba_cuda", "auto"] = Field("auto", description="Solver implementation")
+    solver_type: Literal["cpu", "gpu", "numba", "numba_cuda", "cpu_threaded", "cpu_multiprocess", "auto"] = Field("auto", description="Solver implementation")
     max_iterations: int = Field(15000, ge=100, le=100000, description="Maximum solver iterations")
     tolerance: float = Field(1e-8, gt=0, description="Convergence tolerance")
     progress_interval: int = Field(50, ge=1, description="Emit progress every N iterations")
