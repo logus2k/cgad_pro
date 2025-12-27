@@ -2,6 +2,7 @@
 	"extraPaths": [
 		"./src/cpu",
 		"./src/gpu",
+		"./src/numba",
 		"./src/shared",
 	]
 }
