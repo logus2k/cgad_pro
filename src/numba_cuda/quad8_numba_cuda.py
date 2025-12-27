@@ -19,6 +19,9 @@ import numpy as np
 from typing import Optional, Dict, Any, Callable
 from numpy.typing import NDArray
 
+import cupy as cp
+import cupyx.scipy.sparse as cpsparse
+import cupyx.scipy.sparse.linalg as cpsplg
 from numba import cuda
 from scipy.sparse import coo_matrix, lil_matrix, csr_matrix
 from scipy.sparse.linalg import cg, gmres, LinearOperator
@@ -34,6 +37,71 @@ from kernels_numba_cuda import (
 # =============================================================================
 # Progress Callback Monitor
 # =============================================================================
+
+# =============================================================================
+# Progress Callback Monitor (GPU)
+# =============================================================================
+
+class GPUSolverMonitor:
+    """Monitor for GPU CG iterations."""
+    
+    def __init__(self, A, b, every: int = 50, maxiter: int = 50000, 
+                 verbose: bool = True, progress_callback=None):
+        self.A = A
+        self.b = b
+        self.it: int = 0
+        self.every: int = every
+        self.maxiter: int = maxiter
+        self.verbose = verbose
+        self.start_time: float = time.perf_counter()
+        self.b_norm = float(cp.linalg.norm(b))
+        self.progress_callback = progress_callback
+    
+    def reset(self):
+        """Reset for fallback solver."""
+        self.it = 0
+        self.start_time = time.perf_counter()
+    
+    def __call__(self, xk) -> None:
+        self.it += 1
+        
+        if self.it % self.every != 0:
+            return
+        
+        # Compute residual on GPU
+        r = self.b - self.A @ xk
+        res_norm = float(cp.linalg.norm(r))
+        rel_res = res_norm / self.b_norm
+        
+        elapsed = time.perf_counter() - self.start_time
+        time_per_it = elapsed / self.it
+        remaining = self.maxiter - self.it
+        etr = remaining * time_per_it
+        
+        def fmt(seconds: float) -> str:
+            m = int(seconds // 60)
+            s = int(seconds % 60)
+            return f"{m:02d}m:{s:02d}s"
+        
+        progress = 100.0 * self.it / self.maxiter
+        
+        if self.verbose:
+            print(
+                f"  Iter {self.it}/{self.maxiter} ({progress:.1f}%), "
+                f"||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, "
+                f"ETR: {fmt(etr)}"
+            )
+        
+        if self.progress_callback is not None:
+            self.progress_callback.on_iteration(
+                iteration=self.it,
+                max_iterations=self.maxiter,
+                residual=res_norm,
+                relative_residual=rel_res,
+                elapsed_time=elapsed,
+                etr_seconds=etr
+            )
+
 
 class IterativeSolverMonitor:
     """Monitor for CG iterations with actual residual computation."""
@@ -188,9 +256,10 @@ class Quad8FEMSolverNumbaCUDA:
         self.timing_metrics: Dict[str, float] = {}
         
         # Solver state
-        self.monitor: IterativeSolverMonitor
+        self.monitor: GPUSolverMonitor
         self.solve_info: int
         self.converged: bool = False
+        self.iterations: int = 0
         
         self.progress_callback = progress_callback
 
@@ -422,90 +491,142 @@ class Quad8FEMSolverNumbaCUDA:
         return He, Pe
 
     # =========================================================================
-    # Solver (CPU)
+    # Solver (GPU - CuPy)
     # =========================================================================
     
     def solve(self) -> NDArray[np.float64]:
-        """Solve linear system using CG with diagonal equilibration."""
-        solve_start_time = time.perf_counter()
-
+        """Solve linear system using CuPy GPU-accelerated CG solver."""
         if self.verbose:
-            print("Preparing solver...")
+            print("Preparing GPU solver (CuPy)...")
         
-        diag_values = self.Kg.diagonal()
+        t0_convert = time.perf_counter()
+        
+        # Convert to CuPy sparse matrix on GPU
+        Kg_gpu = cpsparse.csr_matrix(self.Kg)
+        fg_gpu = cp.asarray(self.fg)
+        
+        diag_values = Kg_gpu.diagonal()
         if self.verbose:
-            print(f"  Kg Diagonal Min: {diag_values.min():.3e}")
-            print(f"  Kg Diagonal Max: {diag_values.max():.3e}")
+            print(f"  Kg Diagonal Min: {float(diag_values.min()):.3e}")
+            print(f"  Kg Diagonal Max: {float(diag_values.max()):.3e}")
         
-        initial_residual_norm = np.linalg.norm(self.fg)
+        initial_residual_norm = float(cp.linalg.norm(fg_gpu))
         if self.verbose:
             print(f"  Initial L2 residual norm (b): {initial_residual_norm:.3e}")
+        
+        self.timing_metrics['convert_to_gpu'] = time.perf_counter() - t0_convert
+        
+        # Solver setup
+        MAXITER = self.maxiter
+        TOL = 1e-8
+        
+        self.converged = False
+        self.iterations = MAXITER
         
         # Diagonal equilibration
         if self.verbose:
             print("Applying diagonal equilibration...")
         
-        diag = self.Kg.diagonal()
-        D_inv_sqrt = 1.0 / np.sqrt(np.abs(diag))
+        diag = Kg_gpu.diagonal()
+        diag_safe = cp.where(cp.abs(diag) < 1e-14, 1.0, diag)
+        D_inv_sqrt = 1.0 / cp.sqrt(cp.abs(diag_safe))
         
-        from scipy.sparse import diags
-        D_mat = diags(D_inv_sqrt)
-        Kg_eq = D_mat @ self.Kg @ D_mat
-        fg_eq = self.fg * D_inv_sqrt
+        # Equilibrated system
+        Kg_eq = Kg_gpu.multiply(D_inv_sqrt[:, None]).multiply(D_inv_sqrt[None, :])
+        fg_eq = fg_gpu * D_inv_sqrt
         
         # Jacobi preconditioner
         diag_eq = Kg_eq.diagonal()
-        M_inv = 1.0 / diag_eq
+        diag_eq_safe = cp.where(cp.abs(diag_eq) < 1e-14, 1.0, diag_eq)
         
-        def precond_jacobi(v):
-            return M_inv * v
+        def jacobi_precond(x):
+            return x / diag_eq_safe
         
-        M = LinearOperator(Kg_eq.shape, precond_jacobi)
+        M = cpsplg.LinearOperator(
+            shape=Kg_eq.shape,
+            matvec=jacobi_precond,
+            dtype=cp.float64
+        )
         
         if self.verbose:
-            print(f"Solving with CG (tol=1e-8, maxiter={self.maxiter})...")
+            print(f"Solving with GPU CG (tol={TOL:.1e}, maxiter={MAXITER})...")
         
-        TARGET_TOL = 1e-8
-        
-        self.monitor = IterativeSolverMonitor(
+        # GPU Solver Monitor
+        self.monitor = GPUSolverMonitor(
             Kg_eq, fg_eq,
             every=self.cg_print_every,
-            maxiter=self.maxiter,
+            maxiter=MAXITER,
+            verbose=self.verbose,
             progress_callback=self.progress_callback
         )
         
-        u_eq, self.solve_info = cg(
-            Kg_eq, fg_eq,
-            rtol=TARGET_TOL,
-            atol=0.0,
-            maxiter=self.maxiter,
-            M=M,
-            callback=self.monitor
-        )
+        t0_solve = time.perf_counter()
         
-        # De-equilibrate
-        self.u = u_eq * D_inv_sqrt
-        
-        # True residual check
-        r = self.fg - self.Kg @ self.u
-        true_residual = np.linalg.norm(r)
-        true_relative_residual = true_residual / initial_residual_norm
-
-        solve_end_time = time.perf_counter()
-        total_solve_time = solve_end_time - solve_start_time
-        self.timing_metrics['solve_system'] = total_solve_time
-
-        self.converged = (self.solve_info == 0)
-
-        if self.verbose:
-            if self.converged:
-                print(f"✓ CG converged in {self.monitor.it} iterations")
-            else:
-                print(f"✗ CG did not converge (max iterations reached)")
+        try:
+            u_eq, info = cpsplg.cg(
+                Kg_eq,
+                fg_eq,
+                x0=cp.zeros_like(fg_eq),
+                M=M,
+                tol=TOL,
+                maxiter=MAXITER,
+                callback=self.monitor
+            )
+            solver_name = "CG"
             
-            print(f"  True residual norm:     {true_residual:.3e}")
-            print(f"  True relative residual: {true_relative_residual:.3e}")
-            print(f"  Total solver wall time: {total_solve_time:.4f} seconds")
+        except Exception as e:
+            if self.verbose:
+                print(f"  CG failed: {e}")
+                print("  Falling back to GMRES...")
+            
+            self.monitor.reset()
+            
+            try:
+                u_eq, info = cpsplg.gmres(
+                    Kg_eq,
+                    fg_eq,
+                    x0=cp.zeros_like(fg_eq),
+                    M=M,
+                    tol=TOL,
+                    maxiter=MAXITER,
+                    restart=50,
+                    callback=self.monitor
+                )
+                solver_name = "GMRES"
+                
+            except Exception as e2:
+                if self.verbose:
+                    print(f"  GMRES also failed: {e2}")
+                raise RuntimeError("Both CG and GMRES failed") from e2
+        
+        t1_solve = time.perf_counter()
+        
+        # Undo equilibration
+        u_gpu = u_eq * D_inv_sqrt
+        
+        self.timing_metrics['solve_system'] = t1_solve - t0_solve
+        self.iterations = self.monitor.it
+        
+        # Convergence check
+        if info == 0:
+            residual = cp.linalg.norm(Kg_gpu @ u_gpu - fg_gpu)
+            rel_residual = residual / cp.linalg.norm(fg_gpu)
+            
+            if self.verbose:
+                print(f"\n✓ {solver_name} converged in {self.iterations} iterations")
+                print(f"  True residual norm:     {float(residual):.3e}")
+                print(f"  True relative residual: {float(rel_residual):.3e}")
+                print(f"  Solver time: {t1_solve - t0_solve:.4f}s")
+            
+            self.converged = True
+        else:
+            if self.verbose:
+                print(f"\n✗ {solver_name} did not converge (info={info})")
+            self.converged = False
+        
+        # Keep solution on GPU for post-processing, also store CPU copy
+        self.u_gpu = u_gpu
+        self.u = u_gpu.get()
         
         return self.u
 
@@ -642,7 +763,7 @@ class Quad8FEMSolverNumbaCUDA:
             'abs_vel': self.abs_vel,
             'pressure': self.pressure,
             'converged': self.converged,
-            'iterations': self.monitor.it,
+            'iterations': self.iterations,
             'timing_metrics': self.timing_metrics,
             'solution_stats': {
                 'u_range': [float(self.u.min()), float(self.u.max())],
