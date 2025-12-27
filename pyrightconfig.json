@@ -3,6 +3,7 @@
 		"./src/cpu",
 		"./src/gpu",
 		"./src/numba",
+		"./src/numba_cuda",
 		"./src/shared",
 	]
 }

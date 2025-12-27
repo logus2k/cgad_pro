@@ -1,5 +1,5 @@
 """
-Unified wrapper for CPU, GPU, and Numba solvers.
+Unified wrapper for CPU, GPU, Numba, and Numba CUDA solvers.
 """
 import sys
 from pathlib import Path
@@ -9,14 +9,16 @@ from typing import Optional, Dict, Any
 sys.path.insert(0, str(Path(__file__).parent.parent / "cpu"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "gpu"))
 sys.path.insert(0, str(Path(__file__).parent.parent / "numba"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "numba_cuda"))
 
 from quad8_cpu_v3 import Quad8FEMSolver as CPUSolver
 from quad8_gpu_v3 import Quad8FEMSolverGPU as GPUSolver
 from quad8_numba import Quad8FEMSolverNumba as NumbaSolver
+from quad8_numba_cuda import Quad8FEMSolverNumbaCUDA as NumbaCUDASolver
 
 
 class SolverWrapper:
-    """Unified interface for CPU, GPU, and Numba solvers"""
+    """Unified interface for CPU, GPU, Numba, and Numba CUDA solvers"""
     
     def __init__(self, solver_type: str, params: dict, progress_callback=None):
         self.solver_type = solver_type
@@ -42,6 +44,14 @@ class SolverWrapper:
             )
         elif self.solver_type == "numba":
             self.solver = NumbaSolver(
+                mesh_file=params['mesh_file'],
+                maxiter=params.get('max_iterations', 15000),
+                cg_print_every=params.get('progress_interval', 50),
+                verbose=params.get('verbose', True),
+                progress_callback=progress_callback
+            )
+        elif self.solver_type == "numba_cuda":
+            self.solver = NumbaCUDASolver(
                 mesh_file=params['mesh_file'],
                 maxiter=params.get('max_iterations', 15000),
                 cg_print_every=params.get('progress_interval', 50),
@@ -82,6 +92,13 @@ class SolverWrapper:
         try:
             import cupy
             available.append("gpu")
+        except ImportError:
+            pass
+        
+        try:
+            from numba import cuda
+            if cuda.is_available():
+                available.append("numba_cuda")
         except ImportError:
             pass
         
