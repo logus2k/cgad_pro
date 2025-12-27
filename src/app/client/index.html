@@ -16,6 +16,7 @@
 	<link rel="stylesheet" href="style/metrics.css" />	
 	<link rel="stylesheet" href="style/tabs.css" />
 	<link rel="stylesheet" href="style/benchmark.css" />
+	<link rel="stylesheet" href="style/settings.css" />
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
@@ -134,36 +135,67 @@
 
 				<div class="hud settings" id="hud-settings" style="z-index: 15;">
 					<h1>SETTINGS</h1>
-					
 					<div class="sep"></div>
 
-					<!-- Tabs container -->
 					<div class="tabs-container">
-						<div class="tab active" data-tab="tab-a">Tab A</div>
-						<div class="tab" data-tab="tab-b">Tab B</div>
-						<!-- Add more tabs as needed -->
+						<div class="tab active" data-tab="simulation">Simulation</div>
+						<div class="tab" data-tab="global">Global</div>
 					</div>
 					
-					<!-- Tab content containers -->
-					<div class="tab-content active" id="tab-a-content">
-						<div class="settings-container">
-							<input id="checkbox1" type="checkbox" class="ui-checkbox">
+					<div class="tab-content active" id="simulation-content">
+						<div class="settings-group">
+							<label class="setting-item">
+								<span>Particle Animation</span>
+								<input type="checkbox" id="cfg-use-particles" checked>
+							</label>
+							<label class="setting-item">
+								<span>Particle Density</span>
+								<input type="range" id="cfg-particle-density" min="0.1" max="2.0" step="0.1" value="1.0">
+							</label>
+							<label class="setting-item">
+								<span>3D Extrusion</span>
+								<input type="checkbox" id="cfg-use-extrusion" checked>
+							</label>
+							<label class="setting-item">
+								<span>Extrusion Style</span>
+								<select id="cfg-extrusion-style">
+									<option value="rectangular">Rectangular</option>
+									<option value="cylindrical">Cylindrical</option>
+								</select>
+							</label>
+							<label class="setting-item">
+								<span>Auto-Switch to Metrics</span>
+								<input type="checkbox" id="cfg-auto-metrics" checked>
+							</label>
 						</div>
-
-						<!-- Brightness slider -->
-						<input type="range" min="0" max="1" step="0.05" value="1" 
-							oninput="setBrightness(this.value)">
-
-						<!-- Opacity slider -->
-						<input type="range" min="0" max="1" step="0.05" value="0.8" 
-							oninput="setOpacity(this.value)">
-
-						<!-- Transparency checkbox -->
-						<input type="checkbox" checked onchange="setTransparent(this.checked)">
 					</div>
 					
-					<div class="tab-content" id="tab-b-content">
-						<!-- Content for Tab B goes here -->
+					<div class="tab-content" id="global-content">
+						<div class="settings-group">
+							<label class="setting-item">
+								<span>View Margin</span>
+								<input type="range" id="cfg-view-margin" min="0.0" max="0.5" step="0.05" value="0.1">
+							</label>
+							<label class="setting-item">
+								<span>Camera Transition Speed</span>
+								<input type="range" id="cfg-camera-speed" min="0.5" max="5.0" step="0.1" value="1.5">
+							</label>
+							<label class="setting-item">
+								<span>Background Speed</span>
+								<input type="range" id="cfg-bg-speed" min="0.0" max="2.0" step="0.1" value="1.0">
+							</label>
+							<label class="setting-item">
+								<span>HUD Transparency</span>
+								<input type="range" id="cfg-hud-opacity" min="0.2" max="1.0" step="0.05" value="0.8">
+							</label>
+							<label class="setting-item">
+								<span>Interface Style</span>
+								<select id="cfg-ui-theme">
+									<option value="sketchy">Sketchy Light</option>
+									<option value="dark">Blueprint Dark</option>
+								</select>
+							</label>
+						</div>
 					</div>
 				</div>
 

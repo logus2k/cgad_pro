@@ -8,6 +8,7 @@ import { MeshExtruderSDF } from '../script/mesh-extruder-sdf.js';
 import { MeshExtruderRect } from '../script/mesh-extruder-rect.js';
 import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
+import { SettingsManager } from './settings.manager.js';
 
 // ============================================================================
 // Configuration
@@ -1097,3 +1098,8 @@ window.setViewDuration = (seconds) => {
         console.warn('Camera controller not initialized');
     }
 };
+
+// **********************
+// CONFIGURATION SETTINGS
+// **********************
+window.settingsManager = new SettingsManager();

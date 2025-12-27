@@ -1,0 +1,30 @@
+/* Layout for the settings internal items */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px 10px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    color: #444;
+}
+
+.setting-item select {
+    padding: 4px 8px;
+    border: 1px solid var(--hud-border);
+    background: white;
+    font-family: 'Roboto', sans-serif;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.setting-item input[type="range"] {
+    width: 120px;
+    cursor: pointer;
+}

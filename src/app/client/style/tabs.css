@@ -60,7 +60,7 @@
     z-index: 1;
     margin-bottom: -1px;
     border-bottom: 1px solid #fff4e5 !important;
-    padding-top: 4px;
+    padding-top: 5px;
 }
 
 .hud .tab.active:hover {
@@ -72,5 +72,5 @@
 .hud .tab:not(.active) {
     border-bottom: 0.5px solid transparent;
     margin-bottom: 0px;
-    padding: 4px 10px 1px 10px;
+    padding: 5px 10px 1px 10px;
 }

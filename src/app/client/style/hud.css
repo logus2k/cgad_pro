@@ -133,8 +133,9 @@
 .hud.settings {
 	top: 85px;
 	right: 20px;
-	width: 260px;
-	max-width: min(92vw, 320px);
+	width: 280px;
+	min-width: 280px;
+	max-width: 280px;
 	resize: none;
 	overflow: hidden;
     background-color: #fff4e5c5;
