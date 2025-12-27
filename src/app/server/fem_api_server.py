@@ -146,7 +146,8 @@ async def run_solver_task(job_id: str, params: dict):
         jobs[job_id]['status'] = 'running'
         
         loop = asyncio.get_event_loop()
-        callback = ProgressCallback(sio, job_id, loop)
+        solver_type = params.get('solver_type', 'cpu')
+        callback = ProgressCallback(sio, job_id, solver_type, loop)
         
         # Intercept on_mesh_loaded to store data for replay
         original_on_mesh_loaded = callback.on_mesh_loaded
@@ -154,6 +155,7 @@ async def run_solver_task(job_id: str, params: dict):
             # Store mesh_loaded data for replay if client joins late
             mesh_loaded_data = {
                 'job_id': job_id,
+                'solver_type': solver_type,
                 'nodes': nodes,
                 'elements': elements,
                 'binary_url': f'/solve/{job_id}/mesh/binary',
@@ -193,6 +195,7 @@ async def run_solver_task(job_id: str, params: dict):
         # Prepare solve_complete data
         solve_complete_data = {
             'job_id': job_id,
+            'solver_type': solver_type,
             'converged': results['converged'],
             'iterations': results['iterations'],
             'timing_metrics': results['timing_metrics'],
@@ -235,8 +238,10 @@ async def run_solver_task(job_id: str, params: dict):
     except Exception as e:
         jobs[job_id]['status'] = 'failed'
         jobs[job_id]['error'] = str(e)
+        solver_type = params.get('solver_type', 'cpu')
         await sio.emit('solve_error', {
             'job_id': job_id,
+            'solver_type': solver_type,
             'error': str(e)
         }, room=job_id)
         print(f"Job {job_id} failed: {e}")

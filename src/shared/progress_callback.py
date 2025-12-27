@@ -10,9 +10,10 @@ import struct
 class ProgressCallback:
     """Emit events to Socket.IO during solving"""
     
-    def __init__(self, socketio, job_id: str, loop=None):
+    def __init__(self, socketio, job_id: str, solver_type: str = None, loop=None):
         self.socketio = socketio
         self.job_id = job_id
+        self.solver_type = solver_type  # NEW: Track solver type for this job
         self.loop = loop or asyncio.get_event_loop()
         self.last_solution_update = 0  # Throttle solution updates
     
@@ -28,6 +29,7 @@ class ProgressCallback:
         """Called when a stage begins"""
         self._emit_sync('stage_start', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'timestamp': time.time()
         })
@@ -36,6 +38,7 @@ class ProgressCallback:
         """Called when a stage completes"""
         self._emit_sync('stage_complete', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'duration': duration,
             'timestamp': time.time()
@@ -45,6 +48,7 @@ class ProgressCallback:
         """Called during element assembly to report progress"""
         self._emit_sync('assembly_progress', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'elements_done': elements_done,
             'total_elements': total_elements,
             'progress_percent': 100.0 * elements_done / total_elements,
@@ -56,6 +60,7 @@ class ProgressCallback:
         """Called after mesh is loaded - send metadata only"""
         self._emit_sync('mesh_loaded', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'nodes': nodes,
             'elements': elements,
             # Don't send geometry via Socket.IO - use binary endpoint
@@ -69,6 +74,7 @@ class ProgressCallback:
         """Called during CG iterations"""
         self._emit_sync('solve_progress', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': 'solving',
             'iteration': iteration,
             'max_iterations': max_iterations,
@@ -103,6 +109,7 @@ class ProgressCallback:
         
         self._emit_sync('solution_update', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'iteration': iteration,
             'chunk_data': chunk_b64,
             'chunk_info': chunk_info,
@@ -115,6 +122,7 @@ class ProgressCallback:
         """Called when entire solve is complete"""
         self._emit_sync('solve_complete', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'converged': converged,
             'iterations': iterations,
             'timing_metrics': timing_metrics,
@@ -161,6 +169,7 @@ class ProgressCallback:
         
         self._emit_sync('solution_increment', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'iteration': iteration,
             'chunk_data': solution_bytes,  # Raw bytes - Socket.IO sends as binary
             'chunk_info': {
@@ -177,6 +186,7 @@ class ProgressCallback:
         """Called when an error occurs"""
         self._emit_sync('solve_error', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'error': str(error),
             'timestamp': time.time()
