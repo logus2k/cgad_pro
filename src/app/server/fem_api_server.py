@@ -21,9 +21,15 @@ sys.path.insert(0, str(PROJECT_ROOT / "gpu"))
 # Add static files path for Web client 
 CLIENT_DIR = PROJECT_ROOT / "app" / "client"
 
+# Benchmark data directory
+BENCHMARK_DIR = PROJECT_ROOT / "app" / "server" / "benchmark"
+
+# Gallery file for model name lookup
+GALLERY_FILE = CLIENT_DIR / "gallery_files.json"
+
 import asyncio
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 import uvicorn
 
 from fastapi import FastAPI, HTTPException
@@ -38,6 +44,9 @@ import numpy as np
 from models import SolverParams, JobStatus, JobResult
 from progress_callback import ProgressCallback
 from solver_wrapper import SolverWrapper
+
+# Import benchmark service
+from benchmark_service import init_benchmark_service, create_benchmark_router
 
 
 # ============================================================================
@@ -57,6 +66,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ============================================================================
+# Benchmark Service Initialization
+# ============================================================================
+benchmark_service, benchmark_handler = init_benchmark_service(BENCHMARK_DIR, GALLERY_FILE)
+
+# Add benchmark API routes
+benchmark_router = create_benchmark_router(benchmark_service)
+app.include_router(benchmark_router)
 
 # ============================================================================
 # Socket.IO Setup
@@ -200,6 +218,15 @@ async def run_solver_task(job_id: str, params: dict):
             }
         })
         
+        # Record benchmark result
+        try:
+            benchmark_handler.on_solve_complete(
+                job_data=jobs[job_id],
+                client_config=jobs[job_id].get('client_config')
+            )
+        except Exception as bench_err:
+            print(f"Warning: Benchmark recording failed: {bench_err}")
+        
         print(f"Job {job_id} completed and stored successfully\n")
         
         # THEN emit solve_complete event
@@ -261,7 +288,8 @@ async def health():
     return {
         "status": "healthy",
         "gpu_available": gpu_available,
-        "active_jobs": len([j for j in jobs.values() if j['status'] == 'running'])
+        "active_jobs": len([j for j in jobs.values() if j['status'] == 'running']),
+        "benchmark_records": len(benchmark_service._records)
     }
 
 
@@ -287,8 +315,13 @@ async def start_solve(params: SolverParams):
         raise HTTPException(status_code=404, detail=f"Mesh file not found: {mesh_path}")
     
     # Update params with resolved path
-    params_dict = params.dict()
+    params_dict = params.model_dump()
     params_dict['mesh_file'] = str(mesh_path)
+    
+    # Extract client_config if provided
+    client_config = None
+    if params.client_config:
+        client_config = params.client_config.model_dump()
     
     # Create job record
     jobs[job_id] = {
@@ -299,7 +332,8 @@ async def start_solve(params: SolverParams):
         'error': None,
         'mesh_loaded_data': None,
         'mesh_info': None,
-        'solve_complete_data': None
+        'solve_complete_data': None,
+        'client_config': client_config  # Store client config for benchmark
     }
     
     # Start solver task in background
@@ -551,6 +585,7 @@ if __name__ == "__main__":
     print(f"  Starting server on http://localhost:5867")
     print(f"  Socket.IO endpoint: ws://localhost:5867/socket.io")
     print(f"  API docs: http://localhost:5867/docs")
+    print(f"  Benchmark API: http://localhost:5867/api/benchmark")
     print("="*70 + "\n")
     
     uvicorn.run(
