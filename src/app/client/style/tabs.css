@@ -6,6 +6,7 @@
 
 .tab-content.active {
     display: block;
+    overflow: auto;
 }
 
 .tab {
