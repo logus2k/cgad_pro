@@ -24,18 +24,35 @@
             "userDataDir": true,
             "webRoot": "${workspaceFolder}/src/app/client",
             "runtimeExecutable": "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
-        }        
+        },
+        {
+            "name": "Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5867",
+            "userDataDir": true,
+            "webRoot": "${workspaceFolder}/src/app/client",
+        }          
     ],
 
     "compounds": [
 
         {
-            "name": "Client & Server Debug",
+            "name": "logus2k.com/fem -> Client & Server Debug",
             "configurations": [
                 "Python Debugger",
                 "Brave"
             ],
             "stopAll": true
+        },
+        {
+            "name": "localhost:5867 -> Client & Server Debug",
+            "configurations": [
+                "Python Debugger",
+                "Chrome"
+            ],
+            "stopAll": true
         }
+
     ]    
 }
