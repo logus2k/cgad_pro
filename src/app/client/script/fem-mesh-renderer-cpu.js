@@ -56,7 +56,7 @@ export class FEMMeshRendererCPU {
         // Center and scale mesh to fit view
         this.fitMeshToView();
         
-        console.log('✅ Mesh rendered:', meshData.nodes, 'nodes');
+        console.log('OK: Mesh rendered:', meshData.nodes, 'nodes');
     }
     
     /**
@@ -285,7 +285,7 @@ export class FEMMeshRendererCPU {
             0
         );
 
-        console.log(`✅ CPU Mesh synchronized: ${x.length} nodes aligned to floor at scale ${scale.toFixed(4)}`);
+        console.log(`OK: CPU Mesh synchronized: ${x.length} nodes aligned to floor at scale ${scale.toFixed(4)}`);
     }
     
     setWireframe(enabled) {

@@ -203,8 +203,8 @@ void quad8_postprocess_kernel(
     }
 
     double v_ip_sum = 0.0;
-    double vel_x_sum = 0.0;  // ✅ ADD: Accumulate vx
-    double vel_y_sum = 0.0;  // ✅ ADD: Accumulate vy
+    double vel_x_sum = 0.0;  // OK: ADD: Accumulate vx
+    double vel_y_sum = 0.0;  // OK: ADD: Accumulate vy
     
     // --- 2. Integration Loop (NIP=4) ---
     for (int ip = 0; ip < N_IP; ++ip) {
@@ -253,8 +253,8 @@ void quad8_postprocess_kernel(
 
         // --- 5. Accumulate velocity components ---
         // Velocity is negative gradient: v = -grad(u)
-        vel_x_sum += -grad[0];  // ✅ FIX: Accumulate vx
-        vel_y_sum += -grad[1];  // ✅ FIX: Accumulate vy
+        vel_x_sum += -grad[0];  // OK: FIX: Accumulate vx
+        vel_y_sum += -grad[1];  // OK: FIX: Accumulate vy
         
         // Velocity magnitude at this Gauss point
         double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
@@ -262,8 +262,8 @@ void quad8_postprocess_kernel(
     }
     
     // --- 6. Output (Average over all 4 Gauss points) ---
-    vel_out[e * 2 + 0] = vel_x_sum / N_IP;  // ✅ FIX: Average vx
-    vel_out[e * 2 + 1] = vel_y_sum / N_IP;  // ✅ FIX: Average vy
+    vel_out[e * 2 + 0] = vel_x_sum / N_IP;  // OK: FIX: Average vx
+    vel_out[e * 2 + 1] = vel_y_sum / N_IP;  // OK: FIX: Average vy
     abs_vel_out[e] = v_ip_sum / N_IP;        // Already correct
 }
 """
@@ -288,7 +288,7 @@ class GPUSolverMonitor:
 		"""Callback function called by CuPy solvers"""
 		self.it += 1
 		
-		# ✅ ALWAYS check for incremental updates (independent of logging)
+		# OK: ALWAYS check for incremental updates (independent of logging)
 		if self.progress_callback is not None:
 			if self.it == 1 or (self.it % 100 == 0):
 				print(f"[DEBUG GPU] Sending solution increment at iteration {self.it}")

@@ -32,7 +32,7 @@ export class MeshExtruder {
         this.bounds = this.calculateBounds();
         this.scene.add(this.group);
         
-        console.log('✅ MeshExtruder initialized');
+        console.log('OK: MeshExtruder initialized');
     }
     
     /**
@@ -81,7 +81,7 @@ export class MeshExtruder {
         
         this.group.add(this.mesh2D);
         
-        console.log('✅ 2D mesh created');
+        console.log('OK: 2D mesh created');
     }
     
     /**
@@ -113,7 +113,7 @@ export class MeshExtruder {
         
         this.group.add(this.mesh3D);
         
-        console.log('✅ 3D Y-shaped tube created');
+        console.log('OK: 3D Y-shaped tube created');
     }
     
     /**

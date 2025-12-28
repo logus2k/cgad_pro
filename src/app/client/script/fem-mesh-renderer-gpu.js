@@ -230,7 +230,7 @@ export class FEMMeshRendererGPU {
             new THREE.Vector3(maxX, maxY, 1)
         );
         
-        console.log(`✅ GPU Mesh Aligned to floor. Scale: ${scale.toFixed(4)}`);
+        console.log(`OK: GPU Mesh Aligned to floor. Scale: ${scale.toFixed(4)}`);
     }
 
     clear() {

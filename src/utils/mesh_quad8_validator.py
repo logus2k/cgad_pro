@@ -116,14 +116,14 @@ if errors:
     for e in errors:
         print("  -", e)
 else:
-    print("\n✅ No fatal errors detected")
+    print("\nOK: No fatal errors detected")
 
 if warnings:
     print("\n⚠ WARNINGS:")
     for w in warnings:
         print("  -", w)
 else:
-    print("\n✅ No warnings detected")
+    print("\nOK: No warnings detected")
 
 print("\n============================================")
 
