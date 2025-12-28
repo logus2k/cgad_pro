@@ -13,3 +13,4 @@ pyvenv.cfg
 
 
 .vscode/
+src/app/server/benchmark/benchmark_results.json
