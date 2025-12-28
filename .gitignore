@@ -8,3 +8,7 @@ __pycache__/
 data/models/
 data/input/
 data/output/
+Scripts/
+pyvenv.cfg
+
+
