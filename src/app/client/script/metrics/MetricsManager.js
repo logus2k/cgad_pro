@@ -166,15 +166,8 @@ export class MetricsManager {
             return window.metricsCatalog.getEnabledMetrics();
         }
         
-        // Catalog not initialized yet - return defaults
-        return [
-            'convergence-plot',
-            'solution-range',
-            'convergence-quality',
-            'timing-waterfall',
-            'speedup-factors',
-            'mesh-stats'
-        ];
+        // Catalog not initialized yet - return defaults (none enabled by default)
+        return [];
     }
     
     /**

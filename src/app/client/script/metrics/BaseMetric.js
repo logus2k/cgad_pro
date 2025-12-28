@@ -600,16 +600,8 @@ export class BaseMetric {
             return window.metricsCatalog.isMetricEnabled(this.id);
         }
         
-        // Catalog not initialized yet - use defaults
-        const defaultEnabled = [
-            'convergence-plot',
-            'solution-range',
-            'convergence-quality',
-            'timing-waterfall',
-            'speedup-factors',
-            'mesh-stats'
-        ];
-        return defaultEnabled.includes(this.id);
+        // Catalog not initialized yet - no metrics enabled by default
+        return false;
     }
     
     /**

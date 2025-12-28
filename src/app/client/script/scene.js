@@ -270,15 +270,21 @@ export class MillimetricScene {
         const distanceH = (gridSize / 2) / (halfFovTan * aspect);
         const requiredDistance = Math.max(distanceV, distanceH); 
         
-        const margin = 0.5;
+        const margin = 0.8;
         const distance = requiredDistance * margin;
         
-        this.camera.position.set(distance, distance * 0.9, distance);
+        // 70° from Z-axis, on the right side (positive X)
+        const angleRad = Math.PI * 30 / 180;  // 70 degrees
+        const camX = distance * Math.sin(angleRad);
+        const camZ = distance * Math.cos(angleRad);
+        const camY = distance * 0.5;
+        
+        this.camera.position.set(camX, camY, camZ);
         this.camera.lookAt(0, 0, 0);
         this.controls.target.set(0, 0, 0);
         
         this.controls.update();
-        this.render(); // Redraw after repositioning
+        this.render();
     }
 
     #setupGradientBackground() {

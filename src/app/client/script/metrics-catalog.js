@@ -19,28 +19,28 @@ const METRICS_CATALOG = {
                 name: 'Convergence Iterations',
                 description: 'Residual vs iteration chart (log scale)',
                 type: 'realtime',
-                default: true
+                default: false
             },
             {
                 id: 'convergence-quality',
                 name: 'Convergence Quality',
                 description: 'Final residual, iterations, convergence status',
                 type: 'post-solve',
-                default: true
+                default: false
             },
             {
                 id: 'timing-waterfall',
                 name: 'Timing Breakdown',
                 description: 'Time spent in each solver stage',
                 type: 'post-solve',
-                default: true
+                default: false
             },
             {
                 id: 'speedup-factors',
                 name: 'Speedup Factors',
                 description: 'Performance comparison across solver types',
                 type: 'post-solve',
-                default: true
+                default: false
             }
         ]
     },
@@ -54,14 +54,14 @@ const METRICS_CATALOG = {
                 name: 'Mesh Statistics',
                 description: 'Node count, element count, complexity',
                 type: 'post-solve',
-                default: true
+                default: false
             },
             {
                 id: 'solution-range',
                 name: 'Solution Range',
                 description: 'Min/max/mean solution values',
                 type: 'post-solve',
-                default: true
+                default: false
             }
         ]
     },
@@ -259,11 +259,6 @@ export class MetricsCatalog {
             const isEnabled = this.enabledMetrics.has(metricId);
             checkbox.checked = isEnabled;
             checkbox.closest('.metric-item').classList.toggle('enabled', isEnabled);
-        });
-        
-        // Clear quick filter selection
-        this.container.querySelectorAll('.quick-toggle-btn').forEach(btn => {
-            btn.classList.remove('active');
         });
         
         this.updateCounts();
