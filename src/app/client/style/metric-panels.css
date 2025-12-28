@@ -1,0 +1,130 @@
+/**
+ * Metric Panels Styles
+ * 
+ * Styling for individual metric HUD panels created by the metrics system.
+ * These panels are moveable/resizable and contain ECharts visualizations.
+ * 
+ * Location: /src/app/client/style/metric-panels.css
+ */
+
+/* Base metric panel - inherits from .hud */
+.hud.metric-panel {
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #fff4e5c5;
+}
+
+.hud.metric-panel:hover {
+    background-color: #fff4e5;
+}
+
+.hud.metric-panel.visible {
+    display: flex;
+}
+
+/* Chart container fills available space */
+.hud.metric-panel .metric-chart-container {
+    flex: 1;
+    width: 100%;
+    min-height: 100px;
+    overflow: hidden;
+}
+
+/* Ensure SVG charts are responsive */
+.hud.metric-panel .metric-chart-container svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Panel header spacing */
+.hud.metric-panel h1 {
+    margin-bottom: 0;
+    padding-bottom: 6px;
+}
+
+.hud.metric-panel .sep {
+    margin-bottom: 8px;
+}
+
+/* Compact mode for smaller panels */
+.hud.metric-panel.compact h1 {
+    font-size: 0.75rem;
+    padding-bottom: 4px;
+}
+
+.hud.metric-panel.compact .sep {
+    margin-bottom: 4px;
+}
+
+/* Loading state */
+.hud.metric-panel.loading .metric-chart-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2px solid #e0e0e0;
+    border-top-color: var(--hud-accent, #2266ff);
+    border-radius: 50%;
+    animation: metric-spinner 0.8s linear infinite;
+}
+
+@keyframes metric-spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Panel specific overrides */
+
+/* Timing Waterfall */
+#hud-metric-timing-waterfall {
+    min-width: 280px;
+    min-height: 200px;
+}
+
+/* Convergence Plot */
+#hud-metric-convergence-plot {
+    min-width: 300px;
+    min-height: 220px;
+}
+
+/* Progress Ring */
+#hud-metric-progress-ring {
+    min-width: 180px;
+    min-height: 180px;
+    max-width: 250px;
+    max-height: 250px;
+}
+
+/* Speedup Factors */
+#hud-metric-speedup-factors {
+    min-width: 200px;
+    min-height: 150px;
+}
+
+/* Solver Comparison */
+#hud-metric-solver-comparison {
+    min-width: 320px;
+    min-height: 240px;
+}
+
+/* Dark theme adjustments (if enabled) */
+.theme-dark .hud.metric-panel {
+    background: rgba(30, 30, 40, 0.9);
+}
+
+.theme-dark .hud.metric-panel h1 {
+    color: #e0e0e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hud.metric-panel {
+        min-width: 200px !important;
+        max-width: calc(100vw - 40px) !important;
+    }
+}

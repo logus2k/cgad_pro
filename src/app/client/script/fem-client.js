@@ -3,12 +3,18 @@
  */
 export class FEMClient {
 
-    constructor(serverUrl = 'http://localhost:4567') {
+    constructor(serverUrl = window.location.origin, basePath = '/fem') {
 
         this.serverUrl = serverUrl;
-        this.socket = io(serverUrl);
+        this.basePath = basePath;
+        
+        const socketOrigin = new URL(serverUrl).origin;
+        this.socket = io(socketOrigin, {
+            path: `${basePath}/socket.io`,
+        });
         this.currentJobId = null;
         this.eventHandlers = {};
+        this.pendingMeshFetch = null;  // Track early mesh fetch
         
         this.setupConnectionHandlers();
     }
@@ -16,32 +22,49 @@ export class FEMClient {
     setupConnectionHandlers() {
 
         this.socket.on('connect', () => {
-            console.log('✅ Connected to FEM server');
+            console.log('Connected to FEM server');
             this.triggerEvent('connected');
         });
         
         this.socket.on('disconnect', () => {
-            console.log('❌ Disconnected from FEM server');
+            console.log('Disconnected from FEM server');
             this.triggerEvent('disconnected');
         });
         
         // Stage events
         this.socket.on('stage_start', (data) => {
-            console.log(`📍 Stage started: ${data.stage}`);
+            console.log(`Stage started: ${data.stage}`);
             this.triggerEvent('stage_start', data);
         });
         
         this.socket.on('stage_complete', (data) => {
-            console.log(`✅ Stage complete: ${data.stage} (${data.duration.toFixed(2)}s)`);
+            console.log(`Stage complete: ${data.stage} (${data.duration.toFixed(2)}s)`);
             this.triggerEvent('stage_complete', data);
         });
         
-        // Mesh loaded - fetch binary
+        // Mesh loaded - use early fetch if available, otherwise fetch now
         this.socket.on('mesh_loaded', async (data) => {
-            console.log(`📐 Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
+            console.log(`Mesh loaded: ${data.nodes} nodes, ${data.elements} elements`);
             
-            // Fetch binary mesh data
-            if (data.binary_url) {
+            // Check if we already have mesh data from early fetch
+            if (this.pendingMeshFetch) {
+                try {
+                    const meshData = await this.pendingMeshFetch;
+                    data.coordinates = meshData.coordinates;
+                    data.connectivity = meshData.connectivity;
+                    console.log('Using early-fetched mesh data');
+                } catch (error) {
+                    console.error('Early mesh fetch failed, retrying:', error);
+                    // Fallback to fetching now
+                    if (data.binary_url) {
+                        const meshData = await this.fetchBinaryMesh(data.binary_url);
+                        data.coordinates = meshData.coordinates;
+                        data.connectivity = meshData.connectivity;
+                    }
+                }
+                this.pendingMeshFetch = null;
+            } else if (data.binary_url) {
+                // No early fetch, fetch now
                 try {
                     const meshData = await this.fetchBinaryMesh(data.binary_url);
                     data.coordinates = meshData.coordinates;
@@ -54,6 +77,11 @@ export class FEMClient {
             this.triggerEvent('mesh_loaded', data);
         });
         
+        // Assembly progress
+        this.socket.on('assembly_progress', (data) => {
+            this.triggerEvent('assembly_progress', data);
+        });
+        
         // Solving progress
         this.socket.on('solve_progress', (data) => {
             this.triggerEvent('solve_progress', data);
@@ -61,17 +89,20 @@ export class FEMClient {
         
         // Incremental solution update
         this.socket.on('solution_update', (data) => {
-            // Decode base64 binary chunk
-            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
-            data.binary_chunk = new Float32Array(binaryData);
+            // Handle binary data directly (Socket.IO binary support)
+            const solutionChunk = data.chunk_data instanceof ArrayBuffer 
+                ? new Float32Array(data.chunk_data)
+                : new Float32Array(data.chunk_data.buffer || data.chunk_data);
+            data.binary_chunk = solutionChunk;
             this.triggerEvent('solution_update', data);
         });
 
         // Incremental solution update
         this.socket.on('solution_increment', (data) => {
-            // Decode base64 binary chunk
-            const binaryData = this.base64ToArrayBuffer(data.chunk_data);
-            const solutionChunk = new Float32Array(binaryData);
+            // Handle binary data directly (Socket.IO binary support)
+            const solutionChunk = data.chunk_data instanceof ArrayBuffer 
+                ? new Float32Array(data.chunk_data)
+                : new Float32Array(data.chunk_data.buffer || data.chunk_data);
             
             // Reconstruct full solution from subsampled data
             const fullSolution = this.reconstructSolution(
@@ -85,7 +116,7 @@ export class FEMClient {
         
         // Solve complete
         this.socket.on('solve_complete', async (data) => {
-            console.log(`🎉 Solve complete! Converged: ${data.converged}, Iterations: ${data.iterations}`);
+            console.log(`Solve complete! Converged: ${data.converged}, Iterations: ${data.iterations}`);
             
             // Fetch final solution binary
             if (data.solution_url) {
@@ -102,7 +133,7 @@ export class FEMClient {
         
         // Error
         this.socket.on('solve_error', (data) => {
-            console.error(`❌ Solver error at ${data.stage}:`, data.error);
+            console.error(`Solver error at ${data.stage}:`, data.error);
             this.triggerEvent('solve_error', data);
         });
     }
@@ -111,7 +142,8 @@ export class FEMClient {
      * Fetch binary mesh data
      */
     async fetchBinaryMesh(url) {
-        const response = await fetch(`${this.serverUrl}${url}`);
+        // url already includes basePath from server
+        const response = await fetch(`${this.serverUrl}${this.basePath}${url}`);
         const buffer = await response.arrayBuffer();
         
         return this.parseBinaryMesh(buffer);
@@ -190,7 +222,8 @@ export class FEMClient {
      * Fetch binary solution data
      */
     async fetchBinarySolution(url) {
-        const response = await fetch(`${this.serverUrl}${url}`);
+        // url already includes basePath from server
+        const response = await fetch(`${this.serverUrl}${this.basePath}${url}`);
         const buffer = await response.arrayBuffer();
         
         const view = new DataView(buffer);
@@ -215,40 +248,49 @@ export class FEMClient {
      * Start a new solve job
      */
     async startSolve(params) {
-        try {
-            const response = await fetch(`${this.serverUrl}/solve`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(params)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            this.currentJobId = data.job_id;
-            
-            // Join Socket.IO room for this job
-            this.socket.emit('join_room', {job_id: data.job_id});
-            
-            console.log(`🚀 Job started: ${data.job_id}`);
-            this.triggerEvent('job_started', data);
-            
-            return data;
-            
-        } catch (error) {
-            console.error('Failed to start solve:', error);
-            this.triggerEvent('job_error', {error: error.message});
-            throw error;
+        // Clear any pending mesh fetch from previous job
+        this.pendingMeshFetch = null;
+        
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(params)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        this.currentJobId = data.job_id;
+
+        const join = () => {
+            this.socket.emit('join_room', { job_id: data.job_id });
+            console.log(`Joined room ${data.job_id}`);
+            
+            // Start mesh fetch immediately (don't await - let it run in parallel)
+            const meshUrl = `/solve/${data.job_id}/mesh/binary`;
+            console.log('Starting early mesh fetch...');
+            this.pendingMeshFetch = this.fetchBinaryMesh(meshUrl);
+        };
+
+        if (this.socket.connected) {
+            join();
+        } else {
+            this.socket.once('connect', join);
+        }
+
+        console.log(`Job started: ${data.job_id}`);
+        this.triggerEvent('job_started', data);
+
+        return data;
     }
     
     /**
      * Get current job status
      */
     async getJobStatus(jobId) {
-        const response = await fetch(`${this.serverUrl}/solve/${jobId}/status`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve/${jobId}/status`);
         return response.json();
     }
     
@@ -256,7 +298,7 @@ export class FEMClient {
      * Get job results
      */
     async getJobResults(jobId) {
-        const response = await fetch(`${this.serverUrl}/solve/${jobId}/results`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/solve/${jobId}/results`);
         return response.json();
     }
     
@@ -264,7 +306,7 @@ export class FEMClient {
      * Get available meshes
      */
     async getMeshes() {
-        const response = await fetch(`${this.serverUrl}/meshes`);
+        const response = await fetch(`${this.serverUrl}${this.basePath}/meshes`);
         return response.json();
     }
     

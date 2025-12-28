@@ -240,16 +240,52 @@ export class FEMMeshRendererCPU {
     
     createColorScale() { return null; }
     
+    /**
+     * Fit mesh to view with "Rest on Floor" and precise horizontal centering
+     */
     fitMeshToView() {
-        if (!this.meshObject) return;
-        const box = new THREE.Box3().setFromObject(this.meshObject);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        this.meshObject.position.sub(center);
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const targetSize = 50;
+        if (!this.meshObject || !this.meshData) return;
+
+        const coords = this.meshData.coordinates;
+        const x = coords.x;
+        const y = coords.y;
+
+        // 1. STACK-SAFE MIN/MAX CALCULATION
+        // We use a loop instead of Math.min(...x) to avoid "Maximum call stack size exceeded"
+        // on large meshes (e.g., 200k nodes).
+        let minX = x[0], maxX = x[0];
+        let minY = y[0], maxY = y[0];
+
+        for (let i = 1; i < x.length; i++) {
+            if (x[i] < minX) minX = x[i];
+            if (x[i] > maxX) maxX = x[i];
+            if (y[i] < minY) minY = y[i];
+            if (y[i] > maxY) maxY = y[i];
+        }
+
+        const sizeX = maxX - minX;
+        const sizeY = maxY - minY;
+        const maxDim = Math.max(sizeX, sizeY);
+        const targetSize = 50; 
         const scale = targetSize / maxDim;
+
+        // 2. APPLY UNIFORM SCALING
         this.meshObject.scale.set(scale, scale, scale);
+
+        // 3. PRECISION ALIGNMENT
+        // Calculate horizontal center relative to the raw coordinates
+        const centerX = (minX + maxX) / 2;
+        
+        // Horizontal: Subtract centerX to put the middle of the mesh at X=0
+        // Vertical: Subtract minY to put the bottom of the mesh at Y=0 (Rest on Floor)
+        // We multiply by scale because position is applied before scale in the local matrix.
+        this.meshObject.position.set(
+            -centerX * scale, 
+            -minY * scale, 
+            0
+        );
+
+        console.log(`✅ CPU Mesh synchronized: ${x.length} nodes aligned to floor at scale ${scale.toFixed(4)}`);
     }
     
     setWireframe(enabled) {

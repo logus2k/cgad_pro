@@ -1,0 +1,36 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+	background: linear-gradient(to bottom, #ffffff, #edfbff);
+	background-size: 100% calc(var(--horizon-top) + 10px);
+	background-position: top;
+	background-repeat: no-repeat;
+}
+
+.horizon-svg {
+    position: absolute;
+    top: var(--horizon-top);
+    left: 0;
+    width: 100%;
+    height: 30px;
+    overflow: visible;
+}
+
+.pena-palace {
+    position: absolute;
+    width: 110px;
+    top: calc(var(--horizon-top) - 44px);
+    right: 120px;
+    z-index: 1;
+}
+
+.pena-palace-caption {
+    font-family: 'Roboto', sans-serif;
+    font-size: 6px;
+    position: absolute;
+    top: var(--horizon-top);
+    right: 77px;
+}

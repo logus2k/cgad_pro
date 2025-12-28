@@ -7,7 +7,7 @@
     --hud-bg: #dfdfdf;            /* Pure paper white */
     --hud-bg-hover: #fcfcfc;
     --hud-border: #000000;        /* Strong ink line */
-    --hud-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* "Hard" drop shadow for a 2D feel */
+    --hud-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1); /* "Hard" drop shadow for a 2D feel */
 }
 
 /* Moveable.js CSS rules */
@@ -23,13 +23,23 @@
     z-index: 10 !important;
 }
 
+.moveable-line.moveable-guideline {
+    display: none !important;
+}
+
+.moveable-control-box.occluded .moveable-control {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
 /* Core HUD */
 .hud {
     position: absolute;
     color: var(--hud-fg);
     border: 0.5px solid #9a9a9a;
     box-shadow: var(--hud-shadow);
-    padding: 10px;
+    padding: 0px;
     font-family: 'Roboto', sans-serif;
     border-radius: 8px;
     user-select: none;
@@ -54,39 +64,42 @@
 
 /* Positions */
 .hud.metrics {
-    bottom: 100px;
-    right: 120px;
-    width: 300px;
-    height: 400px;
+    bottom: 50px;
+    right: 30px;
     display: flex;
     flex-direction: column;
     align-self: flex-end;
-    min-width: 300px;
+    width: 280px;
+    height: 400px;
+    min-width: 280px;
     min-height: 400px;
-    max-width: 300px;
+    max-width: 280px;
+    max-height: 400px;
     background-color: #fff4e5c5;
 }
 
 .hud.metrics:hover {
     background-color: #fff4e5;
-	cursor: text;
 }
 
 .hud.gallery {
-	top: 85px;
-	left: 20px;
-	width: 800px;
-	height: 450px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 770px;
+	min-width: 450px;
+	max-width: 770px;
+	height: 500px;
+	min-height: 500px;
+	max-height: 500px;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-    background-color: #ffffff;
+	background-color: #fff4e5c5;
 }
 
 .hud.gallery:hover {
-    background-color: #ffffff;
-	cursor: text;
-	cursor: pointer;
+    background-color: #fff4e5;
 }
 
 .hud.benchmark {
@@ -101,7 +114,6 @@
 
 .hud.benchmark:hover {
     background-color: #fff4e5;
-	cursor: text;
 }
 
 .hud.report {
@@ -116,14 +128,14 @@
 
 .hud.report:hover {
     background-color: #fff4e5;
-	cursor: text;
 }
 
 .hud.settings {
 	top: 85px;
 	right: 20px;
-	width: 260px;
-	max-width: min(92vw, 320px);
+	width: 280px;
+	min-width: 280px;
+	max-width: 280px;
 	resize: none;
 	overflow: hidden;
     background-color: #fff4e5c5;
@@ -131,7 +143,6 @@
 
 .hud.settings:hover {
     background-color: #fff4e5;
-	cursor: text;
 }
 
 .hud.about {
@@ -145,7 +156,6 @@
 
 .hud.about:hover {
     background-color: #fff4e5;
-	cursor: text;
 }
 
 .about-section {
@@ -232,10 +242,10 @@
     font-size: 11px;
     font-family: 'Roboto', sans-serif;
     letter-spacing: 1px;
-    margin: 2px 0px 6px 2px;
-    color: #696969;
-    font-weight: 900;
+    color: #444444;
     cursor: move;
+    padding: 10px 5px 3px 10px;
+    margin: 0px 0px 0px 0px;
 }
 
 .hud.dragging {
@@ -377,7 +387,7 @@ summary::-webkit-details-marker {
 .hud .sep {
     height: 0.5px;
     background: #c4c4c4b5;
-    margin: 0px 0px 10px 0px;
+    margin: 0px 10px 0px 10px;
 }
 
 .inline-controls {

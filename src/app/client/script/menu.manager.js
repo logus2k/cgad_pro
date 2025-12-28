@@ -12,39 +12,54 @@ const menuManager = new MenuManager({
 });
 */
 
+import { getTopZ, bringToFront as bringToFrontGlobal, syncWithExistingPanels } from './zIndexManager.js';
 
 export class MenuManager {
 
     constructor(config = {}) {
+
         this.cfg = {
             menuTargetId: config.menuTargetId || 'application-menu-container',
             menuPosition: config.menuPosition || 'bottom-center',
             iconSize: config.menuIconSize || 36,
-            margin: config.menuMargin || 16,
-            panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'about', 'settings'],
+            margin: config.menuMargin || 20,
+            panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'settings', 'about'],
             initialVisibility: config.initialVisibility || {},
+            nonResizable: config.nonResizable || ['settings', 'about'],
         };
 
         this.menuEl = null;
         this.panels = {};
         this.moveables = new Map();
-        this.topZ = 10;
         this.positions = new WeakMap();
+        this.svgCache = new Map();
 
         this.tx = 0;
         this.ty = 0;
 
         this.#initMenu();
         this.#initPanels();
+        this.#initGlobalHoverCheck();
         this.#applyInitialVisibility();
 
         window.addEventListener('resize', () => this.#handleWindowResize());
     }
 
     // ------------------ public API ------------------
-    showPanel(name) { this.#setPanelDisplay(name, true); }
-    hidePanel(name) { this.#setPanelDisplay(name, false); }
-    hideAll() { this.cfg.panelIds.forEach(id => this.hidePanel(id)); }
+    showPanel(name) { 
+        this.#setPanelDisplay(name, true); 
+        this.#syncMenuBtn(name, true);
+    }
+
+    hidePanel(name) { 
+        this.#setPanelDisplay(name, false); 
+        this.#syncMenuBtn(name, false);
+    }
+    
+    hideAll() { 
+        this.cfg.panelIds.forEach(id => this.hidePanel(id)); 
+    }
+
     destroy() {
         this.moveables.forEach(m => m.destroy && m.destroy());
         this.moveables.clear();
@@ -71,9 +86,9 @@ export class MenuManager {
 
         const items = [
             { id: 'gallery', icon: 'deployed_code', label: 'Gallery' },
-            { id: 'metrics', icon: 'equalizer', label: 'Metrics' },
-            { id: 'benchmark', icon: 'emoji_events', label: 'Benchmark' },
-            { id: 'report', icon: 'description', label: 'Report' },
+            { id: 'metrics', icon: 'finance', label: 'Metrics' },
+            { id: 'benchmark', icon: 'trophy', label: 'Benchmark' },
+            { id: 'report', icon: 'assignment', label: 'Report' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
@@ -84,8 +99,7 @@ export class MenuManager {
             b.type = 'button';
             b.title = label;
             const i = document.createElement('span');
-            i.className = 'material-symbols-outlined';
-            i.textContent = icon;
+            this.getSVGIconByName(i, icon, label);
             b.appendChild(i);
             b.addEventListener('click', () => {
                 const isVisible = this.#isPanelShown(id);
@@ -97,6 +111,27 @@ export class MenuManager {
 
         target.appendChild(wrap);
         this.menuEl = wrap;
+    }
+
+    async getSVGIconByName(element, icon, alt) {
+
+        const url = `./icons/${icon}.svg`;
+
+        if (!this.svgCache.has(url)) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`SVG load failed: ${url}`);
+
+            const text = await res.text();
+            const doc = new DOMParser().parseFromString(text, "image/svg+xml");
+            this.svgCache.set(url, doc.documentElement);
+        }
+
+        const svg = this.svgCache.get(url).cloneNode(true);
+
+        svg.classList.add("svg-icon");
+        if (alt) svg.setAttribute("aria-label", alt);
+
+        element.replaceChildren(svg);
     }
 
     #initPanels() {
@@ -123,12 +158,47 @@ export class MenuManager {
             };
 
             this.#makeDraggable(el, id);
+        });
+    }
 
-            el.addEventListener('mousedown', () => {
-                this.topZ += 1; 
-                el.style.zIndex = String(this.topZ);
+    #initGlobalHoverCheck() {
+        document.addEventListener('mousemove', (e) => {
+            this.moveables.forEach((mv, panel) => {
+                const controlBox = mv.selfElement;
+                if (!controlBox) return;
+                
+                const isOccluded = this.#isOccludedByHigherPanel(panel, e.clientX, e.clientY);
+                
+                controlBox.querySelectorAll('.moveable-control').forEach(ctrl => {
+                    if (isOccluded) {
+                        ctrl.style.pointerEvents = 'none';
+                        ctrl.style.cursor = 'default';
+                    } else {
+                        ctrl.style.pointerEvents = '';
+                        ctrl.style.cursor = '';
+                    }
+                });
             });
         });
+    }
+
+    #isOccludedByHigherPanel(panel, clientX, clientY) {
+        const panelZ = parseInt(panel.style.zIndex) || 0;
+        const elements = document.elementsFromPoint(clientX, clientY);
+        
+        for (const el of elements) {
+            // If we hit our panel first, we're not occluded
+            if (el === panel) return false;
+            
+            // Check if this is another panel with higher z-index
+            if (el.classList.contains('hud') && el !== panel) {
+                const elZ = parseInt(el.style.zIndex) || 0;
+                if (elZ > panelZ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     #makeDraggable(panel, id) {
@@ -159,22 +229,40 @@ export class MenuManager {
         // Reset transform to 0,0 since we just moved the element's actual top/left
         panel.style.transform = 'translate(0px, 0px)';
 
-        const isResizable = (id !== 'settings' && id !== 'about');
+        const isResizable = !this.cfg.nonResizable.includes(id);
         const headerEl = panel.querySelector('h1');
+
+        const padding = 10;
 
         const mv = new Moveable(document.body, {
             target: panel,
             draggable: true,
             resizable: isResizable,
             origin: false,
-            // NEW: Constraint properties
             snappable: true,
             bounds: { 
-                left: 0, 
-                top: 0, 
-                right: window.innerWidth, 
-                bottom: window.innerHeight 
+                left: padding, 
+                top: padding, 
+                right: window.innerWidth - padding, 
+                bottom: window.innerHeight - padding 
             }
+        });
+
+        // Sync control box z-index with panel
+        const syncZIndex = () => {
+            const controlBox = mv.selfElement;
+            if (controlBox) {
+                controlBox.style.zIndex = panel.style.zIndex;
+            }
+        };
+
+        // Sync on creation
+        syncZIndex();
+
+        // Sync when panel gains focus
+        panel.addEventListener('mousedown', () => {
+            panel.style.zIndex = String(getTopZ());
+            syncZIndex();
         });
 
         let allowDrag = false;
@@ -184,6 +272,14 @@ export class MenuManager {
         this.positions.set(panel, pos);
 
         mv.on('dragStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.#isOccludedByHigherPanel(panel, clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             const t = e.inputEvent && e.inputEvent.target;
             allowDrag = !!(headerEl && t && (t === headerEl || headerEl.contains(t)));
             if (!allowDrag) { e.stop && e.stop(); return; }
@@ -201,6 +297,14 @@ export class MenuManager {
             allowDrag = false;
         })
         .on('resizeStart', e => {
+            const { clientX, clientY } = e.inputEvent;
+            
+            // Check if click point is occluded by a higher z-index panel
+            if (this.#isOccludedByHigherPanel(panel, clientX, clientY)) {
+                e.stop();
+                return;
+            }
+            
             e.setOrigin(['%', '%']);
             if (e.dragStart) e.dragStart.set([pos.x, pos.y]);
         })
@@ -268,8 +372,7 @@ export class MenuManager {
         if (show) {
             // --- Logic for SHOWING the Panel ---
             p.classList.add('visible');
-            this.topZ += 1;
-            p.style.zIndex = String(this.topZ);
+            p.style.zIndex = String(getTopZ());
 
             // 1. If the panel is being shown, ensure Moveable is active.
             //    Since your #makeDraggable handles creation/recreation, call it here.
@@ -309,15 +412,16 @@ export class MenuManager {
     }
 
     #handleWindowResize() {
+        const padding = 10;
         const newBounds = { 
-            left: 0, 
-            top: 0, 
-            right: window.innerWidth, 
-            bottom: window.innerHeight 
+            left: padding, 
+            top: padding, 
+            right: window.innerWidth - padding, 
+            bottom: window.innerHeight - padding 
         };
 
         this.moveables.forEach((mv, panel) => {
-            // 1. Update the Moveable instance bounds
+            // 1. Update the Moveable instance bounds constraint
             mv.bounds = newBounds;
             
             // 2. Get current position data
@@ -327,28 +431,37 @@ export class MenuManager {
             let adjustedX = pos.x;
             let adjustedY = pos.y;
 
-            // 3. Logic to "push" the window back inside if the browser shrank
-            // Check right edge
-            if (rect.right > window.innerWidth) {
-                adjustedX -= (rect.right - window.innerWidth);
+            // 3. Logic to "push" the window back inside including the 10px margin
+            
+            // Check right edge (current right > window width - 10)
+            if (rect.right > (window.innerWidth - padding)) {
+                adjustedX -= (rect.right - (window.innerWidth - padding));
             }
-            // Check bottom edge
-            if (rect.bottom > window.innerHeight) {
-                adjustedY -= (rect.bottom - window.innerHeight);
+            
+            // Check bottom edge (current bottom > window height - 10)
+            if (rect.bottom > (window.innerHeight - padding)) {
+                adjustedY -= (rect.bottom - (window.innerHeight - padding));
             }
-            // Ensure it doesn't go past top/left (0,0)
-            if (rect.left < 0) adjustedX -= rect.left;
-            if (rect.top < 0) adjustedY -= rect.top;
 
-            // 4. Apply adjustments if needed
+            // Check left edge (must be at least 10)
+            if (rect.left < padding) {
+                adjustedX += (padding - rect.left);
+            }
+
+            // Check top edge (must be at least 10)
+            if (rect.top < padding) {
+                adjustedY += (padding - rect.top);
+            }
+
+            // 4. Apply adjustments
             if (adjustedX !== pos.x || adjustedY !== pos.y) {
                 pos.x = adjustedX;
                 pos.y = adjustedY;
                 panel.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
             }
 
-            // 5. Refresh Moveable's internal cache
+            // 5. Refresh Moveable
             mv.updateRect();
         });
-    }    
+    }   
 }

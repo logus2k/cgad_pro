@@ -1,57 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+	<title>FEMulator Pro</title>
 	<meta charset="UTF-8" />
-	<title>Three.js Grid + HTML Overlay</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link rel="icon" href="data:,">
+
 	<link rel="stylesheet" href="style/theme.css" />
-	<link rel="stylesheet" href="style/gallery.css" />
+	<link rel="stylesheet" href="style/horizon.css" />
 	<link rel="stylesheet" href="style/hud.css" />
 	<link rel="stylesheet" href="style/window.css" />
 	<link rel="stylesheet" href="style/menu.css" />
-	<link rel="stylesheet" href="style/metrics.css" />	
+	<link rel="stylesheet" href="style/gallery.css" />
+	<link rel="stylesheet" href="style/metrics.css" />
+	<link rel="stylesheet" href="style/metrics-catalog.css" />
+	<link rel="stylesheet" href="style/metric-panels.css" />
+	<link rel="stylesheet" href="style/tabs.css" />
+	<link rel="stylesheet" href="style/benchmark.css" />
+	<link rel="stylesheet" href="style/settings.css" />
+	<link rel="stylesheet" href="style/report.css" />
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
+	<script type="text/javascript" src="./library/echarts.min.js"></script>
+	<script type="text/javascript" src="./library/marked.umd.js"></script>
 </head>
-
 <body>
-
 	<div id="root">
 		<div id="three-layer"></div>
 		<div id="ui-layer">
 			<div id="overlay">
 
+				<div class="scene">
+					<svg class="horizon-svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
+						<path id="horizon-path" fill="none" stroke="#333333" stroke-width="0.2"/>
+					</svg>
+					<img class="pena-palace" src="./images/logo/pena_palace.png" alt="Pena Palace">
+					<div class="pena-palace-caption">ISCTE SINTRA</div>
+				</div>
+
 				<div>
 					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
 						<defs>
-							<style type="text/css">
-								@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=Inter:wght@400;900&amp;display=swap');
-							</style>
-							
 							<filter id="softShadow" x="-20%" y="-20%" width="150%" height="150%">
-								<feGaussianBlur in="SourceAlpha" stdDeviation="2" /> <feOffset dx="2" dy="2" result="offsetblur" /> <feComponentTransfer>
-									<feFuncA type="linear" slope="0.3"/> </feComponentTransfer>
+								<feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+								<feOffset dx="2" dy="2" result="offsetblur" />
+								<feComponentTransfer>
+									<feFuncA type="linear" slope="0.3"/>
+								</feComponentTransfer>
 								<feMerge>
-									<feMergeNode /> <feMergeNode in="SourceGraphic" /> </feMerge>
+									<feMergeNode />
+									<feMergeNode in="SourceGraphic" />
+								</feMerge>
 							</filter>
 						</defs>
 						<text x="30" y="50" 
-							font-family="'Inter', -apple-system, sans-serif" 
+							font-family="'Roboto', -apple-system, sans-serif" 
 							font-size="30" 
 							fill="currentColor" 
 							filter="url(#softShadow)"> <tspan font-weight="900" fill="#404040">FEM</tspan><tspan font-weight="400">ULATOR</tspan>
-							<tspan dx="5" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+							<tspan dx="5" dy="3" font-family="'Dancing-Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
 						</text>
 					</svg>
 				</div>
 
-				<div id="application-menu-container"></div>
-
 				<div class="hud gallery" id="hud-gallery" style="z-index: 15;">
 
-					<h1>MESH GALLERY</h1>
+					<h1>GALLERY</h1>
 					<div class="sep"></div>
 
 					<div class="gallery-container" class="gallery-container">
@@ -63,12 +79,12 @@
 							</div>
 							<div class="nav-dots" id="navDots"></div>
 							<div class="carousel-controls">
-								<button class="btn" id="prevBtn">Previous</button>
 								<div class="btn-group">
-									<button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+									<button class="btn btn-primary" id="prevBtn">Previous</button>
+									<button class="btn btn-primary" id="cancelBtn">Cancel</button>
 									<button class="btn btn-primary" id="selectBtn">Select Model</button>
+									<button class="btn btn-primary" id="nextBtn">Next</button>
 								</div>
-								<button class="btn" id="nextBtn">Next</button>
 							</div>
 						</div>
 
@@ -76,19 +92,33 @@
 
 				</div>
 
-				<div class="hud metrics visible" id="hud-metrics" style="z-index: 15;">
+				<div class="hud metrics" id="hud-metrics" style="z-index: 15;">
 
-					<h1>PERFORMANCE METRICS</h1>
+					<h1>METRICS</h1>
 					<div class="sep"></div>
 
-					<div class="metrics-container">
+					<!-- Tabs container -->
+					<div class="tabs-container">
+						<div class="tab active" data-tab="tab-progress-report">Simulation</div>
+						<div class="tab" data-tab="tab-metrics-catalog">Catalog</div>
 					</div>
+					
+					<!-- Tab content containers -->
+					<div class="tab-content active" id="tab-progress-report-content">
+						<div class="metrics-container">
+						</div>
+					</div>
+					
+					<div class="tab-content" id="tab-metrics-catalog-content">
+						<div class="metrics-catalog-container">
+						</div>
+					</div>					
 
 				</div>
 
 				<div class="hud benchmark" id="hud-benchmark" style="z-index: 15;">
 
-					<h1>BENCHMARK ANALYSIS</h1>
+					<h1>BENCHMARK</h1>
 					<div class="sep"></div>
 
 					<div class="benchmark-container">
@@ -97,23 +127,93 @@
 				</div>
 
 				<div class="hud report" id="hud-report" style="z-index: 15;">
-
-					<h1>PROJECT REPORT</h1>
+					<h1>REPORT</h1>
 					<div class="sep"></div>
 
-					<div class="report-container">
-					</div>
+					<div class="report-workspace">
+						<div class="report-pane editor-pane">
+							<div class="pane-header">
+								<span>Markdown Editor</span>
+								<button class="btn-icon" onclick="clearReport()">Clear</button>
+							</div>
+							<textarea id="report-editor" placeholder="Start writing your report in Markdown..."></textarea>
+						</div>
 
+						<div class="report-pane preview-pane">
+							<div class="pane-header">
+								<span>HTML Preview</span>
+								<button class="btn-icon" onclick="exportReport()">Export</button>
+							</div>
+							<div id="report-preview" class="markdown-body">
+								</div>
+						</div>
+					</div>
 				</div>
 
 				<div class="hud settings" id="hud-settings" style="z-index: 15;">
-
-					<h1>CONFIGURATION SETTINGS</h1>
+					<h1>SETTINGS</h1>
 					<div class="sep"></div>
 
-					<div class="settings-container">
+					<div class="tabs-container">
+						<div class="tab active" data-tab="simulation">Simulation</div>
+						<div class="tab" data-tab="global">Global</div>
 					</div>
-
+					
+					<div class="tab-content active" id="simulation-content">
+						<div class="settings-group">
+							<label class="setting-item">
+								<span>Particle Animation</span>
+								<input type="checkbox" id="cfg-use-particles" checked>
+							</label>
+							<label class="setting-item">
+								<span>Particle Density</span>
+								<input type="range" id="cfg-particle-density" min="0.1" max="2.0" step="0.1" value="1.0">
+							</label>
+							<label class="setting-item">
+								<span>3D Extrusion</span>
+								<input type="checkbox" id="cfg-use-extrusion" checked>
+							</label>
+							<label class="setting-item">
+								<span>Extrusion Style</span>
+								<select id="cfg-extrusion-style">
+									<option value="rectangular">Rectangular</option>
+									<option value="cylindrical">Cylindrical</option>
+								</select>
+							</label>
+							<label class="setting-item">
+								<span>Auto-Switch to Metrics</span>
+								<input type="checkbox" id="cfg-auto-metrics" checked>
+							</label>
+						</div>
+					</div>
+					
+					<div class="tab-content" id="global-content">
+						<div class="settings-group">
+							<label class="setting-item">
+								<span>View Margin</span>
+								<input type="range" id="cfg-view-margin" min="0.0" max="0.5" step="0.05" value="0.1">
+							</label>
+							<label class="setting-item">
+								<span>Camera Transition Speed</span>
+								<input type="range" id="cfg-camera-speed" min="0.5" max="5.0" step="0.1" value="1.5">
+							</label>
+							<label class="setting-item">
+								<span>Background Speed</span>
+								<input type="range" id="cfg-bg-speed" min="0.0" max="2.0" step="0.1" value="1.0">
+							</label>
+							<label class="setting-item">
+								<span>HUD Transparency</span>
+								<input type="range" id="cfg-hud-opacity" min="0.2" max="1.0" step="0.05" value="0.8">
+							</label>
+							<label class="setting-item">
+								<span>Interface Style</span>
+								<select id="cfg-ui-theme">
+									<option value="sketchy">Sketchy Light</option>
+									<option value="dark">Blueprint Dark</option>
+								</select>
+							</label>
+						</div>
+					</div>
 				</div>
 
 				<div class="hud about" id="hud-about" style="z-index: 15;">
@@ -126,96 +226,20 @@
 
 				</div>
 
+				<div id="application-menu-container"></div>
 
 			</div>
 		</div>
 	</div>
 
-	<script type="module">
-		import { MillimetricScene } from './script/scene.js';
-		import { FEMClient } from './script/fem-client.js';
-		import { MetricsDisplay } from './script/metrics-display.js';
-		import { FEMMeshRendererCPU } from './script/fem-mesh-renderer-cpu.js';
-		import { FEMMeshRendererGPU } from './script/fem-mesh-renderer-gpu.js';
-
-		// Toggle logic
-		const useGPU = true; 
-
-		// Initialize Three.js scene
-		const container = document.getElementById('three-layer');
-		const millimetricScene = new MillimetricScene(container);
-
-		// Initialize FEM client
-		const femClient = new FEMClient('http://localhost:4567');
-		const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
-		
-		// Initialize mesh renderer
-		const meshRenderer = useGPU ? new FEMMeshRendererGPU(millimetricScene.getScene()) : new FEMMeshRendererCPU(millimetricScene.getScene());
-
-		// Register event handlers
-		femClient.on('connected', () => {
-			metricsDisplay.updateStatus('Connected');
-		});
-
-		femClient.on('stage_start', (data) => {
-			metricsDisplay.updateStage(data.stage);
-			metricsDisplay.updateStatus('Running');
-		});
-
-		femClient.on('mesh_loaded', (data) => {
-			metricsDisplay.updateMesh(data.nodes, data.elements);
-			
-			// Render mesh if coordinates are available
-			if (data.coordinates && data.connectivity) {
-				meshRenderer.loadMesh(data);
-				millimetricScene.render(); // Trigger re-render
-			}
-		});
-
-		femClient.on('solve_progress', (data) => {
-			metricsDisplay.updateProgress(
-				data.iteration,
-				data.max_iterations,
-				data.residual,
-				data.etr_seconds
-			);
-		});
-
-		femClient.on('solve_complete', async (data) => {
-			metricsDisplay.updateStatus('Complete');
-			metricsDisplay.updateTotalTime(data.timing_metrics.total_program_time);
-			console.log('Final results:', data);
-			
-			// Visualize solution field if available
-			if (data.solution_field) {
-				meshRenderer.updateSolution({
-					values: Array.from(data.solution_field),
-					range: data.solution_stats.u_range
-				});
-				millimetricScene.render();
-			}
-		});
-
-		femClient.on('solution_increment', (data) => {
-			// Update mesh colors in real-time during solving
-			meshRenderer.updateSolutionIncremental(data);
-			millimetricScene.render();
-			
-			// Optional: update metrics with current solution range
-			console.log(`Solution update: iter ${data.iteration}, ` +
-						`range [${data.chunk_info.min.toFixed(3)}, ${data.chunk_info.max.toFixed(3)}]`);
-		});	
-
-		// Expose to window for testing
-		window.femClient = femClient;
-		window.metricsDisplay = metricsDisplay;
-		window.meshRenderer = meshRenderer;
-		window.millimetricScene = millimetricScene;
-	</script>
-
+	<script type="module" src="./script/perlin-horizon.js"></script>
+	<script type="module" src="./script/application_start.js"></script>
 	<script type="module" src="./script/menu.init.js"></script>
+	<script type="module" src="./script/tabs.js"></script>
+	<script type="module" src="./script/gallery.js"></script>
+	<script type="module" src="./script/benchmark.init.js"></script>
+	<script type="module" src="./script/metrics-catalog.init.js"></script>
+	<script type="module" src="./script/report.init.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
-
 </body>
-
 </html>

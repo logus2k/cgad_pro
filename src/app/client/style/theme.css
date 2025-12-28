@@ -6,6 +6,22 @@
 	font-display: fallback;
 }
 
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 700;
+	src: url('../fonts/Roboto-Bold.ttf') format('truetype');
+	font-display: fallback;
+}
+
+@font-face {
+	font-family: 'Dancing-Script';
+	font-style: normal;
+	font-weight: 400;
+	src: url('../fonts/DancingScript-Regular.ttf') format('truetype');
+	font-display: fallback;
+}
+
 .roboto {
 	font-family: 'Roboto';
 	font-weight: normal;
@@ -22,6 +38,26 @@
 	-webkit-font-smoothing: antialiased;
 }
 
+.dancing-script {
+	font-family: 'Dancing-Script';
+	font-weight: normal;
+	font-style: normal;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	font-feature-settings: 'liga';
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
+}
+
+:root {
+	--horizon-top: max(8%, 90px);
+}
+
 html, body {
 	margin: 0;
 	padding: 0;
@@ -36,11 +72,15 @@ html, body {
 	height: 100%;
 }
 
-/* Three.js canvas layer */
 #three-layer {
 	position: absolute;
 	inset: 0;
 	z-index: 0;
+	background: linear-gradient(to top, #fffef9, #f3fff3);
+	background-size: 100% calc(100% - var(--horizon-top) - 12px);
+	background-position: bottom;
+	background-repeat: no-repeat;
+    height: 100dvh;
 }
 
 /* HTML overlay layer */

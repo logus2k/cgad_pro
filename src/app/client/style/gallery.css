@@ -1,82 +1,235 @@
+/* ==========================================================================
+   Mesh Gallery & Carousel Layout
+   ========================================================================== */
+
+/* Main Container */
 .gallery-container {
-    height: calc(100% - 60px); /* Account for header */
-    position: relative;
+    margin: 0px;
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .caroussel-wrapper {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
 }
 
 .carousel-container {
+    display: flex;
     position: relative;
     width: 100%;
-    height: calc(100% - 60px); /* Account for controls */
     overflow: hidden;
+    flex: 1;
 }
 
+/* Track holding the items - must be flex with no wrap */
 .carousel-track {
     display: flex;
-    height: 100%;
-    transition: transform 0.3s ease;
+    flex-wrap: nowrap;
+    transition: transform 0.4s ease-out;
+    margin: 10px;
+    gap: 10px;
 }
 
+/* Individual Gallery Item - 3 items per view */
 .carousel-item {
-    min-width: calc(100% / 3);
-    height: 100%;
+    flex: 0 0 calc((100% - 20px) / 3);  /* 3 items minus gaps */
+    min-width: 244px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
     box-sizing: border-box;
-}
-
-.model-image {
-    width: 100%;
-    height: 70%;
-    object-fit: contain;
-    margin-bottom: 10px;
-}
-
-.model-name {
-    font-weight: bold;
-    text-align: center;
-    margin-top: 10px;
+    max-width: 244px;
 }
 
 .selected-indicator {
-    border: 0.5px solid #414141;
+    background: #fff9d2ee;
+    border-color: #ffb64f;
+    box-shadow: 0 0 10px rgb(249 212 200 / 95%);
+    border-radius: 8px;
+    border-style: inset;
+}
+
+/* ==========================================================================
+   Mesh Preload Indicators
+   ========================================================================== */
+
+/* Green dot when mesh is ready */
+.carousel-item.mesh-ready .model-image-container::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background: #2a9d8f;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Red dot on error */
+.carousel-item.mesh-error .model-image-container::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background: #e63946;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Loading overlay */
+.preload-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
     border-radius: 6px;
 }
 
-.carousel-controls {
+.preload-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e0e0e0;
+    border-top-color: var(--hud-accent, #2266ff);
+    border-radius: 50%;
+    animation: preload-spin 0.8s linear infinite;
+}
+
+@keyframes preload-spin {
+    to { transform: rotate(360deg); }
+}
+
+.preload-text {
+    font-size: 0.7rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   Item Internal Components
+   ========================================================================== */
+
+.model-image-container {
+    position: relative;  /* Added for preload indicator positioning */
+    /* height: 140px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    border-radius: 6px;
+}
+
+.model-image {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border-radius: 6px;
+}
+
+.model-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #444444;
+    margin: 10px 5px 0px 5px;
+}
+
+.model-description {
+    font-size: 0.75rem;
+    color: #444;
+    line-height: 1.3;
+    height: 10em;
+    overflow: hidden;
+    margin: 5px;
+}
+
+.model-metadata {
+    border-top: 1px dashed var(--hud-fg-dim, #ccc);
+    padding-top: 8px;
+}
+
+.meta-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #f8f9fa;
+    font-size: 0.7rem;
+    margin: 0px 5px 3px 5px;
+    color: #333333;
 }
 
-.btn {
-    padding: 10px 20px;
-    color: white;
-    border: none;
-    border-radius: 4px;
+/* Complexity Badges */
+.complexity-badge {
+    margin-top: 8px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 2px;
+    background-color: #ffffff;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+}
+
+.complexity-low { color: #268a7e; }
+.complexity-med { color: #eb9148; }
+.complexity-high { color: var(--hud-warm, #d63939); }
+
+/* ==========================================================================
+   Navigation & Controls
+   ========================================================================== */
+
+/* Dots */
+.nav-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 5px 0px 10px 0px;
+}
+
+.nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--hud-fg-dim, #ccc);
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.btn:hover {
-    background: #0056b3;
+.nav-dot:hover {
+    background: #79d39c;
+    transform: scale(1.2);
 }
 
-.btn-secondary {
-    background: #6c757d;
+.nav-dot.active {
+    background: #49d27d;
+    transform: scale(1.3);
 }
 
-.btn-secondary:hover {
-    background: #5a6268;
+/* Buttons Container */
+.carousel-controls {
+    display: flex;
+    justify-content: right;
+    padding: 10px 15px 15px 15px;
 }
 
 .btn-group {
@@ -84,21 +237,43 @@
     gap: 10px;
 }
 
-.nav-dots {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    gap: 8px;
-}
-
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #ccc;
+/* Button Base Styles */
+.carousel-controls .btn {
+    padding: 2px 15px;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.dot.active {
-    background: #007bff;
+.carousel-controls .btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.carousel-controls .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Button Variants */
+.carousel-controls .btn-primary {
+    background: var(--hud-accent, #2266ff);
+    color: white;
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.carousel-controls .btn-primary:hover:not(:disabled) {
+    background: #1a55dd;
+}
+
+.carousel-controls .btn-secondary {
+    background: var(--hud-accent, #2266ff);
+    color: white;
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.carousel-controls .btn-secondary:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
 }

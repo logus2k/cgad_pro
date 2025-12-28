@@ -1,0 +1,258 @@
+<!DOCTYPE html><html><head>
+      <title>Multi-GPU Acceleration for Finite Element Analysis in Structural Mechanics</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css">
+      
+      
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. --><script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script></head><body for="html-export">
+    
+    
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="multi-gpu-acceleration-for-finite-element-analysis-in-structural-mechanics">Multi-GPU Acceleration for Finite Element Analysis in Structural Mechanics </h1>
+<h2 id="1-introduction">1. Introduction </h2>
+<p>The continuous increase in model complexity and fidelity in engineering simulations<br>
+has made computational efficiency a central concern in modern scientific computing.<br>
+Among numerical techniques for solving boundary-value problems governed by partial<br>
+differential equations, the Finite Element Method (FEM) stands out as one of the most<br>
+widely adopted and versatile approaches, particularly in the context of structural<br>
+mechanics. FEM enables the computation of displacement fields, strains, and<br>
+stresses in complex geometries under realistic loading and boundary conditions,<br>
+playing a fundamental role in engineering design and analysis.<br>
+Despite its flexibility, FEM is computationally demanding. As mesh resolution increases<br>
+or parametric studies are introduced, the size of the resulting algebraic systems grows<br>
+rapidly, often reaching millions of degrees of freedom. In such scenarios, traditional<br>
+CPU-based implementations face scalability limitations, especially during the<br>
+assembly of large sparse matrices and the iterative solution of linear systems. These<br>
+challenges motivate the exploration of alternative execution models capable of<br>
+exploiting parallelism more effectively.<br>
+Recent advances in Graphics Processing Units (GPUs) have significantly expanded<br>
+the landscape of high-performance computing. GPUs provide massive data-parallel<br>
+throughput and high memory bandwidth, making them particularly suitable for linear<br>
+algebra workloads that dominate FEM solvers. Furthermore, modern Python-based<br>
+acceleration frameworks such as NumPy, Numba, and CuPy allow developers to<br>
+target heterogeneous architectures with relatively high productivity while retaining<br>
+access to low-level optimisation mechanisms.<br>
+In this context, this project proposes the development of a GPU-accelerated Finite<br>
+Element Analysis solver for structural mechanics, progressing incrementally from a<br>
+CPU baseline to parallel CPU and GPU implementations. The work aims to explore<br>
+execution models, parallelisation strategies, and performance evaluation techniques in<br>
+accordance with the objectives of the High Performance Graphical Computing<br>
+curricular unit.</p>
+<h2 id="2-the-finite-element-method-fem">2. The Finite Element Method (FEM) </h2>
+<h3 id="21-definition-and-core-principles">2.1 Definition and Core Principles </h3>
+<p>The Finite Element Method is a numerical discretisation technique used to approximate<br>
+the solution of partial differential equations over complex domains. The method<br>
+subdivides a continuous domain into a finite number of smaller subdomains, called<br>
+elements, which are interconnected at nodes. Within each element, the unknown field<br>
+variables are approximated using polynomial shape functions.</p>
+<p>By applying a variational (weak) formulation, the governing equations are transformed<br>
+into a global system of algebraic equations. In linear elastic structural problems, this<br>
+process typically results in a sparse system of the form:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="bold">K</mi><mi mathvariant="bold">u</mi><mo>=</mo><mi mathvariant="bold">f</mi></mrow><annotation encoding="application/x-tex">\mathbf{K}\mathbf{u} = \mathbf{f}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6861em;"></span><span class="mord mathbf">Ku</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathbf" style="margin-right:0.10903em;">f</span></span></span></span></span></p>
+<p>where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">K</mi></mrow><annotation encoding="application/x-tex">\mathbf{K}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6861em;"></span><span class="mord mathbf">K</span></span></span></span> is the global stiffness matrix, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">u</mi></mrow><annotation encoding="application/x-tex">\mathbf{u}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4444em;"></span><span class="mord mathbf">u</span></span></span></span> the vector of nodal unknowns, and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">f</mi></mrow><annotation encoding="application/x-tex">\mathbf{f}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathbf" style="margin-right:0.10903em;">f</span></span></span></span> represents external forces. The stiffness matrix is generally sparse, symmetric, and<br>
+positive definite, properties that strongly influence the choice of numerical solvers and<br>
+optimisation strategies.</p>
+<h3 id="22-importance-and-applications-of-fem">2.2 Importance and Applications of FEM </h3>
+<p>FEM is a cornerstone of modern engineering analysis due to its ability to handle<br>
+complex geometries, heterogeneous material properties, and realistic boundary<br>
+conditions. It is widely used in civil, mechanical, aerospace, and automotive<br>
+engineering for tasks such as structural verification, fatigue analysis, vibration studies,<br>
+and virtual prototyping.<br>
+The ability to perform accurate simulations prior to physical testing reduces<br>
+development costs and improves safety and reliability. However, these benefits come<br>
+at the cost of increased computational demand, particularly for large-scale or highresolution problems, making FEM an ideal candidate for high-performance and parallel<br>
+computing techniques.</p>
+<h2 id="23-types-of-problems-addressed-by-fem">2.3. Types of Problems Addressed by FEM </h2>
+<p>The Finite Element Method supports a wide range of physical problems, including:</p>
+<ul>
+<li>Linear static structural analysis;</li>
+<li>Dynamic and modal analysis;</li>
+<li>Heat transfer and diffusion problems;</li>
+<li>Coupled thermo-mechanical and multi-physics problems;</li>
+<li>Nonlinear material and geometric analyses.</li>
+</ul>
+<p>Within the scope of this project, the focus is placed on linear elastic structural<br>
+problems, which provide a mathematically well-posed and computationally controlled<br>
+setting for evaluating parallel execution and performance optimisation strategies while<br>
+remaining representative of real engineering applications.</p>
+<h2 id="3-computational-motivation-for-parallelism-and-gpu-acceleration">3. Computational Motivation for Parallelism and GPU Acceleration </h2>
+<p>From a computational perspective, FEM workloads are dominated by linear algebra<br>
+operations, particularly sparse matrix-vector multiplications (SpMV) and vector<br>
+updates performed repeatedly within iterative solvers such as the Conjugate Gradient<br>
+(CG) method. These operations exhibit a high degree of data parallelism, as the same<br>
+arithmetic operations are applied independently to large sets of data.<br>
+GPUs follow the SIMT (Single Instruction, Multiple Threads) execution model,<br>
+enabling thousands of lightweight threads to execute identical instructions<br>
+concurrently on different data elements. This execution paradigm makes GPUs<br>
+especially effective for accelerating the core kernels of FEM solvers. In addition, multi-core CPUs and modern threading models provide opportunities for parallelism at the<br>
+CPU level, offering a progressive optimisation pathway.<br>
+Beyond single-device acceleration, multi-GPU execution enables further scalability,<br>
+particularly for workloads involving multiple independent simulations or parameter<br>
+sweeps. Frameworks such as Dask-CUDA facilitate the distribution of computational<br>
+tasks across multiple GPUs, abstracting device management and scheduling while<br>
+enabling scalable execution.</p>
+<h2 id="4-project-objectives">4. Project Objectives </h2>
+<h2 id="41-general-objective">4.1 General Objective </h2>
+<p>The primary objective of this project is to design, implement, and evaluate a GPU-accelerated Finite Element Analysis solver for structural mechanics, assessing<br>
+performance improvements and scalability relative to a CPU-based baseline.</p>
+<h2 id="42-specific-objectives">4.2 Specific Objectives </h2>
+<p>The specific objectives of the project are:</p>
+<ol>
+<li>To implement a correct and complete CPU baseline FEM solver using Python<br>
+and NumPy/SciPy, serving as a reference for correctness and performance<br>
+comparison.</li>
+<li>To analyse the FEM computational pipeline and identify performance<br>
+bottlenecks, particularly in sparse linear system solvers.</li>
+<li>To introduce CPU-level optimisations using Numba JIT compilation and parallel<br>
+execution where appropriate.</li>
+<li>To develop a single-GPU accelerated implementation using CuPy and GPU-enabled sparse linear algebra routines.</li>
+<li>To explore multi-GPU execution strategies, when feasible, using Dask-CUDA to<br>
+distribute independent simulation workloads.</li>
+<li>To perform a systematic performance evaluation, comparing CPU, single-GPU,<br>
+and multi-GPU implementations.</li>
+<li>To deliver an interactive demonstration application that visualises simulation<br>
+results and performance metrics.</li>
+</ol>
+<h1 id="5-technologies-and-execution-models">5 Technologies and Execution Models </h1>
+<p>The project will explore a progressive set of execution models, subject to feasibility<br>
+within the course timeline:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Implementation</th>
+<th style="text-align:left">Technology</th>
+<th style="text-align:left">Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Pure NumPy/SciPy</td>
+<td style="text-align:left">Sequential Python</td>
+<td style="text-align:left">Baseline reference</td>
+</tr>
+<tr>
+<td style="text-align:left">Numba JIT</td>
+<td style="text-align:left">LLVM JIT compilation</td>
+<td style="text-align:left">Single-core optimisation</td>
+</tr>
+<tr>
+<td style="text-align:left">Numba Parallel</td>
+<td style="text-align:left">Multi-threaded CPU execution</td>
+<td style="text-align:left">Multi-core CPU</td>
+</tr>
+<tr>
+<td style="text-align:left">CuPy GPU (basic)</td>
+<td style="text-align:left">CUDA-accelerated arrays</td>
+<td style="text-align:left">Direct GPU port</td>
+</tr>
+<tr>
+<td style="text-align:left">CuPy GPU (optimised)</td>
+<td style="text-align:left">Vectorised GPU kernels</td>
+<td style="text-align:left">Optimised GPU execution</td>
+</tr>
+</tbody>
+</table>
+<p>This progression reflects the concepts covered in Modules 1 and 2 of the course,<br>
+including concurrency, parallelism, and CUDA execution models.</p>
+<h1 id="6-planned-performance-evaluation">6. Planned Performance Evaluation </h1>
+<p>To ensure a rigorous and transparent evaluation, the following metrics are planned, subject to feasibility:</p>
+<h3 id="performance-metrics">Performance Metrics </h3>
+<ul>
+<li>Element assembly time;</li>
+<li>Boundary condition application time;</li>
+<li>Solver time (total and per iteration);</li>
+<li>End-to-end execution time;</li>
+<li>Peak RAM and VRAM usage;</li>
+<li>Number of iterations to convergence.</li>
+</ul>
+<h3 id="scalability-metrics">Scalability Metrics </h3>
+<ul>
+<li>Weak scaling (execution time versus mesh size);</li>
+<li>Strong scaling (execution time versus number of CPU cores or GPUs);</li>
+<li>Time per degree of freedom;</li>
+<li>Time per solver iteration.</li>
+</ul>
+<h3 id="efficiency-metrics">Efficiency Metrics </h3>
+<ul>
+<li>Speedup relative to the NumPy baseline;</li>
+<li>Parallel efficiency for multi-core and GPU execution;</li>
+<li>Energy consumption estimates (when available);</li>
+<li>Cost efficiency (performance relative to hardware cost).</li>
+</ul>
+<p>These metrics align with best practices in performance analysis and with the evaluation criteria of the course.</p>
+<h2 id="7-case-study-and-problem-definition">7. Case Study and Problem Definition </h2>
+<h3 id="71-selection-of-the-benchmark-problem">7.1 Selection of the Benchmark Problem </h3>
+<p>The development and evaluation of the GPU-accelerated FEM solver requires a computationally intensive benchmark problem that is mathematically well-posed and representative of engineering applications. Initial consideration was given to simple two-dimensional linear elasticity or Poisson-type problems defined over structured or unstructured meshes.</p>
+<p>This case study serves as the primary reference and may be adapted based on the measured performance and results obtained during the later stages of this project.</p>
+<h3 id="72-detailed-case-study-potential-flow-in-a-channel-with-geometric-constrictions">7.2 Detailed Case Study: Potential Flow in a Channel with Geometric Constrictions </h3>
+<h4 id="721-physical-problem-description">7.2.1 Physical Problem Description </h4>
+<p>The specific case study analysed in this work consists of a two-dimensional potential flow of an incompressible and inviscid fluid inside a channel with geometric constrictions formed by circular obstacles. The channel is assumed to be infinite in the out-of-plane direction, allowing for a 2D formulation.</p>
+<p>A uniform inflow velocity is imposed at the inlet, and the objective is to determine:</p>
+<ul>
+<li>the velocity potential distribution,</li>
+<li>the velocity field,</li>
+<li>the pressure distribution,</li>
+<li>the maximum and minimum values of velocity and pressure and their locations.</li>
+</ul>
+<p>This configuration is representative of internal flows in ducts and channels and provides a demanding benchmark due to the presence of strong velocity gradients near the constrictions.</p>
+<h4 id="722-mathematical-formulation">7.2.2 Mathematical Formulation </h4>
+<p>The flow is described using the velocity potential <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\phi(x,y)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">ϕ</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mclose">)</span></span></span></span>, such that:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>u</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ϕ</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>x</mi></mrow></mfrac><mo separator="true">,</mo><mi>v</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ϕ</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>y</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">u=\frac{\partial\phi}{\partial x}, v=\frac{\partial\phi}{\partial y}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.0574em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">x</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">ϕ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2519em;vertical-align:-0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">ϕ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span><br>
+Assuming incompressibility and irrotational flow, the governing equation reduces to the Laplace equation:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mi mathvariant="normal">∇</mi><mn>2</mn></msup><mi>ϕ</mi><mo>=</mo><mn>0</mn><mspace width="1em"></mspace><mtext>in</mtext><mspace width="1em"></mspace><mi mathvariant="normal">Ω</mi></mrow><annotation encoding="application/x-tex">\nabla^2\phi=0 \quad \text{in} \quad \Omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0585em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord">∇</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mathnormal">ϕ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:1em;"></span><span class="mord text"><span class="mord">in</span></span><span class="mspace" style="margin-right:1em;"></span><span class="mord">Ω</span></span></span></span></span><br>
+The spatial discretisation is performed using the Galerkin finite element method, leading to a linear system:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>K</mi><mi>ϕ</mi><mo>=</mo><mi>F</mi></mrow><annotation encoding="application/x-tex">K\phi=F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mord mathnormal">ϕ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span></span></span></span></span></p>
+<h4 id="723-boundary-conditions">7.2.3 Boundary Conditions </h4>
+<p>The problem involves mixed boundary conditions which are necessary to guarantee a unique and physically meaningful solution for the Laplace equation.</p>
+<ul>
+<li><strong>Inlet Boundary (Neumann)</strong><br>
+At the inlet section of the channel, a uniform normal velocity is imposed:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ϕ</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>n</mi></mrow></mfrac><mo>=</mo><msub><mi>V</mi><mn>0</mn></msub><mo>=</mo><mn>2.5</mn><mtext> </mtext><mtext>m/s</mtext></mrow><annotation encoding="application/x-tex">\frac{\partial\phi}{\partial n}=V_0=2.5 \, \text{m/s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.0574em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">n</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">ϕ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2.5</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">m/s</span></span></span></span></span></span><br>
+This corresponds to a natural (Neumann) boundary condition, prescribing the flux (velocity) across the boundary.<br>
+<br></li>
+<li><strong>Outlet Boundary (Dirichlet)</strong><br>
+At the outlet sections, the velocity potential is set to zero:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>ϕ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ϕ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></span><br>
+This essential (Dirichlet) boundary condition defines a reference level for the potential, effectively grounding a degree of freedom necessary for convergence, since the Laplace equation determines the potential only up to an additive constant.<br>
+<br></li>
+<li><strong>Wall Boundaries</strong><br>
+Along all solid boundaries of the domain, including the circular constrictions, a no-penetration condition is enforced. This states that the normal component of the velocity vanishes at the walls, which in terms of the velocity potential can be written as:<br>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ϕ</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>n</mi></mrow></mfrac><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\partial\phi}{\partial n}=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.0574em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">n</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord" style="margin-right:0.05556em;">∂</span><span class="mord mathnormal">ϕ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></span><br>
+This boundary condition guarantees that the fluid remains confined within the channel and that no mass flux occurs across the solid surfaces. This condition is crucial for accurately modelling internal flows.</li>
+</ul>
+<h4 id="724-mesh-refinement-strategy">7.2.4 Mesh Refinement Strategy </h4>
+<p>The accuracy of the Finite Element Method is critically dependent on the quality and resolution of the computational mesh. In potential flow problems, regions where the velocity changes rapidly (high-gradient regions) must be resolved with smaller elements to prevent excessive numerical diffusion and ensure precise results.</p>
+<p>To accurately capture high-gradient regions near the geometric constrictions, a locally refined mesh is employed in the central region of the channel, while coarser elements are used elsewhere.  This targeted refinement strategy ensures high accuracy where it is most needed, without incurring the excessive computational cost of a uniformly fine mesh across todo o domínio.</p>
+<p>This refinement strategy, however, drastically increases the computational load:</p>
+<ul>
+<li><strong>Matrix Size and Sparsity:</strong> Mesh refinement leads to a significant increase in the number of degrees of freedom (DOFs), resulting in a larger global stiffness matrix (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span></span></span></span>). While the matrix remains sparse, the increased size directly impacts the memory footprint and the time required for both matrix assembly and iterative solution.</li>
+<li><strong>Benchmark Suitability:</strong> The necessity of handling large, refined meshes makes this case particularly suitable for evaluating the performance and scalability of GPU and multi-GPU FEM implementations. Specifically, it tests the ability of the acceleration frameworks (Numba and CuPy) to manage high-dimensional sparse linear algebra operations efficiently.</li>
+</ul>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

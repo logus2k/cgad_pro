@@ -203,13 +203,15 @@ void quad8_postprocess_kernel(
     }
 
     double v_ip_sum = 0.0;
+    double vel_x_sum = 0.0;  // ✅ ADD: Accumulate vx
+    double vel_y_sum = 0.0;  // ✅ ADD: Accumulate vy
     
     // --- 2. Integration Loop (NIP=4) ---
     for (int ip = 0; ip < N_IP; ++ip) {
         double csi = xp_in[ip * 2 + 0];
         double eta = xp_in[ip * 2 + 1];
 
-        // --- 3. B matrix calculation (repeated logic) ---
+        // --- 3. B matrix calculation ---
         double Dpsi[N_NDS_PER_EL][2];
         
         // Derivatives wrt (csi, eta) (Dpsi)
@@ -249,22 +251,20 @@ void quad8_postprocess_kernel(
             grad[1] += B[i][1] * u_e[i]; // d(u)/dy
         }
 
-		// --- 5. Velocity and Norm ---
-		double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
-		v_ip_sum += vel_norm;
-
-		// Write the velocity at the first IP (approximation of element velocity)
-		if (ip == 0) {
-			// CORRECTION: Velocity is the negative gradient (v = -grad(u))
-			vel_out[e * 2 + 0] = -grad[0];
-			vel_out[e * 2 + 1] = -grad[1];
-		}
-	}
+        // --- 5. Accumulate velocity components ---
+        // Velocity is negative gradient: v = -grad(u)
+        vel_x_sum += -grad[0];  // ✅ FIX: Accumulate vx
+        vel_y_sum += -grad[1];  // ✅ FIX: Accumulate vy
+        
+        // Velocity magnitude at this Gauss point
+        double vel_norm = sqrt(grad[0] * grad[0] + grad[1] * grad[1]);
+        v_ip_sum += vel_norm;
+    }
     
-    // --- 6. Output (Average Velocity) ---
-    // Average velocity magnitude (at NIP=4)
-    double avg_vel = v_ip_sum / N_IP;
-    abs_vel_out[e] = avg_vel;
+    // --- 6. Output (Average over all 4 Gauss points) ---
+    vel_out[e * 2 + 0] = vel_x_sum / N_IP;  // ✅ FIX: Average vx
+    vel_out[e * 2 + 1] = vel_y_sum / N_IP;  // ✅ FIX: Average vy
+    abs_vel_out[e] = v_ip_sum / N_IP;        // Already correct
 }
 """
 
@@ -288,6 +288,18 @@ class GPUSolverMonitor:
 		"""Callback function called by CuPy solvers"""
 		self.it += 1
 		
+		# ✅ ALWAYS check for incremental updates (independent of logging)
+		if self.progress_callback is not None:
+			if self.it == 1 or (self.it % 100 == 0):
+				print(f"[DEBUG GPU] Sending solution increment at iteration {self.it}")
+				# Convert CuPy array to CPU for transmission
+				solution_cpu = xk.get() if hasattr(xk, 'get') else xk
+				self.progress_callback.on_solution_increment(
+					iteration=self.it,
+					solution=solution_cpu
+				)
+		
+		# Log progress at specified intervals
 		if self.it % self.every == 0 or self.it == 1:
 			# Compute actual residual: r = b - A*x
 			r = self.b - self.A @ xk
@@ -298,7 +310,7 @@ class GPUSolverMonitor:
 			pct = 100.0 * self.it / self.maxiter
 			
 			# ETR calculation
-			etr_sec = 0.0  # ← ADD DEFAULT VALUE HERE
+			etr_sec = 0.0
 			if self.it > 0:
 				iters_left = self.maxiter - self.it
 				time_per_iter = elapsed / self.it
@@ -312,7 +324,7 @@ class GPUSolverMonitor:
 			if self.verbose:
 				print(f"  Iter {self.it}/{self.maxiter} ({pct:.1f}%), ||r|| = {res_norm:.3e}, rel = {rel_res:.3e}, ETR: {etr_str}")
 			
-			# Invoke callback for Socket.IO emission
+			# Invoke callback for metrics
 			if self.progress_callback is not None:
 				self.progress_callback.on_iteration(
 					iteration=self.it,
@@ -321,16 +333,7 @@ class GPUSolverMonitor:
 					relative_residual=rel_res,
 					elapsed_time=elapsed,
 					etr_seconds=etr_sec
-				)
-				
-				# ← ADD THIS: Send incremental solution
-				if self.it % 100 == 0:
-					# Convert CuPy array to CPU for transmission
-					solution_cpu = xk.get() if hasattr(xk, 'get') else xk
-					self.progress_callback.on_solution_increment(
-						iteration=self.it,
-						solution=solution_cpu
-					)		
+				)	
 	
 	def reset(self):
 		"""Reset monitor for a new solve attempt"""
@@ -532,12 +535,14 @@ class Quad8FEMSolverGPU:
 		quad8_cp = cp.asarray(self.quad8, dtype=cp.int32)
 		
 		# 1. Pre-allocate COO buffers
+		# CRITICAL: Use zeros() instead of empty() to prevent uninitialized memory
+		# from previous larger meshes contaminating the current computation
 		N_NZ_per_el = 64
 		total_nnz = self.Nels * N_NZ_per_el
 		
-		self._rows = cp.empty(total_nnz, dtype=cp.int32)
-		self._cols = cp.empty(total_nnz, dtype=cp.int32)
-		self._vals = cp.empty(total_nnz, dtype=cp.float64) 
+		self._rows = cp.zeros(total_nnz, dtype=cp.int32)
+		self._cols = cp.zeros(total_nnz, dtype=cp.int32)
+		self._vals = cp.zeros(total_nnz, dtype=cp.float64) 
 
 		# 2. Vectorized Global Index Generation (ON GPU)
 		local_i, local_j = cp.mgrid[0:8, 0:8]
@@ -564,6 +569,10 @@ class Quad8FEMSolverGPU:
 		))
 		
 		cp.cuda.Stream.null.synchronize()
+		
+		# Report assembly complete (GPU does all elements in one kernel launch)
+		if self.progress_callback:
+			self.progress_callback.on_assembly_progress(self.Nels, self.Nels)
 
 
 	# --------------------
@@ -576,6 +585,12 @@ class Quad8FEMSolverGPU:
 		x_min = self.x_cpu.min()
 		x_max = self.x_cpu.max()
 		
+		# DIAGNOSTIC: Print boundary detection info
+		print(f"\n{'='*70}")
+		print(f"DIAGNOSTIC: Boundary Conditions")
+		print(f"  x_min = {x_min:.6f}, x_max = {x_max:.6f}")
+		print(f"  bc_tolerance = {self.bc_tolerance}")
+		
 		# CRITICAL FIX: Define the high penalty factor (REQUIRED for convergence)
 		PENALTY_FACTOR = 1.0e12 
 
@@ -583,10 +598,18 @@ class Quad8FEMSolverGPU:
 		exit_nodes = np.where(self.x_cpu == x_max)[0]
 		exit_nodes_gpu = cp.asarray(exit_nodes, dtype=cp.int32)
 		
+		print(f"  Dirichlet (outlet) nodes found: {len(exit_nodes)}")
+		if len(exit_nodes) > 0:
+			print(f"    First few exit node IDs: {exit_nodes[:5].tolist()}")
+			print(f"    X values at exit nodes: {self.x_cpu[exit_nodes[:5]].tolist()}")
+		
 		# Robin BC on minimum-x boundary (inlet)
 		boundary_nodes = set(
 			np.where(np.abs(self.x_cpu - x_min) < self.bc_tolerance)[0].tolist()
 		)
+		
+		print(f"  Robin (inlet) nodes found: {len(boundary_nodes)}")
+		print(f"{'='*70}\n")
 
 		# ---------------------------------
 		# Robin BCs (temporary CPU buffers)
@@ -946,6 +969,16 @@ class Quad8FEMSolverGPU:
 		
 		self._time_step('load_mesh', self.load_mesh)
 		
+		# DIAGNOSTIC: Print mesh bounds for debugging cross-mesh issues
+		print(f"\n{'='*70}")
+		print(f"DIAGNOSTIC: Mesh loaded")
+		print(f"  Mesh file: {self.mesh_file}")
+		print(f"  Nodes: {self.Nnds}, Elements: {self.Nels}")
+		print(f"  X range: [{self.x_cpu.min():.6f}, {self.x_cpu.max():.6f}]")
+		print(f"  Y range: [{self.y_cpu.min():.6f}, {self.y_cpu.max():.6f}]")
+		print(f"  GPU x ptr: {self.x.data.ptr}, GPU y ptr: {self.y.data.ptr}")
+		print(f"{'='*70}\n")
+		
 		if self.progress_callback:
 			self.progress_callback.on_stage_complete(
 				stage='load_mesh',
@@ -1060,6 +1093,7 @@ class Quad8FEMSolverGPU:
 			results['pressure'] = self.pressure
 		
 		# --- Emit Final Completion Event ---
+		"""
 		if self.progress_callback:
 			self.progress_callback.on_solve_complete(
 				converged=self.converged,
@@ -1068,6 +1102,7 @@ class Quad8FEMSolverGPU:
 				solution_stats=results['solution_stats'],
 				mesh_info=results['mesh_info']
 			)
+		"""
 		
 		# --- Console Output (if verbose) ---
 		if self.verbose:

@@ -1,0 +1,122 @@
+/* Metrics Catalog Styles */
+
+.metrics-catalog-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    margin-top: 4px;
+}
+
+/* Category sections */
+.metrics-category {
+    background: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.metrics-category + .metrics-category {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.metrics-category-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px 4px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.metrics-category-header:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.metrics-category-title {
+    flex: 1;
+    font-size: 11px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    color: #333;
+    letter-spacing: 0.3px;
+}
+
+.metrics-category-count {
+    font-size: 9px;
+    color: #333;
+    margin-right: 4px;
+}
+
+.metrics-category-toggle {
+    font-size: 8px;
+    color: #888;
+}
+
+.metrics-category.collapsed .metrics-category-items {
+    display: none;
+}
+
+/* Individual metric items */
+.metrics-category-items {
+    padding: 0px 12px;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 0px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+}
+
+.metric-item:last-child {
+    border-bottom: none;
+}
+
+.metric-checkbox {
+    width: 12px;
+    height: 12px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.metric-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.metric-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+}
+
+.metric-description {
+    font-size: 0.65rem;
+    color: #777;
+    line-height: 1.3;
+    margin-top: 1px;
+}
+
+/* Enabled state */
+.metric-item.enabled .metric-name {
+    color: #333333;
+}
+
+.metric-badge {
+    border-radius: 4px;
+    border: 0.5px solid #666666;
+    padding: 2px 4px;
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+.metric-badge.realtime {
+    background-color: #ffb8b8;
+}
+
+.metric-badge.post-solve {
+    background-color: #a6eaab;
+}
+
+.metric-badge.system {
+    background-color: #b1ddff;
+}
+

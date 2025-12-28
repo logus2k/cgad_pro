@@ -290,8 +290,12 @@ class Quad8FEMSolver:
                 for j in range(8):
                     self.Kg[edofs[i], edofs[j]] += Ke[i, j]
             
-            if self.verbose and (e + 1) % self.assembly_print_every == 0:
-                print(f"  {e + 1}/{self.Nels} elements assembled")
+            # Report progress every 1000 elements
+            if (e + 1) % 1000 == 0 or (e + 1) == self.Nels:
+                if self.progress_callback:
+                    self.progress_callback.on_assembly_progress(e + 1, self.Nels)
+                if self.verbose and (e + 1) % self.assembly_print_every == 0:
+                    print(f"  {e + 1}/{self.Nels} elements assembled")
     
     def apply_boundary_conditions(self) -> None:
         """Apply Robin (inlet) and Dirichlet (outlet) boundary conditions."""
@@ -474,15 +478,21 @@ class Quad8FEMSolver:
             XN = np.column_stack((self.x[edofs], self.y[edofs]))
             
             xp, _ = Genip2DQ(4)
+            
+            vel_x = np.zeros(4, dtype=np.float64)
+            vel_y = np.zeros(4, dtype=np.float64)
             v_ip = np.zeros(4, dtype=np.float64)
             
             for ip in range(4):
                 B, _, _ = Shape_N_Der8(XN, xp[ip, 0], xp[ip, 1])
                 grad = B.T @ self.u[edofs]
-                self.vel[e, 0] = grad[0]
-                self.vel[e, 1] = grad[1]
+                # Velocity is negative gradient: v = -grad(u)
+                vel_x[ip] = -grad[0]  # <-- FIX: Add negative sign
+                vel_y[ip] = -grad[1]  # <-- FIX: Add negative sign
                 v_ip[ip] = np.linalg.norm(grad)
             
+            self.vel[e, 0] = vel_x.mean()
+            self.vel[e, 1] = vel_y.mean()
             self.abs_vel[e] = v_ip.mean()
         
         self.pressure = self.p0 - self.rho * self.abs_vel**2
@@ -692,6 +702,7 @@ class Quad8FEMSolver:
         }
         
         # --- Emit Final Completion Event ---
+        """
         if self.progress_callback:
             self.progress_callback.on_solve_complete(
                 converged=self.converged,
@@ -700,6 +711,7 @@ class Quad8FEMSolver:
                 solution_stats=results['solution_stats'],
                 mesh_info=results['mesh_info']
             )
+        """
         
         # --- Console Output (if verbose) ---
         if self.verbose:

@@ -10,9 +10,10 @@ import struct
 class ProgressCallback:
     """Emit events to Socket.IO during solving"""
     
-    def __init__(self, socketio, job_id: str, loop=None):
+    def __init__(self, socketio, job_id: str, solver_type: str = None, loop=None):
         self.socketio = socketio
         self.job_id = job_id
+        self.solver_type = solver_type  # NEW: Track solver type for this job
         self.loop = loop or asyncio.get_event_loop()
         self.last_solution_update = 0  # Throttle solution updates
     
@@ -28,6 +29,7 @@ class ProgressCallback:
         """Called when a stage begins"""
         self._emit_sync('stage_start', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'timestamp': time.time()
         })
@@ -36,8 +38,20 @@ class ProgressCallback:
         """Called when a stage completes"""
         self._emit_sync('stage_complete', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'duration': duration,
+            'timestamp': time.time()
+        })
+    
+    def on_assembly_progress(self, elements_done: int, total_elements: int):
+        """Called during element assembly to report progress"""
+        self._emit_sync('assembly_progress', {
+            'job_id': self.job_id,
+            'solver_type': self.solver_type,
+            'elements_done': elements_done,
+            'total_elements': total_elements,
+            'progress_percent': 100.0 * elements_done / total_elements,
             'timestamp': time.time()
         })
     
@@ -46,6 +60,7 @@ class ProgressCallback:
         """Called after mesh is loaded - send metadata only"""
         self._emit_sync('mesh_loaded', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'nodes': nodes,
             'elements': elements,
             # Don't send geometry via Socket.IO - use binary endpoint
@@ -59,6 +74,7 @@ class ProgressCallback:
         """Called during CG iterations"""
         self._emit_sync('solve_progress', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': 'solving',
             'iteration': iteration,
             'max_iterations': max_iterations,
@@ -93,6 +109,7 @@ class ProgressCallback:
         
         self._emit_sync('solution_update', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'iteration': iteration,
             'chunk_data': chunk_b64,
             'chunk_info': chunk_info,
@@ -105,6 +122,7 @@ class ProgressCallback:
         """Called when entire solve is complete"""
         self._emit_sync('solve_complete', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'converged': converged,
             'iterations': iterations,
             'timing_metrics': timing_metrics,
@@ -115,9 +133,7 @@ class ProgressCallback:
         })
 
     def on_solution_increment(self, iteration: int, solution):
-        """Send incremental solution update as binary"""
-        
-        print(f"[DEBUG] on_solution_increment called: iteration={iteration}, solution shape={solution.shape}")
+        """Send incremental solution update as binary (native Socket.IO binary support)"""
         
         # Throttle updates
         current_time = time.time()
@@ -127,12 +143,10 @@ class ProgressCallback:
         else:
             force_send = False
         
-        if not force_send and current_time - self.last_solution_update < 2.0:
-            print(f"[DEBUG] Throttled (last update {current_time - self.last_solution_update:.2f}s ago)")
+        if not force_send and current_time - self.last_solution_update < 0.5:
             return
         
         self.last_solution_update = current_time
-        print(f"[DEBUG] Sending solution increment...")
         
         # Handle CuPy arrays
         import numpy as np
@@ -146,23 +160,18 @@ class ProgressCallback:
         sol_min = float(solution_f32.min())
         sol_max = float(solution_f32.max())
         
-        print(f"[DEBUG] Solution range: [{sol_min:.3f}, {sol_max:.3f}]")
-        
         # Subsample
         stride = 10
         solution_subsample = solution_f32[::stride]
         
-        # Convert to base64
-        import base64
+        # Send binary data directly (Socket.IO handles binary natively)
         solution_bytes = solution_subsample.tobytes()
-        chunk_b64 = base64.b64encode(solution_bytes).decode('ascii')
-        
-        print(f"[DEBUG] Emitting solution_increment event (size: {len(chunk_b64)} bytes)")
         
         self._emit_sync('solution_increment', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'iteration': iteration,
-            'chunk_data': chunk_b64,
+            'chunk_data': solution_bytes,  # Raw bytes - Socket.IO sends as binary
             'chunk_info': {
                 'stride': stride,
                 'total_nodes': len(solution_f32),
@@ -171,14 +180,13 @@ class ProgressCallback:
                 'max': sol_max
             },
             'timestamp': time.time()
-        })
-        
-        print(f"[DEBUG] solution_increment event emitted")     
+        })     
     
     def on_error(self, stage: str, error: str):
         """Called when an error occurs"""
         self._emit_sync('solve_error', {
             'job_id': self.job_id,
+            'solver_type': self.solver_type,
             'stage': stage,
             'error': str(error),
             'timestamp': time.time()

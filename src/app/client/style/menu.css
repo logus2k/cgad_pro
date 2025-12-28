@@ -1,26 +1,6 @@
-@font-face {
-	font-family: 'Material Symbols Outlined';
-	font-style: normal;
-	font-weight: 400;
-	src: url('../fonts/material.symbols.outlined.v3.woff2') format('woff2');
-	font-display: fallback;
-}
-
-.material-symbols-outlined {
-	font-family: 'Material Symbols Outlined';
-	font-weight: normal;
-	font-style: normal;
-	font-size: 20px;
-	line-height: 1;
-	letter-spacing: normal;
-	text-transform: none;
-	display: inline-block;
-	white-space: nowrap;
-	word-wrap: normal;
-	direction: ltr;
-	font-feature-settings: 'liga';
-	-webkit-font-feature-settings: 'liga';
-	-webkit-font-smoothing: antialiased;
+.pm-menu,
+.hud {
+	pointer-events: auto;
 }
 
 .pm-menu {
@@ -31,38 +11,54 @@
     pointer-events: auto;
 }
 
-.pm-menu,
-.hud {
-	pointer-events: auto;
-}
-
 .pm-menu button {
-	width: var(--pm-icon, 36px);
-	height: var(--pm-icon, 16px);
-	display: grid;
-	place-items: center;
+	outline: none;
 	border: none;
-	border-radius: 10px;
-	background: rgba(255, 255, 255, 0.6);
-	color: #313131;
-	/* inactive = green */
-	cursor: pointer;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background-color: transparent;
 }
 
-.pm-menu button:hover {
-	color: #FFB000;
+.pm-menu button .svg-icon {
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+	border-radius: 8px;
+	border: 0.5px outset #c9c9c9;
+	fill: #646464;
+    stroke: #646464;
+    padding: 5px;
+	background-color: #ffffff96;
+	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
-.pm-menu button.active {
-    outline: none;
-    border: 1px solid #55cb80;
-    box-shadow: 0 0 6px #55cb80;
-    color: #1c9649;
-    background-color: #adfecb;
+.pm-menu button:hover .svg-icon {
+    background-color: #ffffff;
+    border: 0.5px outset #c9c9c9;
+    border-radius: 8px;	
+	fill: #57b379;
+    stroke: #57b379;
 }
 
-.pm-menu .material-symbols-outlined {
-	font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+.pm-menu button.active .svg-icon {
+    border: 0.5px inset #c9c9c9;
+    border-radius: 8px;
+    background-color: #adfecbcc;
+    fill: #1b7e1bcc;
+    stroke: #1b7e1b;
+    box-shadow: none;
+    stroke-width: 20px;
+}
+
+.pm-menu button.active:hover .svg-icon {
+	border: 0.5px inset #c9c9c9;
+	box-shadow: none;
+}
+
+.svg-icon {
+	fill: currentColor;
+	stroke: currentColor;
 }
 
 .pm-top-left {
@@ -87,33 +83,27 @@
 
 .pm-close {
     position: absolute;
-    top: 8px;
-    right: 10px;
+    top: 6px;
+    right: 8px;
     width: 20px;
-    height: 20px;
+    height: 18px;
     border: none;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.1);
     color: #aaaaaa;
     cursor: pointer;
     line-height: 1;
+    text-align: center;
 }
 
 .pm-close:hover {
-    background: #ffcb8d;
-	color: #333333;
-}
-
-/* ───────────────── Light Theme Menu ───────────────── */
-
-.pm-menu button {
-    background: rgba(255, 255, 255, 0.55);
-    color: #555;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ff9e8d;
+	color: #363636;
 }
 
 .pm-bottom-center {
-	bottom: var(--pm-m, 16px);
-	left: 50%;
-	transform: translateX(-50%);
+    bottom: var(--pm-m, 16px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
 }
