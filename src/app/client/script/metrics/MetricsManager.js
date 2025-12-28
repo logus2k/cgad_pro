@@ -14,6 +14,9 @@ import { ConvergencePlot } from './widgets/ConvergencePlot.js';
 import { SpeedupFactors } from './widgets/SpeedupFactors.js';
 import { MeshInfo } from './widgets/MeshInfo.js';
 import { ConvergenceQuality } from './widgets/ConvergenceQuality.js';
+import { SolutionRange } from './widgets/SolutionRange.js';
+import { ServerHardware } from './widgets/ServerHardware.js';
+import { ClientHardware } from './widgets/ClientHardware.js';
 
 export class MetricsManager {
     constructor() {
@@ -59,10 +62,11 @@ export class MetricsManager {
         this.register(new SpeedupFactors());
         this.register(new MeshInfo());
         this.register(new ConvergenceQuality());
+        this.register(new SolutionRange());
         
-        // Future metrics (uncomment as implemented):
-        // this.register(new SolutionRange());
-        // this.register(new VelocityStats());
+        // System metrics
+        this.register(new ServerHardware());
+        this.register(new ClientHardware());
     }
     
     /**
@@ -164,11 +168,8 @@ export class MetricsManager {
         
         // Catalog not initialized yet - return defaults
         return [
-            'convergence-plot', 
-            'stage-timeline',
-            'residual-display',
+            'convergence-plot',
             'solution-range',
-            'velocity-stats',
             'convergence-quality',
             'timing-waterfall',
             'speedup-factors',

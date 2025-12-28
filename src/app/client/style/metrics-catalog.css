@@ -3,55 +3,51 @@
 .metrics-catalog-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 8px 0;
+    padding: 0px;
+    margin-top: 4px;
 }
 
 /* Category sections */
 .metrics-category {
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
+}
+
+.metrics-category + .metrics-category {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .metrics-category-header {
     display: flex;
     align-items: center;
-    padding: 10px 12px;
-    background: rgba(0, 0, 0, 0.03);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 4px 12px 4px 12px;
     cursor: pointer;
     user-select: none;
     transition: background 0.15s ease;
 }
 
 .metrics-category-header:hover {
-    background: rgba(0, 0, 0, 0.06);
-}
-
-.metrics-category-icon {
-    font-size: 1.1rem;
-    margin-right: 8px;
-    opacity: 0.7;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .metrics-category-title {
     flex: 1;
-    font-size: 0.85rem;
+    font-size: 11px;
+    font-family: 'Roboto', sans-serif;
     font-weight: 600;
     color: #333;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+}
+
+.metrics-category-count {
+    font-size: 9px;
+    color: #333;
+    margin-right: 4px;
 }
 
 .metrics-category-toggle {
-    font-size: 0.7rem;
+    font-size: 8px;
     color: #888;
-    transition: transform 0.2s ease;
-}
-
-.metrics-category.collapsed .metrics-category-toggle {
-    transform: rotate(-90deg);
 }
 
 .metrics-category.collapsed .metrics-category-items {
@@ -60,14 +56,14 @@
 
 /* Individual metric items */
 .metrics-category-items {
-    padding: 8px 12px;
+    padding: 0px 12px;
 }
 
 .metric-item {
     display: flex;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+    padding: 4px 0px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
 }
 
 .metric-item:last-child {
@@ -75,11 +71,10 @@
 }
 
 .metric-checkbox {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     margin-right: 10px;
     cursor: pointer;
-    accent-color: var(--hud-accent, #2266ff);
 }
 
 .metric-info {
@@ -88,138 +83,40 @@
 }
 
 .metric-name {
-    font-size: 0.8rem;
+    font-size: 11px;
     font-weight: 500;
     color: #333;
-    margin-bottom: 2px;
 }
 
 .metric-description {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #777;
     line-height: 1.3;
+    margin-top: 1px;
+}
+
+/* Enabled state */
+.metric-item.enabled .metric-name {
+    color: #333333;
 }
 
 .metric-badge {
-    font-size: 0.6rem;
-    font-weight: 600;
+    border-radius: 4px;
+    border: 0.5px solid #666666;
+    padding: 2px 4px;
+    font-size: 8px;
     text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 8px;
-    white-space: nowrap;
 }
 
 .metric-badge.realtime {
-    background: #2a9d8f;
-    color: #fff;
+    background-color: #ffb8b8;
 }
 
 .metric-badge.post-solve {
-    background: #457b9d;
-    color: #fff;
-}
-
-.metric-badge.comparative {
-    background: #f4a261;
-    color: #333;
+    background-color: #a6eaab;
 }
 
 .metric-badge.system {
-    background: #aaa;
-    color: #fff;
+    background-color: #b1ddff;
 }
 
-/* Disabled state */
-.metric-item.disabled {
-    opacity: 0.5;
-}
-
-.metric-item.disabled .metric-checkbox {
-    cursor: not-allowed;
-}
-
-/* Active/enabled visual feedback */
-.metric-item.enabled .metric-name {
-    color: var(--hud-accent, #2266ff);
-}
-
-/* Action buttons */
-.metrics-catalog-actions {
-    display: flex;
-    gap: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin-top: 4px;
-}
-
-.metrics-catalog-btn {
-    flex: 1;
-    padding: 8px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.metrics-catalog-btn.primary {
-    background: var(--hud-accent, #2266ff);
-    color: #fff;
-}
-
-.metrics-catalog-btn.primary:hover {
-    background: #1a4fcc;
-}
-
-.metrics-catalog-btn.secondary {
-    background: #e0e0e0;
-    color: #333;
-}
-
-.metrics-catalog-btn.secondary:hover {
-    background: #d0d0d0;
-}
-
-/* Quick toggles row */
-.metrics-quick-toggles {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 8px;
-}
-
-.quick-toggle-btn {
-    padding: 4px 10px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.quick-toggle-btn:hover {
-    border-color: var(--hud-accent, #2266ff);
-    color: var(--hud-accent, #2266ff);
-}
-
-.quick-toggle-btn.active {
-    background: var(--hud-accent, #2266ff);
-    border-color: var(--hud-accent, #2266ff);
-    color: #fff;
-}
-
-/* Status indicator */
-.metrics-status {
-    font-size: 0.7rem;
-    color: #888;
-    text-align: center;
-    padding: 6px 0;
-}
-
-.metrics-status-count {
-    font-weight: 600;
-    color: var(--hud-accent, #2266ff);
-}

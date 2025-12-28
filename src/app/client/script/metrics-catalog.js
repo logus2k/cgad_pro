@@ -9,149 +9,66 @@
 
 // Metrics definition with categories
 const METRICS_CATALOG = {
-    liveMonitor: {
-        id: 'live-monitor',
-        title: 'Live Solver Monitor',
-        icon: '⚡',
-        description: 'Real-time solver progress indicators',
+    solver: {
+        id: 'solver',
+        title: 'Solver',
+        description: 'Solver performance and convergence',
         metrics: [
             {
                 id: 'convergence-plot',
-                name: 'Convergence Plot',
+                name: 'Convergence Iterations',
                 description: 'Residual vs iteration chart (log scale)',
                 type: 'realtime',
                 default: true
             },
             {
-                id: 'stage-timeline',
-                name: 'Stage Timeline',
-                description: 'Horizontal bar showing solver stages progress',
-                type: 'realtime',
-                default: true
-            },
-            {
-                id: 'residual-display',
-                name: 'Residual Display',
-                description: 'Current residual norm and relative residual',
-                type: 'realtime',
-                default: true
-            }
-        ]
-    },
-    solutionQuality: {
-        id: 'solution-quality',
-        title: 'Solution Quality',
-        icon: '📊',
-        description: 'Post-solve analysis metrics',
-        metrics: [
-            {
-                id: 'solution-range',
-                name: 'Solution Range',
-                description: 'Min/max potential values with distribution',
-                type: 'post-solve',
-                default: true
-            },
-            {
-                id: 'velocity-stats',
-                name: 'Velocity Field Stats',
-                description: 'Min/max/mean velocity magnitude',
-                type: 'post-solve',
-                default: true
-            },
-            {
-                id: 'pressure-stats',
-                name: 'Pressure Distribution',
-                description: 'Bernoulli-derived pressure statistics',
-                type: 'post-solve',
-                default: false
-            },
-            {
                 id: 'convergence-quality',
                 name: 'Convergence Quality',
-                description: 'Final residual, iterations vs max, convergence status',
+                description: 'Final residual, iterations, convergence status',
                 type: 'post-solve',
                 default: true
-            }
-        ]
-    },
-    performanceBreakdown: {
-        id: 'performance-breakdown',
-        title: 'Performance Breakdown',
-        icon: '⏱️',
-        description: 'Timing analysis per solver stage',
-        metrics: [
+            },
             {
                 id: 'timing-waterfall',
-                name: 'Timing Waterfall',
-                description: 'Visual breakdown of time spent in each stage',
+                name: 'Timing Breakdown',
+                description: 'Time spent in each solver stage',
                 type: 'post-solve',
                 default: true
-            },
-            {
-                id: 'timing-table',
-                name: 'Timing Table',
-                description: 'Tabular view of all timing metrics',
-                type: 'post-solve',
-                default: false
-            },
-            {
-                id: 'throughput',
-                name: 'Throughput Metrics',
-                description: 'Elements/second, iterations/second',
-                type: 'post-solve',
-                default: false
-            }
-        ]
-    },
-    comparativeAnalysis: {
-        id: 'comparative-analysis',
-        title: 'Comparative Analysis',
-        icon: '📈',
-        description: 'Cross-run and cross-solver comparisons',
-        metrics: [
-            {
-                id: 'historical-best',
-                name: 'Historical Best',
-                description: 'Compare against best recorded time for this model',
-                type: 'comparative',
-                default: false
             },
             {
                 id: 'speedup-factors',
                 name: 'Speedup Factors',
-                description: 'Relative speedup vs CPU baseline',
-                type: 'comparative',
+                description: 'Performance comparison across solver types',
+                type: 'post-solve',
                 default: true
             }
         ]
     },
-    meshInfo: {
-        id: 'mesh-info',
-        title: 'Mesh Information',
-        icon: '🔷',
-        description: 'Model geometry characteristics',
+    model: {
+        id: 'model',
+        title: 'Model',
+        description: 'Mesh and solution data',
         metrics: [
             {
                 id: 'mesh-stats',
                 name: 'Mesh Statistics',
-                description: 'Node count, element count, complexity badge',
+                description: 'Node count, element count, complexity',
                 type: 'post-solve',
                 default: true
             },
             {
-                id: 'boundary-info',
-                name: 'Boundary Conditions',
-                description: 'Robin edges, Dirichlet nodes, unused nodes',
+                id: 'solution-range',
+                name: 'Solution Range',
+                description: 'Min/max/mean solution values',
                 type: 'post-solve',
-                default: false
+                default: true
             }
         ]
     },
-    systemInfo: {
-        id: 'system-info',
-        title: 'System Information',
-        icon: '💻',
-        description: 'Hardware and environment details',
+    system: {
+        id: 'system',
+        title: 'System',
+        description: 'Hardware information',
         metrics: [
             {
                 id: 'server-hardware',
@@ -163,14 +80,7 @@ const METRICS_CATALOG = {
             {
                 id: 'client-hardware',
                 name: 'Client Hardware',
-                description: 'Browser, WebGL renderer, screen info',
-                type: 'system',
-                default: false
-            },
-            {
-                id: 'solver-info',
-                name: 'Solver Configuration',
-                description: 'Solver type, tolerance, max iterations',
+                description: 'Browser, WebGL renderer, screen',
                 type: 'system',
                 default: false
             }
@@ -220,36 +130,22 @@ export class MetricsCatalog {
     }
     
     render() {
-        const enabledCount = this.enabledMetrics.size;
-        const totalCount = Object.values(METRICS_CATALOG)
-            .reduce((sum, cat) => sum + cat.metrics.length, 0);
-        
         this.container.innerHTML = `
-            <div class="metrics-quick-toggles">
-                <button class="quick-toggle-btn" data-filter="all">All</button>
-                <button class="quick-toggle-btn" data-filter="realtime">Real-time</button>
-                <button class="quick-toggle-btn" data-filter="post-solve">Post-solve</button>
-                <button class="quick-toggle-btn" data-filter="comparative">Comparative</button>
-            </div>
-            
-            ${Object.values(METRICS_CATALOG).map(category => this.renderCategory(category)).join('')}
-            
-            <div class="metrics-status">
-                <span class="metrics-status-count">${enabledCount}</span> of ${totalCount} metrics enabled
-            </div>
+            ${Object.values(METRICS_CATALOG).map((category, index) => 
+                this.renderCategory(category, index === 0)
+            ).join('')}
         `;
     }
     
-    renderCategory(category) {
+    renderCategory(category, isOpen = false) {
         const enabledInCategory = category.metrics.filter(m => this.enabledMetrics.has(m.id)).length;
         
         return `
-            <div class="metrics-category" data-category="${category.id}">
+            <div class="metrics-category ${isOpen ? '' : 'collapsed'}" data-category="${category.id}">
                 <div class="metrics-category-header">
-                    <span class="metrics-category-icon">${category.icon}</span>
                     <span class="metrics-category-title">${category.title}</span>
                     <span class="metrics-category-count">${enabledInCategory}/${category.metrics.length}</span>
-                    <span class="metrics-category-toggle">▼</span>
+                    <span class="metrics-category-toggle">${isOpen ? '▼' : '▶'}</span>
                 </div>
                 <div class="metrics-category-items">
                     ${category.metrics.map(metric => this.renderMetric(metric)).join('')}
@@ -288,14 +184,26 @@ export class MetricsCatalog {
     }
     
     bindEvents() {
-        // Category collapse/expand
+        // Category collapse/expand (accordion - only one open at a time)
         this.container.querySelectorAll('.metrics-category-header').forEach(header => {
             header.addEventListener('click', (e) => {
                 // Don't toggle if clicking on checkbox area
                 if (e.target.type === 'checkbox') return;
                 
                 const category = header.closest('.metrics-category');
-                category.classList.toggle('collapsed');
+                const isCollapsed = category.classList.contains('collapsed');
+                
+                // Close all categories first
+                this.container.querySelectorAll('.metrics-category').forEach(cat => {
+                    cat.classList.add('collapsed');
+                    cat.querySelector('.metrics-category-toggle').textContent = '▶';
+                });
+                
+                // Open clicked category if it was closed
+                if (isCollapsed) {
+                    category.classList.remove('collapsed');
+                    category.querySelector('.metrics-category-toggle').textContent = '▼';
+                }
             });
         });
         
@@ -317,52 +225,6 @@ export class MetricsCatalog {
                 this.applyChanges(); // Apply immediately
             });
         });
-        
-        // Quick filter buttons
-        this.container.querySelectorAll('.quick-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const filter = btn.dataset.filter;
-                this.applyQuickFilter(filter);
-            });
-        });
-    }
-    
-    applyQuickFilter(filter) {
-        // Update button states
-        this.container.querySelectorAll('.quick-toggle-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.filter === filter);
-        });
-        
-        // Select metrics based on filter
-        if (filter === 'all') {
-            // Enable all
-            Object.values(METRICS_CATALOG).forEach(category => {
-                category.metrics.forEach(metric => {
-                    this.enabledMetrics.add(metric.id);
-                });
-            });
-        } else {
-            // Enable only matching type, disable others
-            this.enabledMetrics.clear();
-            Object.values(METRICS_CATALOG).forEach(category => {
-                category.metrics.forEach(metric => {
-                    if (metric.type === filter) {
-                        this.enabledMetrics.add(metric.id);
-                    }
-                });
-            });
-        }
-        
-        // Update UI
-        this.container.querySelectorAll('.metric-checkbox').forEach(checkbox => {
-            const metricId = checkbox.dataset.metricId;
-            const isEnabled = this.enabledMetrics.has(metricId);
-            checkbox.checked = isEnabled;
-            checkbox.closest('.metric-item').classList.toggle('enabled', isEnabled);
-        });
-        
-        this.updateCounts();
-        this.applyChanges(); // Apply immediately
     }
     
     updateCounts() {
@@ -378,14 +240,6 @@ export class MetricsCatalog {
                 countEl.textContent = `${enabledInCategory}/${category.metrics.length}`;
             }
         });
-        
-        // Update total count
-        const totalCount = Object.values(METRICS_CATALOG)
-            .reduce((sum, cat) => sum + cat.metrics.length, 0);
-        const statusEl = this.container.querySelector('.metrics-status-count');
-        if (statusEl) {
-            statusEl.textContent = this.enabledMetrics.size;
-        }
     }
     
     resetToDefaults() {

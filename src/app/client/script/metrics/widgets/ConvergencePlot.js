@@ -17,7 +17,7 @@ import { BaseMetric } from '../BaseMetric.js';
 export class ConvergencePlot extends BaseMetric {
     constructor(options = {}) {
         super('convergence-plot', {
-            title: 'Convergence',
+            title: 'Convergence Iterations',
             defaultWidth: 360,
             defaultHeight: 260,
             position: { top: '120px', right: '400px' },
