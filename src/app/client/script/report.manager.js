@@ -1,8 +1,5 @@
-import { marked } from "../library/marked.esm.js";
+// report.manager.js
 
-/**
- * Simple Report Manager to kickstart the area
- */
 export class ReportManager {
     constructor() {
         this.editor = document.getElementById('report-editor');
@@ -12,20 +9,21 @@ export class ReportManager {
 
     init() {
         if (!this.editor) return;
-
-        // Listen for typing to update preview
-        this.editor.addEventListener('input', () => {
-            this.render();
-        });
-
-        // Initial template
-        this.editor.value = "";
+        this.editor.addEventListener('input', () => this.render());
+        
+        // Initial Template
+        this.editor.value = "# Simulation Report\n\n## Summary\n* **Model:** ...\n* **Status:** Complete\n\nInsert findings here...";
         this.render();
     }
 
     render() {
         const rawText = this.editor.value;
-        
-        this.preview.innerHTML = marked.parse(rawText);
+        // Use the global 'marked' object provided by the CDN script
+        if (window.marked) {
+            this.preview.innerHTML = window.marked.parse(rawText);
+        } else {
+            // Fallback if library isn't loaded yet
+            this.preview.innerText = rawText;
+        }
     }
 }
