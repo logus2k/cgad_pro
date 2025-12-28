@@ -12,6 +12,7 @@ const menuManager = new MenuManager({
 });
 */
 
+import { getTopZ, bringToFront as bringToFrontGlobal, syncWithExistingPanels } from './zIndexManager.js';
 
 export class MenuManager {
 
@@ -30,7 +31,6 @@ export class MenuManager {
         this.menuEl = null;
         this.panels = {};
         this.moveables = new Map();
-        this.topZ = 10;
         this.positions = new WeakMap();
         this.svgCache = new Map();
 
@@ -261,8 +261,7 @@ export class MenuManager {
 
         // Sync when panel gains focus
         panel.addEventListener('mousedown', () => {
-            this.topZ += 1;
-            panel.style.zIndex = String(this.topZ);
+            panel.style.zIndex = String(getTopZ());
             syncZIndex();
         });
 
@@ -373,8 +372,7 @@ export class MenuManager {
         if (show) {
             // --- Logic for SHOWING the Panel ---
             p.classList.add('visible');
-            this.topZ += 1;
-            p.style.zIndex = String(this.topZ);
+            p.style.zIndex = String(getTopZ());
 
             // 1. If the panel is being shown, ensure Moveable is active.
             //    Since your #makeDraggable handles creation/recreation, call it here.

@@ -12,6 +12,8 @@
  * Location: /src/app/client/script/metrics/BaseMetric.js
  */
 
+import { getTopZ, bringToFront, peekTopZ } from '../zIndexManager.js';
+
 export class BaseMetric {
     /**
      * @param {string} id - Unique metric identifier (matches METRICS_CATALOG id)
@@ -41,7 +43,6 @@ export class BaseMetric {
         this.moveablePos = { x: 0, y: 0 };
         this.visible = false;
         this.hasData = false;
-        this.topZ = 20; // Start above other HUD panels
         
         this._boundHandlers = {};
     }
@@ -76,7 +77,7 @@ export class BaseMetric {
         this.panel.id = `hud-metric-${this.id}`;
         this.panel.className = 'hud metric-panel';
         this.panel.style.cssText = `
-            z-index: ${this.topZ};
+            z-index: ${peekTopZ()};
             width: ${this.options.defaultWidth}px;
             height: ${this.options.defaultHeight}px;
             min-width: 200px;
@@ -261,16 +262,7 @@ export class BaseMetric {
      * Bring panel to front (update z-index)
      */
     bringToFront() {
-        // Get the highest z-index among all HUD panels
-        const allPanels = document.querySelectorAll('.hud');
-        let maxZ = this.topZ;
-        allPanels.forEach(p => {
-            const z = parseInt(p.style.zIndex) || 0;
-            if (z > maxZ) maxZ = z;
-        });
-        
-        this.topZ = maxZ + 1;
-        this.panel.style.zIndex = String(this.topZ);
+        bringToFront(this.panel);
         this.syncControlBoxZ();
     }
     
