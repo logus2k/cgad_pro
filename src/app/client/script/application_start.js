@@ -10,7 +10,7 @@ import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
 import { SettingsManager } from './settings.manager.js';
 import { initMetricsManager } from './metrics/MetricsManager.js';
-
+import { marked } from "../library/marked.esm.js";
 
 // ============================================================================
 // Configuration

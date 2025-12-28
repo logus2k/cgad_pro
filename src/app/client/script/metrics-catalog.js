@@ -16,13 +16,6 @@ const METRICS_CATALOG = {
         description: 'Real-time solver progress indicators',
         metrics: [
             {
-                id: 'progress-ring',
-                name: 'Progress Ring',
-                description: 'Circular progress indicator with iteration count and ETR',
-                type: 'realtime',
-                default: true
-            },
-            {
                 id: 'convergence-plot',
                 name: 'Convergence Plot',
                 description: 'Residual vs iteration chart (log scale)',
@@ -116,13 +109,6 @@ const METRICS_CATALOG = {
         icon: '📈',
         description: 'Cross-run and cross-solver comparisons',
         metrics: [
-            {
-                id: 'solver-comparison',
-                name: 'Solver Comparison',
-                description: 'Compare current run against other solver types',
-                type: 'comparative',
-                default: true
-            },
             {
                 id: 'historical-best',
                 name: 'Historical Best',

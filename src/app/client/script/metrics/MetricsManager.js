@@ -13,8 +13,7 @@ import { TimingWaterfall } from './widgets/TimingWaterfall.js';
 import { ConvergencePlot } from './widgets/ConvergencePlot.js';
 import { SpeedupFactors } from './widgets/SpeedupFactors.js';
 import { MeshInfo } from './widgets/MeshInfo.js';
-// Future imports:
-// import { ProgressRing } from './widgets/ProgressRing.js';
+import { ConvergenceQuality } from './widgets/ConvergenceQuality.js';
 
 export class MetricsManager {
     constructor() {
@@ -59,11 +58,9 @@ export class MetricsManager {
         this.register(new ConvergencePlot());
         this.register(new SpeedupFactors());
         this.register(new MeshInfo());
+        this.register(new ConvergenceQuality());
         
         // Future metrics (uncomment as implemented):
-        // this.register(new ProgressRing());
-        // this.register(new SolverComparison());
-        // this.register(new ConvergenceQuality());
         // this.register(new SolutionRange());
         // this.register(new VelocityStats());
     }
@@ -167,7 +164,6 @@ export class MetricsManager {
         
         // Catalog not initialized yet - return defaults
         return [
-            'progress-ring',
             'convergence-plot', 
             'stage-timeline',
             'residual-display',
@@ -175,7 +171,6 @@ export class MetricsManager {
             'velocity-stats',
             'convergence-quality',
             'timing-waterfall',
-            'solver-comparison',
             'speedup-factors',
             'mesh-stats'
         ];

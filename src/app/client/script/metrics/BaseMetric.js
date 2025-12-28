@@ -602,7 +602,6 @@ export class BaseMetric {
         
         // Catalog not initialized yet - use defaults
         const defaultEnabled = [
-            'progress-ring',
             'convergence-plot',
             'stage-timeline',
             'residual-display',
@@ -610,7 +609,6 @@ export class BaseMetric {
             'velocity-stats',
             'convergence-quality',
             'timing-waterfall',
-            'solver-comparison',
             'speedup-factors',
             'mesh-stats'
         ];

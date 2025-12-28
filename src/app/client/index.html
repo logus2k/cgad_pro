@@ -125,13 +125,27 @@
 				</div>
 
 				<div class="hud report" id="hud-report" style="z-index: 15;">
-
-					<h1>REPORT</h1>
+					<h1>SIMULATION REPORT</h1>
 					<div class="sep"></div>
 
-					<div class="report-container">
-					</div>
+					<div class="report-workspace">
+						<div class="report-pane editor-pane">
+							<div class="pane-header">
+								<span>Markdown Editor</span>
+								<button class="btn-icon" onclick="clearReport()">Clear</button>
+							</div>
+							<textarea id="report-editor" placeholder="Start writing your report in Markdown..."></textarea>
+						</div>
 
+						<div class="report-pane preview-pane">
+							<div class="pane-header">
+								<span>HTML Preview</span>
+								<button class="btn-icon" onclick="exportReport()">Export</button>
+							</div>
+							<div id="report-preview" class="markdown-body">
+								</div>
+						</div>
+					</div>
 				</div>
 
 				<div class="hud settings" id="hud-settings" style="z-index: 15;">
