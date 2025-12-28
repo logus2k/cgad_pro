@@ -93,10 +93,16 @@ export class TimingWaterfall extends BaseMetric {
             return;
         }
         
-        this.solverType = data.solver_type || 'unknown';
+        // solver_type can be at different locations depending on server response
+        this.solverType = data.solver_type 
+            || data.timing_metrics?.solver_type 
+            || data.config?.solver_type
+            || data.request?.solver_type
+            || null;
+        
         this.update(data.timing_metrics);
         
-        // Show panel if metric is enabled
+        // Show panel only if metric is enabled in catalog
         if (this.isEnabled()) {
             this.show();
         }
@@ -162,7 +168,7 @@ export class TimingWaterfall extends BaseMetric {
                 text: `Total: ${this.formatTime(totalTime)}`,
                 subtext: this.solverType ? `Solver: ${this.formatSolverType(this.solverType)}` : '',
                 left: 'center',
-                top: 5,
+                top: 3,
                 textStyle: {
                     fontSize: 13,
                     fontWeight: 'bold',

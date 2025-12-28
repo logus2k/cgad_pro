@@ -394,7 +394,7 @@ export class SpeedupFactors extends BaseMetric {
                 text: titleText,
                 subtext: subtitleText,
                 left: 'center',
-                top: 5,
+                top: 3,
                 textStyle: {
                     fontSize: 13,
                     fontWeight: 'bold',

@@ -12,6 +12,7 @@
 import { TimingWaterfall } from './widgets/TimingWaterfall.js';
 import { ConvergencePlot } from './widgets/ConvergencePlot.js';
 import { SpeedupFactors } from './widgets/SpeedupFactors.js';
+import { MeshInfo } from './widgets/MeshInfo.js';
 // Future imports:
 // import { ProgressRing } from './widgets/ProgressRing.js';
 
@@ -57,6 +58,7 @@ export class MetricsManager {
         this.register(new TimingWaterfall());
         this.register(new ConvergencePlot());
         this.register(new SpeedupFactors());
+        this.register(new MeshInfo());
         
         // Future metrics (uncomment as implemented):
         // this.register(new ProgressRing());

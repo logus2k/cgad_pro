@@ -439,6 +439,9 @@ femClient.on('job_started', (data) => {
 femClient.on('mesh_loaded', async (data) => {
     metricsDisplay.updateMesh(data.nodes, data.elements);
     
+    // Dispatch DOM event for metrics system
+    document.dispatchEvent(new CustomEvent('fem:meshLoaded', { detail: data }));
+    
     // Store mesh data for later use
     window.currentMeshData = data;
     

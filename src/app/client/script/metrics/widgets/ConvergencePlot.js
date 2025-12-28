@@ -151,7 +151,7 @@ export class ConvergencePlot extends BaseMetric {
                 text: 'Solving...',
                 subtext: this.solverType ? `Solver: ${this.formatSolverType(this.solverType)}` : '',
                 left: 'center',
-                top: 5,
+                top: 3,
                 textStyle: {
                     fontSize: 13,
                     fontWeight: 'bold',
@@ -273,7 +273,7 @@ export class ConvergencePlot extends BaseMetric {
                 text: titleText,
                 subtext: this.solverType ? `Solver: ${this.formatSolverType(this.solverType)}` : '',
                 left: 'center',
-                top: 5,
+                top: 3,
                 textStyle: {
                     fontSize: 12,
                     fontWeight: 'bold',
@@ -320,7 +320,7 @@ export class ConvergencePlot extends BaseMetric {
                     color: '#666'
                 },
                 min: 0,
-                max: this.maxIterations > 0 ? this.maxIterations : undefined,
+                max: this.calculateXAxisMax(currentIter),
                 axisLabel: {
                     fontSize: 10,
                     color: '#666',
@@ -384,6 +384,30 @@ export class ConvergencePlot extends BaseMetric {
         };
         
         this.chart.setOption(option, false);  // false = merge, not replace
+    }
+    
+    /**
+     * Calculate dynamic x-axis max based on current iteration
+     * Adds ~20% padding and rounds to nice values
+     */
+    calculateXAxisMax(currentIter) {
+        if (!currentIter || currentIter <= 0) {
+            return 100; // Default for empty state
+        }
+        
+        // Add 20% padding
+        const padded = currentIter * 1.2;
+        
+        // Round up to nice values
+        if (padded <= 100) {
+            return Math.ceil(padded / 10) * 10;
+        } else if (padded <= 1000) {
+            return Math.ceil(padded / 100) * 100;
+        } else if (padded <= 10000) {
+            return Math.ceil(padded / 1000) * 1000;
+        } else {
+            return Math.ceil(padded / 5000) * 5000;
+        }
     }
     
     /**
