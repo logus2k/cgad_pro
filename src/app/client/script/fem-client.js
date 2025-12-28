@@ -3,7 +3,15 @@
  */
 export class FEMClient {
 
-    constructor(serverUrl = window.location.origin, basePath = '/fem') {
+    constructor(serverUrl = null, basePath = null) {
+
+        // Dynamic URL resolution
+        if (serverUrl === null || basePath === null) {
+            const hostname = window.location.hostname;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+            serverUrl = serverUrl ?? window.location.origin;
+            basePath = basePath ?? (isLocal ? '' : '/fem');
+        }
 
         this.serverUrl = serverUrl;
         this.basePath = basePath;

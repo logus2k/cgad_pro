@@ -39,7 +39,7 @@ millimetricScene.setBackgroundEnabled(false);
 // ============================================================================
 // Initialize FEM client and metrics display
 // ============================================================================
-const femClient = new FEMClient('https://logus2k.com');
+const femClient = new FEMClient();
 const metricsDisplay = new MetricsDisplay(document.getElementById('hud-metrics'));
 
 // Initialize mesh renderer (for 2D visualization fallback)
@@ -658,7 +658,7 @@ femClient.on('solve_complete', async (data) => {
                 metricsDisplay.updateStatus('Loading velocity data...');
                 
                 const velocityUrl = `/solve/${data.job_id}/velocity/binary`;
-                const response = await fetch(`https://logus2k.com/fem${velocityUrl}`);
+                const response = await fetch(`${femClient.serverUrl}${femClient.basePath}${velocityUrl}`);
                 
                 if (response.ok) {
                     const buffer = await response.arrayBuffer();
@@ -889,7 +889,7 @@ window.startParticles = async (options = {}) => {
     if (!velocityData) {
         console.log('Fetching velocity data...');
         try {
-            const response = await fetch(`https://logus2k.com/fem/solve/${femClient.currentJobId}/velocity/binary`);
+            const response = await fetch(`${femClient.serverUrl}${femClient.basePath}/solve/${femClient.currentJobId}/velocity/binary`);
             if (!response.ok) throw new Error('Failed to fetch velocity');
             const buffer = await response.arrayBuffer();
             velocityData = parseVelocityBinary(buffer, meshExtruder.meshData.connectivity.length);
