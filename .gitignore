@@ -11,4 +11,5 @@ data/output/
 .venv/
 Scripts/
 pyvenv.cfg
+src/app/server/benchmark/benchmark_results.json
 
