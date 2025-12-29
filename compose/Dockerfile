@@ -26,7 +26,7 @@ RUN pip install --upgrade pip
 # --- Python dependencies ---
 RUN pip install --no-cache-dir \
 	python-socketio \
-	uvicorn fastapi python-socketio numpy pandas scipy matplotlib cupy_cuda13x numba nvidia-cublas numba h5py
+	uvicorn fastapi python-socketio numpy pandas scipy matplotlib cupy_cuda13x nvidia-cublas numba-cuda h5py
 
 # Tell CMake to build CUDA, and skip tools/tests/examples (prevents mtmd/CLI)
 ENV CMAKE_ARGS="-DGGML_CUDA=on -DLLAMA_BUILD_TOOLS=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF" \
