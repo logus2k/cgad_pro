@@ -637,7 +637,7 @@ class Quad8FEMSolverGPU:
 						self.x[n1], self.y[n1],
 						self.x[n2], self.y[n2],
 						self.x[n3], self.y[n3],
-						p=0.0,
+						p=self.p0,
 						gama=self.gamma
 					)
 					for i, ni in enumerate((n1, n2, n3)):

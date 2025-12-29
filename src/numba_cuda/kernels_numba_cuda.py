@@ -122,8 +122,10 @@ def quad8_assembly_kernel(x, y, quad8, xp, wp, vals_out, fg_out):
         # Determinant and inverse
         Detj = J00 * J11 - J01 * J10
         
-        if Detj <= 1.0e-12:
+        if abs(Detj) <= 1.0e-12:
             return
+
+        Detj = abs(Detj) 
         
         inv_det = 1.0 / Detj
         Invj00 = J11 * inv_det
