@@ -317,3 +317,49 @@
     border-color: var(--hud-accent, #2266ff);
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
 }
+
+/* ==========================================================================
+   Mesh & Solver Selection Dropdowns
+   ========================================================================== */
+
+.mesh-row, .solver-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mesh-row label,
+.solver-row label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #444;
+}
+
+.mesh-row select, .solver-row select {
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    max-width: 175px;
+}
+
+.mesh-row select:hover,
+.solver-row select:hover {
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.mesh-row select:focus,
+.solver-row select:focus {
+    outline: none;
+    border-color: var(--hud-accent, #2266ff);
+    box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
+}
+
+/* Remove top border from solver row since it follows complexity badge */
+.solver-row {
+    border-top: none;
+    padding-top: 10px;
+    border-top: 1px dashed var(--hud-fg-dim, #ccc);
+}

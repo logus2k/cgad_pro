@@ -12,7 +12,7 @@ class MeshGallery {
     constructor(options = {}) {
         this.jsonPath = options.jsonPath || 'gallery_files.json';
         this.itemsPerView = options.itemsPerView || 3;
-        this.meshes = [];
+        this.models = [];
         this.solvers = [];
         this.currentIndex = 0;
         this.selectedIndex = 0;
@@ -53,7 +53,7 @@ class MeshGallery {
     }
     
     async init() {
-        await this.loadMeshData();
+        await this.loadModelData();
         this.renderCarousel();
         this.renderNavDots();
         this.bindEvents();
@@ -61,19 +61,37 @@ class MeshGallery {
         this.selectItem(0);
     }
     
-    async loadMeshData() {
+    async loadModelData() {
         try {
             const response = await fetch(this.jsonPath);
             if (!response.ok) throw new Error('Failed to load gallery data');
             const data = await response.json();
-            this.meshes = data.meshes || [];
+            this.models = data.models || [];
             this.solvers = data.solvers || [];
-            console.log(`Loaded ${this.meshes.length} mesh models, ${this.solvers.length} solvers`);
+            console.log(`Loaded ${this.models.length} models, ${this.solvers.length} solvers`);
         } catch (error) {
             console.error('Error loading mesh gallery:', error);
-            this.meshes = [];
+            this.models = [];
             this.solvers = [];
         }
+    }
+    
+    /**
+     * Get the default mesh for a model, or first mesh if no default specified
+     */
+    getDefaultMesh(model) {
+        if (!model.meshes || model.meshes.length === 0) return null;
+        return model.meshes.find(m => m.default) || model.meshes[0];
+    }
+    
+    /**
+     * Get the currently selected mesh for a model item
+     */
+    getSelectedMeshForItem(index) {
+        const item = this.track?.querySelector(`.carousel-item[data-index="${index}"]`);
+        const meshDropdown = item?.querySelector('.mesh-select');
+        const meshIndex = meshDropdown ? parseInt(meshDropdown.value, 10) : 0;
+        return this.models[index]?.meshes[meshIndex] || null;
     }
     
     renderCarousel() {
@@ -81,39 +99,46 @@ class MeshGallery {
         
         this.track.innerHTML = '';
         
-        this.meshes.forEach((mesh, index) => {
+        this.models.forEach((model, index) => {
             const item = document.createElement('div');
             item.className = 'carousel-item';
             item.dataset.index = index;
             
+            const defaultMesh = this.getDefaultMesh(model);
+            const defaultMeshIndex = model.meshes.indexOf(defaultMesh);
+            
+            // Build mesh options HTML
+            const meshOptionsHtml = model.meshes.map((mesh, meshIdx) => {
+                const selected = mesh === defaultMesh ? 'selected' : '';
+                return `<option value="${meshIdx}" ${selected}>${mesh.label}</option>`;
+            }).join('');
+            
             // Build solver options HTML
             const solverOptionsHtml = this.solvers.map(solver => {
-                const selected = solver.id === mesh.solver_type ? 'selected' : '';
+                const selected = solver.id === model.solver_type ? 'selected' : '';
                 return `<option value="${solver.id}" title="${solver.description}" ${selected}>${solver.name}</option>`;
             }).join('');
             
             item.innerHTML = `
                 <div class="model-image-container">
-                    <img class="model-image" src="${mesh.thumbnail}" alt="${mesh.name}" 
+                    <img class="model-image" src="${model.thumbnail}" alt="${model.name}" 
                          onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22><rect fill=%22%23f0f0f0%22 width=%22200%22 height=%22150%22/><text x=%22100%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2214%22>No Preview</text></svg>'">
                     <div class="preload-indicator" style="display: none;">
                         <div class="preload-spinner"></div>
                         <span class="preload-text">Loading mesh...</span>
                     </div>
                 </div>
-                <div class="model-name">${mesh.name}</div>
-                <div class="model-description">${mesh.description}</div>
+                <div class="model-name">${model.name}</div>
+                <div class="model-description">${model.description}</div>
                 <div class="model-metadata">
-                    <div class="meta-row">
-                        <span>Nodes:</span>
-                        <span>${mesh.nodes.toLocaleString()}</span>
+                    <div class="mesh-row">
+                        <label>Mesh:</label>
+                        <select class="mesh-select" data-index="${index}">
+                            ${meshOptionsHtml}
+                        </select>
                     </div>
-                    <div class="meta-row">
-                        <span>Elements:</span>
-                        <span>${mesh.elements.toLocaleString()}</span>
-                    </div>
-                    <div class="complexity-badge ${this.getComplexityClass(mesh.elements)}">
-                        ${this.getComplexityLabel(mesh.elements)}
+                    <div class="complexity-badge ${this.getComplexityClass(defaultMesh?.elements)}" data-complexity>
+                        ${this.getComplexityLabel(defaultMesh?.elements)}
                     </div>
                     <div class="solver-row">
                         <label>Solver:</label>
@@ -124,10 +149,17 @@ class MeshGallery {
                 </div>
             `;
             
-            // Prevent dropdown click from triggering item selection
-            const select = item.querySelector('.solver-select');
-            if (select) {
-                select.addEventListener('click', (e) => e.stopPropagation());
+            // Prevent dropdown clicks from triggering item selection
+            const meshSelect = item.querySelector('.mesh-select');
+            const solverSelect = item.querySelector('.solver-select');
+            
+            if (meshSelect) {
+                meshSelect.addEventListener('click', (e) => e.stopPropagation());
+                meshSelect.addEventListener('change', (e) => this.onMeshSelectionChange(index, e.target.value));
+            }
+            
+            if (solverSelect) {
+                solverSelect.addEventListener('click', (e) => e.stopPropagation());
             }
             
             item.addEventListener('click', () => this.selectItem(index));
@@ -135,13 +167,47 @@ class MeshGallery {
         });
     }
     
+    /**
+     * Handle mesh dropdown change - update complexity badge and trigger preload
+     */
+    onMeshSelectionChange(modelIndex, meshIndexStr) {
+        const meshIndex = parseInt(meshIndexStr, 10);
+        const model = this.models[modelIndex];
+        const mesh = model?.meshes[meshIndex];
+        
+        if (!mesh) return;
+        
+        // Update complexity badge
+        const item = this.track.querySelector(`.carousel-item[data-index="${modelIndex}"]`);
+        const badge = item?.querySelector('[data-complexity]');
+        
+        if (badge) {
+            badge.className = `complexity-badge ${this.getComplexityClass(mesh.elements)}`;
+            badge.textContent = this.getComplexityLabel(mesh.elements);
+        }
+        
+        console.log(`Mesh changed for ${model.name}: ${mesh.label}`);
+        
+        // Reset preload indicators
+        item?.classList.remove('mesh-ready', 'mesh-error');
+        const indicator = item?.querySelector('.preload-indicator');
+        if (indicator) indicator.style.display = 'none';
+        
+        // Preload the newly selected mesh if this is the selected model
+        if (modelIndex === this.selectedIndex) {
+            this.preloadMesh(model, mesh);
+        }
+    }
+    
     getComplexityClass(elements) {
+        if (!elements) return 'complexity-low';
         if (elements < 5000) return 'complexity-low';
         if (elements < 50000) return 'complexity-med';
         return 'complexity-high';
     }
     
     getComplexityLabel(elements) {
+        if (!elements) return 'Unknown Complexity';
         if (elements < 5000) return 'Low Complexity';
         if (elements < 50000) return 'Medium Complexity';
         return 'High Complexity';
@@ -151,7 +217,7 @@ class MeshGallery {
         if (!this.navDots) return;
         
         this.navDots.innerHTML = '';
-        const totalPages = Math.ceil(this.meshes.length / this.itemsPerView);
+        const totalPages = Math.ceil(this.models.length / this.itemsPerView);
         
         for (let i = 0; i < totalPages; i++) {
             const dot = document.createElement('span');
@@ -201,7 +267,7 @@ class MeshGallery {
     }
     
     navigate(direction) {
-        const totalPages = Math.ceil(this.meshes.length / this.itemsPerView);
+        const totalPages = Math.ceil(this.models.length / this.itemsPerView);
         const currentPage = Math.floor(this.currentIndex / this.itemsPerView);
         const newPage = Math.max(0, Math.min(totalPages - 1, currentPage + direction));
         
@@ -240,7 +306,7 @@ class MeshGallery {
     }
     
     updateNavigation() {
-        const totalPages = Math.ceil(this.meshes.length / this.itemsPerView);
+        const totalPages = Math.ceil(this.models.length / this.itemsPerView);
         const currentPage = Math.floor(this.currentIndex / this.itemsPerView);
         
         if (this.prevBtn) {
@@ -296,7 +362,7 @@ class MeshGallery {
      * Select an item and start preloading its mesh
      */
     selectItem(index) {
-        if (index < 0 || index >= this.meshes.length) return;
+        if (index < 0 || index >= this.models.length) return;
         
         this.selectedIndex = index;
         
@@ -316,17 +382,20 @@ class MeshGallery {
             this.goToPage(page);
         }
         
-        const mesh = this.meshes[index];
-        console.log(`Selected: ${mesh.name}`);
+        const model = this.models[index];
+        const selectedMesh = this.getSelectedMeshForItem(index);
+        console.log(`Selected: ${model.name} (${selectedMesh?.label})`);
         
         // Start preloading mesh data immediately
-        this.preloadMesh(mesh);
+        this.preloadMesh(model, selectedMesh);
     }
     
     /**
      * Preload mesh data (non-blocking)
      */
-    async preloadMesh(mesh) {
+    async preloadMesh(model, mesh) {
+        if (!mesh) return;
+        
         const meshUrl = mesh.file;
         
         // Skip if already preloading this mesh
@@ -336,7 +405,7 @@ class MeshGallery {
         
         // Skip if already cached
         if (meshLoader.isCached(meshUrl)) {
-            console.log(`Mesh already cached: ${mesh.name}`);
+            console.log(`Mesh already cached: ${model.name} - ${mesh.label}`);
             this.preloadedMeshData = meshLoader.getCached(meshUrl);
             
             // Show ready indicator
@@ -349,16 +418,17 @@ class MeshGallery {
         this.preloadedMeshData = null;
         
         try {
-            console.log(`Preloading mesh: ${mesh.name} (${meshUrl})`);
+            console.log(`Preloading mesh: ${model.name} - ${mesh.label} (${meshUrl})`);
             const meshData = await meshLoader.preload(meshUrl);
             
             // Only store if still the selected mesh
-            if (this.meshes[this.selectedIndex]?.file === meshUrl) {
+            const currentMesh = this.getSelectedMeshForItem(this.selectedIndex);
+            if (currentMesh?.file === meshUrl) {
                 this.preloadedMeshData = meshData;
-                console.log(`Mesh preloaded and ready: ${mesh.name}`);
+                console.log(`Mesh preloaded and ready: ${model.name} - ${mesh.label}`);
             }
         } catch (error) {
-            console.error(`Failed to preload mesh: ${mesh.name}`, error);
+            console.error(`Failed to preload mesh: ${model.name} - ${mesh.label}`, error);
             this.preloadedMeshData = null;
         } finally {
             if (this.preloadingUrl === meshUrl) {
@@ -371,8 +441,15 @@ class MeshGallery {
      * Confirm selection and dispatch event with preloaded mesh data
      */
     confirmSelection() {
-        const selected = this.meshes[this.selectedIndex];
-        if (!selected) {
+        const model = this.models[this.selectedIndex];
+        if (!model) {
+            console.warn('No model selected');
+            return;
+        }
+        
+        // Get selected mesh from dropdown
+        const selectedMesh = this.getSelectedMeshForItem(this.selectedIndex);
+        if (!selectedMesh) {
             console.warn('No mesh selected');
             return;
         }
@@ -388,25 +465,35 @@ class MeshGallery {
         // Get solver from the selected item's dropdown
         const selectedItem = this.track.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
         const solverDropdown = selectedItem?.querySelector('.solver-select');
-        const solverType = solverDropdown?.value || selected.solver_type || 'gpu';
+        const solverType = solverDropdown?.value || model.solver_type || 'gpu';
         
-        const maxIterations = selected.max_iterations || 50000;
-        const progressInterval = selected.progress_interval || 100;
+        const maxIterations = model.max_iterations || 50000;
+        const progressInterval = model.progress_interval || 100;
         
-        console.log('=== MESH SELECTION CONFIRMED ===');
-        console.log('Name:', selected.name);
-        console.log('File:', selected.file);
+        console.log('=== MODEL SELECTION CONFIRMED ===');
+        console.log('Model:', model.name);
+        console.log('Mesh:', selectedMesh.label);
+        console.log('File:', selectedMesh.file);
         console.log('Solver:', solverType);
         console.log('Max Iterations:', maxIterations);
-        console.log('================================');
+        console.log('=================================');
         
         // Get preloaded data if available (don't wait if not ready)
         const meshData = this.preloadedMeshData;
         
+        // Build a combined object for backward compatibility
+        const meshInfo = {
+            ...model,
+            ...selectedMesh,
+            solver_type: solverType
+        };
+        
         // Dispatch event with preloaded data (may be null if still loading)
         const event = new CustomEvent('meshSelected', {
             detail: {
-                mesh: selected,
+                mesh: meshInfo,
+                model: model,
+                selectedMesh: selectedMesh,
                 index: this.selectedIndex,
                 preloadedData: meshData,
                 meshLoader: meshLoader
@@ -417,7 +504,7 @@ class MeshGallery {
         // Start the solver (uses existing femClient from window)
         if (window.femClient) {
             window.femClient.startSolve({
-                mesh_file: selected.file,
+                mesh_file: selectedMesh.file,
                 solver_type: solverType,
                 max_iterations: maxIterations,
                 progress_interval: progressInterval
@@ -471,8 +558,12 @@ class MeshGallery {
         }
     }
     
+    getSelectedModel() {
+        return this.models[this.selectedIndex] || null;
+    }
+    
     getSelectedMesh() {
-        return this.meshes[this.selectedIndex] || null;
+        return this.getSelectedMeshForItem(this.selectedIndex);
     }
     
     /**
@@ -490,22 +581,34 @@ class MeshGallery {
     }
     
     /**
-     * Get solver for a specific mesh item
+     * Get solver for a specific model item
      */
     getSolverForItem(index) {
         const item = this.track?.querySelector(`.carousel-item[data-index="${index}"]`);
         const dropdown = item?.querySelector('.solver-select');
-        return dropdown?.value || this.meshes[index]?.solver_type || 'gpu';
+        return dropdown?.value || this.models[index]?.solver_type || 'gpu';
     }
     
     /**
-     * Set solver for a specific mesh item
+     * Set solver for a specific model item
      */
     setSolverForItem(index, solverId) {
         const item = this.track?.querySelector(`.carousel-item[data-index="${index}"]`);
         const dropdown = item?.querySelector('.solver-select');
         if (dropdown && this.solvers.some(s => s.id === solverId)) {
             dropdown.value = solverId;
+        }
+    }
+    
+    /**
+     * Set mesh for a specific model item by mesh index
+     */
+    setMeshForItem(modelIndex, meshIndex) {
+        const item = this.track?.querySelector(`.carousel-item[data-index="${modelIndex}"]`);
+        const dropdown = item?.querySelector('.mesh-select');
+        if (dropdown && this.models[modelIndex]?.meshes[meshIndex]) {
+            dropdown.value = meshIndex;
+            this.onMeshSelectionChange(modelIndex, meshIndex.toString());
         }
     }
 }

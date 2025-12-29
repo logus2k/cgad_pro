@@ -7,72 +7,62 @@
         { "id": "numba_cuda", "name": "Numba CUDA", "description": "Numba CUDA GPU solver" },
         { "id": "gpu", "name": "GPU (CuPy)", "description": "CuPy GPU-accelerated solver" }
     ],
-	"meshes": [
-		{
-			"name": "Y-Shaped Tube (Medium)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
-			"file": "./mesh/y_tube1_195k.h5",
-			"nodes": 195853,
-			"elements": 46607,
-			"thumbnail": "./images/mesh/y_tube1_195k.png",
-			"solver_type": "cpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "Venturi (Medium)",
-			"description": "A 2D longitudinal cross-section of a Venturi tube with smooth converging and diverging sections. The channel narrows at the throat to accelerate flow, then expands to recover pressure.",
-			"file": "./mesh/venturi_194k.h5",
-			"nodes": 194325,
-			"elements": 64334,
-			"thumbnail": "./images/mesh/venturi_194k.png",
-			"solver_type": "cpu_threaded",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "S-Bend (Medium)",
-			"description": "A 2D 90-degree elbow with rounded corner.",
-			"file": "./mesh/s_bend_196k.h5",
-			"nodes": 196078,
-			"elements": 64787,
-			"thumbnail": "./images/mesh/s_bend_196k.png",
-			"solver_type": "cpu_multiprocess",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "T-Junction (Medium)",
-			"description": "A 2D main channel with perpendicular branch with a left edge of main channel as inlet and the right edge of main channel and top of branch as outlets.",
-			"file": "./mesh/t_junction_196k.h5",
-			"nodes": 196420,
-			"elements": 66453,
-			"thumbnail": "./images/mesh/t_junction_196k.png",
-			"solver_type": "numba",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "Backward-Facing Step (Medium)",
-			"description": "A 2D main channel with a backward-facing step (a classic CFD benchmark) where inlet is a narrow left edge and the outlet is at the right edge. Step at junction of inlet and outlet sections.",
-			"file": "./mesh/backward_step_195k.h5",
-			"nodes": 195362,
-			"elements": 64713,
-			"thumbnail": "./images/mesh/backward_step_195k.png",
-			"solver_type": "numba_cuda",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},		
-		{
-			"name": "Y-Shaped Tube (Small)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
-			"file": "./mesh/y_tube1_53.h5",
-			"nodes": 202,
-			"elements": 53,
-			"thumbnail": "./images/mesh/y_tube1_53.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		}
-	]
+    "models": [
+        {
+            "name": "Y-Shaped Tube",
+            "description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
+            "thumbnail": "./images/mesh/y_tube1_195k.png",
+            "solver_type": "gpu",
+            "max_iterations": 10000,
+            "progress_interval": 50,
+            "meshes": [
+                { "label": "202 nodes, 53 elements", "file": "./mesh/y_tube1_53.h5", "nodes": 202, "elements": 53 },
+                { "label": "196k nodes, 47k elements", "file": "./mesh/y_tube1_195k.h5", "nodes": 195853, "elements": 46607, "default": true }
+            ]
+        },
+        {
+            "name": "Venturi",
+            "description": "A 2D longitudinal cross-section of a Venturi tube with smooth converging and diverging sections. The channel narrows at the throat to accelerate flow, then expands to recover pressure.",
+            "thumbnail": "./images/mesh/venturi_194k.png",
+            "solver_type": "gpu",
+            "max_iterations": 10000,
+            "progress_interval": 50,
+            "meshes": [
+                { "label": "194k nodes, 64k elements", "file": "./mesh/venturi_194k.h5", "nodes": 194325, "elements": 64334, "default": true }
+            ]
+        },
+        {
+            "name": "S-Bend",
+            "description": "A 2D 90-degree elbow with rounded corner.",
+            "thumbnail": "./images/mesh/s_bend_196k.png",
+            "solver_type": "gpu",
+            "max_iterations": 10000,
+            "progress_interval": 50,
+            "meshes": [
+                { "label": "196k nodes, 65k elements", "file": "./mesh/s_bend_196k.h5", "nodes": 196078, "elements": 64787, "default": true }
+            ]
+        },
+        {
+            "name": "T-Junction",
+            "description": "A 2D main channel with perpendicular branch with a left edge of main channel as inlet and the right edge of main channel and top of branch as outlets.",
+            "thumbnail": "./images/mesh/t_junction_196k.png",
+            "solver_type": "gpu",
+            "max_iterations": 10000,
+            "progress_interval": 50,
+            "meshes": [
+                { "label": "196k nodes, 66k elements", "file": "./mesh/t_junction_196k.h5", "nodes": 196420, "elements": 66453, "default": true }
+            ]
+        },
+        {
+            "name": "Backward-Facing Step",
+            "description": "A 2D main channel with a backward-facing step (a classic CFD benchmark) where inlet is a narrow left edge and the outlet is at the right edge. Step at junction of inlet and outlet sections.",
+            "thumbnail": "./images/mesh/backward_step_195k.png",
+            "solver_type": "gpu",
+            "max_iterations": 10000,
+            "progress_interval": 50,
+            "meshes": [
+                { "label": "195k nodes, 65k elements", "file": "./mesh/backward_step_195k.h5", "nodes": 195362, "elements": 64713, "default": true }
+            ]
+        }
+    ]
 }
