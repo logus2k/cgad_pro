@@ -138,18 +138,25 @@
 			]
 		},
 		{
-			"name": "S duct",
-			"description": "----",
-			"thumbnail": "./images/mesh/backward_step_195k.png",
+			"name": "Inverted-S Duct",
+			"description": "To be Inverted-S Duct",
+			"thumbnail": "./images/mesh/s_duct.png",
 			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50,
 			"meshes": [
 				{
-					"label": "195k nodes, 65k elements",
-					"file": "./mesh/s_duct.h5",
-					"nodes": 195362,
-					"elements": 64713,
+					"label": "16k nodes, 4k elements",
+					"file": "./mesh/s_duct_16k.h5",
+					"nodes": 16795,
+					"elements": 4063,
+					"default": true
+				},
+				{
+					"label": "219k nodes, 54k elements",
+					"file": "./mesh/s_duct_219k.h5",
+					"nodes": 219657,
+					"elements": 54412,
 					"default": true
 				}
 			]
