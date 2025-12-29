@@ -428,6 +428,16 @@ class Quad8FEMSolverGPU:
 		self.iterations: int = 0
 		self.residuals: List[float] = [] # FIX 4: Explicitly type hint as List[float]
 
+		# Cached GPU kernels / constants (avoid recompilation per run)
+		self._assembly_kernel = None
+		self._postprocess_kernel = None
+
+		# Constant local index patterns for 8x8 element matrix (64 entries)
+		# Used to build COO row/col buffers without per-run mgrid/tile overhead
+		self._local_rows = cp.asarray(np.repeat(np.arange(8, dtype=np.int32), 8))
+		self._local_cols = cp.asarray(np.tile(np.arange(8, dtype=np.int32), 8))
+
+
 		self.progress_callback = progress_callback
 
 	# ---------------
@@ -544,10 +554,10 @@ class Quad8FEMSolverGPU:
 		self._cols = cp.zeros(total_nnz, dtype=cp.int32)
 		self._vals = cp.zeros(total_nnz, dtype=cp.float64) 
 
-		# 2. Vectorized Global Index Generation (ON GPU)
-		local_i, local_j = cp.mgrid[0:8, 0:8]
-		local_rows = cp.tile(local_i.ravel(), self.Nels)
-		local_cols = cp.tile(local_j.ravel(), self.Nels)
+		# 2. Vectorized Global Index Generation (cached patterns)
+		# Avoids per-run mgrid() materialization and reduces kernel launch overhead
+		local_rows = cp.tile(self._local_rows, self.Nels)
+		local_cols = cp.tile(self._local_cols, self.Nels)
 		el_indices = cp.arange(self.Nels).repeat(N_NZ_per_el)
 		
 		self._rows = quad8_cp[el_indices, local_rows]
@@ -557,7 +567,9 @@ class Quad8FEMSolverGPU:
 		xp, wp = self._genip2dq_9_gpu()
 
 		# 4. Kernel Launch (Mass Assembly)
-		kernel = cp.RawKernel(QUAD8_KERNEL_SOURCE, 'quad8_assembly_kernel')
+		if self._assembly_kernel is None:
+			self._assembly_kernel = cp.RawKernel(QUAD8_KERNEL_SOURCE, 'quad8_assembly_kernel')
+		kernel = self._assembly_kernel
 		threads_per_block = 128
 		blocks = (self.Nels + threads_per_block - 1) // threads_per_block
 
@@ -610,7 +622,6 @@ class Quad8FEMSolverGPU:
 		
 		print(f"  Robin (inlet) nodes found: {len(boundary_nodes)}")
 		print(f"{'='*70}\n")
-		
 
 		# ---------------------------------
 		# Robin BCs (temporary CPU buffers)
@@ -637,7 +648,7 @@ class Quad8FEMSolverGPU:
 						self.x[n1], self.y[n1],
 						self.x[n2], self.y[n2],
 						self.x[n3], self.y[n3],
-						p=self.p0,
+						p=0.0,
 						gama=self.gamma
 					)
 					for i, ni in enumerate((n1, n2, n3)):
@@ -662,10 +673,11 @@ class Quad8FEMSolverGPU:
 		# ---------------------------------
 		# Dirichlet elimination (Outlet)
 		# ---------------------------------
-		mask = ~(
-			cp.isin(self._rows, exit_nodes_gpu) |
-			cp.isin(self._cols, exit_nodes_gpu)
-		)
+		# cp.isin() is expensive for large COO buffers; use a boolean node mask instead.
+		exit_mask = cp.zeros(self.Nnds, dtype=cp.bool_)
+		exit_mask[exit_nodes_gpu] = True
+
+		mask = ~(exit_mask[self._rows] | exit_mask[self._cols])
 
 		rows_cp = self._rows[mask]
 		cols_cp = self._cols[mask]
@@ -681,17 +693,22 @@ class Quad8FEMSolverGPU:
 		self.fg[exit_nodes_gpu] = 0.0
         
 		# ---------------------------------
-		# Fix unused nodes (nodes not in any element)
+		# Fix unused / unconstrained nodes (zero diagonal)
 		# ---------------------------------
-		# Build temporary matrix to find which nodes are used
-		temp_coo = cpsparse.coo_matrix(
-			(vals_cp, (rows_cp, cols_cp)),
-			shape=(self.Nnds, self.Nnds)
-		)
-		temp_csr = temp_coo.tocsr()
-		
-		# Find nodes with zero diagonal (unused nodes)
-		diag_temp = temp_csr.diagonal()
+		# Avoid building a temporary CSR just to read the diagonal.
+		# Compute the diagonal directly from COO buffers (CSR diagonal sums duplicates).
+		diag_mask = rows_cp == cols_cp
+		diag_idx = rows_cp[diag_mask]
+		diag_vals = vals_cp[diag_mask]
+		if diag_idx.size > 0:
+			diag_temp = cp.bincount(
+				diag_idx.astype(cp.int32, copy=False),
+				weights=diag_vals,
+				minlength=self.Nnds
+			)
+		else:
+			diag_temp = cp.zeros(self.Nnds, dtype=cp.float64)
+
 		unused_mask = cp.abs(diag_temp) < 1e-14
 		unused_nodes = cp.where(unused_mask)[0]
 		
@@ -789,33 +806,68 @@ class Quad8FEMSolverGPU:
 		# --- System Diagnostics ---
 		self._print_system_diagnostics()
 		
+		# NOTE: Kept for backwards-compatible timing/metrics naming.
 		self.timing_metrics["convert_to_cpu"] = time.perf_counter() - t0_convert
-
+		
 		# --- Solver Setup ---
-		MAXITER = 50000 
+		MAXITER = 50000
 		TOL = 1e-8
 		
 		self.converged = False
 		self.iterations = MAXITER
 		
-		# --- Diagonal Equilibration (improves conditioning) ---
-		if self.verbose:
-			print("Applying diagonal equilibration...")
+		# ---------------------------------------------------------
+		# Conditioning / scaling
+		#
+		# v3/v4 used diagonal equilibration A = D^-1/2 K D^-1/2.
+		# That can help conditioning, but it also tends to make a
+		# naive Jacobi preconditioner almost a no-op (diag ~ ±1).
+		#
+		# Here we keep the *same public interface/metrics* but use
+		# a more meaningful (positive) Jacobi preconditioner on the
+		# original system by default.
+		# ---------------------------------------------------------
+		USE_DIAGONAL_EQUILIBRATION = True
 		
-		diag = self.Kg.diagonal()
-		diag_safe = cp.where(cp.abs(diag) < 1e-14, 1.0, diag)
-		D_inv_sqrt = 1.0 / cp.sqrt(cp.abs(diag_safe))
-		
-		# Equilibrated system: D^(-1/2) * Kg * D^(-1/2) * (D^(1/2) * u) = D^(-1/2) * fg
-		Kg_eq = self.Kg.multiply(D_inv_sqrt[:, None]).multiply(D_inv_sqrt[None, :])
-		fg_eq = self.fg * D_inv_sqrt
-		
-		# --- GPU Jacobi Preconditioner ---
-		diag_eq = Kg_eq.diagonal()
-		diag_eq_safe = cp.where(cp.abs(diag_eq) < 1e-14, 1.0, diag_eq)
-		
-		def jacobi_precond(x):
-			return x / diag_eq_safe
+		if USE_DIAGONAL_EQUILIBRATION:
+			if self.verbose:
+				print("Applying diagonal equilibration (operator form)...")
+			
+			diag = self.Kg.diagonal()
+			diag_safe = cp.where(cp.abs(diag) < 1e-14, 1.0, diag)
+			D_inv_sqrt = 1.0 / cp.sqrt(cp.abs(diag_safe))
+			fg_eq = self.fg * D_inv_sqrt
+			
+			# Equilibrated operator: A_eq x = D^(-1/2) * (Kg * (D^(-1/2) * x))
+			def _aeq_matvec(x):
+				return D_inv_sqrt * (self.Kg @ (D_inv_sqrt * x))
+			
+			Kg_eq = cpsplg.LinearOperator(
+				shape=self.Kg.shape,
+				matvec=_aeq_matvec,
+				dtype=cp.float64
+			)
+			
+			# Jacobi on equilibrated diagonal ~= sign(diag(Kg)) (kept for consistency)
+			diag_sign = diag_safe / cp.abs(diag_safe)
+			diag_eq_safe = cp.where(cp.abs(diag_sign) < 1e-14, 1.0, diag_sign)
+			
+			def jacobi_precond(x):
+				return x / diag_eq_safe
+		else:
+			if self.verbose:
+				print("Using direct system + positive Jacobi preconditioner...")
+			
+			Kg_eq = self.Kg
+			fg_eq = self.fg
+			D_inv_sqrt = cp.ones_like(fg_eq)
+			
+			diag = Kg_eq.diagonal()
+			# Use |diag| to keep the preconditioner positive.
+			diag_abs_safe = cp.where(cp.abs(diag) < 1e-14, 1.0, cp.abs(diag))
+			
+			def jacobi_precond(x):
+				return x / diag_abs_safe
 		
 		M = cpsplg.LinearOperator(
 			shape=Kg_eq.shape,
@@ -827,7 +879,14 @@ class Quad8FEMSolverGPU:
 		if self.verbose:
 			print(f"Solving with GPU CG (tol={TOL:.1e}, maxiter={MAXITER})...")
 		
-		monitor = GPUSolverMonitor(Kg_eq, fg_eq, every=50, maxiter=MAXITER, verbose=self.verbose, progress_callback=self.progress_callback)
+		monitor = GPUSolverMonitor(
+			Kg_eq,
+			fg_eq,
+			every=50,
+			maxiter=MAXITER,
+			verbose=self.verbose,
+			progress_callback=self.progress_callback
+		)
 		
 		t0_solve = time.perf_counter()
 		
@@ -841,9 +900,7 @@ class Quad8FEMSolverGPU:
 				maxiter=MAXITER,
 				callback=monitor
 			)
-			
 			solver_name = "CG"
-			
 		except Exception as e:
 			if self.verbose:
 				print(f"  CG failed: {e}")
@@ -863,7 +920,6 @@ class Quad8FEMSolverGPU:
 					callback=monitor
 				)
 				solver_name = "GMRES"
-				
 			except Exception as e2:
 				if self.verbose:
 					print(f"  GMRES also failed: {e2}")
@@ -871,7 +927,7 @@ class Quad8FEMSolverGPU:
 		
 		t1_solve = time.perf_counter()
 		
-		# Undo equilibration
+		# Undo equilibration (no-op when USE_DIAGONAL_EQUILIBRATION=False)
 		self.u = u_eq * D_inv_sqrt
 		
 		self.timing_metrics["solve_system"] = t1_solve - t0_solve
@@ -894,7 +950,6 @@ class Quad8FEMSolverGPU:
 			if self.verbose:
 				print(f"\n✗ {solver_name} did not converge (info={info})")
 			self.converged = False
-
 	# ----------------
 	# Post-processing 
 	# ----------------
@@ -928,7 +983,9 @@ class Quad8FEMSolverGPU:
 		quad8_cp = cp.asarray(self.quad8, dtype=cp.int32)
 
 		# Launch GPU kernel for velocity computation
-		kernel = cp.RawKernel(QUAD8_POSTPROCESS_KERNEL_SOURCE, 'quad8_postprocess_kernel')
+		if self._postprocess_kernel is None:
+			self._postprocess_kernel = cp.RawKernel(QUAD8_POSTPROCESS_KERNEL_SOURCE, 'quad8_postprocess_kernel')
+		kernel = self._postprocess_kernel
 		threads_per_block = 128
 		blocks = (self.Nels + threads_per_block - 1) // threads_per_block
 
@@ -1129,7 +1186,7 @@ if __name__ == "__main__":
 	PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 	solver = Quad8FEMSolverGPU(
-		mesh_file=PROJECT_ROOT / "src/app/client/mesh/s_duct.h5",
+		mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
 		implementation_name="GPU",
 		maxiter=50000,
 		verbose=True

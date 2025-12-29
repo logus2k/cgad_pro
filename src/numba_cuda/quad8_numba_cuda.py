@@ -315,15 +315,27 @@ class Quad8FEMSolverNumbaCUDA:
         if self.verbose:
             print(f"  Loaded: {self.Nnds} nodes, {self.Nels} Quad-8 elements")
 
+   
     # =========================================================================
     # Assembly (Numba CUDA)
     # =========================================================================
-    
+
     def assemble_system(self) -> None:
         """Assemble global stiffness matrix using Numba CUDA kernel."""
         if self.verbose:
             print("Assembling global system (Numba CUDA)...")
-        
+
+        # === DIAGNOSTIC ===
+        e = 0
+        edofs = self.quad8[e]
+        print(f"  Element 0 DOFs: {edofs}")
+        print(f"  Element 0 coords:")
+        for i in range(8):
+            print(f"    Node {edofs[i]}: ({self.x[edofs[i]]:.6f}, {self.y[edofs[i]]:.6f})")
+        print(f"  x range: [{self.x.min():.6f}, {self.x.max():.6f}]")
+        print(f"  y range: [{self.y.min():.6f}, {self.y.max():.6f}]")
+        # === END DIAGNOSTIC ===
+
         # Transfer data to GPU
         d_x = cuda.to_device(self.x)
         d_y = cuda.to_device(self.y)
@@ -336,7 +348,6 @@ class Quad8FEMSolverNumbaCUDA:
         
         # Allocate output arrays on GPU
         d_vals = cuda.device_array(self.Nels * 64, dtype=np.float64)
-        d_fg = cuda.device_array(self.Nnds, dtype=np.float64)
         
         # Initialize fg to zero
         d_fg_host = np.zeros(self.Nnds, dtype=np.float64)
@@ -355,10 +366,12 @@ class Quad8FEMSolverNumbaCUDA:
         
         # Synchronize
         cuda.synchronize()
-        
+
         # Copy results back to CPU
         vals = d_vals.copy_to_host()
         self.fg = d_fg.copy_to_host()
+        
+        print(f"  vals stats: min={vals.min():.3e}, max={vals.max():.3e}, sum={vals.sum():.3e}")
         
         # Build COO indices
         rows = np.zeros(self.Nels * 64, dtype=np.int32)
@@ -702,6 +715,10 @@ class Quad8FEMSolverNumbaCUDA:
                 coordinates={'x': self.x.tolist(), 'y': self.y.tolist()},
                 connectivity=self.quad8.tolist()
             )
+
+        used_nodes = set(self.quad8.flatten())
+        print(f"  Used nodes: {len(used_nodes)} out of {self.Nnds}")
+        print(f"  Node index range in quad8: [{self.quad8.min()}, {self.quad8.max()}]")            
         
         # Stage 2: Assembly
         if self.progress_callback:
@@ -714,6 +731,12 @@ class Quad8FEMSolverNumbaCUDA:
                 stage='assemble_system',
                 duration=self.timing_metrics['assemble_system']
             )
+
+        # Check for zero diagonals in assembled matrix
+        diag = self.Kg.diagonal()
+        zero_diag_count = np.sum(diag == 0.0)
+        print(f"  Zero diagonals after assembly: {zero_diag_count}")
+        print(f"  Diagonal range: [{diag.min():.3e}, {diag.max():.3e}]")            
         
         # Stage 3: Boundary Conditions
         if self.progress_callback:
@@ -726,7 +749,7 @@ class Quad8FEMSolverNumbaCUDA:
                 stage='apply_bc',
                 duration=self.timing_metrics['apply_bc']
             )
-        
+
         # Stage 4: Solve
         if self.progress_callback:
             self.progress_callback.on_stage_start(stage='solve_system')
