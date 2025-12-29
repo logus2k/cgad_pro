@@ -6,7 +6,5 @@ lib64
 __pycache__/
 
 data/models/
-data/input/
-data/output/
-Scripts/
-pyvenv.cfg
+.venv/
+
