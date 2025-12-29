@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "updated_at": "2025-12-29T15:44:54.753891Z",
+  "updated_at": "2025-12-29T20:41:54.775834Z",
   "server_config": {
-    "hostname": "DESKTOP-B968RT3",
+    "hostname": "DESKTOP-3MCDHQ7",
     "os": "Windows 10",
     "os_version": "10.0.26200",
     "architecture": "AMD64",
-    "python_version": "3.10.11",
+    "python_version": "3.10.9",
     "cpu_model": "Unknown",
     "cpu_cores": 12,
     "ram_gb": 0,
@@ -2728,11 +2728,11 @@
       },
       "solution_stats": {
         "u_range": [
-          NaN,
-          NaN
+          0,
+          0
         ],
-        "u_mean": NaN,
-        "u_std": NaN
+        "u_mean": 0,
+        "u_std": 0
       },
       "server_config": {
         "hostname": "DESKTOP-B968RT3",
@@ -2748,6 +2748,276 @@
         "cuda_version": "13.1"
       },
       "server_hash": "6408b623089e",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "8980e1a0-cdfe-4698-acbe-2ef02d3f9ac9",
+      "timestamp": "2025-12-29T20:30:33.834195Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "venturi_194k.h5",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4034,
+      "timings": {
+        "load_mesh": 0.6920703000000685,
+        "assemble_system": 1.406435099999726,
+        "apply_bc": 9.106942100000197,
+        "convert_to_cpu": 5.440838399999848,
+        "solve_system": 8.639220800000203,
+        "compute_derived": 0.3571874999997817,
+        "total_workflow": 20.288057000000208,
+        "total_program_time": 20.28846569999996
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640086975
+        ],
+        "u_mean": 6.018248189493747,
+        "u_std": 4.364892150778997
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "b720a7ff-3329-4ef8-a43a-3137b5070a33",
+      "timestamp": "2025-12-29T20:30:54.454972Z",
+      "model_file": "s_duct_16k.h5",
+      "model_name": "s_duct_16k.h5",
+      "model_nodes": 16795,
+      "model_elements": 4063,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 0,
+      "timings": {
+        "load_mesh": 0.06256579999990208,
+        "assemble_system": 0.0031214999999065185,
+        "apply_bc": 0.10672619999968447,
+        "convert_to_cpu": 0.005036000000018248,
+        "solve_system": 0.010267300000123214,
+        "compute_derived": 0.0011733999999705702,
+        "total_workflow": 0.18964069999992716,
+        "total_program_time": 0.18970719999970242
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          0.0
+        ],
+        "u_mean": 0.0,
+        "u_std": 0.0
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "1ca5176d-dcce-4b5e-b566-daaf1525a3f4",
+      "timestamp": "2025-12-29T20:31:10.602930Z",
+      "model_file": "s_duct_219k.h5",
+      "model_name": "s_duct_219k.h5",
+      "model_nodes": 219657,
+      "model_elements": 54412,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 0,
+      "timings": {
+        "load_mesh": 0.04418900000018766,
+        "assemble_system": 0.0074463000000832835,
+        "apply_bc": 0.4271727999998802,
+        "convert_to_cpu": 0.016831100000217702,
+        "solve_system": 0.02155590000029406,
+        "compute_derived": 0.0017340999997941253,
+        "total_workflow": 0.507569699999749,
+        "total_program_time": 0.5076356999998097
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          0.0
+        ],
+        "u_mean": 0.0,
+        "u_std": 0.0
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "d07b6e2a-59e7-46ff-bcda-04d6c2b800fc",
+      "timestamp": "2025-12-29T20:31:35.110679Z",
+      "model_file": "s_duct_219k.h5",
+      "model_name": "s_duct_219k.h5",
+      "model_nodes": 219657,
+      "model_elements": 54412,
+      "solver_type": "numba_cuda",
+      "converged": true,
+      "iterations": 4830,
+      "timings": {
+        "load_mesh": 0.04478080000035334,
+        "assemble_system": 3.4192572000001746,
+        "apply_bc": 0.715541999999914,
+        "convert_to_gpu": 0.03758500000003551,
+        "solve_system": 2.94222340000033,
+        "compute_derived": 0.6398346999999376,
+        "total_workflow": 7.87005470000031,
+        "total_program_time": 7.8701208000002225
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.024716414767292
+        ],
+        "u_mean": 1.985688486925011,
+        "u_std": 2.028796042824294
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "d33cd018-8e22-4774-86dc-21c67d3ca8b7",
+      "timestamp": "2025-12-29T20:39:02.433257Z",
+      "model_file": "y_tube1_195k.h5",
+      "model_name": "y_tube1_195k.h5",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.18119770000021163,
+        "assemble_system": 1.3585971000002246,
+        "apply_bc": 8.348164200000156,
+        "convert_to_cpu": 8.671775299999808,
+        "solve_system": 12.549570799999856,
+        "compute_derived": 0.3986818999997013,
+        "total_workflow": 22.96385700000019,
+        "total_program_time": 22.9659829000002
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.82532680631783
+        ],
+        "u_mean": 5.739263771821826,
+        "u_std": 4.383973066681182
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "bbade659-adf3-4fa3-8aa4-464ee34f9fb9",
+      "timestamp": "2025-12-29T20:41:54.774833Z",
+      "model_file": "y_tube1_195k.h5",
+      "model_name": "y_tube1_195k.h5",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.19174980000025243,
+        "assemble_system": 0.17957800000021962,
+        "apply_bc": 2.818090900000243,
+        "convert_to_cpu": 0.17754529999956503,
+        "solve_system": 3.3763655999996445,
+        "compute_derived": 0.03438789999972869,
+        "total_workflow": 6.621652799999993,
+        "total_program_time": 6.623872399999982
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806317143
+        ],
+        "u_mean": 5.739263771821339,
+        "u_std": 4.3839730666808485
+      },
+      "server_config": {
+        "hostname": "DESKTOP-3MCDHQ7",
+        "os": "Windows 10",
+        "os_version": "10.0.26200",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Unknown",
+        "cpu_cores": 12,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5060 Ti",
+        "gpu_memory_gb": 15.9,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "665c721b8168",
       "client_config": {},
       "client_hash": "unknown"
     }
