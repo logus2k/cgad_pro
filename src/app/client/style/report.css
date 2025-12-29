@@ -1,9 +1,8 @@
 .report-workspace {
     display: flex;
-    height: 450px; /* Adjust based on your HUD size */
-    gap: 10px;
-    padding: 10px;
-    background: var(--hud-bg);
+    height: calc(100% - 43px);
+    gap: 8px;
+    padding: 8px;
 }
 
 .report-pane {

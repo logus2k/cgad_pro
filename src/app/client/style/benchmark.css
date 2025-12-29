@@ -200,11 +200,11 @@
 }
 
 .benchmark-cell-time.medium {
-    color: #f4a261;
+    color: #ff760a;
 }
 
 .benchmark-cell-time.slow {
-    color: var(--hud-warm, #FB2C36);
+    color: #ff0000;
 }
 
 .benchmark-cell-status {
