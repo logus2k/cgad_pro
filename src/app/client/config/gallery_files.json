@@ -1,89 +1,75 @@
 {
+    "solvers": [
+        { "id": "cpu", "name": "CPU (NumPy)", "description": "Single-threaded NumPy solver" },
+        { "id": "cpu_threaded", "name": "CPU Threaded", "description": "Multi-threaded CPU solver" },
+        { "id": "cpu_multiprocess", "name": "CPU Multiprocess", "description": "Multi-process CPU solver" },
+        { "id": "numba", "name": "Numba JIT", "description": "Numba JIT-compiled CPU solver" },
+        { "id": "numba_cuda", "name": "Numba CUDA", "description": "Numba CUDA GPU solver" },
+        { "id": "gpu", "name": "GPU (CuPy)", "description": "CuPy GPU-accelerated solver" }
+    ],
 	"meshes": [
 		{
 			"name": "Y-Shaped Tube (Medium)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
 			"file": "./mesh/y_tube1_195k.h5",
 			"nodes": 195853,
 			"elements": 46607,
 			"thumbnail": "./images/mesh/y_tube1_195k.png",
-			"solver_type": "gpu",
+			"solver_type": "cpu",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},
 		{
 			"name": "Venturi (Medium)",
-			"description": "A 2D longitudinal cross-section of a Venturi tube with smooth converging and diverging sections. The channel narrows at the throat to accelerate flow, then expands to recover pressure. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D longitudinal cross-section of a Venturi tube with smooth converging and diverging sections. The channel narrows at the throat to accelerate flow, then expands to recover pressure.",
 			"file": "./mesh/venturi_194k.h5",
 			"nodes": 194325,
 			"elements": 64334,
 			"thumbnail": "./images/mesh/venturi_194k.png",
-			"solver_type": "gpu",
+			"solver_type": "cpu_threaded",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},
 		{
 			"name": "S-Bend (Medium)",
-			"description": "A 2D 90-degree elbow with rounded corner. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D 90-degree elbow with rounded corner.",
 			"file": "./mesh/s_bend_196k.h5",
 			"nodes": 196078,
 			"elements": 64787,
 			"thumbnail": "./images/mesh/s_bend_196k.png",
-			"solver_type": "gpu",
+			"solver_type": "cpu_multiprocess",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},
 		{
 			"name": "T-Junction (Medium)",
-			"description": "A 2D main channel with perpendicular branch with a left edge of main channel as inlet and the right edge of main channel and top of branch as outlets. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D main channel with perpendicular branch with a left edge of main channel as inlet and the right edge of main channel and top of branch as outlets.",
 			"file": "./mesh/t_junction_196k.h5",
 			"nodes": 196420,
 			"elements": 66453,
 			"thumbnail": "./images/mesh/t_junction_196k.png",
-			"solver_type": "gpu",
+			"solver_type": "numba",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},
 		{
 			"name": "Backward-Facing Step (Medium)",
-			"description": "A 2D main channel with a backward-facing step (a classic CFD benchmark) where inlet is a narrow left edge and the outlet is at the right edge. Step at junction of inlet and outlet sections. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D main channel with a backward-facing step (a classic CFD benchmark) where inlet is a narrow left edge and the outlet is at the right edge. Step at junction of inlet and outlet sections.",
 			"file": "./mesh/backward_step_195k.h5",
 			"nodes": 195362,
 			"elements": 64713,
 			"thumbnail": "./images/mesh/backward_step_195k.png",
-			"solver_type": "gpu",
+			"solver_type": "numba_cuda",
 			"max_iterations": 10000,
 			"progress_interval": 50
 		},		
 		{
 			"name": "Y-Shaped Tube (Small)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
+			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
 			"file": "./mesh/y_tube1_53.h5",
 			"nodes": 202,
 			"elements": 53,
 			"thumbnail": "./images/mesh/y_tube1_53.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "Y-Shaped Tube (Large)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
-			"file": "./mesh/y_tube1_772k.h5",
-			"nodes": 772069,
-			"elements": 192308,
-			"thumbnail": "./images/mesh/y_tube1_772k.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50
-		},
-		{
-			"name": "Y-Shaped Tube (X-Large)",
-			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches. Used for potential flow FEM analysis (velocity potential computation).",
-			"file": "./mesh/y_tube1_1_3m.h5",
-			"nodes": 1357953,
-			"elements": 338544,
-			"thumbnail": "./images/mesh/y_tube1_1_3m.png",
 			"solver_type": "gpu",
 			"max_iterations": 10000,
 			"progress_interval": 50

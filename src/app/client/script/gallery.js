@@ -13,6 +13,7 @@ class MeshGallery {
         this.jsonPath = options.jsonPath || 'gallery_files.json';
         this.itemsPerView = options.itemsPerView || 3;
         this.meshes = [];
+        this.solvers = [];
         this.currentIndex = 0;
         this.selectedIndex = 0;
         
@@ -66,10 +67,12 @@ class MeshGallery {
             if (!response.ok) throw new Error('Failed to load gallery data');
             const data = await response.json();
             this.meshes = data.meshes || [];
-            console.log(`Loaded ${this.meshes.length} mesh models`);
+            this.solvers = data.solvers || [];
+            console.log(`Loaded ${this.meshes.length} mesh models, ${this.solvers.length} solvers`);
         } catch (error) {
             console.error('Error loading mesh gallery:', error);
             this.meshes = [];
+            this.solvers = [];
         }
     }
     
@@ -82,6 +85,12 @@ class MeshGallery {
             const item = document.createElement('div');
             item.className = 'carousel-item';
             item.dataset.index = index;
+            
+            // Build solver options HTML
+            const solverOptionsHtml = this.solvers.map(solver => {
+                const selected = solver.id === mesh.solver_type ? 'selected' : '';
+                return `<option value="${solver.id}" title="${solver.description}" ${selected}>${solver.name}</option>`;
+            }).join('');
             
             item.innerHTML = `
                 <div class="model-image-container">
@@ -106,8 +115,20 @@ class MeshGallery {
                     <div class="complexity-badge ${this.getComplexityClass(mesh.elements)}">
                         ${this.getComplexityLabel(mesh.elements)}
                     </div>
+                    <div class="solver-row">
+                        <label>Solver:</label>
+                        <select class="solver-select" data-index="${index}">
+                            ${solverOptionsHtml}
+                        </select>
+                    </div>
                 </div>
             `;
+            
+            // Prevent dropdown click from triggering item selection
+            const select = item.querySelector('.solver-select');
+            if (select) {
+                select.addEventListener('click', (e) => e.stopPropagation());
+            }
             
             item.addEventListener('click', () => this.selectItem(index));
             this.track.appendChild(item);
@@ -364,8 +385,11 @@ class MeshGallery {
             window.menuManager.showPanel('metrics');
         }
         
-        // Use solver_type from config, or default based on mesh size
-        const solverType = selected.solver_type || (selected.elements > 10000 ? 'gpu' : 'cpu');
+        // Get solver from the selected item's dropdown
+        const selectedItem = this.track.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
+        const solverDropdown = selectedItem?.querySelector('.solver-select');
+        const solverType = solverDropdown?.value || selected.solver_type || 'gpu';
+        
         const maxIterations = selected.max_iterations || 50000;
         const progressInterval = selected.progress_interval || 100;
         
@@ -463,6 +487,26 @@ class MeshGallery {
      */
     isMeshReady() {
         return this.preloadedMeshData !== null;
+    }
+    
+    /**
+     * Get solver for a specific mesh item
+     */
+    getSolverForItem(index) {
+        const item = this.track?.querySelector(`.carousel-item[data-index="${index}"]`);
+        const dropdown = item?.querySelector('.solver-select');
+        return dropdown?.value || this.meshes[index]?.solver_type || 'gpu';
+    }
+    
+    /**
+     * Set solver for a specific mesh item
+     */
+    setSolverForItem(index, solverId) {
+        const item = this.track?.querySelector(`.carousel-item[data-index="${index}"]`);
+        const dropdown = item?.querySelector('.solver-select');
+        if (dropdown && this.solvers.some(s => s.id === solverId)) {
+            dropdown.value = solverId;
+        }
     }
 }
 

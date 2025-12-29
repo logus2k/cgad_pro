@@ -277,3 +277,43 @@
 .carousel-controls .btn-secondary:hover:not(:disabled) {
     background: rgba(0, 0, 0, 0.05);
 }
+
+
+/* ==========================================================================
+   Per-Item Solver Selection Dropdown
+   ========================================================================== */
+
+.solver-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--hud-fg-dim, #ccc);
+}
+
+.solver-row label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #444;
+}
+
+.solver-row select {
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    max-width: 130px;
+}
+
+.solver-row select:hover {
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.solver-row select:focus {
+    outline: none;
+    border-color: var(--hud-accent, #2266ff);
+    box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
+}
