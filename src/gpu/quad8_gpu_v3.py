@@ -610,6 +610,7 @@ class Quad8FEMSolverGPU:
 		
 		print(f"  Robin (inlet) nodes found: {len(boundary_nodes)}")
 		print(f"{'='*70}\n")
+		
 
 		# ---------------------------------
 		# Robin BCs (temporary CPU buffers)
@@ -1128,7 +1129,7 @@ if __name__ == "__main__":
 	PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 	solver = Quad8FEMSolverGPU(
-		mesh_file=PROJECT_ROOT / "src/app/client/mesh/y_tube1_195k.h5",
+		mesh_file=PROJECT_ROOT / "src/app/client/mesh/s_duct.h5",
 		implementation_name="GPU",
 		maxiter=50000,
 		verbose=True

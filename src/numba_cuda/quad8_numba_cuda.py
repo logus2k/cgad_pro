@@ -809,7 +809,7 @@ if __name__ == "__main__":
     PROJECT_ROOT = HERE.parent.parent
     
     solver = Quad8FEMSolverNumbaCUDA(
-        mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
+        mesh_file=PROJECT_ROOT / "src/app/client/mesh/s_duct.h5",
         implementation_name="NumbaCUDA",
         maxiter=15000,
         cg_print_every=50
