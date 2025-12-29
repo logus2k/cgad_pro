@@ -7,4 +7,6 @@ __pycache__/
 
 data/models/
 .venv/
+Scripts/
+pyvenv.cfg
 
