@@ -1128,7 +1128,7 @@ if __name__ == "__main__":
 	PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 	solver = Quad8FEMSolverGPU(
-		mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
+		mesh_file=PROJECT_ROOT / "src/app/client/mesh/y_tube1_195k.h5",
 		implementation_name="GPU",
 		maxiter=50000,
 		verbose=True
