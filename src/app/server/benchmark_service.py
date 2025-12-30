@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 import threading
 import asyncio
 
@@ -142,19 +142,25 @@ class BenchmarkRecord:
     timings: Dict[str, float]
     solution_stats: Dict[str, Any]
     
+    # Memory usage (NEW)
+    memory: Dict[str, Any] = field(default_factory=dict)
+    
     # Server configuration
-    server_config: Dict[str, Any]
-    server_hash: str
+    server_config: Dict[str, Any] = field(default_factory=dict)
+    server_hash: str = ""
     
     # Client configuration
-    client_config: Dict[str, Any]
-    client_hash: str
+    client_config: Dict[str, Any] = field(default_factory=dict)
+    client_hash: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'BenchmarkRecord':
+        # Handle records without memory field (backward compatibility)
+        if 'memory' not in data:
+            data['memory'] = {}
         return cls(**data)
 
 
@@ -230,21 +236,17 @@ class BenchmarkService:
     
     def _save_to_file(self) -> None:
         """Save benchmark data to JSON file."""
-        with self._lock:
-            data = {
-                "version": "1.0",
-                "updated_at": datetime.utcnow().isoformat() + "Z",
-                "server_config": self.server_config,
-                "records": [r.to_dict() for r in self._records.values()]
-            }
-            
-            # Write atomically
-            temp_file = self.data_file.with_suffix('.tmp')
-            with open(temp_file, 'w') as f:
-                json.dump(data, f, indent=2)
-            temp_file.replace(self.data_file)
-            
-            self._file_mtime = self.data_file.stat().st_mtime
+        data = {
+            "version": "1.0",
+            "updated_at": datetime.utcnow().isoformat() + "Z",
+            "server_config": self.server_config,
+            "records": [r.to_dict() for r in self._records.values()]
+        }
+        
+        with open(self.data_file, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        self._file_mtime = self.data_file.stat().st_mtime
     
     def refresh(self) -> None:
         """Refresh data from file if changed externally."""
@@ -261,6 +263,7 @@ class BenchmarkService:
         iterations: int,
         timings: Dict[str, float],
         solution_stats: Dict[str, Any],
+        memory: Optional[Dict[str, Any]] = None,
         client_config: Optional[Dict[str, Any]] = None
     ) -> BenchmarkRecord:
         """
@@ -276,12 +279,14 @@ class BenchmarkService:
             iterations: Number of iterations
             timings: Timing metrics dict
             solution_stats: Solution statistics
+            memory: Memory usage statistics (peak_ram_mb, peak_vram_mb, etc.)
             client_config: Client hardware config (from browser)
         
         Returns:
             Created BenchmarkRecord
         """
         client_config = client_config or {}
+        memory = memory or {}
         client_hash = generate_config_hash(client_config, self.CLIENT_HASH_KEYS) if client_config else "unknown"
         
         record = BenchmarkRecord(
@@ -296,6 +301,7 @@ class BenchmarkService:
             iterations=iterations,
             timings=timings,
             solution_stats=solution_stats,
+            memory=memory,
             server_config=self.server_config,
             server_hash=self.server_hash,
             client_config=client_config,
@@ -306,8 +312,15 @@ class BenchmarkService:
             self._records[record.id] = record
             self._save_to_file()
         
+        # Log with memory info if available
+        mem_info = ""
+        if memory:
+            peak_ram = memory.get('peak_ram_mb', 0)
+            peak_vram = memory.get('peak_vram_mb', 0)
+            mem_info = f", RAM: {peak_ram:.0f}MB, VRAM: {peak_vram:.0f}MB"
+        
         print(f"[Benchmark] Added record {record.id[:8]}... "
-              f"({model_name}, {solver_type}, {timings.get('total_program_time', 0):.2f}s)")
+              f"({model_name}, {solver_type}, {timings.get('total_program_time', 0):.2f}s{mem_info})")
         
         return record
     
@@ -322,7 +335,6 @@ class BenchmarkService:
             if record_id in self._records:
                 del self._records[record_id]
                 self._save_to_file()
-                print(f"[Benchmark] Deleted record {record_id[:8]}...")
                 return True
             return False
     
@@ -336,9 +348,9 @@ class BenchmarkService:
         Get all records with optional sorting and filtering.
         
         Args:
-            sort_by: Field to sort by
+            sort_by: Field to sort by (timestamp, total_time, iterations, etc.)
             sort_order: 'asc' or 'desc'
-            filters: Optional filters (e.g., {"solver_type": "gpu"})
+            filters: Optional dict of field:value filters
         
         Returns:
             List of record dicts
@@ -352,57 +364,64 @@ class BenchmarkService:
                 records = [r for r in records if r.get(key) == value]
         
         # Sort
-        reverse = sort_order.lower() == "desc"
+        reverse = sort_order == "desc"
         
-        def get_sort_key(record):
-            if sort_by == "timestamp":
-                return record.get("timestamp", "")
-            elif sort_by == "total_time":
-                return record.get("timings", {}).get("total_program_time", float('inf'))
-            elif sort_by == "solver_type":
-                return record.get("solver_type", "")
-            elif sort_by == "model_name":
-                return record.get("model_name", "")
-            elif sort_by == "model_elements":
-                return record.get("model_elements", 0)
-            elif sort_by == "iterations":
-                return record.get("iterations", 0)
-            elif sort_by.startswith("timings."):
-                timing_key = sort_by.split(".", 1)[1]
-                return record.get("timings", {}).get(timing_key, float('inf'))
-            else:
-                return record.get(sort_by, "")
+        def get_sort_key(r: Dict) -> Any:
+            if sort_by == "total_time":
+                return r.get('timings', {}).get('total_program_time', 0)
+            elif sort_by == "peak_ram":
+                return r.get('memory', {}).get('peak_ram_mb', 0)
+            elif sort_by == "peak_vram":
+                return r.get('memory', {}).get('peak_vram_mb', 0)
+            return r.get(sort_by, '')
         
         records.sort(key=get_sort_key, reverse=reverse)
         
         return records
     
+    def get_records_by_model(self, model_name: str) -> List[Dict[str, Any]]:
+        """Get all records for a specific model."""
+        return self.get_all_records(filters={"model_name": model_name})
+    
+    def get_records_by_solver(self, solver_type: str) -> List[Dict[str, Any]]:
+        """Get all records for a specific solver type."""
+        return self.get_all_records(filters={"solver_type": solver_type})
+    
+    def get_best_time(self, model_name: str, solver_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Get the record with best (lowest) total time for a model."""
+        filters = {"model_name": model_name}
+        if solver_type:
+            filters["solver_type"] = solver_type
+        
+        records = self.get_all_records(sort_by="total_time", sort_order="asc", filters=filters)
+        return records[0] if records else None
+    
     def get_summary(self) -> Dict[str, Any]:
-        """Get summary statistics of benchmark data."""
-        with self._lock:
-            records = list(self._records.values())
+        """Get summary statistics for all benchmarks."""
+        records = self.get_all_records()
         
         if not records:
             return {
                 "total_records": 0,
                 "solver_types": [],
                 "models": [],
-                "server_hash": self.server_hash
+                "best_times": {}
             }
         
-        solver_types = list(set(r.solver_type for r in records))
-        models = list(set(r.model_name for r in records))
+        # Collect unique values
+        solver_types = list(set(r['solver_type'] for r in records))
+        models = list(set(r['model_name'] for r in records))
         
-        # Best times per solver type
+        # Get best times per model
         best_times = {}
-        for solver in solver_types:
-            solver_records = [r for r in records if r.solver_type == solver and r.converged]
-            if solver_records:
-                best = min(solver_records, key=lambda r: r.timings.get('total_program_time', float('inf')))
-                best_times[solver] = {
-                    "total_time": best.timings.get('total_program_time'),
-                    "model": best.model_name,
-                    "record_id": best.id
+        for model in models:
+            model_records = [r for r in records if r['model_name'] == model]
+            if model_records:
+                best = min(model_records, key=lambda r: r.get('timings', {}).get('total_program_time', float('inf')))
+                best_times[model] = {
+                    "time": best.get('timings', {}).get('total_program_time', 0),
+                    "solver": best['solver_type'],
+                    "memory": best.get('memory', {})
                 }
         
         return {
@@ -545,6 +564,9 @@ class BenchmarkEventHandler:
             mesh_file = params.get('mesh_file', 'unknown')
             model_name = self.get_model_name(mesh_file)
             
+            # Extract memory data from results (NEW)
+            memory = results.get('memory', {})
+            
             record = self.service.add_record(
                 model_file=Path(mesh_file).name,
                 model_name=model_name,
@@ -555,6 +577,7 @@ class BenchmarkEventHandler:
                 iterations=results.get('iterations', 0),
                 timings=results.get('timing_metrics', {}),
                 solution_stats=results.get('solution_stats', {}),
+                memory=memory,
                 client_config=client_config
             )
             
@@ -609,7 +632,7 @@ if __name__ == "__main__":
     print("\n=== Benchmark Service Test ===")
     service = BenchmarkService(Path("/tmp/benchmark_test.json"))
     
-    # Add test record
+    # Add test record with memory data
     record = service.add_record(
         model_file="test_mesh.h5",
         model_name="Test Model (Small)",
@@ -625,6 +648,15 @@ if __name__ == "__main__":
             "total_program_time": 2.8
         },
         solution_stats={"u_range": [0, 10]},
+        memory={
+            "peak_ram_mb": 512.5,
+            "peak_vram_mb": 1024.0,
+            "baseline_ram_mb": 256.0,
+            "baseline_vram_mb": 0.0,
+            "sample_count": 28,
+            "interval_ms": 100,
+            "gpu_available": True
+        },
         client_config={"browser": "Chrome", "os": "Windows"}
     )
     

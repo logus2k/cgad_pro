@@ -166,7 +166,7 @@ export class BenchmarkPanel {
         
         // Find best time across all solvers
         if (statBestTime && summary.best_times) {
-            const times = Object.values(summary.best_times).map(b => b.total_time).filter(t => t);
+            const times = Object.values(summary.best_times).map(b => b.time).filter(t => t);
             if (times.length > 0) {
                 const best = Math.min(...times);
                 statBestTime.textContent = this.formatTime(best);
@@ -252,6 +252,8 @@ export class BenchmarkPanel {
                         <th data-column="timings.assemble_system" class="${this.getSortClass('timings.assemble_system')}">Assembly</th>
                         <th data-column="timings.solve_system" class="${this.getSortClass('timings.solve_system')}">Solve</th>
                         <th data-column="iterations" class="${this.getSortClass('iterations')}">Iterations</th>
+                        <th data-column="peak_ram" class="${this.getSortClass('peak_ram')}">Peak RAM</th>
+                        <th data-column="peak_vram" class="${this.getSortClass('peak_vram')}">Peak VRAM</th>
                         <th data-column="converged" class="${this.getSortClass('converged')}">Status</th>
                         <th data-column="timestamp" class="${this.getSortClass('timestamp')}">Date</th>
                     </tr>
@@ -271,6 +273,10 @@ export class BenchmarkPanel {
         const timeClass = this.getTimeClass(totalTime);
         const isSelected = this.selectedRecords.has(record.id);
         
+        // Extract memory data (with fallback for old records)
+        const peakRam = record.memory?.peak_ram_mb;
+        const peakVram = record.memory?.peak_vram_mb;
+        
         return `
             <tr class="${isSelected ? 'selected' : ''}" data-id="${record.id}">
                 <td>
@@ -289,6 +295,8 @@ export class BenchmarkPanel {
                 <td class="benchmark-cell-time">${this.formatTime(record.timings?.assemble_system)}</td>
                 <td class="benchmark-cell-time">${this.formatTime(record.timings?.solve_system)}</td>
                 <td>${this.formatNumber(record.iterations)}</td>
+                <td class="benchmark-cell-memory">${this.formatMemory(peakRam)}</td>
+                <td class="benchmark-cell-memory ${this.getVramClass(peakVram)}">${this.formatMemory(peakVram)}</td>
                 <td class="benchmark-cell-status">
                     <span class="${record.converged ? 'converged' : 'failed'}">
                         ${record.converged ? '✓' : '✗'}
@@ -455,6 +463,29 @@ export class BenchmarkPanel {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+    
+    /**
+     * Format memory value in MB to human-readable string
+     * @param {number} mb - Memory in megabytes
+     * @returns {string} Formatted string (e.g., "512 MB", "2.5 GB", "-")
+     */
+    formatMemory(mb) {
+        if (mb === undefined || mb === null || mb === 0) return '-';
+        if (mb < 1024) return `${Math.round(mb)} MB`;
+        return `${(mb / 1024).toFixed(2)} GB`;
+    }
+    
+    /**
+     * Get CSS class for VRAM cell based on usage
+     * @param {number} mb - VRAM in megabytes
+     * @returns {string} CSS class name
+     */
+    getVramClass(mb) {
+        if (mb === undefined || mb === null || mb === 0) return '';
+        if (mb > 16000) return 'memory-high';    // > 16 GB
+        if (mb > 8000) return 'memory-medium';   // > 8 GB
+        return 'memory-low';                      // <= 8 GB
     }
     
     getTimeClass(seconds) {

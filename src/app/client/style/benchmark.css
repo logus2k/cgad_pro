@@ -207,6 +207,26 @@
     color: #ff0000;
 }
 
+/* Memory cell styling */
+.benchmark-cell-memory {
+    font-family: 'Roboto', 'Monaco', monospace;
+    text-align: right;
+    color: #555;
+}
+
+.benchmark-cell-memory.memory-low {
+    color: #2a9d8f;
+}
+
+.benchmark-cell-memory.memory-medium {
+    color: #ff760a;
+}
+
+.benchmark-cell-memory.memory-high {
+    color: #e63946;
+    font-weight: 600;
+}
+
 .benchmark-cell-status {
     text-align: center;
 }
