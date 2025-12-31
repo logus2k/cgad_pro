@@ -247,6 +247,7 @@ export class BenchmarkPanel {
                         <th data-column="select" style="width: 30px;"></th>
                         <th data-column="model_name" class="${this.getSortClass('model_name')}">Model</th>
                         <th data-column="solver_type" class="${this.getSortClass('solver_type')}">Solver</th>
+                        <th data-column="model_nodes" class="${this.getSortClass('model_nodes')}">Nodes</th>
                         <th data-column="model_elements" class="${this.getSortClass('model_elements')}">Elements</th>
                         <th data-column="total_time" class="${this.getSortClass('total_time')}">Total Time</th>
                         <th data-column="timings.assemble_system" class="${this.getSortClass('timings.assemble_system')}">Assembly</th>
@@ -290,6 +291,7 @@ export class BenchmarkPanel {
                         ${this.formatSolverName(record.solver_type)}
                     </span>
                 </td>
+                <td>${this.formatNumber(record.model_nodes)}</td>
                 <td>${this.formatNumber(record.model_elements)}</td>
                 <td class="benchmark-cell-time ${timeClass}">${this.formatTime(totalTime)}</td>
                 <td class="benchmark-cell-time">${this.formatTime(record.timings?.assemble_system)}</td>

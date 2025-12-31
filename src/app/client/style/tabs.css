@@ -56,11 +56,11 @@
 }
 
 .hud .tab.active {
-    background-color: #fff4e5 !important;
+    background-color: #fff4e5ff !important;
     color: #1a1a1a;
     z-index: 1;
-    margin-bottom: -2px;
-    border-bottom: 1px solid #fff4e5 !important;
+    margin-bottom: -1px;
+    border-bottom: 1px solid #fff4e500 !important;
     padding-top: 5px;
 }
 
@@ -72,6 +72,6 @@
 
 .hud .tab:not(.active) {
     border-bottom: 0.5px solid transparent;
-    margin-bottom: 0px;
+    margin-bottom: -1px;
     padding: 5px 10px 1px 10px;
 }
