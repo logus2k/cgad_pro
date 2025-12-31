@@ -31,6 +31,49 @@ import asyncio
 # Server Hardware Detection
 # =============================================================================
 
+def detect_cpu_model() -> str:
+    """Detect CPU model with cross-platform support."""
+    system = platform.system()
+    
+    # Linux / WSL
+    if system == "Linux":
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if line.startswith('model name'):
+                        return line.split(':', 1)[1].strip()
+        except Exception:
+            pass
+    
+    # Windows
+    elif system == "Windows":
+        try:
+            result = subprocess.run(
+                ['wmic', 'cpu', 'get', 'name'],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                lines = [l.strip() for l in result.stdout.strip().split('\n') if l.strip()]
+                if len(lines) >= 2:
+                    return lines[1]  # First line is "Name", second is the value
+        except Exception:
+            pass
+    
+    # macOS
+    elif system == "Darwin":
+        try:
+            result = subprocess.run(
+                ['sysctl', '-n', 'machdep.cpu.brand_string'],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+    
+    # Fallback for any platform
+    return platform.processor() or "Unknown"
+
 def detect_os_info() -> str:
     """Detect OS/distribution name with cross-platform support."""
     system = platform.system()
@@ -67,7 +110,7 @@ def detect_server_hardware() -> Dict[str, Any]:
         "os": detect_os_info(),
         "architecture": platform.machine(),
         "python_version": platform.python_version(),
-        "cpu_model": "Unknown",
+        "cpu_model": detect_cpu_model(),
         "cpu_cores": os.cpu_count() or 0,
         "ram_gb": 0,
         "gpu_model": None,
