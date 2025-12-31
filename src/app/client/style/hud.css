@@ -250,7 +250,7 @@
     letter-spacing: 1px;
     color: #444444;
     cursor: move;
-    padding: 10px 5px 3px 10px;
+    padding: 9px 5px 4px 10px;
     margin: 0px 0px 0px 0px;
 }
 
@@ -391,8 +391,8 @@ summary::-webkit-details-marker {
 
 .hud .sep {
     height: 0.5px;
-    background: #c4c4c4b5;
-    margin: 0px 10px 0px 10px;
+    background: #cccccc;
+    border-bottom: 0.5px dashed #eeeeee;
 }
 
 .inline-controls {
