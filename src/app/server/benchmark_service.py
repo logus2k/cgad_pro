@@ -5,11 +5,12 @@ This service:
 - Subscribes to Socket.IO solver events (solve_complete)
 - Auto-detects server hardware configuration
 - Records benchmark results with timestamps
-- Persists data to JSON file
+- Persists data to server-specific JSON files
+- Aggregates records from multiple server files for display
 - Provides REST API for benchmark data access
 
 Location: /src/app/server/benchmark_service.py
-Data file: /src/app/server/benchmark/benchmark_results.json
+Data files: /src/app/server/benchmark/benchmark_{server_hash}.json
 """
 
 import os
@@ -244,7 +245,8 @@ class BenchmarkService:
     
     Features:
     - In-memory cache for fast access
-    - JSON file persistence
+    - Server-specific JSON file persistence
+    - Aggregates records from multiple server files
     - Auto-reload on file changes
     - Thread-safe operations
     """
@@ -255,72 +257,110 @@ class BenchmarkService:
     # Keys used for client config hashing
     CLIENT_HASH_KEYS = ["browser", "os", "gpu_vendor", "gpu_renderer"]
     
-    def __init__(self, data_file: Path | str):
-        self.data_file = Path(data_file)
-        self.data_file.parent.mkdir(parents=True, exist_ok=True)
+    def __init__(self, data_dir: Path | str):
+        self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         
         self._lock = threading.RLock()
         self._records: Dict[str, BenchmarkRecord] = {}
-        self._file_mtime: float = 0
+        self._file_mtimes: Dict[str, float] = {}  # Track mtime per file
         
         # Detect server hardware once at startup
         self.server_config = detect_server_hardware()
         self.server_hash = generate_config_hash(self.server_config, self.SERVER_HASH_KEYS)
         
+        # This server's data file
+        self.own_data_file = self.data_dir / f"benchmark_{self.server_hash}.json"
+        
         print(f"[Benchmark] Server config hash: {self.server_hash}")
+        print(f"[Benchmark] Data file: {self.own_data_file.name}")
         print(f"[Benchmark] CPU: {self.server_config['cpu_model']} ({self.server_config['cpu_cores']} cores)")
         print(f"[Benchmark] RAM: {self.server_config['ram_gb']} GB")
         if self.server_config['gpu_model']:
             print(f"[Benchmark] GPU: {self.server_config['gpu_model']} ({self.server_config['gpu_memory_gb']} GB)")
         
-        # Load existing data
-        self._load_from_file()
+        # Migrate legacy file if exists
+        self._migrate_legacy_file()
+        
+        # Load existing data from all files
+        self._load_all_files()
     
-    def _load_from_file(self) -> None:
-        """Load benchmark data from JSON file."""
+    def _migrate_legacy_file(self) -> None:
+        """Migrate legacy benchmark_results.json to server-specific file."""
+        legacy_file = self.data_dir / "benchmark_results.json"
+        
+        if legacy_file.exists() and not self.own_data_file.exists():
+            try:
+                # Rename legacy file to this server's file
+                legacy_file.rename(self.own_data_file)
+                print(f"[Benchmark] Migrated legacy file to {self.own_data_file.name}")
+            except Exception as e:
+                print(f"[Benchmark] Warning: Could not migrate legacy file: {e}")
+    
+    def _load_all_files(self) -> None:
+        """Load benchmark data from all JSON files in the data directory."""
         with self._lock:
-            if not self.data_file.exists():
-                self._records = {}
-                self._save_to_file()
+            self._records = {}
+            
+            # Find all benchmark_*.json files
+            json_files = list(self.data_dir.glob("benchmark_*.json"))
+            
+            if not json_files:
+                print(f"[Benchmark] No benchmark files found in {self.data_dir}")
                 return
             
-            try:
-                mtime = self.data_file.stat().st_mtime
-                if mtime == self._file_mtime:
-                    return  # No changes
-                
-                with open(self.data_file, 'r') as f:
-                    data = json.load(f)
-                
-                self._records = {
-                    r['id']: BenchmarkRecord.from_dict(r)
-                    for r in data.get('records', [])
-                }
-                self._file_mtime = mtime
-                
-                print(f"[Benchmark] Loaded {len(self._records)} records from {self.data_file}")
-                
-            except (json.JSONDecodeError, KeyError) as e:
-                print(f"[Benchmark] Error loading data file: {e}")
-                self._records = {}
+            total_loaded = 0
+            
+            for json_file in json_files:
+                try:
+                    mtime = json_file.stat().st_mtime
+                    
+                    with open(json_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    records = data.get('records', [])
+                    for r in records:
+                        record = BenchmarkRecord.from_dict(r)
+                        self._records[record.id] = record
+                    
+                    self._file_mtimes[str(json_file)] = mtime
+                    total_loaded += len(records)
+                    
+                    print(f"[Benchmark] Loaded {len(records)} records from {json_file.name}")
+                    
+                except (json.JSONDecodeError, KeyError) as e:
+                    print(f"[Benchmark] Warning: Could not load {json_file.name}: {e}")
+                except Exception as e:
+                    print(f"[Benchmark] Warning: Error reading {json_file.name}: {e}")
+            
+            print(f"[Benchmark] Total: {total_loaded} records from {len(json_files)} file(s)")
     
     def _save_to_file(self) -> None:
-        """Save benchmark data to JSON file."""
+        """Save this server's records to its own JSON file."""
         with self._lock:
+            # Filter records belonging to this server
+            own_records = [
+                r.to_dict() for r in self._records.values()
+                if r.server_hash == self.server_hash
+            ]
+            
             data = {
                 "version": "1.1",
                 "updated_at": datetime.utcnow().isoformat() + "Z",
-                "records": [r.to_dict() for r in self._records.values()]
+                "records": own_records
             }
-        
-        with open(self.data_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        
-        self._file_mtime = self.data_file.stat().st_mtime
+            
+            # Write atomically
+            temp_file = self.own_data_file.with_suffix('.tmp')
+            with open(temp_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            temp_file.replace(self.own_data_file)
+            
+            self._file_mtimes[str(self.own_data_file)] = self.own_data_file.stat().st_mtime
     
     def refresh(self) -> None:
-        """Refresh data from file if changed externally."""
-        self._load_from_file()
+        """Refresh data from all files if any changed externally."""
+        self._load_all_files()
     
     def add_record(
         self,
@@ -400,13 +440,25 @@ class BenchmarkService:
             return self._records.get(record_id)
     
     def delete_record(self, record_id: str) -> bool:
-        """Delete a record by ID."""
+        """
+        Delete a record by ID.
+        
+        Note: Can only delete records belonging to this server.
+        Records from other servers are read-only.
+        """
         with self._lock:
-            if record_id in self._records:
-                del self._records[record_id]
-                self._save_to_file()
-                return True
-            return False
+            record = self._records.get(record_id)
+            if not record:
+                return False
+            
+            # Check if this record belongs to this server
+            if record.server_hash != self.server_hash:
+                print(f"[Benchmark] Cannot delete record {record_id[:8]}... - belongs to different server")
+                return False
+            
+            del self._records[record_id]
+            self._save_to_file()
+            return True
     
     def get_all_records(
         self,
@@ -502,6 +554,35 @@ class BenchmarkService:
             "server_config": self.server_config,
             "server_hash": self.server_hash
         }
+    
+    def get_file_info(self) -> List[Dict[str, Any]]:
+        """Get information about all benchmark files in the directory."""
+        files = []
+        for json_file in self.data_dir.glob("benchmark_*.json"):
+            try:
+                stat = json_file.stat()
+                with open(json_file, 'r') as f:
+                    data = json.load(f)
+                
+                # Extract server hash from filename
+                file_hash = json_file.stem.replace("benchmark_", "")
+                
+                files.append({
+                    "filename": json_file.name,
+                    "server_hash": file_hash,
+                    "is_own": file_hash == self.server_hash,
+                    "record_count": len(data.get('records', [])),
+                    "size_kb": round(stat.st_size / 1024, 1),
+                    "updated_at": data.get('updated_at', ''),
+                    "version": data.get('version', 'unknown')
+                })
+            except Exception as e:
+                files.append({
+                    "filename": json_file.name,
+                    "error": str(e)
+                })
+        
+        return files
 
 
 # =============================================================================
@@ -552,6 +633,14 @@ def create_benchmark_router(service: BenchmarkService):
             "hash": service.server_hash
         }
     
+    @router.get("/files")
+    async def list_files():
+        """List all benchmark files in the data directory."""
+        return {
+            "files": service.get_file_info(),
+            "own_file": f"benchmark_{service.server_hash}.json"
+        }
+    
     @router.get("/{record_id}")
     async def get_benchmark(record_id: str):
         """Get a specific benchmark record."""
@@ -562,14 +651,14 @@ def create_benchmark_router(service: BenchmarkService):
     
     @router.delete("/{record_id}")
     async def delete_benchmark(record_id: str):
-        """Delete a specific benchmark record."""
+        """Delete a specific benchmark record (own server records only)."""
         if service.delete_record(record_id):
             return {"status": "deleted", "id": record_id}
-        raise HTTPException(status_code=404, detail="Record not found")
+        raise HTTPException(status_code=404, detail="Record not found or belongs to different server")
     
     @router.post("/refresh")
     async def refresh_data():
-        """Force refresh data from file."""
+        """Force refresh data from all files."""
         service.refresh()
         return {"status": "refreshed", "count": len(service._records)}
     
@@ -672,14 +761,13 @@ def init_benchmark_service(
     Initialize benchmark service and event handler.
     
     Args:
-        data_dir: Directory for benchmark data file
+        data_dir: Directory for benchmark data files
         gallery_file: Optional path to gallery_files.json
     
     Returns:
         Tuple of (BenchmarkService, BenchmarkEventHandler)
     """
-    data_file = Path(data_dir) / "benchmark_results.json"
-    service = BenchmarkService(data_file)
+    service = BenchmarkService(data_dir)
     
     gallery_path = Path(gallery_file) if gallery_file else None
     handler = BenchmarkEventHandler(service, gallery_path)
@@ -700,7 +788,10 @@ if __name__ == "__main__":
     
     # Test service
     print("\n=== Benchmark Service Test ===")
-    service = BenchmarkService(Path("/tmp/benchmark_test.json"))
+    test_dir = Path("/tmp/benchmark_test")
+    test_dir.mkdir(exist_ok=True)
+    
+    service = BenchmarkService(test_dir)
     
     # Add test record with memory data
     record = service.add_record(
@@ -731,6 +822,12 @@ if __name__ == "__main__":
     )
     
     print(f"\nCreated record: {record.id}")
+    print(f"Data file: {service.own_data_file}")
+    
+    # List files
+    print("\n=== Benchmark Files ===")
+    for f in service.get_file_info():
+        print(f"  {f['filename']}: {f.get('record_count', '?')} records, {f.get('size_kb', '?')} KB")
     
     # List records
     records = service.get_all_records(sort_by="total_time", sort_order="asc")
