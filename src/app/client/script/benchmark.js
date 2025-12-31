@@ -51,25 +51,6 @@ export class BenchmarkPanel {
     
     render() {
         this.container.innerHTML = `
-            <div class="benchmark-controls">
-                <div class="benchmark-controls-left">
-                    <select class="benchmark-filter" id="benchmark-filter-solver">
-                        <option value="">All Solvers</option>
-                    </select>
-                    <select class="benchmark-filter" id="benchmark-filter-model">
-                        <option value="">All Models</option>
-                    </select>
-                </div>
-                <div class="benchmark-controls-right">
-                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
-                        Refresh
-                    </button>
-                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
-                        Delete Selected
-                    </button>
-                </div>
-            </div>
-            
             <div class="benchmark-summary" id="benchmark-summary">
                 <div class="benchmark-stat">
                     <span class="benchmark-stat-value" id="stat-total">0</span>
@@ -89,11 +70,36 @@ export class BenchmarkPanel {
                 </div>
             </div>
             
+            <div class="benchmark-controls">
+                <div class="benchmark-controls-left">
+                    <select class="benchmark-filter" id="benchmark-filter-solver">
+                        <option value="">All Solvers</option>
+                    </select>
+                    <select class="benchmark-filter" id="benchmark-filter-model">
+                        <option value="">All Models</option>
+                    </select>
+                </div>
+                <div class="benchmark-controls-right">
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
+                        Refresh
+                    </button>
+                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
+                        Delete Selected
+                    </button>
+                </div>
+            </div>
+            
             <div class="benchmark-table-container" id="benchmark-table-container">
                 <div class="benchmark-loading">
                     <div class="benchmark-loading-spinner"></div>
                     <div>Loading benchmark data...</div>
                 </div>
+            </div>
+            
+            <div class="benchmark-footer">
+                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">
+                    Close
+                </button>
             </div>
         `;
         
@@ -113,6 +119,12 @@ export class BenchmarkPanel {
             deleteBtn.addEventListener('click', () => this.deleteSelected());
         }
         
+        // Close button
+        const closeBtn = this.container.querySelector('#benchmark-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closePanel());
+        }
+        
         // Solver filter
         const solverFilter = this.container.querySelector('#benchmark-filter-solver');
         if (solverFilter) {
@@ -129,6 +141,15 @@ export class BenchmarkPanel {
                 this.filterModel = e.target.value;
                 this.renderTable();
             });
+        }
+    }
+    
+    closePanel() {
+        // Find the parent HUD panel and remove 'visible' class
+        const hudPanel = this.container.closest('#hud-benchmark') || 
+                         this.container.closest('.hud-panel');
+        if (hudPanel) {
+            hudPanel.classList.remove('visible');
         }
     }
     

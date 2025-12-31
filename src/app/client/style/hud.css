@@ -105,9 +105,9 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 1000px;
+	width: 1100px;
 	min-width: 600px;
-	max-width: 1100px;
+	max-width: 1500px;
 	height: 700px;
 	min-height: 500px;
 	max-height: 1000px;
@@ -392,7 +392,6 @@ summary::-webkit-details-marker {
 .hud .sep {
     height: 0.5px;
     background: #cccccc;
-    border-bottom: 0.5px dashed #eeeeee;
 }
 
 .inline-controls {
