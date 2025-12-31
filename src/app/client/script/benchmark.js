@@ -2,6 +2,7 @@
  * Benchmark Panel UI Component
  * 
  * Displays benchmark results in a sortable table with filtering and deletion capabilities.
+ * Records are grouped by server configuration (collapsible groups).
  * Fetches data from /api/benchmark endpoint.
  * 
  * Location: /src/app/client/script/benchmark.js
@@ -30,6 +31,10 @@ export class BenchmarkPanel {
         this.filterModel = '';
         this.serverConfig = null;
         
+        // Track expanded/collapsed state per server_hash
+        this.expandedGroups = new Set();
+        this.firstLoad = true;
+        
         this.pollTimer = null;
         
         this.init();
@@ -56,7 +61,6 @@ export class BenchmarkPanel {
                     </select>
                 </div>
                 <div class="benchmark-controls-right">
-                    <span class="benchmark-server-info" id="benchmark-server-info"></span>
                     <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
                         Refresh
                     </button>
@@ -158,7 +162,6 @@ export class BenchmarkPanel {
         const statSolvers = this.container.querySelector('#stat-solvers');
         const statModels = this.container.querySelector('#stat-models');
         const statBestTime = this.container.querySelector('#stat-best-time');
-        const serverInfo = this.container.querySelector('#benchmark-server-info');
         
         if (statTotal) statTotal.textContent = summary.total_records || 0;
         if (statSolvers) statSolvers.textContent = (summary.solver_types || []).length;
@@ -173,14 +176,6 @@ export class BenchmarkPanel {
             } else {
                 statBestTime.textContent = '-';
             }
-        }
-        
-        // Server info
-        if (serverInfo && summary.server_config) {
-            const cfg = summary.server_config;
-            const gpu = cfg.gpu_model ? ` | ${cfg.gpu_model}` : '';
-            serverInfo.textContent = `${cfg.cpu_model} (${cfg.cpu_cores} cores)${gpu}`;
-            serverInfo.title = `Server: ${cfg.hostname}\nOS: ${cfg.os}\nRAM: ${cfg.ram_gb} GB`;
         }
     }
     
@@ -213,34 +208,134 @@ export class BenchmarkPanel {
         }
     }
     
+    /**
+     * Group records by server_hash
+     * @param {Array} records - Array of benchmark records
+     * @returns {Array} Array of {hash, config, records, filteredRecords, mostRecent}
+     */
+    groupRecordsByServer(records) {
+        const groups = new Map();
+        
+        records.forEach(record => {
+            const hash = record.server_hash || 'unknown';
+            
+            if (!groups.has(hash)) {
+                groups.set(hash, {
+                    hash: hash,
+                    config: record.server_config || {},
+                    records: [],
+                    filteredRecords: [],
+                    mostRecent: null
+                });
+            }
+            
+            const group = groups.get(hash);
+            group.records.push(record);
+            
+            // Track most recent timestamp for sorting groups
+            const timestamp = new Date(record.timestamp);
+            if (!group.mostRecent || timestamp > group.mostRecent) {
+                group.mostRecent = timestamp;
+            }
+        });
+        
+        // Convert to array and sort by most recent record (descending)
+        return Array.from(groups.values()).sort((a, b) => b.mostRecent - a.mostRecent);
+    }
+    
+    /**
+     * Apply filters to records within each group
+     */
+    applyFiltersToGroups(groups) {
+        groups.forEach(group => {
+            let filtered = group.records;
+            
+            if (this.filterSolver) {
+                filtered = filtered.filter(r => r.solver_type === this.filterSolver);
+            }
+            if (this.filterModel) {
+                filtered = filtered.filter(r => r.model_name === this.filterModel);
+            }
+            
+            // Sort filtered records by current sort column
+            filtered = this.sortRecords(filtered);
+            
+            group.filteredRecords = filtered;
+        });
+        
+        return groups;
+    }
+    
+    /**
+     * Sort records by current sort column/order
+     */
+    sortRecords(records) {
+        const sorted = [...records];
+        const column = this.sortColumn;
+        const order = this.sortOrder;
+        
+        sorted.sort((a, b) => {
+            let aVal, bVal;
+            
+            if (column === 'total_time') {
+                aVal = a.timings?.total_program_time || 0;
+                bVal = b.timings?.total_program_time || 0;
+            } else if (column === 'peak_ram') {
+                aVal = a.memory?.peak_ram_mb || 0;
+                bVal = b.memory?.peak_ram_mb || 0;
+            } else if (column === 'peak_vram') {
+                aVal = a.memory?.peak_vram_mb || 0;
+                bVal = b.memory?.peak_vram_mb || 0;
+            } else if (column.startsWith('timings.')) {
+                const key = column.split('.')[1];
+                aVal = a.timings?.[key] || 0;
+                bVal = b.timings?.[key] || 0;
+            } else {
+                aVal = a[column] || '';
+                bVal = b[column] || '';
+            }
+            
+            if (typeof aVal === 'string') {
+                aVal = aVal.toLowerCase();
+                bVal = bVal.toLowerCase();
+            }
+            
+            if (aVal < bVal) return order === 'asc' ? -1 : 1;
+            if (aVal > bVal) return order === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        return sorted;
+    }
+    
     renderTable() {
         const container = this.container.querySelector('#benchmark-table-container');
         if (!container) return;
         
-        // Filter records
-        let filtered = this.records;
-        if (this.filterSolver) {
-            filtered = filtered.filter(r => r.solver_type === this.filterSolver);
-        }
-        if (this.filterModel) {
-            filtered = filtered.filter(r => r.model_name === this.filterModel);
-        }
-        
-        if (filtered.length === 0) {
+        if (this.records.length === 0) {
             container.innerHTML = `
                 <div class="benchmark-empty">
                     <div class="benchmark-empty-icon">📊</div>
                     <div class="benchmark-empty-text">
-                        ${this.records.length === 0 
-                            ? 'No benchmark records yet. Run a solver to record results.' 
-                            : 'No records match the current filters.'}
+                        No benchmark records yet. Run a solver to record results.
                     </div>
                 </div>
             `;
             return;
         }
         
-        container.innerHTML = `
+        // Group records by server
+        let groups = this.groupRecordsByServer(this.records);
+        groups = this.applyFiltersToGroups(groups);
+        
+        // On first load, expand only the first group
+        if (this.firstLoad && groups.length > 0) {
+            this.expandedGroups.add(groups[0].hash);
+            this.firstLoad = false;
+        }
+        
+        // Build table HTML
+        let tableHtml = `
             <table class="benchmark-table">
                 <thead>
                     <tr>
@@ -260,16 +355,76 @@ export class BenchmarkPanel {
                     </tr>
                 </thead>
                 <tbody>
-                    ${filtered.map(record => this.renderRow(record)).join('')}
+        `;
+        
+        // Render each group
+        groups.forEach(group => {
+            const isExpanded = this.expandedGroups.has(group.hash);
+            const totalCount = group.records.length;
+            const filteredCount = group.filteredRecords.length;
+            
+            // Render group header
+            tableHtml += this.renderGroupHeader(group, isExpanded, totalCount, filteredCount);
+            
+            // Render records if expanded
+            if (isExpanded) {
+                group.filteredRecords.forEach(record => {
+                    tableHtml += this.renderRow(record, group.hash);
+                });
+            }
+        });
+        
+        tableHtml += `
                 </tbody>
             </table>
         `;
+        
+        container.innerHTML = tableHtml;
         
         // Bind table events
         this.bindTableEvents();
     }
     
-    renderRow(record) {
+    renderGroupHeader(group, isExpanded, totalCount, filteredCount) {
+        const config = group.config;
+        const toggleIcon = isExpanded ? '▼' : '►';
+        
+        const cpuShort = this.shortenCpuName(config.cpu_model || 'Unknown CPU');
+        const gpuShort = this.shortenGpuName(config.gpu_model);
+        const ram = config.ram_gb ? `${config.ram_gb} GB` : '-';
+        const vram = config.gpu_memory_gb ? `${config.gpu_memory_gb} GB` : '-';
+        const hostname = config.hostname || 'Unknown';
+        
+        // Build count display
+        let countDisplay;
+        if (filteredCount === totalCount) {
+            countDisplay = `${totalCount} record${totalCount !== 1 ? 's' : ''}`;
+        } else {
+            countDisplay = `${filteredCount} of ${totalCount} records`;
+        }
+        
+        return `
+            <tr class="benchmark-group-header ${isExpanded ? 'expanded' : 'collapsed'}" 
+                data-group-hash="${group.hash}">
+                <td colspan="13">
+                    <div class="group-header-content">
+                        <span class="group-toggle">${toggleIcon}</span>
+                        <span class="group-cpu" title="${config.cpu_model || ''}">${cpuShort}</span>
+                        <span class="group-separator">|</span>
+                        <span class="group-ram">${ram} RAM</span>
+                        <span class="group-separator">|</span>
+                        <span class="group-gpu" title="${config.gpu_model || ''}">${gpuShort}</span>
+                        <span class="group-separator">|</span>
+                        <span class="group-vram">${vram} VRAM</span>
+                        <span class="group-hostname">[${hostname}]</span>
+                        <span class="group-count">(${countDisplay})</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+    
+    renderRow(record, groupHash) {
         const totalTime = record.timings?.total_program_time || 0;
         const timeClass = this.getTimeClass(totalTime);
         const isSelected = this.selectedRecords.has(record.id);
@@ -279,7 +434,9 @@ export class BenchmarkPanel {
         const peakVram = record.memory?.peak_vram_mb;
         
         return `
-            <tr class="${isSelected ? 'selected' : ''}" data-id="${record.id}">
+            <tr class="benchmark-record ${isSelected ? 'selected' : ''}" 
+                data-id="${record.id}" 
+                data-group-hash="${groupHash}">
                 <td>
                     <input type="checkbox" class="benchmark-checkbox" 
                            data-id="${record.id}" 
@@ -325,7 +482,18 @@ export class BenchmarkPanel {
                     this.sortColumn = column;
                     this.sortOrder = column === 'timestamp' ? 'desc' : 'asc';
                 }
-                this.fetchData();
+                this.renderTable();
+            });
+        });
+        
+        // Group header click for expand/collapse
+        table.querySelectorAll('.benchmark-group-header').forEach(row => {
+            row.addEventListener('click', (e) => {
+                // Don't toggle if clicking on a checkbox or button
+                if (e.target.closest('input, button')) return;
+                
+                const hash = row.dataset.groupHash;
+                this.toggleGroup(hash);
             });
         });
         
@@ -347,6 +515,15 @@ export class BenchmarkPanel {
                 }
             });
         });
+    }
+    
+    toggleGroup(hash) {
+        if (this.expandedGroups.has(hash)) {
+            this.expandedGroups.delete(hash);
+        } else {
+            this.expandedGroups.add(hash);
+        }
+        this.renderTable();
     }
     
     updateDeleteButton() {
@@ -469,8 +646,6 @@ export class BenchmarkPanel {
     
     /**
      * Format memory value in MB to human-readable string
-     * @param {number} mb - Memory in megabytes
-     * @returns {string} Formatted string (e.g., "512 MB", "2.5 GB", "-")
      */
     formatMemory(mb) {
         if (mb === undefined || mb === null || mb === 0) return '-';
@@ -480,8 +655,6 @@ export class BenchmarkPanel {
     
     /**
      * Get CSS class for VRAM cell based on usage
-     * @param {number} mb - VRAM in megabytes
-     * @returns {string} CSS class name
      */
     getVramClass(mb) {
         if (mb === undefined || mb === null || mb === 0) return '';
@@ -494,6 +667,75 @@ export class BenchmarkPanel {
         if (seconds < 10) return 'fast';
         if (seconds < 60) return 'medium';
         return 'slow';
+    }
+    
+    /**
+     * Shorten CPU model name for display
+     * "13th Gen Intel(R) Core(TM) i9-13900K" -> "i9-13900K"
+     * "AMD Ryzen 9 5900X 12-Core Processor" -> "Ryzen 9 5900X"
+     */
+    shortenCpuName(cpuModel) {
+        if (!cpuModel) return 'Unknown CPU';
+        
+        // Intel: Extract iX-XXXXX pattern
+        const intelMatch = cpuModel.match(/i[3579]-\d{4,5}[A-Z]*/i);
+        if (intelMatch) return intelMatch[0];
+        
+        // AMD Ryzen: Extract "Ryzen X XXXX" pattern
+        const ryzenMatch = cpuModel.match(/Ryzen\s+\d+\s+\d{4}[A-Z]*/i);
+        if (ryzenMatch) return ryzenMatch[0];
+        
+        // AMD Threadripper
+        const threadripperMatch = cpuModel.match(/Threadripper\s+\d{4}[A-Z]*/i);
+        if (threadripperMatch) return threadripperMatch[0];
+        
+        // Apple Silicon
+        const appleMatch = cpuModel.match(/Apple\s+M\d+(\s+\w+)?/i);
+        if (appleMatch) return appleMatch[0];
+        
+        // Fallback: truncate to 20 chars
+        if (cpuModel.length > 20) {
+            return cpuModel.substring(0, 20) + '...';
+        }
+        
+        return cpuModel;
+    }
+    
+    /**
+     * Shorten GPU model name for display
+     * "NVIDIA GeForce RTX 4090" -> "RTX 4090"
+     * "AMD Radeon RX 7900 XTX" -> "RX 7900 XTX"
+     */
+    shortenGpuName(gpuModel) {
+        if (!gpuModel) return 'No GPU';
+        
+        // NVIDIA RTX/GTX
+        const nvidiaMatch = gpuModel.match(/(RTX|GTX)\s*\d{3,4}(\s*Ti|\s*Super)?/i);
+        if (nvidiaMatch) return nvidiaMatch[0];
+        
+        // NVIDIA Quadro
+        const quadroMatch = gpuModel.match(/Quadro\s+\w+\d+/i);
+        if (quadroMatch) return quadroMatch[0];
+        
+        // AMD Radeon RX
+        const radeonMatch = gpuModel.match(/RX\s*\d{4}(\s*XT[X]?)?/i);
+        if (radeonMatch) return radeonMatch[0];
+        
+        // Intel Arc
+        const arcMatch = gpuModel.match(/Arc\s+A\d{3}/i);
+        if (arcMatch) return arcMatch[0];
+        
+        // Apple Silicon GPU
+        if (gpuModel.toLowerCase().includes('apple')) {
+            return 'Apple GPU';
+        }
+        
+        // Fallback: truncate to 15 chars
+        if (gpuModel.length > 15) {
+            return gpuModel.substring(0, 15) + '...';
+        }
+        
+        return gpuModel;
     }
     
     // Polling

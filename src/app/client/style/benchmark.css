@@ -139,7 +139,7 @@
 }
 
 .benchmark-table th {
-    background: #ffebd5;
+    background: #f5f5f5;
     font-weight: 600;
     color: #333;
     position: sticky;
@@ -147,6 +147,7 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
+    z-index: 10;
 }
 
 .benchmark-table th:hover {
@@ -173,6 +174,92 @@
 
 .benchmark-table tbody tr.selected {
     background: rgba(34, 102, 255, 0.15);
+}
+
+/* ============================================
+   Group Header Styles
+   ============================================ */
+
+.benchmark-group-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.benchmark-group-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.benchmark-group-header.collapsed {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.benchmark-group-header.expanded {
+    border-bottom: 2px solid #adb5bd;
+}
+
+.benchmark-group-header td {
+    padding: 10px 15px;
+}
+
+.group-header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.group-toggle {
+    font-size: 0.7rem;
+    color: #495057;
+    width: 12px;
+    text-align: center;
+}
+
+.group-cpu {
+    font-weight: 600;
+    color: #2c5282;
+}
+
+.group-gpu {
+    font-weight: 600;
+    color: #276749;
+}
+
+.group-ram,
+.group-vram {
+    color: #555;
+    font-size: 0.75rem;
+}
+
+.group-separator {
+    color: #adb5bd;
+    font-weight: 300;
+}
+
+.group-hostname {
+    color: #6c757d;
+    font-size: 0.7rem;
+    font-style: italic;
+    margin-left: auto;
+}
+
+.group-count {
+    color: #868e96;
+    font-size: 0.7rem;
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+/* Record rows within groups */
+.benchmark-record {
+    background: #fff;
+}
+
+.benchmark-record:hover {
+    background: rgba(34, 102, 255, 0.06);
 }
 
 /* Cell styling */
@@ -332,7 +419,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* Server info badge */
+/* Server info badge (kept for backward compatibility) */
 .benchmark-server-info {
     font-size: 0.7rem;
     color: #666;
@@ -356,5 +443,15 @@
     
     .benchmark-summary {
         flex-wrap: wrap;
+    }
+    
+    .group-header-content {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .group-hostname {
+        margin-left: 0;
+        width: 100%;
     }
 }
