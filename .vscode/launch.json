@@ -2,6 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Docker Build",
+            "type": "dockerfile",
+            "request": "launch",
+            "dockerfile": "Dockerfile",
+            "contextPath": "${workspaceFolder}/compose"
+        },
+        {
             "name": "Octave Debugger: Current File",
             "type": "OctaveDebugger",
             "request": "launch",

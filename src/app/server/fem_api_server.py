@@ -201,6 +201,7 @@ async def run_solver_task(job_id: str, params: dict):
             'timing_metrics': results['timing_metrics'],
             'solution_stats': results['solution_stats'],
             'mesh_info': results['mesh_info'],
+            'memory': results.get('memory', {}),
             'solution_url': f'/solve/{job_id}/solution/binary',
         }
         
@@ -214,6 +215,7 @@ async def run_solver_task(job_id: str, params: dict):
                 'timing_metrics': results['timing_metrics'],
                 'solution_stats': results['solution_stats'],
                 'mesh_info': results['mesh_info'],
+                'memory': results.get('memory', {}),
                 'u': solution,
                 'vel': velocity,
                 'abs_vel': abs_velocity,

@@ -3,21 +3,51 @@
 .benchmark-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
     height: 100%;
-    min-height: 0;  /* Important for flex children to shrink */
+    min-height: 0;
     overflow: hidden;
+    margin: 10px;
 }
 
-/* Controls bar */
+/* Stats summary - at top */
+.benchmark-summary {
+    display: flex;
+    gap: 30px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    justify-content: center;
+}
+
+.benchmark-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.benchmark-stat-value {
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    color: #2a922a;
+}
+
+.benchmark-stat-label {
+    font-size: 11px;
+    color: #333;
+    text-transform: uppercase;
+    padding: 5px;
+}
+
+/* Controls bar - between summary and table */
 .benchmark-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.5);
+    padding: 8px 3px;
     border-radius: 4px;
-    flex-shrink: 0;  /* Don't shrink controls */
+    flex-shrink: 0;
 }
 
 .benchmark-controls-left {
@@ -83,44 +113,32 @@
     cursor: not-allowed;
 }
 
-/* Stats summary */
-.benchmark-summary {
-    display: flex;
-    gap: 30px;
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    flex-shrink: 0;
-    justify-content: center;
-}
-
-.benchmark-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.benchmark-stat-value {
-    font-size: 18px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    color: #2a922a;
-}
-.benchmark-stat-label {
-    font-size: 11px;
-    color: #333;
-    text-transform: uppercase;
-    padding: 5px;
-}
-
 /* Table container - fills remaining space */
 .benchmark-table-container {
     flex: 1;
-    min-height: 0;  /* Important for overflow to work in flex child */
+    min-height: 0;
     overflow: auto;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 4px;
+}
+
+/* Footer with close button */
+.benchmark-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 55px 10px;
+    flex-shrink: 0;
+}
+
+.benchmark-btn-close {
+    background: #495057;
+    color: #fff;
+    padding: 6px 20px;
+    font-size: 0.8rem;
+}
+
+.benchmark-btn-close:hover {
+    background: #343a40;
 }
 
 /* Table styles */
@@ -139,7 +157,7 @@
 }
 
 .benchmark-table th {
-    background: #f5f5f5;
+    background: #ffedc9;
     font-weight: 600;
     color: #333;
     position: sticky;
@@ -147,10 +165,11 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
+    z-index: 10;
 }
 
 .benchmark-table th:hover {
-    background: #e8e8e8;
+    background: #ffe4ae;
 }
 
 .benchmark-table th.sorted-asc::after {
@@ -173,6 +192,92 @@
 
 .benchmark-table tbody tr.selected {
     background: rgba(34, 102, 255, 0.15);
+}
+
+/* ============================================
+   Group Header Styles
+   ============================================ */
+
+.benchmark-group-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.benchmark-group-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.benchmark-group-header.collapsed {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.benchmark-group-header.expanded {
+    border-bottom: 2px solid #adb5bd;
+}
+
+.benchmark-group-header td {
+    padding: 10px 12px;
+}
+
+.group-header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.group-toggle {
+    font-size: 0.7rem;
+    color: #495057;
+    width: 12px;
+    text-align: center;
+}
+
+.group-cpu {
+    font-weight: 600;
+    color: #2c5282;
+}
+
+.group-gpu {
+    font-weight: 600;
+    color: #276749;
+}
+
+.group-ram,
+.group-vram {
+    color: #555;
+    font-size: 0.75rem;
+}
+
+.group-separator {
+    color: #adb5bd;
+    font-weight: 300;
+}
+
+.group-hostname {
+    color: #6c757d;
+    font-size: 0.7rem;
+    font-style: italic;
+    margin-left: auto;
+}
+
+.group-count {
+    color: #868e96;
+    font-size: 0.7rem;
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+/* Record rows within groups */
+.benchmark-record {
+    background: #fff;
+}
+
+.benchmark-record:hover {
+    background: rgba(34, 102, 255, 0.06);
 }
 
 /* Cell styling */
@@ -205,6 +310,26 @@
 
 .benchmark-cell-time.slow {
     color: #ff0000;
+}
+
+/* Memory cell styling */
+.benchmark-cell-memory {
+    font-family: 'Roboto', 'Monaco', monospace;
+    text-align: right;
+    color: #555;
+}
+
+.benchmark-cell-memory.memory-low {
+    color: #2a9d8f;
+}
+
+.benchmark-cell-memory.memory-medium {
+    color: #ff760a;
+}
+
+.benchmark-cell-memory.memory-high {
+    color: #e63946;
+    font-weight: 600;
 }
 
 .benchmark-cell-status {
@@ -312,7 +437,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* Server info badge */
+/* Server info badge (kept for backward compatibility) */
 .benchmark-server-info {
     font-size: 0.7rem;
     color: #666;
@@ -336,5 +461,15 @@
     
     .benchmark-summary {
         flex-wrap: wrap;
+    }
+    
+    .group-header-content {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .group-hostname {
+        margin-left: 0;
+        width: 100%;
     }
 }

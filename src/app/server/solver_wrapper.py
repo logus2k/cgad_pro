@@ -1,5 +1,7 @@
 """
 Unified wrapper for CPU, GPU, Numba, Numba CUDA, and Threaded/Multiprocess solvers.
+
+Includes memory tracking for benchmark recording.
 """
 import sys
 from pathlib import Path
@@ -17,12 +19,16 @@ sys.path.insert(0, str(SRC_DIR / "numba"))
 sys.path.insert(0, str(SRC_DIR / "numba_cuda"))
 sys.path.insert(0, str(SRC_DIR / "cpu_threaded"))
 sys.path.insert(0, str(SRC_DIR / "cpu_multiprocess"))
+sys.path.insert(0, str(SRC_DIR / "shared"))
 
 from quad8_cpu_v3 import Quad8FEMSolver as CPUSolver
 from quad8_gpu_v3 import Quad8FEMSolverGPU as GPUSolver
 from quad8_numba import Quad8FEMSolverNumba as NumbaSolver
 from quad8_numba_cuda import Quad8FEMSolverNumbaCUDA as NumbaCUDASolver
 from quad8_cpu_threaded import Quad8FEMSolverThreaded as ThreadedSolver
+
+# Import memory tracking
+from memory_tracker import MemoryTracker
 
 
 class SolverWrapper:
@@ -94,9 +100,18 @@ class SolverWrapper:
             )
     
     def run(self) -> Dict[str, Any]:
-        """Execute solver and return results"""
+        """Execute solver with memory tracking and return results"""
         try:
+            # Start memory tracking
+            tracker = MemoryTracker(interval_ms=100)
+            tracker.start()
+            
+            # Run solver (unchanged)
             results = self.solver.run(output_dir=None, export_file=None)
+            
+            # Stop tracking and inject memory data into results
+            results["memory"] = tracker.stop()
+            
             return results
         except Exception as e:
             if self.progress_callback:
