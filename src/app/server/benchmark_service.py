@@ -18,6 +18,7 @@ import uuid
 import hashlib
 import platform
 import time
+import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -30,12 +31,40 @@ import asyncio
 # Server Hardware Detection
 # =============================================================================
 
+def detect_os_info() -> str:
+    """Detect OS/distribution name with cross-platform support."""
+    system = platform.system()
+    
+    if system == "Linux":
+        # Try to get distro info from /etc/os-release
+        try:
+            with open('/etc/os-release', 'r') as f:
+                for line in f:
+                    if line.startswith('PRETTY_NAME='):
+                        return line.split('=', 1)[1].strip().strip('"')
+        except Exception:
+            pass
+        # Fallback to kernel info
+        return f"Linux {platform.release()}"
+    
+    elif system == "Windows":
+        # e.g., "Windows 10 (10.0.19045)"
+        return f"Windows {platform.release()} ({platform.version()})"
+    
+    elif system == "Darwin":
+        # macOS
+        mac_ver = platform.mac_ver()[0]
+        return f"macOS {mac_ver}" if mac_ver else "macOS"
+    
+    else:
+        # Generic fallback for other systems
+        return f"{system} {platform.release()}"
+
 def detect_server_hardware() -> Dict[str, Any]:
     """Detect server hardware configuration."""
     config = {
         "hostname": platform.node(),
-        "os": f"{platform.system()} {platform.release()}",
-        "os_version": platform.version(),
+        "os": detect_os_info(),
         "architecture": platform.machine(),
         "python_version": platform.python_version(),
         "cpu_model": "Unknown",
@@ -69,7 +98,6 @@ def detect_server_hardware() -> Dict[str, Any]:
     
     # GPU detection via NVIDIA tools
     try:
-        import subprocess
         result = subprocess.run(
             ['nvidia-smi', '--query-gpu=name,memory.total', '--format=csv,noheader,nounits'],
             capture_output=True, text=True, timeout=5
@@ -84,7 +112,6 @@ def detect_server_hardware() -> Dict[str, Any]:
     
     # CUDA version detection
     try:
-        import subprocess
         result = subprocess.run(
             ['nvcc', '--version'],
             capture_output=True, text=True, timeout=5
@@ -236,12 +263,12 @@ class BenchmarkService:
     
     def _save_to_file(self) -> None:
         """Save benchmark data to JSON file."""
-        data = {
-            "version": "1.0",
-            "updated_at": datetime.utcnow().isoformat() + "Z",
-            "server_config": self.server_config,
-            "records": [r.to_dict() for r in self._records.values()]
-        }
+        with self._lock:
+            data = {
+                "version": "1.1",
+                "updated_at": datetime.utcnow().isoformat() + "Z",
+                "records": [r.to_dict() for r in self._records.values()]
+            }
         
         with open(self.data_file, 'w') as f:
             json.dump(data, f, indent=2)
