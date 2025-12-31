@@ -145,11 +145,8 @@ export class BenchmarkPanel {
     }
     
     closePanel() {
-        // Find the parent HUD panel and remove 'visible' class
-        const hudPanel = this.container.closest('#hud-benchmark') || 
-                         this.container.closest('.hud-panel');
-        if (hudPanel) {
-            hudPanel.classList.remove('visible');
+        if (window.menuManager) {
+            window.menuManager.hidePanel('benchmark');
         }
     }
     
