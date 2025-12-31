@@ -17,7 +17,7 @@ services:
         max-size: "10m"
         max-file: "3"       
     ports:
-      - "5867:5867"
+      - "5868:5868"
     networks:
       - logus2k_network
 
