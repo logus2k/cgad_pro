@@ -29,6 +29,7 @@ export class BenchmarkPanel {
         this.sortOrder = 'desc';
         this.filterSolver = '';
         this.filterModel = '';
+        this.filterServer = '';
         this.serverConfig = null;
         this.serverHash = null;
         
@@ -78,6 +79,9 @@ export class BenchmarkPanel {
                     </select>
                     <select class="benchmark-filter" id="benchmark-filter-model">
                         <option value="">All Models</option>
+                    </select>
+                    <select class="benchmark-filter" id="benchmark-filter-server">
+                        <option value="">All Servers</option>
                     </select>
                 </div>
                 <div class="benchmark-controls-right">
@@ -143,6 +147,15 @@ export class BenchmarkPanel {
                 this.renderTable();
             });
         }
+        
+        // Server filter
+        const serverFilter = this.container.querySelector('#benchmark-filter-server');
+        if (serverFilter) {
+            serverFilter.addEventListener('change', (e) => {
+                this.filterServer = e.target.value;
+                this.renderTable();
+            });
+        }
     }
     
     closePanel() {
@@ -168,7 +181,7 @@ export class BenchmarkPanel {
             if (summaryResponse.ok) {
                 const summary = await summaryResponse.json();
                 this.serverConfig = summary.server_config;
-                this.serverHash = summary.server_hash;  // ADD THIS LINE
+                this.serverHash = summary.server_hash;
                 this.updateSummary(summary);
                 this.updateFilters(summary);
             }
@@ -229,6 +242,39 @@ export class BenchmarkPanel {
                 modelFilter.appendChild(option);
             });
             modelFilter.value = currentValue;
+        }
+        
+        // Populate server filter from records
+        const serverFilter = this.container.querySelector('#benchmark-filter-server');
+        if (serverFilter && this.records.length > 0) {
+            const currentValue = serverFilter.value;
+            serverFilter.innerHTML = '<option value="">All Servers</option>';
+            
+            // Extract unique servers from records
+            const servers = new Map();
+            this.records.forEach(record => {
+                const hash = record.server_hash;
+                if (hash && !servers.has(hash)) {
+                    const config = record.server_config || {};
+                    const hostname = config.hostname || 'Unknown';
+                    const cpu = this.shortenCpuName(config.cpu_model);
+                    const gpu = this.shortenGpuName(config.gpu_model);
+                    const label = `${hostname} (${cpu}, ${gpu})`;
+                    servers.set(hash, label);
+                }
+            });
+            
+            // Sort by label and add options
+            [...servers.entries()]
+                .sort((a, b) => a[1].localeCompare(b[1]))
+                .forEach(([hash, label]) => {
+                    const option = document.createElement('option');
+                    option.value = hash;
+                    option.textContent = label;
+                    serverFilter.appendChild(option);
+                });
+            
+            serverFilter.value = currentValue;
         }
     }
     
@@ -350,6 +396,12 @@ export class BenchmarkPanel {
         
         // Group records by server
         let groups = this.groupRecordsByServer(this.records);
+        
+        // Filter groups by server if selected
+        if (this.filterServer) {
+            groups = groups.filter(g => g.hash === this.filterServer);
+        }
+        
         groups = this.applyFiltersToGroups(groups);
         
         // On first load, expand only the first group
@@ -457,15 +509,18 @@ export class BenchmarkPanel {
         const peakRam = record.memory?.peak_ram_mb;
         const peakVram = record.memory?.peak_vram_mb;
         
+        // Only show checkbox for records from this server
+        const canDelete = record.server_hash === this.serverHash;
+        
         return `
             <tr class="benchmark-record ${isSelected ? 'selected' : ''}" 
                 data-id="${record.id}" 
                 data-group-hash="${groupHash}">
                 <td>
-                    ${record.server_hash === this.serverHash 
+                    ${canDelete 
                         ? `<input type="checkbox" class="benchmark-checkbox" 
-                            data-id="${record.id}" 
-                            ${isSelected ? 'checked' : ''}>`
+                               data-id="${record.id}" 
+                               ${isSelected ? 'checked' : ''}>`
                         : ''}
                 </td>
                 <td class="benchmark-cell-model" title="${record.model_name}">${record.model_name}</td>
