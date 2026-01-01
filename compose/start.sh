@@ -1,27 +1,23 @@
 #!/bin/bash
+set -e
 
-# Create the network if it doesn't exist
+# -------------------------------------------------
+# Ensure network exists
+# -------------------------------------------------
 if ! docker network inspect femulator_network >/dev/null 2>&1; then
-    echo "Creating femulator_network..."
-    if ! docker network create femulator_network; then
-        echo "ERROR: Failed to create femulator_network."
-        exit 1
-    fi
+	echo "Creating femulator_network..."
+	docker network create femulator_network
 fi
 
-# Check if nvidia-smi is available on the host
-if command -v nvidia-smi &> /dev/null; then
-    echo "GPU detected. Starting container with GPU support."
-    if ! docker compose -f docker-compose.gpu.yml up -d; then
-        echo "ERROR: Failed to start container with GPU support."
-        exit 1
-    fi
+# -------------------------------------------------
+# Detect usable NVIDIA GPU via Docker (authoritative)
+# -------------------------------------------------
+if docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi >/dev/null 2>&1; then
+	echo "Usable NVIDIA GPU detected. Starting with GPU support."
+	docker compose -f docker-compose-gpu.yml up -d
 else
-    echo "No GPU detected. Starting container without GPU support."
-    if ! docker compose -f docker-compose.cpu.yml up -d; then
-        echo "ERROR: Failed to start container without GPU support."
-        exit 1
-    fi
+	echo "No usable NVIDIA GPU detected. Starting without GPU support."
+	docker compose -f docker-compose-cpu.yml up -d
 fi
 
 echo "Containers started successfully."
