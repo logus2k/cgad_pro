@@ -1,48 +1,23 @@
 #!/bin/bash
+set -e
 
-# Function to stop containers, remove image, and rebuild
-rebuild_image() {
-    local image_name="$1"
-    local dockerfile="$2"
+echo "[$(date +%H:%M:%S)] FEMULATOR – FULL CLEAN REBUILD"
 
-    echo "Checking image: $image_name"
+# Stop containers
+./stop.sh
 
-    # Check if the image exists
-    if docker image inspect "$image_name" >/dev/null 2>&1; then
-        echo "Image '$image_name' exists. Proceeding to stop containers and remove the image."
+# Remove containers
+docker ps -aq --filter "name=femulator" | xargs -r docker rm -f
 
-        # Stop containers using the stop.sh script
-        if ! ./stop.sh; then
-            echo "ERROR: Failed to stop containers."
-            exit 1
-        fi
+# Remove images if they exist
+docker image inspect femulator.server:1.0 >/dev/null 2>&1 && docker rmi -f femulator.server:1.0 || true
+docker image inspect femulator:1.0        >/dev/null 2>&1 && docker rmi -f femulator:1.0        || true
 
-        # Remove the image
-        if ! docker rmi "$image_name"; then
-            echo "ERROR: Failed to remove image '$image_name'."
-            exit 1
-        fi
-        echo "Image '$image_name' removed."
+# Optional cleanup
+docker image prune -f >/dev/null
 
-        # Rebuild the image
-        echo "Rebuilding image '$image_name'..."
-        if ! docker build --no-cache -t "$image_name" -f "$dockerfile" ..; then
-            echo "ERROR: Failed to rebuild image '$image_name'."
-            exit 1
-        fi
-        echo "Image '$image_name' rebuilt."
-    else
-        echo "Image '$image_name' does not exist. Building it now..."
-        if ! docker build --no-cache -t "$image_name" -f "$dockerfile" ..; then
-            echo "ERROR: Failed to build image '$image_name'."
-            exit 1
-        fi
-        echo "Image '$image_name' built."
-    fi
-}
+# Rebuild images (hard rebuild)
+docker build --no-cache -t femulator.server:1.0 -f femulator.server.Dockerfile ..
+docker build --no-cache -t femulator:1.0        -f femulator.Dockerfile        ..
 
-# Rebuild each image
-rebuild_image "femulator.server:1.0" "femulator.server.Dockerfile"
-rebuild_image "femulator:1.0" "femulator.Dockerfile"
-
-echo "Rebuild complete. Run './start.sh' to start the containers."
+echo "[$(date +%H:%M:%S)] Rebuild complete. Run ./start.sh"

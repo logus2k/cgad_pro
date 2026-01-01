@@ -1,26 +1,10 @@
 #!/bin/bash
+set -e
 
-# Stop the Docker Compose service
-echo "Stopping the FEMulator Pro application..."
-docker compose down
+echo "[$(date +%H:%M:%S)] Stopping FEMulator containers..."
 
-# Check the exit status of the command
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to stop the FEMulator Pro application."
-    exit 1
-fi
+# Stop regardless of CPU/GPU mode
+docker compose -f docker-compose-gpu.yml down >/dev/null 2>&1 || true
+docker compose -f docker-compose-cpu.yml down >/dev/null 2>&1 || true
 
-# Check if the container is still running
-if docker compose ps | grep -q "femulator"; then
-    echo "WARNING: The FEMulator Pro container is still running. Attempt to stop it manually or check logs."
-    exit 1
-fi
-
-# Verify if the container exists at all (running or stopped)
-if ! docker compose ps -a | grep -q "femulator"; then
-    echo "The FEMulator Pro application is not running."
-else
-    echo "The FEMulator Pro container was not running, but it has been removed."
-fi
-
-echo "Execute ./start.sh when you wish to launch the application."
+echo "[$(date +%H:%M:%S)] Containers stopped."
