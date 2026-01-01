@@ -30,6 +30,7 @@ export class BenchmarkPanel {
         this.filterSolver = '';
         this.filterModel = '';
         this.serverConfig = null;
+        this.serverHash = null;
         
         // Track expanded/collapsed state per server_hash
         this.expandedGroups = new Set();
@@ -167,6 +168,7 @@ export class BenchmarkPanel {
             if (summaryResponse.ok) {
                 const summary = await summaryResponse.json();
                 this.serverConfig = summary.server_config;
+                this.serverHash = summary.server_hash;  // ADD THIS LINE
                 this.updateSummary(summary);
                 this.updateFilters(summary);
             }
@@ -460,9 +462,11 @@ export class BenchmarkPanel {
                 data-id="${record.id}" 
                 data-group-hash="${groupHash}">
                 <td>
-                    <input type="checkbox" class="benchmark-checkbox" 
-                           data-id="${record.id}" 
-                           ${isSelected ? 'checked' : ''}>
+                    ${record.server_hash === this.serverHash 
+                        ? `<input type="checkbox" class="benchmark-checkbox" 
+                            data-id="${record.id}" 
+                            ${isSelected ? 'checked' : ''}>`
+                        : ''}
                 </td>
                 <td class="benchmark-cell-model" title="${record.model_name}">${record.model_name}</td>
                 <td class="benchmark-cell-solver">
