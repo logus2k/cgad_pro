@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# List of images to check and rebuild
-IMAGES=("femulator.server:1.0" "femulator:1.0")
-
 # Function to stop containers, remove image, and rebuild
 rebuild_image() {
     local image_name="$1"
@@ -15,19 +12,31 @@ rebuild_image() {
         echo "Image '$image_name' exists. Proceeding to stop containers and remove the image."
 
         # Stop containers using the stop.sh script
-        ./stop.sh
+        if ! ./stop.sh; then
+            echo "ERROR: Failed to stop containers."
+            exit 1
+        fi
 
         # Remove the image
-        docker rmi "$image_name"
+        if ! docker rmi "$image_name"; then
+            echo "ERROR: Failed to remove image '$image_name'."
+            exit 1
+        fi
         echo "Image '$image_name' removed."
 
         # Rebuild the image
         echo "Rebuilding image '$image_name'..."
-        docker build --no-cache -t "$image_name" -f "$dockerfile" ..
+        if ! docker build --no-cache -t "$image_name" -f "$dockerfile" ..; then
+            echo "ERROR: Failed to rebuild image '$image_name'."
+            exit 1
+        fi
         echo "Image '$image_name' rebuilt."
     else
         echo "Image '$image_name' does not exist. Building it now..."
-        docker build --no-cache -t "$image_name" -f "$dockerfile" ..
+        if ! docker build --no-cache -t "$image_name" -f "$dockerfile" ..; then
+            echo "ERROR: Failed to build image '$image_name'."
+            exit 1
+        fi
         echo "Image '$image_name' built."
     fi
 }

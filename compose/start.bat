@@ -1,22 +1,19 @@
 @echo off
+setlocal
 
-:: Run the Docker Compose command
-docker compose up -d femulator
+:: Create the network if it doesn't exist
+docker network inspect femulator_network >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo Creating femulator_network...
+    docker network create femulator_network
+)
 
-:: Check the exit status of the command
+:: Check if nvidia-smi is available on the host
+where nvidia-smi >nul 2>&1
 if %ERRORLEVEL% equ 0 (
-    echo The FEMulator Pro application was successfully STARTED.
-
-    :: Verify if the container is running
-    docker ps | findstr "femulator" >nul
-    if %ERRORLEVEL% equ 0 (
-        echo You can now access it at http://localhost:5867 using a browser.
-        echo Run stop.bat when you wish to stop the application.
-    ) else (
-        echo WARNING: The container is not running.
-        exit /b 1
-    )
+    echo GPU detected. Starting container with GPU support.
+    docker compose -f docker-compose-gpu.yml up -d
 ) else (
-    echo ERROR: The container launch command failed.
-    exit /b 1
+    echo No GPU detected. Starting container without GPU support.
+    docker compose -f docker-compose-cpu.yml up -d
 )
