@@ -160,6 +160,7 @@ class MeshGallery {
             
             if (solverSelect) {
                 solverSelect.addEventListener('click', (e) => e.stopPropagation());
+                solverSelect.addEventListener('change', () => this.selectItem(index));
             }
             
             item.addEventListener('click', () => this.selectItem(index));
@@ -171,6 +172,9 @@ class MeshGallery {
      * Handle mesh dropdown change - update complexity badge and trigger preload
      */
     onMeshSelectionChange(modelIndex, meshIndexStr) {
+
+        this.selectItem(modelIndex);
+
         const meshIndex = parseInt(meshIndexStr, 10);
         const model = this.models[modelIndex];
         const mesh = model?.meshes[meshIndex];
