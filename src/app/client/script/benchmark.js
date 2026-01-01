@@ -18,7 +18,7 @@ export class BenchmarkPanel {
         
         this.options = {
             apiBase: options.apiBase || '',
-            pollInterval: options.pollInterval || 30000, // 30 seconds
+            pollInterval: options.pollInterval || 5000, // 5 seconds
             autoRefresh: options.autoRefresh !== false,
             ...options
         };
@@ -30,6 +30,7 @@ export class BenchmarkPanel {
         this.filterSolver = '';
         this.filterModel = '';
         this.serverConfig = null;
+        this.serverHash = null;
         
         // Track expanded/collapsed state per server_hash
         this.expandedGroups = new Set();
@@ -152,6 +153,10 @@ export class BenchmarkPanel {
     
     async fetchData() {
         try {
+            // First, trigger backend to reload files from disk
+            await fetch(`${this.options.apiBase}/api/benchmark/refresh`, { method: 'POST' });
+            
+            // Then fetch the updated records
             const response = await fetch(`${this.options.apiBase}/api/benchmark?sort_by=${this.sortColumn}&sort_order=${this.sortOrder}`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
@@ -163,6 +168,7 @@ export class BenchmarkPanel {
             if (summaryResponse.ok) {
                 const summary = await summaryResponse.json();
                 this.serverConfig = summary.server_config;
+                this.serverHash = summary.server_hash;  // ADD THIS LINE
                 this.updateSummary(summary);
                 this.updateFilters(summary);
             }
@@ -456,9 +462,11 @@ export class BenchmarkPanel {
                 data-id="${record.id}" 
                 data-group-hash="${groupHash}">
                 <td>
-                    <input type="checkbox" class="benchmark-checkbox" 
-                           data-id="${record.id}" 
-                           ${isSelected ? 'checked' : ''}>
+                    ${record.server_hash === this.serverHash 
+                        ? `<input type="checkbox" class="benchmark-checkbox" 
+                            data-id="${record.id}" 
+                            ${isSelected ? 'checked' : ''}>`
+                        : ''}
                 </td>
                 <td class="benchmark-cell-model" title="${record.model_name}">${record.model_name}</td>
                 <td class="benchmark-cell-solver">
