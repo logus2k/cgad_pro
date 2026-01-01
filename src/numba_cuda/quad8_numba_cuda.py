@@ -624,7 +624,11 @@ class Quad8FEMSolverNumbaCUDA:
         if info == 0:
             residual = cp.linalg.norm(Kg_gpu @ u_gpu - fg_gpu)
             rel_residual = residual / cp.linalg.norm(fg_gpu)
-            
+
+            # Store for results
+            self.final_residual = float(residual)
+            self.relative_residual = float(rel_residual)
+           
             if self.verbose:
                 print(f"\n✓ {solver_name} converged in {self.iterations} iterations")
                 print(f"  True residual norm:     {float(residual):.3e}")
@@ -636,6 +640,8 @@ class Quad8FEMSolverNumbaCUDA:
             if self.verbose:
                 print(f"\n✗ {solver_name} did not converge (info={info})")
             self.converged = False
+            self.final_residual = None
+            self.relative_residual = None
         
         # Keep solution on GPU for post-processing, also store CPU copy
         self.u_gpu = u_gpu
@@ -791,12 +797,23 @@ class Quad8FEMSolverNumbaCUDA:
             'solution_stats': {
                 'u_range': [float(self.u.min()), float(self.u.max())],
                 'u_mean': float(self.u.mean()),
-                'u_std': float(self.u.std())
+                'u_std': float(self.u.std()),
+                'final_residual': self.final_residual,
+                'relative_residual': self.relative_residual,
             },
             'mesh_info': {
                 'nodes': self.Nnds,
-                'elements': self.Nels
-            }
+                'elements': self.Nels,
+                'matrix_nnz': int(self.Kg.nnz),  # CuPy sparse may return cp.int
+                'element_type': 'quad8',
+                'nodes_per_element': 8,
+            },
+            'solver_config': {
+                'linear_solver': 'cg',
+                'tolerance': 1e-8,
+                'max_iterations': self.maxiter,
+                'preconditioner': 'jacobi',
+            },
         }
         
         if self.verbose:

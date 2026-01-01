@@ -882,6 +882,10 @@ class Quad8FEMSolverGPU:
 			# Verify true residual
 			residual = cp.linalg.norm(self.Kg @ self.u - self.fg)
 			rel_residual = residual / cp.linalg.norm(self.fg)
+
+			# Store for results
+			self.final_residual = float(residual.get())
+			self.relative_residual = float(rel_residual.get())			
 			
 			if self.verbose:
 				print(f"\n✓ {solver_name} converged in {self.iterations} iterations")
@@ -894,6 +898,8 @@ class Quad8FEMSolverGPU:
 			if self.verbose:
 				print(f"\n✗ {solver_name} did not converge (info={info})")
 			self.converged = False
+			self.final_residual = None
+			self.relative_residual = None
 
 	# ----------------
 	# Post-processing 
@@ -1077,12 +1083,23 @@ class Quad8FEMSolverGPU:
 			'solution_stats': {
 				'u_range': [float(self.u.min()), float(self.u.max())],
 				'u_mean': float(self.u.mean()),
-				'u_std': float(self.u.std())
+				'u_std': float(self.u.std()),
+				'final_residual': self.final_residual,
+				'relative_residual': self.relative_residual,
 			},
 			'mesh_info': {
 				'nodes': self.Nnds,
-				'elements': self.Nels
-			}
+				'elements': self.Nels,
+				'matrix_nnz': int(self.Kg.nnz),
+				'element_type': 'quad8',
+				'nodes_per_element': 8,
+			},
+			'solver_config': {
+				'linear_solver': 'cg',
+				'tolerance': 1e-8,
+				'max_iterations': self.maxiter,
+				'preconditioner': 'jacobi',
+			},
 		}
 		
 		# Add derived fields if computed

@@ -444,6 +444,10 @@ class Quad8FEMSolver:
         true_residual = np.linalg.norm(r)
         true_relative_residual = true_residual / initial_residual_norm
 
+        # Store for results
+        self.final_residual = float(true_residual)
+        self.relative_residual = float(true_relative_residual)        
+
         # STOP TIMER and store metric
         solve_end_time = time.perf_counter()
         total_solve_time = solve_end_time - solve_start_time
@@ -693,12 +697,23 @@ class Quad8FEMSolver:
             'solution_stats': {
                 'u_range': [float(self.u.min()), float(self.u.max())],
                 'u_mean': float(self.u.mean()),
-                'u_std': float(self.u.std())
+                'u_std': float(self.u.std()),
+                'final_residual': self.final_residual,
+                'relative_residual': self.relative_residual,
             },
             'mesh_info': {
                 'nodes': self.Nnds,
-                'elements': self.Nels
-            }
+                'elements': self.Nels,
+                'matrix_nnz': self.Kg.nnz,
+                'element_type': 'quad8',
+                'nodes_per_element': 8,
+            },
+            'solver_config': {
+                'linear_solver': 'cg',
+                'tolerance': 1e-8,
+                'max_iterations': self.maxiter,
+                'preconditioner': 'jacobi',
+            },
         }
         
         # --- Emit Final Completion Event ---

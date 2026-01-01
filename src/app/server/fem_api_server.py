@@ -25,7 +25,7 @@ CLIENT_DIR = PROJECT_ROOT / "app" / "client"
 BENCHMARK_DIR = PROJECT_ROOT / "app" / "server" / "benchmark"
 
 # Gallery file for model name lookup
-GALLERY_FILE = CLIENT_DIR / "gallery_files.json"
+GALLERY_FILE = CLIENT_DIR / "config" / "gallery_files.json"
 
 import asyncio
 import uuid
@@ -73,7 +73,7 @@ app.add_middleware(
 benchmark_service, benchmark_handler = init_benchmark_service(BENCHMARK_DIR, GALLERY_FILE)
 
 # Add benchmark API routes
-benchmark_router = create_benchmark_router(benchmark_service)
+benchmark_router = create_benchmark_router(benchmark_service, GALLERY_FILE)
 app.include_router(benchmark_router)
 
 # ============================================================================

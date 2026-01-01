@@ -102,6 +102,14 @@ export class BenchmarkPanel {
             </div>
             
             <div class="benchmark-footer">
+                <div class="benchmark-footer-left">
+                    <select class="benchmark-filter" id="benchmark-report-section">
+                        <option value="">Select Report...</option>
+                    </select>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn" disabled>
+                        View Report
+                    </button>
+                </div>
                 <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">
                     Close
                 </button>
@@ -129,6 +137,30 @@ export class BenchmarkPanel {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closePanel());
         }
+
+        // Report section dropdown
+        const reportSection = this.container.querySelector('#benchmark-report-section');
+        const viewReportBtn = this.container.querySelector('#benchmark-view-report-btn');
+
+        if (reportSection) {
+            // Load available sections
+            this.loadReportSections();
+            
+            reportSection.addEventListener('change', (e) => {
+                if (viewReportBtn) {
+                    viewReportBtn.disabled = !e.target.value;
+                }
+            });
+        }
+
+        if (viewReportBtn) {
+            viewReportBtn.addEventListener('click', () => {
+                const sectionId = reportSection?.value;
+                if (sectionId) {
+                    this.openReportViewer(sectionId);
+                }
+            });
+        }        
         
         // Solver filter
         const solverFilter = this.container.querySelector('#benchmark-filter-solver');
@@ -818,9 +850,47 @@ export class BenchmarkPanel {
         
         return gpuModel;
     }
+
+    async loadReportSections() {
+        try {
+            const response = await fetch(`${this.options.apiBase}/api/benchmark/report/sections`);
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            const select = this.container.querySelector('#benchmark-report-section');
+            
+            if (select && data.sections) {
+                select.innerHTML = '<option value="">Select Report...</option>';
+                data.sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.id;
+                    option.textContent = section.title;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('[Benchmark] Failed to load report sections:', error);
+        }
+    }
+
+    openReportViewer(sectionId) {
+        // Use global ReportViewerPanel if available
+        if (window.ReportViewerPanel) {
+            const panel = new window.ReportViewerPanel(sectionId, {
+                apiBase: this.options.apiBase,
+                filters: {
+                    solver_type: this.filterSolver || null,
+                    model_name: this.filterModel || null,
+                    server_hash: this.filterServer || null
+                }
+            });
+            panel.open();
+        } else {
+            console.error('[Benchmark] ReportViewerPanel not available');
+        }
+    }  
     
     // Polling
-    
     startPolling() {
         this.stopPolling();
         this.pollTimer = setInterval(() => this.fetchData(), this.options.pollInterval);
