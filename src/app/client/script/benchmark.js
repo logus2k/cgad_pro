@@ -18,7 +18,7 @@ export class BenchmarkPanel {
         
         this.options = {
             apiBase: options.apiBase || '',
-            pollInterval: options.pollInterval || 30000, // 30 seconds
+            pollInterval: options.pollInterval || 5000, // 5 seconds
             autoRefresh: options.autoRefresh !== false,
             ...options
         };
@@ -152,6 +152,10 @@ export class BenchmarkPanel {
     
     async fetchData() {
         try {
+            // First, trigger backend to reload files from disk
+            await fetch(`${this.options.apiBase}/api/benchmark/refresh`, { method: 'POST' });
+            
+            // Then fetch the updated records
             const response = await fetch(`${this.options.apiBase}/api/benchmark?sort_by=${this.sortColumn}&sort_order=${this.sortOrder}`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
