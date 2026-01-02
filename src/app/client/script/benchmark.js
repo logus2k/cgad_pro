@@ -104,15 +104,10 @@ export class BenchmarkPanel {
             <div class="benchmark-footer">
                 <div class="benchmark-footer-left">
                     <select class="benchmark-filter" id="benchmark-report-section">
-                        <option value="">Select Report...</option>
                     </select>
-                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn" disabled>
-                        View Report
-                    </button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn">View</button>
                 </div>
-                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">
-                    Close
-                </button>
+                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
             </div>
         `;
         
@@ -860,7 +855,7 @@ export class BenchmarkPanel {
             const select = this.container.querySelector('#benchmark-report-section');
             
             if (select && data.sections) {
-                select.innerHTML = '<option value="">Select Report...</option>';
+                // select.innerHTML = '<option value="">Select Report...</option>';
                 data.sections.forEach(section => {
                     const option = document.createElement('option');
                     option.value = section.id;

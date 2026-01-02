@@ -18,14 +18,14 @@ from dataclasses import dataclass
 # =============================================================================
 
 REPORT_SECTIONS = [
-    {"id": "executive_summary", "title": "Mesh Gallery"},
-    {"id": "test_configuration", "title": "Testing Configuration"},
+    {"id": "executive_summary", "title": "Mesh Performance"},
+    {"id": "test_configuration", "title": "Testing Environment"},
     {"id": "results_total_time", "title": "Timing Totals"},
     {"id": "results_stage_breakdown", "title": "Stage Breakdown"},
     {"id": "scaling_analysis", "title": "Scaling Analysis"},
     {"id": "convergence", "title": "Convergence Verification"},
     {"id": "efficiency_metrics", "title": "Efficiency Metrics"},
-    {"id": "reproducibility", "title": "Reproducibility"},
+    {"id": "reproducibility", "title": "Testing Reproducibility"},
     {"id": "analysis", "title": "Critical Analysis"},
     {"id": "conclusions", "title": "Conclusions"},
 ]

@@ -247,7 +247,8 @@ export class ReportViewerPanel {
             });
         
         this.moveable.updateRect();
-        this.applyControlStyles();        
+        this.applyControlStyles();
+        this.initOcclusionCheck();       
     }
 
     applyControlStyles() {
@@ -353,9 +354,60 @@ export class ReportViewerPanel {
         }).catch(err => {
             console.error('[ReportViewer] Failed to copy:', err);
         });
+    } 
+    
+    initOcclusionCheck() {
+        // Store the handler so we can remove it on close
+        this.occlusionHandler = (e) => {
+            if (!this.moveable || !this.panel) return;
+            
+            const controlBox = this.moveable.selfElement;
+            if (!controlBox) return;
+            
+            const isOccluded = this.isOccludedByHigherPanel(e.clientX, e.clientY);
+            
+            controlBox.querySelectorAll('.moveable-control').forEach(ctrl => {
+                if (isOccluded) {
+                    ctrl.style.pointerEvents = 'none';
+                    ctrl.style.cursor = 'default';
+                } else {
+                    ctrl.style.pointerEvents = '';
+                    ctrl.style.cursor = '';
+                }
+            });
+        };
+        
+        document.addEventListener('mousemove', this.occlusionHandler);
+    }
+
+    isOccludedByHigherPanel(clientX, clientY) {
+        if (!this.panel) return false;
+        
+        const panelZ = parseInt(this.panel.style.zIndex) || 0;
+        const elements = document.elementsFromPoint(clientX, clientY);
+        
+        for (const el of elements) {
+            // If we hit our panel first, we're not occluded
+            if (el === this.panel) return false;
+            
+            // Check if this is another panel with higher z-index
+            if (el.classList.contains('hud') && el !== this.panel) {
+                const elZ = parseInt(el.style.zIndex) || 0;
+                if (elZ > panelZ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }    
     
     close() {
+        // Remove occlusion handler
+        if (this.occlusionHandler) {
+            document.removeEventListener('mousemove', this.occlusionHandler);
+            this.occlusionHandler = null;
+        }
+        
         // Destroy moveable
         if (this.moveable) {
             this.moveable.destroy();

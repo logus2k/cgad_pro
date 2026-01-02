@@ -156,7 +156,7 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 .benchmark-btn-close {
     background: #0f9ce2;
     color: #fff;
-    padding: 6px 20px;
+    padding: 4px 12px;
     font-size: 0.8rem;
 }
 
