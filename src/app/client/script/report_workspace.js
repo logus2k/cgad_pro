@@ -2,7 +2,7 @@
  * Report Workspace Panel
  * 
  * A panel with TOC sidebar, live preview, and markdown editor modes.
- * Supports undocking the editor to a separate panel.
+ * Supports multiple documents with sections, and undocking the editor.
  * 
  * Location: /src/app/client/script/report_workspace.js
  */
@@ -25,8 +25,9 @@ export class ReportWorkspace {
         
         // State
         this.mode = 'preview'; // 'preview' or 'editor'
-        this.currentSection = 'all';
-        this.sections = [];
+        this.currentDocument = null;
+        this.currentSection = null; // null means "all sections"
+        this.documents = [];
         this.content = '';
         this.editable = false;
         this.isDirty = false;
@@ -43,8 +44,7 @@ export class ReportWorkspace {
     async init() {
         this.render();
         this.bindEvents();
-        await this.loadSections();
-        await this.loadContent();
+        await this.loadDocuments();
     }
     
     render() {
@@ -52,11 +52,11 @@ export class ReportWorkspace {
             <div class="report-workspace-header">
                 <div class="report-workspace-controls">
                     <select class="report-section-select" id="report-section-select">
-                        <option value="all">All Sections</option>
+                        <option value="">Select a document...</option>
                     </select>
                 </div>
                 <div class="report-workspace-actions">
-                    <button class="report-btn report-btn-edit" id="report-btn-edit">Edit</button>
+                    <button class="report-btn report-btn-edit" id="report-btn-edit" style="display:none;">Edit</button>
                     <button class="report-btn report-btn-preview" id="report-btn-preview" style="display:none;">Preview</button>
                     <button class="report-btn report-btn-undock" id="report-btn-undock" style="display:none;">Undock</button>
                     <button class="report-btn report-btn-save" id="report-btn-save" style="display:none;">Save</button>
@@ -64,14 +64,12 @@ export class ReportWorkspace {
             </div>
             <div class="report-workspace-body">
                 <div class="report-toc-sidebar">
-                    <div class="report-toc-header">Table of Contents</div>
-                    <div class="report-toc-filter">
-                        <input type="text" id="report-toc-filter" placeholder="Filter headings...">
-                    </div>
                     <div class="report-toc-tree" id="report-toc-tree"></div>
                 </div>
                 <div class="report-main-area">
-                    <div class="report-preview-area" id="report-preview-area"></div>
+                    <div class="report-preview-area" id="report-preview-area">
+                        <p class="report-placeholder">Select a document to view.</p>
+                    </div>
                     <div class="report-editor-area" id="report-editor-area" style="display:none;">
                         <textarea id="report-editor-textarea"></textarea>
                     </div>
@@ -88,13 +86,12 @@ export class ReportWorkspace {
         this.previewArea = this.container.querySelector('#report-preview-area');
         this.editorArea = this.container.querySelector('#report-editor-area');
         this.tocTree = this.container.querySelector('#report-toc-tree');
-        this.tocFilter = this.container.querySelector('#report-toc-filter');
     }
     
     bindEvents() {
         // Section selector
         this.sectionSelect.addEventListener('change', () => {
-            this.onSectionChange();
+            this.onSelectionChange();
         });
         
         // Edit button
@@ -116,16 +113,9 @@ export class ReportWorkspace {
         this.btnSave.addEventListener('click', () => {
             this.saveContent();
         });
-        
-        // TOC filter
-        this.tocFilter.addEventListener('input', (e) => {
-            if (this.treeInstance) {
-                this.treeInstance.filterNodes(e.target.value, { autoExpand: true });
-            }
-        });
     }
     
-    async loadSections() {
+    async loadDocuments() {
         try {
             const response = await fetch(`${this.options.apiBase}/api/report/sections`);
             const data = await response.json();
@@ -136,27 +126,53 @@ export class ReportWorkspace {
                 return;
             }
             
-            this.sections = data.sections || [];
+            this.documents = data.documents || [];
             
-            // Populate dropdown
-            this.sectionSelect.innerHTML = '<option value="all">All Sections</option>';
-            this.sections.forEach(section => {
-                const option = document.createElement('option');
-                option.value = section.id;
-                option.textContent = section.title;
-                this.sectionSelect.appendChild(option);
+            // Populate dropdown with optgroups
+            this.sectionSelect.innerHTML = '<option value="">Select a document...</option>';
+            
+            this.documents.forEach(doc => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = doc.title;
+                
+                // Add "All Sections" option for multi-section documents
+                if (doc.sections.length > 1) {
+                    const allOption = document.createElement('option');
+                    allOption.value = `${doc.id}:all`;
+                    allOption.textContent = 'All Sections';
+                    optgroup.appendChild(allOption);
+                }
+                
+                // Add individual sections
+                doc.sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = `${doc.id}:${section.id}`;
+                    option.textContent = section.title;
+                    optgroup.appendChild(option);
+                });
+                
+                this.sectionSelect.appendChild(optgroup);
             });
             
         } catch (error) {
-            console.error('[ReportWorkspace] Failed to load sections:', error);
-            this.previewArea.innerHTML = `<p class="report-error">Failed to load sections: ${error.message}</p>`;
+            console.error('[ReportWorkspace] Failed to load documents:', error);
+            this.previewArea.innerHTML = `<p class="report-error">Failed to load documents: ${error.message}</p>`;
         }
     }
     
     async loadContent() {
+        if (!this.currentDocument) {
+            this.previewArea.innerHTML = '<p class="report-placeholder">Select a document to view.</p>';
+            return;
+        }
+        
         try {
-            const sectionParam = this.currentSection === 'all' ? '' : `?section=${this.currentSection}`;
-            const response = await fetch(`${this.options.apiBase}/api/report/content${sectionParam}`);
+            let url = `${this.options.apiBase}/api/report/content?document=${this.currentDocument}`;
+            if (this.currentSection && this.currentSection !== 'all') {
+                url += `&section=${this.currentSection}`;
+            }
+            
+            const response = await fetch(url);
             const data = await response.json();
             
             this.content = data.content || '';
@@ -180,7 +196,7 @@ export class ReportWorkspace {
     }
     
     async saveContent() {
-        if (!this.editable || this.currentSection === 'all') {
+        if (!this.editable || !this.currentDocument || !this.currentSection || this.currentSection === 'all') {
             return;
         }
         
@@ -191,7 +207,7 @@ export class ReportWorkspace {
             this.btnSave.textContent = 'Saving...';
             
             const response = await fetch(
-                `${this.options.apiBase}/api/report/content?section=${this.currentSection}`,
+                `${this.options.apiBase}/api/report/content?document=${this.currentDocument}&section=${this.currentSection}`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -315,7 +331,7 @@ export class ReportWorkspace {
     }
     
     updateEditButton() {
-        if (this.editable && this.currentSection !== 'all') {
+        if (this.editable && this.currentSection && this.currentSection !== 'all') {
             this.btnEdit.style.display = '';
             this.btnEdit.disabled = false;
         } else {
@@ -323,8 +339,25 @@ export class ReportWorkspace {
         }
     }
     
-    onSectionChange() {
-        this.currentSection = this.sectionSelect.value;
+    onSelectionChange() {
+        const value = this.sectionSelect.value;
+        
+        if (!value) {
+            this.currentDocument = null;
+            this.currentSection = null;
+            this.previewArea.innerHTML = '<p class="report-placeholder">Select a document to view.</p>';
+            this.btnEdit.style.display = 'none';
+            // Clear TOC
+            if (this.treeInstance) {
+                this.treeInstance.load([]);
+            }
+            return;
+        }
+        
+        // Parse "document:section" value
+        const [docId, sectionId] = value.split(':');
+        this.currentDocument = docId;
+        this.currentSection = sectionId;
         
         // If in editor mode and switching to 'all', switch to preview
         if (this.mode === 'editor' && this.currentSection === 'all') {
@@ -335,7 +368,7 @@ export class ReportWorkspace {
     }
     
     enterEditMode() {
-        if (!this.editable || this.currentSection === 'all') {
+        if (!this.editable || !this.currentSection || this.currentSection === 'all') {
             return;
         }
         
@@ -433,16 +466,21 @@ export class ReportWorkspace {
     }
     
     undockEditor() {
-        if (!this.editable || this.currentSection === 'all') {
+        if (!this.editable || !this.currentDocument || !this.currentSection || this.currentSection === 'all') {
             return;
         }
         
         // Get current editor content
         const content = this.editorInstance ? this.editorInstance.value() : this.content;
-        const sectionTitle = this.sections.find(s => s.id === this.currentSection)?.title || 'Editor';
+        
+        // Find section title
+        const doc = this.documents.find(d => d.id === this.currentDocument);
+        const section = doc?.sections.find(s => s.id === this.currentSection);
+        const sectionTitle = section?.title || 'Editor';
         
         // Create undocked panel
         this.undockedPanel = new UndockedEditorPanel({
+            documentId: this.currentDocument,
             sectionId: this.currentSection,
             sectionTitle: sectionTitle,
             content: content,
@@ -464,7 +502,9 @@ export class ReportWorkspace {
     
     // Public API
     refresh() {
-        this.loadContent();
+        if (this.currentDocument) {
+            this.loadContent();
+        }
     }
     
     destroy() {
@@ -491,6 +531,7 @@ export class ReportWorkspace {
 class UndockedEditorPanel {
     
     constructor(options) {
+        this.documentId = options.documentId;
         this.sectionId = options.sectionId;
         this.sectionTitle = options.sectionTitle;
         this.content = options.content;
@@ -498,7 +539,7 @@ class UndockedEditorPanel {
         this.onCloseCallback = options.onClose;
         this.onSaveCallback = options.onSave;
         
-        this.panelId = `undocked-editor-${this.sectionId}`;
+        this.panelId = `undocked-editor-${this.documentId}-${this.sectionId}`;
         this.panel = null;
         this.editorInstance = null;
         this.moveable = null;
@@ -745,7 +786,7 @@ class UndockedEditorPanel {
             saveBtn.textContent = 'Saving...';
             
             const response = await fetch(
-                `${this.apiBase}/api/report/content?section=${this.sectionId}`,
+                `${this.apiBase}/api/report/content?document=${this.documentId}&section=${this.sectionId}`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },

@@ -4,7 +4,6 @@
 
 :root {
     --report-sidebar-width: 220px;
-    --report-header-height: 40px;
     --report-folder-gold: #d4a017;
     --report-folder-gold-light: #fcebb6;
 }
@@ -47,7 +46,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     background: #fff;
-    min-width: 180px;
+    min-width: 200px;
     cursor: pointer;
 }
 
@@ -59,6 +58,16 @@
     outline: none;
     border-color: var(--hud-accent, #2266ff);
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
+}
+
+.report-section-select optgroup {
+    font-weight: bold;
+    color: #333;
+}
+
+.report-section-select option {
+    font-weight: normal;
+    padding: 4px 8px;
 }
 
 /* Buttons */
@@ -132,41 +141,10 @@
     overflow: hidden;
 }
 
-.report-toc-header {
-    padding: 8px 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #666;
-    background: #eee;
-    border-bottom: 1px solid #ddd;
-    flex-shrink: 0;
-}
-
-.report-toc-filter {
-    padding: 8px;
-    flex-shrink: 0;
-}
-
-.report-toc-filter input {
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.report-toc-filter input:focus {
-    outline: none;
-    border-color: var(--hud-accent, #2266ff);
-}
-
 .report-toc-tree {
     flex: 1;
     overflow: auto;
-    padding: 0 5px 10px 5px;
+    padding: 10px 5px;
 }
 
 /* Wunderbaum tree customization */
@@ -344,6 +322,21 @@
     height: auto;
 }
 
+/* Placeholder and error messages */
+.report-placeholder {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 40px;
+}
+
+.report-error {
+    color: var(--hud-warm, #e63946);
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
 /* Editor area */
 .report-editor-area {
     flex: 1;
@@ -383,14 +376,6 @@
 
 .report-editor-area .EasyMDEContainer .editor-toolbar button.active {
     background: #dee2e6;
-}
-
-/* Error message */
-.report-error {
-    color: var(--hud-warm, #e63946);
-    padding: 20px;
-    text-align: center;
-    font-style: italic;
 }
 
 /* ==========================================================================
