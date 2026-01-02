@@ -20,11 +20,18 @@
 	<link rel="stylesheet" href="style/benchmark.css" />
 	<link rel="stylesheet" href="style/settings.css" />
 	<link rel="stylesheet" href="style/report.css" />
+	<link rel="stylesheet" href="style/report_workspace.css" />	
+    <link rel="stylesheet" href="style/wunderbaum.css">
+    <link rel="stylesheet" href="style/all.min.css">
+    <link rel="stylesheet" href="style/easymde.min.css">
+    <link rel="stylesheet" href="style/toc.css">	
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
 	<script type="text/javascript" src="./library/echarts.min.js"></script>
 	<script type="text/javascript" src="./library/marked.umd.js"></script>
+    <script type="text/javascript" src="./library/wunderbaum.umd.min.js"></script>
+    <script type="text/javascript" src="./library/easymde.min.js"></script>	
 </head>
 <body>
 	<div id="root">
@@ -134,23 +141,7 @@
 					<h1>REPORT</h1>
 					<div class="sep"></div>
 
-					<div class="report-workspace">
-						<div class="report-pane editor-pane">
-							<div class="pane-header">
-								<span>Editor</span>
-								<button class="btn-icon" onclick="clearReport()">Clear</button>
-							</div>
-							<textarea id="report-editor" placeholder="Start writing your report in Markdown..."></textarea>
-						</div>
-
-						<div class="report-pane preview-pane">
-							<div class="pane-header">
-								<span>Preview</span>
-								<button class="btn-icon" onclick="exportReport()">Export</button>
-							</div>
-							<div id="report-preview" class="markdown-body">
-								</div>
-						</div>
+					<div class="report-workspace-container">
 					</div>
 				</div>
 
@@ -246,5 +237,7 @@
 	<script type="module" src="./script/report.init.js"></script>
 	<script type="module" src="./script/report_viewer.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
+	<script type="module" src="./script/report_workspace.js"></script>
+	<script type="module" src="./script/report.init.js"></script>
 </body>
 </html>

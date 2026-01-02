@@ -1,0 +1,457 @@
+/* ==========================================================================
+   Report Workspace Styles
+   ========================================================================== */
+
+:root {
+    --report-sidebar-width: 220px;
+    --report-header-height: 40px;
+    --report-folder-gold: #d4a017;
+    --report-folder-gold-light: #fcebb6;
+}
+
+/* Main Container */
+.report-workspace-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Header with controls */
+.report-workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.report-workspace-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.report-workspace-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.report-section-select {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    min-width: 180px;
+    cursor: pointer;
+}
+
+.report-section-select:hover {
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.report-section-select:focus {
+    outline: none;
+    border-color: var(--hud-accent, #2266ff);
+    box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
+}
+
+/* Buttons */
+.report-btn {
+    padding: 5px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.report-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.report-btn-edit {
+    background: var(--hud-accent, #2266ff);
+    color: #fff;
+}
+
+.report-btn-edit:hover:not(:disabled) {
+    background: #1a55dd;
+}
+
+.report-btn-preview {
+    background: #28a745;
+    color: #fff;
+}
+
+.report-btn-preview:hover:not(:disabled) {
+    background: #218838;
+}
+
+.report-btn-undock {
+    background: #6c757d;
+    color: #fff;
+}
+
+.report-btn-undock:hover:not(:disabled) {
+    background: #5a6268;
+}
+
+.report-btn-save {
+    background: #fd7e14;
+    color: #fff;
+}
+
+.report-btn-save:hover:not(:disabled) {
+    background: #e76b00;
+}
+
+/* Body with sidebar and main area */
+.report-workspace-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* TOC Sidebar */
+.report-toc-sidebar {
+    width: var(--report-sidebar-width);
+    min-width: var(--report-sidebar-width);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ddd;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.report-toc-header {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
+}
+
+.report-toc-filter {
+    padding: 8px;
+    flex-shrink: 0;
+}
+
+.report-toc-filter input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.report-toc-filter input:focus {
+    outline: none;
+    border-color: var(--hud-accent, #2266ff);
+}
+
+.report-toc-tree {
+    flex: 1;
+    overflow: auto;
+    padding: 0 5px 10px 5px;
+}
+
+/* Wunderbaum tree customization */
+.report-toc-tree .wunderbaum {
+    height: 100%;
+    min-height: 4px;
+    background-color: transparent;
+    border: none;
+    font-size: 13px;
+}
+
+.report-toc-tree .wb-node-list.wb-connect-lines .wb-indent {
+    border-left: 1px solid #bdc3c7;
+}
+
+.report-toc-tree span.wb-node span.wb-title {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    padding-left: 3px;
+}
+
+.report-toc-tree span.wb-node i.wb-expander,
+.report-toc-tree span.wb-node i.wb-icon {
+    font-size: 10px;
+}
+
+/* Folder icons */
+.report-toc-tree .fa-folder,
+.report-toc-tree .fa-folder-open {
+    font-weight: 900;
+    font-size: 12px;
+    background: linear-gradient(180deg, var(--report-folder-gold-light) 0%, var(--report-folder-gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.5px var(--report-folder-gold);
+}
+
+.report-toc-tree .fa-file {
+    color: #7f8c8d;
+    font-weight: 400;
+}
+
+/* Main content area */
+.report-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Preview area */
+.report-preview-area {
+    flex: 1;
+    padding: 20px 30px;
+    overflow-y: auto;
+    background: #fff;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #333;
+}
+
+.report-preview-area h1 {
+    font-size: 1.6em;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    color: #333;
+}
+
+.report-preview-area h2 {
+    font-size: 1.35em;
+    margin: 25px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--hud-accent, #2266ff);
+}
+
+.report-preview-area h3 {
+    font-size: 1.15em;
+    margin: 20px 0 10px 0;
+    color: #444;
+}
+
+.report-preview-area h4 {
+    font-size: 1.05em;
+    margin: 15px 0 8px 0;
+    color: #555;
+}
+
+.report-preview-area p {
+    margin: 0 0 12px 0;
+}
+
+.report-preview-area ul,
+.report-preview-area ol {
+    margin: 0 0 12px 0;
+    padding-left: 25px;
+}
+
+.report-preview-area li {
+    margin-bottom: 5px;
+}
+
+.report-preview-area code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+}
+
+.report-preview-area pre {
+    background: #f5f5f5;
+    padding: 12px 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.85em;
+}
+
+.report-preview-area pre code {
+    background: none;
+    padding: 0;
+}
+
+.report-preview-area blockquote {
+    margin: 15px 0;
+    padding: 10px 20px;
+    border-left: 4px solid var(--hud-accent, #2266ff);
+    background: #f9f9f9;
+    color: #555;
+}
+
+.report-preview-area table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 13px;
+}
+
+.report-preview-area th,
+.report-preview-area td {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.report-preview-area th {
+    background: #ffedc9;
+    font-weight: 600;
+}
+
+.report-preview-area tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.report-preview-area hr {
+    border: none;
+    border-top: 2px solid #eee;
+    margin: 30px 0;
+}
+
+.report-preview-area a {
+    color: var(--hud-accent, #2266ff);
+    text-decoration: none;
+}
+
+.report-preview-area a:hover {
+    text-decoration: underline;
+}
+
+.report-preview-area img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Editor area */
+.report-editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.report-editor-area .EasyMDEContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.report-editor-area .EasyMDEContainer .CodeMirror {
+    flex: 1;
+    border: none;
+    border-top: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar {
+    border: none;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 5px 10px;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button {
+    color: #555;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button:hover {
+    background: #e9ecef;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button.active {
+    background: #dee2e6;
+}
+
+/* Error message */
+.report-error {
+    color: var(--hud-warm, #e63946);
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Undocked Editor Panel
+   ========================================================================== */
+
+.hud.undocked-editor {
+    min-width: 500px;
+    max-width: 1000px;
+    min-height: 400px;
+    max-height: 800px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff4e5c5;
+}
+
+.hud.undocked-editor:hover {
+    background-color: #fff4e5;
+}
+
+.undocked-editor-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.undocked-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.undocked-editor-container .EasyMDEContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.undocked-editor-container .EasyMDEContainer .CodeMirror {
+    flex: 1;
+    border: none;
+    font-size: 14px;
+}
+
+.undocked-editor-container .EasyMDEContainer .editor-toolbar {
+    border: none;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 5px 10px;
+}
+
+.undocked-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 15px;
+    border-top: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
