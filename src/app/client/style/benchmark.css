@@ -99,12 +99,12 @@
 }
 
 .benchmark-btn-secondary {
-    background: #666;
+    background: #0f9ce2;
     color: #fff;
 }
 
 .benchmark-btn-secondary:hover {
-    background: #555;
+    background: #2faae8;
 }
 
 .benchmark-btn:disabled {
@@ -121,6 +121,30 @@
     border-radius: 4px;
 }
 
+/* Width */
+div.benchmark-table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+div.benchmark-table-container::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+div.benchmark-table-container::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
+
 /* Footer with close button */
 .benchmark-footer {
     display: flex;
@@ -130,21 +154,20 @@
 }
 
 .benchmark-btn-close {
-    background: #495057;
+    background: #0f9ce2;
     color: #fff;
     padding: 6px 20px;
     font-size: 0.8rem;
 }
 
 .benchmark-btn-close:hover {
-    background: #343a40;
+    background: #2da8e6;
 }
 
 /* Table styles */
 .benchmark-table {
     width: calc(100% - 5px);
     border-collapse: collapse;
-    margin: 10px 0px;
     font-size: 12px;
     background-color: #ffffffcc;
 }
