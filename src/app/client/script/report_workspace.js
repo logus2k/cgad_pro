@@ -1,8 +1,8 @@
 /**
  * Report Workspace Panel
  * 
- * A panel with TOC sidebar, live preview, and markdown editor modes.
- * Supports multiple documents with sections, and undocking the editor.
+ * Simplified: each document is a single .md file.
+ * Tree shows documents with headers parsed from markdown.
  * 
  * Location: /src/app/client/script/report_workspace.js
  */
@@ -24,12 +24,10 @@ export class ReportWorkspace {
         };
         
         // State
-        this.mode = 'preview'; // 'preview' or 'editor'
-        this.currentDocument = null;
-        this.currentSection = null; // null means "all sections"
+        this.mode = 'preview';
         this.documents = [];
         this.content = '';
-        this.editable = false;
+        this.currentDocument = null;
         this.isDirty = false;
         
         // Components
@@ -45,23 +43,11 @@ export class ReportWorkspace {
         this.render();
         this.bindEvents();
         await this.loadDocuments();
+        this.buildDocumentTree();
     }
     
     render() {
         this.container.innerHTML = `
-            <div class="report-workspace-header">
-                <div class="report-workspace-controls">
-                    <select class="report-section-select" id="report-section-select">
-                        <option value="">Select a document...</option>
-                    </select>
-                </div>
-                <div class="report-workspace-actions">
-                    <button class="report-btn report-btn-edit" id="report-btn-edit" style="display:none;">Edit</button>
-                    <button class="report-btn report-btn-preview" id="report-btn-preview" style="display:none;">Preview</button>
-                    <button class="report-btn report-btn-undock" id="report-btn-undock" style="display:none;">Undock</button>
-                    <button class="report-btn report-btn-save" id="report-btn-save" style="display:none;">Save</button>
-                </div>
-            </div>
             <div class="report-workspace-body">
                 <div class="report-toc-sidebar">
                     <div class="report-toc-tree" id="report-toc-tree"></div>
@@ -75,10 +61,14 @@ export class ReportWorkspace {
                     </div>
                 </div>
             </div>
+            <div class="report-workspace-footer">
+                <button class="report-btn report-btn-edit" id="report-btn-edit" style="display:none;">Edit</button>
+                <button class="report-btn report-btn-preview" id="report-btn-preview" style="display:none;">Preview</button>
+                <button class="report-btn report-btn-undock" id="report-btn-undock" style="display:none;">Undock</button>
+                <button class="report-btn report-btn-save" id="report-btn-save" style="display:none;">Save</button>
+            </div>
         `;
         
-        // Cache DOM references
-        this.sectionSelect = this.container.querySelector('#report-section-select');
         this.btnEdit = this.container.querySelector('#report-btn-edit');
         this.btnPreview = this.container.querySelector('#report-btn-preview');
         this.btnUndock = this.container.querySelector('#report-btn-undock');
@@ -89,30 +79,10 @@ export class ReportWorkspace {
     }
     
     bindEvents() {
-        // Section selector
-        this.sectionSelect.addEventListener('change', () => {
-            this.onSelectionChange();
-        });
-        
-        // Edit button
-        this.btnEdit.addEventListener('click', () => {
-            this.enterEditMode();
-        });
-        
-        // Preview button
-        this.btnPreview.addEventListener('click', () => {
-            this.enterPreviewMode();
-        });
-        
-        // Undock button
-        this.btnUndock.addEventListener('click', () => {
-            this.undockEditor();
-        });
-        
-        // Save button
-        this.btnSave.addEventListener('click', () => {
-            this.saveContent();
-        });
+        this.btnEdit.addEventListener('click', () => this.enterEditMode());
+        this.btnPreview.addEventListener('click', () => this.enterPreviewMode());
+        this.btnUndock.addEventListener('click', () => this.undockEditor());
+        this.btnSave.addEventListener('click', () => this.saveContent());
     }
     
     async loadDocuments() {
@@ -127,78 +97,238 @@ export class ReportWorkspace {
             }
             
             this.documents = data.documents || [];
-            
-            // Populate dropdown with optgroups
-            this.sectionSelect.innerHTML = '<option value="">Select a document...</option>';
-            
-            this.documents.forEach(doc => {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = doc.title;
-                
-                // Add "All Sections" option for multi-section documents
-                if (doc.sections.length > 1) {
-                    const allOption = document.createElement('option');
-                    allOption.value = `${doc.id}:all`;
-                    allOption.textContent = 'All Sections';
-                    optgroup.appendChild(allOption);
-                }
-                
-                // Add individual sections
-                doc.sections.forEach(section => {
-                    const option = document.createElement('option');
-                    option.value = `${doc.id}:${section.id}`;
-                    option.textContent = section.title;
-                    optgroup.appendChild(option);
-                });
-                
-                this.sectionSelect.appendChild(optgroup);
-            });
-            
         } catch (error) {
             console.error('[ReportWorkspace] Failed to load documents:', error);
-            this.previewArea.innerHTML = `<p class="report-error">Failed to load documents: ${error.message}</p>`;
+            this.previewArea.innerHTML = `<p class="report-error">Failed to load: ${error.message}</p>`;
         }
     }
     
-    async loadContent() {
-        if (!this.currentDocument) {
-            this.previewArea.innerHTML = '<p class="report-placeholder">Select a document to view.</p>';
+    buildDocumentTree() {
+        const treeData = this.documents.map(doc => ({
+            title: doc.title,
+            key: doc.id,
+            expanded: false,
+            folder: true,
+            children: []
+        }));
+        
+        this.initTree(treeData);
+    }
+    
+    initTree(data) {
+        if (typeof mar10 === 'undefined' || typeof mar10.Wunderbaum === 'undefined') {
+            console.warn('[ReportWorkspace] Wunderbaum not loaded');
             return;
         }
         
-        try {
-            let url = `${this.options.apiBase}/api/report/content?document=${this.currentDocument}`;
-            if (this.currentSection && this.currentSection !== 'all') {
-                url += `&section=${this.currentSection}`;
+        this.treeInstance = new mar10.Wunderbaum({
+            element: this.tocTree,
+            source: data,
+            iconMap: {
+                folder: "fa-solid fa-folder",
+                folderOpen: "fa-solid fa-folder-open",
+                doc: "fa-solid fa-folder",
+                expanderExpanded: "fa-solid fa-chevron-down",
+                expanderCollapsed: "fa-solid fa-chevron-right",
+            },
+            header: false,
+            connectLines: true,
+            enhance: (e) => {
+                // Force folder icon if node has children
+                if (e.node.children && e.node.children.length > 0) {
+                    e.node.folder = true;
+                }
+            },
+            click: (e) => this.onTreeClick(e)
+        });
+    }
+    
+    async onTreeClick(e) {
+        const node = e.node;
+        const key = node.key;
+        
+        // Header - scroll to it
+        if (key.startsWith('header:')) {
+            const parts = key.split(':');
+            const docId = parts[1];
+            const index = parts[2];
+            
+            // If different document, load it first
+            if (docId !== this.currentDocument) {
+                const docNode = this.treeInstance.findKey(docId);
+                if (docNode) {
+                    await this.loadDocument(docId, docNode);
+                }
             }
             
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            this.content = data.content || '';
-            this.editable = data.editable || false;
-            
-            // Update UI based on editability
-            this.updateEditButton();
-            
-            // Render preview
-            this.renderPreview();
-            
-            // Update editor if in edit mode
-            if (this.mode === 'editor' && this.editorInstance) {
-                this.editorInstance.value(this.content);
+            // Scroll to the header
+            const target = document.getElementById(`report-heading-${index}`);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-            
-        } catch (error) {
-            console.error('[ReportWorkspace] Failed to load content:', error);
-            this.previewArea.innerHTML = `<p class="report-error">Failed to load content: ${error.message}</p>`;
+            return;
+        }
+        
+        // Document - load it
+        if (key !== this.currentDocument) {
+            await this.loadDocument(key, node);
         }
     }
     
-    async saveContent() {
-        if (!this.editable || !this.currentDocument || !this.currentSection || this.currentSection === 'all') {
-            return;
+    async loadDocument(documentId, node) {
+        this.currentDocument = documentId;
+        
+        try {
+            const url = `${this.options.apiBase}/api/report/content?document=${documentId}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            this.content = data.content || '';
+        } catch (error) {
+            console.error('[ReportWorkspace] Failed to load document:', error);
+            this.content = `*Error loading: ${error.message}*`;
         }
+        
+        this.renderPreview();
+        this.updateNodeHeaders(node);
+        this.showEditButton();
+    }
+    
+    renderPreview() {
+        let html = this.content;
+        if (window.marked) {
+            html = window.marked.parse(this.content);
+        }
+        
+        this.previewArea.innerHTML = html;
+        
+        const headers = this.previewArea.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headers.forEach((h, i) => {
+            h.id = `report-heading-${i}`;
+        });
+    }
+    
+    updateNodeHeaders(node) {
+        if (!node) return;
+        
+        const tempDiv = document.createElement('div');
+        if (window.marked) {
+            tempDiv.innerHTML = window.marked.parse(this.content);
+        }
+        
+        const headers = Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+        
+        // Build hierarchical tree structure based on header levels
+        const headerNodes = this.buildHeaderTree(headers);
+        
+        node.removeChildren();
+        if (headerNodes.length > 0) {
+            node.addChildren(headerNodes);
+            node.setExpanded(true);
+        }
+    }
+    
+    buildHeaderTree(headers) {
+        const root = [];
+        const stack = [{ level: 0, children: root }];
+        
+        headers.forEach((h, i) => {
+            const level = parseInt(h.tagName.substring(1));
+            const node = {
+                title: h.innerText,
+                key: `header:${this.currentDocument}:${i}`,
+                expanded: true,
+                children: []
+            };
+            
+            while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                stack.pop();
+            }
+            
+            stack[stack.length - 1].children.push(node);
+            stack.push({ level, children: node.children });
+        });
+        
+        return root;
+    }
+    
+    showEditButton() {
+        this.btnEdit.style.display = '';
+    }
+    
+    hideAllButtons() {
+        this.btnEdit.style.display = 'none';
+        this.btnPreview.style.display = 'none';
+        this.btnUndock.style.display = 'none';
+        this.btnSave.style.display = 'none';
+    }
+    
+    enterEditMode() {
+        if (!this.currentDocument) return;
+        
+        this.mode = 'editor';
+        this.previewArea.style.display = 'none';
+        this.editorArea.style.display = '';
+        
+        this.btnEdit.style.display = 'none';
+        this.btnPreview.style.display = '';
+        this.btnUndock.style.display = '';
+        this.btnSave.style.display = '';
+        
+        if (!this.editorInstance) {
+            this.initEditor();
+        }
+        
+        this.editorInstance.value(this.content);
+    }
+    
+    enterPreviewMode() {
+        this.mode = 'preview';
+        
+        if (this.editorInstance) {
+            this.content = this.editorInstance.value();
+        }
+        
+        this.editorArea.style.display = 'none';
+        this.previewArea.style.display = '';
+        
+        this.btnPreview.style.display = 'none';
+        this.btnUndock.style.display = 'none';
+        this.btnSave.style.display = 'none';
+        this.btnEdit.style.display = '';
+        
+        this.renderPreview();
+        
+        const activeNode = this.treeInstance?.getActiveNode();
+        if (activeNode && !activeNode.key.startsWith('header:')) {
+            this.updateNodeHeaders(activeNode);
+        }
+    }
+    
+    initEditor() {
+        const textarea = this.container.querySelector('#report-editor-textarea');
+        if (!textarea || typeof EasyMDE === 'undefined') return;
+        
+        this.editorInstance = new EasyMDE({
+            element: textarea,
+            autoDownloadFontAwesome: false,
+            spellChecker: false,
+            status: false,
+            toolbar: [
+                "bold", "italic", "strikethrough", "|",
+                "heading-1", "heading-2", "heading-3", "|",
+                "code", "quote", "unordered-list", "ordered-list", "|",
+                "link", "image", "|",
+                "guide"
+            ],
+        });
+        
+        this.editorInstance.codemirror.on("change", () => {
+            this.isDirty = true;
+        });
+    }
+    
+    async saveContent() {
+        if (!this.currentDocument) return;
         
         const content = this.editorInstance ? this.editorInstance.value() : this.content;
         
@@ -207,7 +337,7 @@ export class ReportWorkspace {
             this.btnSave.textContent = 'Saving...';
             
             const response = await fetch(
-                `${this.options.apiBase}/api/report/content?document=${this.currentDocument}&section=${this.currentSection}`,
+                `${this.options.apiBase}/api/report/content?document=${this.currentDocument}`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -226,14 +356,12 @@ export class ReportWorkspace {
                     this.btnSave.disabled = false;
                 }, 1500);
                 
-                // Also update undocked panel content if exists
                 if (this.undockedPanel) {
                     this.undockedPanel.setContent(content);
                 }
             } else {
                 throw new Error(result.error || 'Save failed');
             }
-            
         } catch (error) {
             console.error('[ReportWorkspace] Failed to save:', error);
             this.btnSave.textContent = 'Error!';
@@ -244,245 +372,16 @@ export class ReportWorkspace {
         }
     }
     
-    renderPreview() {
-        // Convert markdown to HTML
-        let html = this.content;
-        if (window.marked) {
-            html = window.marked.parse(this.content);
-        }
-        
-        this.previewArea.innerHTML = html;
-        
-        // Add IDs to headers for TOC navigation
-        const headers = this.previewArea.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        headers.forEach((h, i) => {
-            h.id = `report-heading-${i}`;
-        });
-        
-        // Build TOC tree
-        this.buildTocTree(headers);
-    }
-    
-    buildTocTree(headers) {
-        const treeData = this.headersToTreeData(headers);
-        
-        if (!this.treeInstance) {
-            this.initTree(treeData);
-        } else {
-            this.treeInstance.load(treeData);
-        }
-    }
-    
-    headersToTreeData(headers) {
-        const root = [];
-        const stack = [{ level: 0, children: root }];
-        
-        headers.forEach(h => {
-            const level = parseInt(h.tagName.substring(1));
-            const node = {
-                title: h.innerText,
-                key: h.id,
-                expanded: true,
-                children: []
-            };
-            
-            while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-                stack.pop();
-            }
-            
-            stack[stack.length - 1].children.push(node);
-            stack.push({ level, children: node.children });
-        });
-        
-        return root;
-    }
-    
-    initTree(data) {
-        if (typeof mar10 === 'undefined' || typeof mar10.Wunderbaum === 'undefined') {
-            console.warn('[ReportWorkspace] Wunderbaum not loaded');
-            return;
-        }
-        
-        this.treeInstance = new mar10.Wunderbaum({
-            element: this.tocTree,
-            source: data,
-            iconMap: {
-                folder: "fa-solid fa-folder",
-                folderOpen: "fa-solid fa-folder-open",
-                doc: "fa-regular fa-file",
-                expanderExpanded: "fa-solid fa-chevron-down",
-                expanderCollapsed: "fa-solid fa-chevron-right",
-            },
-            header: false,
-            connectLines: true,
-            fixedCol: false,
-            enhance: (e) => {
-                if (e.node.children && e.node.children.length > 0) {
-                    e.node.folder = true;
-                }
-            },
-            click: (e) => {
-                const target = document.getElementById(e.node.key);
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-        });
-    }
-    
-    updateEditButton() {
-        if (this.editable && this.currentSection && this.currentSection !== 'all') {
-            this.btnEdit.style.display = '';
-            this.btnEdit.disabled = false;
-        } else {
-            this.btnEdit.style.display = 'none';
-        }
-    }
-    
-    onSelectionChange() {
-        const value = this.sectionSelect.value;
-        
-        if (!value) {
-            this.currentDocument = null;
-            this.currentSection = null;
-            this.previewArea.innerHTML = '<p class="report-placeholder">Select a document to view.</p>';
-            this.btnEdit.style.display = 'none';
-            // Clear TOC
-            if (this.treeInstance) {
-                this.treeInstance.load([]);
-            }
-            return;
-        }
-        
-        // Parse "document:section" value
-        const [docId, sectionId] = value.split(':');
-        this.currentDocument = docId;
-        this.currentSection = sectionId;
-        
-        // If in editor mode and switching to 'all', switch to preview
-        if (this.mode === 'editor' && this.currentSection === 'all') {
-            this.enterPreviewMode();
-        }
-        
-        this.loadContent();
-    }
-    
-    enterEditMode() {
-        if (!this.editable || !this.currentSection || this.currentSection === 'all') {
-            return;
-        }
-        
-        this.mode = 'editor';
-        
-        // Hide preview, show editor
-        this.previewArea.style.display = 'none';
-        this.editorArea.style.display = '';
-        
-        // Update buttons
-        this.btnEdit.style.display = 'none';
-        this.btnPreview.style.display = '';
-        this.btnUndock.style.display = '';
-        this.btnSave.style.display = '';
-        
-        // Initialize EasyMDE if not already
-        if (!this.editorInstance) {
-            this.initEditor();
-        }
-        
-        // Set content
-        this.editorInstance.value(this.content);
-    }
-    
-    enterPreviewMode() {
-        this.mode = 'preview';
-        
-        // Sync content from editor
-        if (this.editorInstance) {
-            this.content = this.editorInstance.value();
-        }
-        
-        // Hide editor, show preview
-        this.editorArea.style.display = 'none';
-        this.previewArea.style.display = '';
-        
-        // Update buttons
-        this.btnPreview.style.display = 'none';
-        this.btnUndock.style.display = 'none';
-        this.btnSave.style.display = 'none';
-        this.updateEditButton();
-        
-        // Re-render preview with latest content
-        this.renderPreview();
-    }
-    
-    initEditor() {
-        const textarea = this.container.querySelector('#report-editor-textarea');
-        if (!textarea) return;
-        
-        if (typeof EasyMDE === 'undefined') {
-            console.warn('[ReportWorkspace] EasyMDE not loaded');
-            return;
-        }
-        
-        this.editorInstance = new EasyMDE({
-            element: textarea,
-            autoDownloadFontAwesome: false,
-            spellChecker: false,
-            status: false,
-            toolbar: [
-                "bold", "italic", "strikethrough", "|",
-                "heading-1", "heading-2", "heading-3", "|",
-                "code", "quote", "unordered-list", "ordered-list", "|",
-                "link", "image", "|",
-                "guide"
-            ],
-        });
-        
-        // Live update TOC on editor change
-        this.editorInstance.codemirror.on("change", () => {
-            this.isDirty = true;
-            this.updateTocFromEditor();
-        });
-    }
-    
-    updateTocFromEditor() {
-        if (!this.editorInstance) return;
-        
-        const markdown = this.editorInstance.value();
-        
-        // Parse markdown to HTML in a temp container
-        const tempDiv = document.createElement('div');
-        if (window.marked) {
-            tempDiv.innerHTML = window.marked.parse(markdown);
-        }
-        
-        // Get headers and build TOC
-        const headers = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        headers.forEach((h, i) => {
-            h.id = `report-heading-${i}`;
-        });
-        
-        this.buildTocTree(headers);
-    }
-    
     undockEditor() {
-        if (!this.editable || !this.currentDocument || !this.currentSection || this.currentSection === 'all') {
-            return;
-        }
+        if (!this.currentDocument) return;
         
-        // Get current editor content
         const content = this.editorInstance ? this.editorInstance.value() : this.content;
-        
-        // Find section title
         const doc = this.documents.find(d => d.id === this.currentDocument);
-        const section = doc?.sections.find(s => s.id === this.currentSection);
-        const sectionTitle = section?.title || 'Editor';
+        const title = doc?.title || 'Editor';
         
-        // Create undocked panel
         this.undockedPanel = new UndockedEditorPanel({
             documentId: this.currentDocument,
-            sectionId: this.currentSection,
-            sectionTitle: sectionTitle,
+            documentTitle: title,
             content: content,
             apiBase: this.options.apiBase,
             onClose: () => {
@@ -492,18 +391,21 @@ export class ReportWorkspace {
                 this.content = newContent;
                 if (this.mode === 'preview') {
                     this.renderPreview();
+                    const activeNode = this.treeInstance?.getActiveNode();
+                    if (activeNode && !activeNode.key.startsWith('header:')) {
+                        this.updateNodeHeaders(activeNode);
+                    }
                 }
             }
         });
         
-        // Switch main panel back to preview
         this.enterPreviewMode();
     }
     
-    // Public API
     refresh() {
         if (this.currentDocument) {
-            this.loadContent();
+            const activeNode = this.treeInstance?.getActiveNode();
+            this.loadDocument(this.currentDocument, activeNode);
         }
     }
     
@@ -511,9 +413,6 @@ export class ReportWorkspace {
         if (this.editorInstance) {
             this.editorInstance.toTextArea();
             this.editorInstance = null;
-        }
-        if (this.treeInstance) {
-            this.treeInstance = null;
         }
         if (this.undockedPanel) {
             this.undockedPanel.close();
@@ -523,23 +422,17 @@ export class ReportWorkspace {
 }
 
 
-/**
- * Undocked Editor Panel
- * 
- * A standalone floating panel with just the markdown editor and save button.
- */
 class UndockedEditorPanel {
     
     constructor(options) {
         this.documentId = options.documentId;
-        this.sectionId = options.sectionId;
-        this.sectionTitle = options.sectionTitle;
+        this.documentTitle = options.documentTitle;
         this.content = options.content;
         this.apiBase = options.apiBase || '';
         this.onCloseCallback = options.onClose;
         this.onSaveCallback = options.onSave;
         
-        this.panelId = `undocked-editor-${this.documentId}-${this.sectionId}`;
+        this.panelId = `undocked-editor-${this.documentId}`;
         this.panel = null;
         this.editorInstance = null;
         this.moveable = null;
@@ -549,22 +442,16 @@ class UndockedEditorPanel {
     }
     
     create() {
-        // Remove existing if any
         const existing = document.getElementById(this.panelId);
         if (existing) existing.remove();
         
-        // Create panel
         this.panel = document.createElement('div');
         this.panel.id = this.panelId;
         this.panel.className = 'hud undocked-editor';
-        this.panel.style.top = '100px';
-        this.panel.style.left = '200px';
-        this.panel.style.width = '700px';
-        this.panel.style.height = '500px';
-        this.panel.style.position = 'absolute';
+        this.panel.style.cssText = 'top:100px;left:200px;width:700px;height:500px;position:absolute;';
         
         this.panel.innerHTML = `
-            <h1>Editor: ${this.sectionTitle}</h1>
+            <h1>EDITOR - ${this.documentTitle}</h1>
             <button class="pm-close" title="Close">&times;</button>
             <div class="undocked-editor-body">
                 <div class="undocked-editor-container">
@@ -576,45 +463,29 @@ class UndockedEditorPanel {
             </div>
         `;
         
-        // Append to overlay
         const overlay = document.getElementById('overlay');
-        if (overlay) {
-            overlay.appendChild(this.panel);
-        } else {
-            document.body.appendChild(this.panel);
-        }
+        (overlay || document.body).appendChild(this.panel);
         
-        // Show panel
         this.panel.classList.add('visible');
         this.panel.style.zIndex = String(getTopZ());
         
-        // Bind events
         this.bindEvents();
-        
-        // Initialize editor
         this.initEditor();
-        
-        // Initialize moveable
         this.initMoveable();
     }
     
     bindEvents() {
-        // Close button
-        const closeBtn = this.panel.querySelector('.pm-close');
-        closeBtn.addEventListener('click', (e) => {
+        this.panel.querySelector('.pm-close').addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.close();
         });
         
-        // Save button
-        const saveBtn = this.panel.querySelector(`#${this.panelId}-save`);
-        saveBtn.addEventListener('click', () => this.save());
+        this.panel.querySelector(`#${this.panelId}-save`).addEventListener('click', () => this.save());
         
-        // Bring to front on click
         this.panel.addEventListener('mousedown', () => {
             this.panel.style.zIndex = String(getTopZ());
-            if (this.moveable && this.moveable.selfElement) {
+            if (this.moveable?.selfElement) {
                 this.moveable.selfElement.style.zIndex = this.panel.style.zIndex;
             }
         });
@@ -647,6 +518,7 @@ class UndockedEditorPanel {
         const headerEl = this.panel.querySelector('h1');
         const padding = 10;
         
+        // Normalize positioning
         const rect = this.panel.getBoundingClientRect();
         this.panel.style.top = `${rect.top}px`;
         this.panel.style.left = `${rect.left}px`;
@@ -720,6 +592,7 @@ class UndockedEditorPanel {
         
         const box = document.querySelectorAll('.moveable-control-box');
         const controlBox = box[box.length - 1];
+        
         if (!controlBox) return;
         
         const controls = controlBox.querySelectorAll('.moveable-control');
@@ -727,6 +600,7 @@ class UndockedEditorPanel {
         
         controls.forEach(control => {
             control.classList.add('custom-control');
+            
             if (control.classList.contains('moveable-n') || control.classList.contains('moveable-s')) {
                 control.style.width = `${width}px`;
                 control.style.marginLeft = `-${width / 2}px`;
@@ -778,7 +652,7 @@ class UndockedEditorPanel {
     }
     
     async save() {
-        const content = this.editorInstance ? this.editorInstance.value() : this.content;
+        const content = this.editorInstance?.value() || this.content;
         const saveBtn = this.panel.querySelector(`#${this.panelId}-save`);
         
         try {
@@ -786,7 +660,7 @@ class UndockedEditorPanel {
             saveBtn.textContent = 'Saving...';
             
             const response = await fetch(
-                `${this.apiBase}/api/report/content?document=${this.documentId}&section=${this.sectionId}`,
+                `${this.apiBase}/api/report/content?document=${this.documentId}`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -799,12 +673,7 @@ class UndockedEditorPanel {
             if (result.success) {
                 this.content = content;
                 saveBtn.textContent = 'Saved!';
-                
-                // Notify main panel
-                if (this.onSaveCallback) {
-                    this.onSaveCallback(content);
-                }
-                
+                this.onSaveCallback?.(content);
                 setTimeout(() => {
                     saveBtn.textContent = 'Save';
                     saveBtn.disabled = false;
@@ -812,51 +681,42 @@ class UndockedEditorPanel {
             } else {
                 throw new Error(result.error || 'Save failed');
             }
-            
         } catch (error) {
             console.error('[UndockedEditor] Save failed:', error);
             saveBtn.textContent = 'Error!';
             saveBtn.disabled = false;
-            setTimeout(() => {
-                saveBtn.textContent = 'Save';
-            }, 2000);
+            setTimeout(() => { saveBtn.textContent = 'Save'; }, 2000);
         }
     }
     
     setContent(content) {
         this.content = content;
-        if (this.editorInstance) {
-            this.editorInstance.value(content);
-        }
+        this.editorInstance?.value(content);
     }
     
     close() {
+        // Remove occlusion handler
         if (this.occlusionHandler) {
             document.removeEventListener('mousemove', this.occlusionHandler);
+            this.occlusionHandler = null;
         }
         
-        if (this.moveable) {
-            this.moveable.destroy();
-            this.moveable = null;
-        }
+        // Destroy moveable
+        this.moveable?.destroy();
+        this.moveable = null;
         
-        if (this.editorInstance) {
-            this.editorInstance.toTextArea();
-            this.editorInstance = null;
-        }
+        // Cleanup editor
+        this.editorInstance?.toTextArea();
+        this.editorInstance = null;
         
-        if (this.panel) {
-            this.panel.remove();
-            this.panel = null;
-        }
+        // Remove panel
+        this.panel?.remove();
+        this.panel = null;
         
-        if (this.onCloseCallback) {
-            this.onCloseCallback();
-        }
+        this.onCloseCallback?.();
     }
 }
 
 
-// Export
 window.ReportWorkspace = ReportWorkspace;
 export default ReportWorkspace;

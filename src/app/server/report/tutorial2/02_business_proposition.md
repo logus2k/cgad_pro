@@ -1,3 +1,0 @@
-# Business Proposition
-
-To be done...

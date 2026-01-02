@@ -3,71 +3,33 @@
    ========================================================================== */
 
 :root {
-    --report-sidebar-width: 220px;
+    --report-sidebar-width: 340px;
     --report-folder-gold: #d4a017;
     --report-folder-gold-light: #fcebb6;
 }
 
-/* Main Container */
-.report-workspace-container {
+/* Integrate with HUD panel - make it fill available space */
+.hud.report {
     display: flex;
     flex-direction: column;
-    height: 100%;
+}
+
+.hud.report .report-workspace-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-height: 0;
     overflow: hidden;
+    margin: 10px 10px 0px 10px;
 }
 
-/* Header with controls */
-.report-workspace-header {
+/* Footer with action buttons */
+.report-workspace-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    border-bottom: 1px solid #ddd;
-    background: rgba(255, 255, 255, 0.5);
-    flex-shrink: 0;
-}
-
-.report-workspace-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.report-workspace-actions {
-    display: flex;
+    justify-content: flex-end;
     gap: 8px;
-    align-items: center;
-}
-
-.report-section-select {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #fff;
-    min-width: 200px;
-    cursor: pointer;
-}
-
-.report-section-select:hover {
-    border-color: var(--hud-accent, #2266ff);
-}
-
-.report-section-select:focus {
-    outline: none;
-    border-color: var(--hud-accent, #2266ff);
-    box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
-}
-
-.report-section-select optgroup {
-    font-weight: bold;
-    color: #333;
-}
-
-.report-section-select option {
-    font-weight: normal;
-    padding: 4px 8px;
+    padding: 10px 8px;
+    flex-shrink: 0;
 }
 
 /* Buttons */
@@ -87,8 +49,8 @@
 }
 
 .report-btn-edit {
-    background: var(--hud-accent, #2266ff);
-    color: #fff;
+    background: #0f9ce2;
+    color: #ffffff;
 }
 
 .report-btn-edit:hover:not(:disabled) {
@@ -136,8 +98,6 @@
     min-width: var(--report-sidebar-width);
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #ddd;
-    background: #f8f9fa;
     overflow: hidden;
 }
 
@@ -171,7 +131,7 @@
     font-size: 10px;
 }
 
-/* Folder icons */
+/* Folder icons for documents */
 .report-toc-tree .fa-folder,
 .report-toc-tree .fa-folder-open {
     font-weight: 900;
@@ -183,9 +143,21 @@
     -webkit-text-stroke: 0.5px var(--report-folder-gold);
 }
 
-.report-toc-tree .fa-file {
+/* File icon for headers */
+.report-toc-tree .fa-file,
+.report-toc-tree .fa-file-lines {
     color: #7f8c8d;
     font-weight: 400;
+    font-size: 11px;
+}
+
+/* Active/selected node styling */
+.report-toc-tree .wb-row.wb-active {
+    background: rgba(34, 102, 255, 0.12);
+}
+
+.report-toc-tree .wb-row:hover {
+    background: rgba(34, 102, 255, 0.06);
 }
 
 /* Main content area */
@@ -194,26 +166,54 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Preview area */
 .report-preview-area {
     flex: 1;
     padding: 20px 30px;
-    overflow-y: auto;
     background: #fff;
     line-height: 1.6;
     font-size: 14px;
     color: #333;
+    margin: 0px 10px 10px 10px;
+    border: 0.5px solid #cecece;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+/* Width */
+div.report-main-area::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+div.report-main-area::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+div.report-main-area::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+div.report-main-area::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
 }
 
 .report-preview-area h1 {
     font-size: 1.6em;
     margin: 0 0 15px 0;
+    padding-left: 0px;
     padding-bottom: 10px;
     border-bottom: 2px solid #eee;
     color: #333;
+    cursor: unset;
 }
 
 .report-preview-area h2 {
@@ -305,7 +305,7 @@
 .report-preview-area hr {
     border: none;
     border-top: 2px solid #eee;
-    margin: 30px 0;
+    margin: 15px 0;
 }
 
 .report-preview-area a {
@@ -383,10 +383,8 @@
    ========================================================================== */
 
 .hud.undocked-editor {
-    min-width: 500px;
-    max-width: 1000px;
-    min-height: 400px;
-    max-height: 800px;
+    min-width: 400px;
+    min-height: 300px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -423,13 +421,44 @@
     flex: 1;
     border: none;
     font-size: 14px;
+    overflow-y: auto;
+}
+
+/* Width */
+.undocked-editor-container .EasyMDEContainer .CodeMirror::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+.undocked-editor-container .EasyMDEContainer .CodeMirror::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+.undocked-editor-container .EasyMDEContainer .CodeMirror::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+.undocked-editor-container .EasyMDEContainer .CodeMirror::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
+
+
+/* Scrollbar for undocked editor */
+.undocked-editor-container .CodeMirror-scroll {
+    overflow-y: auto !important;
 }
 
 .undocked-editor-container .EasyMDEContainer .editor-toolbar {
     border: none;
-    background: #f8f9fa;
-    border-bottom: 1px solid #ddd;
-    padding: 5px 10px;
+    background-color: #ffe7bc;
+    border-bottom: 0.5px solid #cecece;
+    padding: 0px 5px;
 }
 
 .undocked-editor-footer {
