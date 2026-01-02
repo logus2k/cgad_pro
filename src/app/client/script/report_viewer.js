@@ -128,8 +128,9 @@ export class ReportViewerPanel {
         }
         
         this.panel.innerHTML = `
-            <h1>Report: ${this.title}</h1>
+            <h1>${this.title.toUpperCase()}</h1>
             <button class="pm-close" title="Close">&times;</button>
+            <div class="sep"></div>
             <div class="report-viewer-body">
                 <div class="report-viewer-content">
                     ${htmlContent}

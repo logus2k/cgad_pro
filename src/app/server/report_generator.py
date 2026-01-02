@@ -18,16 +18,16 @@ from dataclasses import dataclass
 # =============================================================================
 
 REPORT_SECTIONS = [
-    {"id": "executive_summary", "title": "Executive Summary"},
-    {"id": "test_configuration", "title": "Test Configuration"},
-    {"id": "results_total_time", "title": "Results: Total Time"},
-    {"id": "results_stage_breakdown", "title": "Results: Stage Breakdown"},
+    {"id": "executive_summary", "title": "Mesh Gallery"},
+    {"id": "test_configuration", "title": "Testing Configuration"},
+    {"id": "results_total_time", "title": "Timing Totals"},
+    {"id": "results_stage_breakdown", "title": "Stage Breakdown"},
     {"id": "scaling_analysis", "title": "Scaling Analysis"},
     {"id": "convergence", "title": "Convergence Verification"},
     {"id": "efficiency_metrics", "title": "Efficiency Metrics"},
-    {"id": "analysis", "title": "Analysis & Discussion"},
-    {"id": "conclusions", "title": "Conclusions"},
     {"id": "reproducibility", "title": "Reproducibility"},
+    {"id": "analysis", "title": "Critical Analysis"},
+    {"id": "conclusions", "title": "Conclusions"},
 ]
 
 # Solver display order and metadata
@@ -263,21 +263,11 @@ class ReportGenerator:
     
     def _generate_executive_summary(self) -> str:
         """Generate Executive Summary section."""
-        lines = [
-            "# FEM Solver Performance Benchmark Report",
-            "",
-            "## Executive Summary",
-            "",
-            "This report presents performance benchmarks comparing FEM solver implementations.",
-            "",
-        ]
+        lines = ["Key results from performance benchmarks comparing FEM solver implementations."]
         
         if not self.records:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
-        
-        lines.append("### Key Results at a Glance")
-        lines.append("")
         
         # Show results for each model in the filtered data
         for model in self.models:
@@ -291,7 +281,8 @@ class ReportGenerator:
             best_records = get_best_record_per_solver(model_records)
             baseline_time = best_records.get("cpu", {}).get("timings", {}).get("total_program_time")
             
-            lines.append(f"#### {model} ({format_number(nodes)} nodes)")
+            lines.append("")
+            lines.append(f"**{model}** ({format_number(nodes)} nodes)")
             lines.append("")
             lines.append("| Implementation | Total Time | Speedup vs Baseline |")
             lines.append("|----------------|------------|---------------------|")
@@ -306,31 +297,14 @@ class ReportGenerator:
                     time_str = format_time(time)
                     speedup_str = format_speedup(speedup) if solver != "cpu" else "1.0x"
                     
-                    # Highlight best GPU result
-                    if solver == "gpu":
-                        lines.append(f"| **{name}** | **{time_str}** | **{speedup_str}** |")
-                    else:
-                        lines.append(f"| {name} | {time_str} | {speedup_str} |")
+                    lines.append(f"| {name} | {time_str} | {speedup_str} |")
             
-            # Maximum speedup for this model
-            gpu_record = best_records.get("gpu")
-            if gpu_record and baseline_time:
-                gpu_time = gpu_record.get("timings", {}).get("total_program_time")
-                max_speedup = calculate_speedup(baseline_time, gpu_time)
-                if max_speedup:
-                    lines.append("")
-                    lines.append(f"**Maximum Speedup:** {format_speedup(max_speedup)} (CuPy GPU vs CPU Baseline)")
-            
-            lines.append("")
-        
         return "\n".join(lines)
     
     def _generate_test_configuration(self) -> str:
         """Generate Test Configuration section."""
         lines = [
-            "## 1. Test Configuration",
-            "",
-            "### 1.1 Hardware Environment",
+            "## Hardware Environment",
             "",
             "| Component | Specification |",
             "|-----------|---------------|",
@@ -353,7 +327,7 @@ class ReportGenerator:
         # Test Meshes
         lines.extend([
             "",
-            "### 1.2 Test Meshes",
+            "### Test Meshes",
             "",
             "| Model | Nodes | Elements | Matrix NNZ |",
             "|-------|-------|----------|------------|",
@@ -370,7 +344,7 @@ class ReportGenerator:
         # Solver Configuration
         lines.extend([
             "",
-            "### 1.3 Solver Configuration",
+            "### Solver Configuration",
             "",
         ])
         
@@ -402,7 +376,7 @@ class ReportGenerator:
         # Implementations
         lines.extend([
             "",
-            "### 1.4 Implementations Tested",
+            "### Implementations Tested",
             "",
             "| # | Implementation | File | Parallelism Strategy |",
             "|---|----------------|------|----------------------|",
@@ -419,7 +393,7 @@ class ReportGenerator:
     def _generate_results_total_time(self) -> str:
         """Generate Results: Total Time section."""
         lines = [
-            "## 2. Results: Total Workflow Time",
+            "## Total Workflow Time",
             "",
         ]
         
@@ -429,7 +403,7 @@ class ReportGenerator:
         
         # Summary table per model
         lines.extend([
-            "### 2.1 Summary Table",
+            "### Summary Table",
             "",
             "Total workflow time (best run per solver):",
             "",
@@ -466,7 +440,7 @@ class ReportGenerator:
         # Speedup table
         lines.extend([
             "",
-            "### 2.2 Speedup vs CPU Baseline",
+            "### Speedup vs CPU Baseline",
             "",
         ])
         
@@ -500,7 +474,7 @@ class ReportGenerator:
     def _generate_results_stage_breakdown(self) -> str:
         """Generate Results: Stage Breakdown section."""
         lines = [
-            "## 3. Results: Stage-by-Stage Breakdown",
+            "## Stage-by-Stage Breakdown",
             "",
         ]
         
@@ -590,9 +564,9 @@ class ReportGenerator:
     def _generate_scaling_analysis(self) -> str:
         """Generate Scaling Analysis section."""
         lines = [
-            "## 4. Scaling Analysis",
+            "## Scaling Analysis",
             "",
-            "### 4.1 Speedup vs Problem Size",
+            "### Speedup vs Problem Size",
             "",
             "How speedup changes with mesh size (relative to CPU Baseline):",
             "",
@@ -646,7 +620,7 @@ class ReportGenerator:
     def _generate_convergence(self) -> str:
         """Generate Convergence Verification section."""
         lines = [
-            "## 5. Convergence Verification",
+            "## Convergence Verification",
             "",
             "All implementations must produce numerically consistent results.",
             "",
@@ -720,7 +694,7 @@ class ReportGenerator:
     def _generate_efficiency_metrics(self) -> str:
         """Generate Efficiency Metrics section."""
         lines = [
-            "## 6. Efficiency Metrics",
+            "## Efficiency Metrics",
             "",
         ]
         
@@ -790,9 +764,9 @@ class ReportGenerator:
     def _generate_analysis(self) -> str:
         """Generate Analysis & Discussion section."""
         lines = [
-            "## 7. Analysis & Discussion",
+            "## Critical Analysis",
             "",
-            "### 7.1 Bottleneck Evolution",
+            "### Bottleneck Evolution",
             "",
             "As optimizations progress, the computational bottleneck shifts:",
             "",
@@ -844,7 +818,7 @@ class ReportGenerator:
             lines.append("")
         
         lines.extend([
-            "### 7.2 Why Each Optimization Helps",
+            "### Why Each Optimization Helps",
             "",
             "| Transition | Reason |",
             "|------------|--------|",
@@ -860,9 +834,9 @@ class ReportGenerator:
     def _generate_conclusions(self) -> str:
         """Generate Conclusions section."""
         lines = [
-            "## 8. Conclusions",
+            "## Conclusions",
             "",
-            "### 8.1 Key Findings",
+            "### Key Findings",
             "",
         ]
         
@@ -918,7 +892,7 @@ class ReportGenerator:
                 lines.append("")
         
         lines.extend([
-            "### 8.2 Recommendations",
+            "### Recommendations",
             "",
             "| Use Case | Recommended Implementation |",
             "|----------|---------------------------|",
@@ -934,9 +908,9 @@ class ReportGenerator:
     def _generate_reproducibility(self) -> str:
         """Generate Reproducibility section."""
         lines = [
-            "## 9. Reproducibility",
+            "## Reproducibility",
             "",
-            "### 9.1 Benchmark Metadata",
+            "### Benchmark Metadata",
             "",
             "| Field | Value |",
             "|-------|-------|",
@@ -966,7 +940,7 @@ class ReportGenerator:
         
         lines.extend([
             "",
-            "### 9.2 Models Included",
+            "### Models Included",
             "",
             "| Model | Records |",
             "|-------|---------|",
