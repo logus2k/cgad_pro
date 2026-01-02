@@ -19,15 +19,12 @@
 // Shared z-index counter starting above typical page elements
 let globalTopZ = 20;
 
-console.log('[zIndexManager] Module loaded');
-
 /**
  * Get the current top z-index and increment the counter
  * @returns {number} The next z-index to use
  */
 export function getTopZ() {
     globalTopZ += 1;
-    console.log('[zIndexManager] getTopZ() called, returning:', globalTopZ);
     return globalTopZ;
 }
 

@@ -440,9 +440,9 @@
 
 .hud.report-viewer {
     min-width: 500px;
-    max-width: 1000px;
+    max-width: 1200px;
     min-height: 400px;
-    max-height: 800px;
+    max-height: 1000px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -549,11 +549,19 @@
 
 .report-viewer-footer {
     display: flex;
-    justify-content: flex-end;
-    padding: 10px 15px;
-    border-top: 1px solid #ddd;
-    background: rgba(255, 255, 255, 0.5);
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px 50px 5px;
     flex-shrink: 0;
+}
+
+.hud.report-viewer .benchmark-btn.benchmark-btn-secondary {
+    background: #666;
+    color: #fff;
+}
+
+.hud.report-viewer .benchmark-btn.benchmark-btn-secondary:hover {
+    background: #555;
 }
 
 

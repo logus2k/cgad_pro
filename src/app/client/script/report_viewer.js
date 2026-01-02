@@ -135,9 +135,8 @@ export class ReportViewerPanel {
                     ${htmlContent}
                 </div>
                 <div class="report-viewer-footer">
-                    <button class="benchmark-btn benchmark-btn-secondary" id="${this.panelId}-export">
-                        Export .md
-                    </button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-copy">Copy</button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-export">Export</button>
                 </div>
             </div>
         `;
@@ -157,10 +156,16 @@ export class ReportViewerPanel {
         }
         
         // Export button
-        const exportBtn = this.panel.querySelector(`#${this.panelId}-export`);
+        const exportBtn = this.panel.querySelector(`#report-btn-${this.sectionId}-export`);
         if (exportBtn) {
             exportBtn.addEventListener('click', () => this.exportMarkdown());
         }
+
+        // Copy button
+        const copyBtn = this.panel.querySelector(`#report-btn-${this.sectionId}-copy`);
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => this.copyMarkdown());
+        }        
         
         // Bring to front on mousedown
         this.panel.addEventListener('mousedown', () => this.bringToFront());
@@ -334,6 +339,20 @@ export class ReportViewerPanel {
         
         URL.revokeObjectURL(url);
     }
+
+    copyMarkdown() {
+        navigator.clipboard.writeText(this.markdown).then(() => {
+            // Brief visual feedback
+            const copyBtn = this.panel.querySelector(`#${this.panelId}-copy`);
+            if (copyBtn) {
+                const original = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => copyBtn.textContent = original, 1500);
+            }
+        }).catch(err => {
+            console.error('[ReportViewer] Failed to copy:', err);
+        });
+    }    
     
     close() {
         // Destroy moveable
