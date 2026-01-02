@@ -1,31 +1,39 @@
 /**
  * Report Viewer Panel
  * 
- * Displays rendered Markdown report sections in a draggable/resizable panel.
+ * Displays rendered Markdown report sections in a panel that integrates
+ * with the existing HUD/panel system (Moveable.js, zIndexManager, etc.)
+ * 
  * Multiple instances can coexist for different sections.
  * 
  * Location: /src/app/client/script/report_viewer.js
  */
 
+import { getTopZ } from './zIndexManager.js';
+
+
 export class ReportViewerPanel {
+
     static instances = new Map();  // Track open panels by section ID
-    static zIndexCounter = 1000;   // For bringing panels to front
     
     constructor(sectionId, options = {}) {
         this.sectionId = sectionId;
         this.options = {
             apiBase: options.apiBase || '',
+            filters: options.filters || {},
             ...options
         };
         
-        this.panelId = `report-panel-${sectionId}`;
+        this.panelId = `hud-report-${sectionId}`;
         this.title = 'Report';
         this.markdown = '';
         this.panel = null;
+        this.moveable = null;
+        this.position = { x: 0, y: 0 };
     }
     
     async open() {
-        // Check if panel already exists
+        // Check if panel already exists - bring to front
         if (ReportViewerPanel.instances.has(this.sectionId)) {
             const existing = ReportViewerPanel.instances.get(this.sectionId);
             existing.bringToFront();
@@ -39,11 +47,14 @@ export class ReportViewerPanel {
         this.createPanel();
         this.render();
         this.bindEvents();
-        this.makeDraggable();
-        this.makeResizable();
+        this.initMoveable();
         
         // Register instance
         ReportViewerPanel.instances.set(this.sectionId, this);
+        
+        // Show panel
+        this.panel.classList.add('visible');
+        this.bringToFront();
         
         return this;
     }
@@ -86,18 +97,20 @@ export class ReportViewerPanel {
             existing.remove();
         }
         
-        // Create panel element
+        // Create panel element using HUD structure
         this.panel = document.createElement('div');
         this.panel.id = this.panelId;
-        this.panel.className = 'report-viewer-panel';
+        this.panel.className = 'hud report-viewer';
         
-        // Position with slight offset based on instance count
+        // Position with offset based on instance count
         const offset = ReportViewerPanel.instances.size * 30;
-        this.panel.style.left = `${150 + offset}px`;
         this.panel.style.top = `${100 + offset}px`;
+        this.panel.style.left = `${150 + offset}px`;
+        this.panel.style.width = '700px';
+        this.panel.style.height = '550px';
+        this.panel.style.position = 'absolute';
         
         document.body.appendChild(this.panel);
-        this.bringToFront();
     }
     
     render() {
@@ -110,19 +123,18 @@ export class ReportViewerPanel {
         }
         
         this.panel.innerHTML = `
-            <div class="report-viewer-header">
-                <span class="report-viewer-title">${this.title}</span>
-                <button class="report-viewer-close" title="Close">&times;</button>
+            <h1>Report: ${this.title}</h1>
+            <button class="pm-close" title="Close">&times;</button>
+            <div class="report-viewer-body">
+                <div class="report-viewer-content">
+                    ${htmlContent}
+                </div>
+                <div class="report-viewer-footer">
+                    <button class="benchmark-btn benchmark-btn-secondary" id="${this.panelId}-export">
+                        Export .md
+                    </button>
+                </div>
             </div>
-            <div class="report-viewer-content">
-                ${htmlContent}
-            </div>
-            <div class="report-viewer-footer">
-                <button class="benchmark-btn benchmark-btn-secondary" id="${this.panelId}-export">
-                    Export .md
-                </button>
-            </div>
-            <div class="report-viewer-resize-handle"></div>
         `;
     }
     
@@ -130,9 +142,13 @@ export class ReportViewerPanel {
         if (!this.panel) return;
         
         // Close button
-        const closeBtn = this.panel.querySelector('.report-viewer-close');
+        const closeBtn = this.panel.querySelector('.pm-close');
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.close());
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.close();
+            });
         }
         
         // Export button
@@ -141,21 +157,123 @@ export class ReportViewerPanel {
             exportBtn.addEventListener('click', () => this.exportMarkdown());
         }
         
-        // Bring to front on click
+        // Bring to front on mousedown
         this.panel.addEventListener('mousedown', () => this.bringToFront());
     }
     
-    makeDraggable() {
-        if (!this.panel) return;
+    initMoveable() {
+        if (typeof Moveable === 'undefined') {
+            console.warn('[ReportViewer] Moveable not found, using fallback drag');
+            this.initFallbackDrag();
+            return;
+        }
         
-        const header = this.panel.querySelector('.report-viewer-header');
+        const headerEl = this.panel.querySelector('h1');
+        const padding = 10;
+        
+        // Normalize positioning
+        const rect = this.panel.getBoundingClientRect();
+        this.panel.style.top = `${rect.top}px`;
+        this.panel.style.left = `${rect.left}px`;
+        this.panel.style.bottom = 'auto';
+        this.panel.style.right = 'auto';
+        this.panel.style.margin = '0';
+        this.panel.style.transform = 'translate(0px, 0px)';
+        
+        this.moveable = new Moveable(document.body, {
+            target: this.panel,
+            draggable: true,
+            resizable: true,
+            origin: false,
+            snappable: true,
+            bounds: {
+                left: padding,
+                top: padding,
+                right: window.innerWidth - padding,
+                bottom: window.innerHeight - padding
+            }
+        });
+        
+        let allowDrag = false;
+        
+        this.moveable
+            .on('dragStart', e => {
+                const t = e.inputEvent && e.inputEvent.target;
+                allowDrag = !!(headerEl && t && (t === headerEl || headerEl.contains(t)));
+                if (!allowDrag) {
+                    e.stop && e.stop();
+                    return;
+                }
+                if (e.set) e.set([this.position.x, this.position.y]);
+                e.inputEvent.stopPropagation();
+            })
+            .on('drag', e => {
+                if (!allowDrag) return;
+                const [x, y] = e.beforeTranslate;
+                this.position.x = x;
+                this.position.y = y;
+                e.target.style.transform = `translate(${x}px, ${y}px)`;
+            })
+            .on('dragEnd', () => {
+                allowDrag = false;
+            })
+            .on('resizeStart', e => {
+                e.setOrigin(['%', '%']);
+                if (e.dragStart) e.dragStart.set([this.position.x, this.position.y]);
+            })
+            .on('resize', e => {
+                const { target, width, height, drag } = e;
+                target.style.width = `${width}px`;
+                target.style.height = `${height}px`;
+                const [x, y] = drag.beforeTranslate;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                this.position.x = x;
+                this.position.y = y;
+            })
+            .on('resizeEnd', () => {
+                this.moveable.updateRect();
+                this.applyControlStyles();
+            });
+        
+        this.moveable.updateRect();
+        this.applyControlStyles();        
+    }
+
+    applyControlStyles() {
+        if (!this.moveable) return;
+        
+        const box = document.querySelectorAll('.moveable-control-box');
+        const controlBox = box[box.length - 1];
+        
+        if (!controlBox) return;
+        
+        const controls = controlBox.querySelectorAll('.moveable-control');
+        const { width, height } = this.moveable.getRect();
+        
+        controls.forEach(control => {
+            control.classList.add('custom-control');
+            
+            if (control.classList.contains('moveable-n') || control.classList.contains('moveable-s')) {
+                control.style.width = `${width}px`;
+                control.style.marginLeft = `-${width / 2}px`;
+            }
+            if (control.classList.contains('moveable-w') || control.classList.contains('moveable-e')) {
+                control.style.height = `${height}px`;
+                control.style.marginTop = `-${height / 2}px`;
+            }
+        });
+    }    
+    
+    initFallbackDrag() {
+        // Simple fallback drag without Moveable
+        const header = this.panel.querySelector('h1');
         if (!header) return;
         
         let isDragging = false;
         let startX, startY, initialX, initialY;
         
         header.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('report-viewer-close')) return;
+            if (e.target.classList.contains('pm-close')) return;
             
             isDragging = true;
             startX = e.clientX;
@@ -180,55 +298,21 @@ export class ReportViewerPanel {
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
-                header.style.cursor = 'grab';
+                header.style.cursor = 'move';
             }
         });
         
-        header.style.cursor = 'grab';
-    }
-    
-    makeResizable() {
-        if (!this.panel) return;
-        
-        const handle = this.panel.querySelector('.report-viewer-resize-handle');
-        if (!handle) return;
-        
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight;
-        
-        handle.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            startWidth = this.panel.offsetWidth;
-            startHeight = this.panel.offsetHeight;
-            
-            e.preventDefault();
-            e.stopPropagation();
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            
-            const newWidth = Math.max(300, startWidth + dx);
-            const newHeight = Math.max(200, startHeight + dy);
-            
-            this.panel.style.width = `${newWidth}px`;
-            this.panel.style.height = `${newHeight}px`;
-        });
-        
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-        });
+        header.style.cursor = 'move';
     }
     
     bringToFront() {
         if (this.panel) {
-            ReportViewerPanel.zIndexCounter++;
-            this.panel.style.zIndex = ReportViewerPanel.zIndexCounter;
+            this.panel.style.zIndex = String(getTopZ());
+            
+            // Sync moveable control box z-index
+            if (this.moveable && this.moveable.selfElement) {
+                this.moveable.selfElement.style.zIndex = this.panel.style.zIndex;
+            }
         }
     }
     
@@ -247,10 +331,20 @@ export class ReportViewerPanel {
     }
     
     close() {
+        // Destroy moveable
+        if (this.moveable) {
+            this.moveable.destroy();
+            this.moveable = null;
+        }
+        
+        // Remove panel
         if (this.panel) {
+            this.panel.classList.remove('visible');
             this.panel.remove();
             this.panel = null;
         }
+        
+        // Unregister
         ReportViewerPanel.instances.delete(this.sectionId);
     }
     
