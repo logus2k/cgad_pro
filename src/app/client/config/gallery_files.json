@@ -33,7 +33,7 @@
 	],
 	"models": [
 		{
-			"name": "Y-Shaped Tube",
+			"name": "Y-Shaped",
 			"description": "A 2D longitudinal cross-section representing a flow channel that starts as a single rectangular inlet and splits into two parallel outlet branches.",
 			"problem_type": "2D Potential Flow (Laplace)",
 			"thumbnail": "./images/mesh/y_tube1_195k.png",

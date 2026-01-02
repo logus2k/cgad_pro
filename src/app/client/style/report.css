@@ -46,5 +46,13 @@
 }
 
 /* Markdown Styling */
-.markdown-body h1 { border-bottom: 1px solid #eee; padding-bottom: 5px; }
-.markdown-body code { background: #f6f8fa; padding: 2px 4px; border-radius: 3px; }
+.markdown-body h1 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.markdown-body code {
+    background: #f6f8fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
