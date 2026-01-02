@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Workspace - Live TOC</title>
+
+    <link rel="stylesheet" href="./style/wunderbaum.css">
+    <link rel="stylesheet" href="./style/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.16.1/dist/easymde.min.css">
+    <script src="./library/marked.umd.js"></script>
+    <script src="./library/wunderbaum.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/easymde@2.16.1/dist/easymde.min.js"></script>
+
+    <style>
+        :root {
+            --folder-gold: #d4a017;
+            --folder-gold-light: #fcebb6;
+            --sidebar-bg: #f8f9fa;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 1fr;
+            height: 100vh;
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .pane-header {
+            padding: 10px 15px;
+            background: #34495e;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* TOC Sidebar (Left) */
+        .toc-sidebar {
+            background: var(--sidebar-bg);
+        }
+
+        .toc-content {
+            flex: 1;
+            padding: 10px;
+            overflow-y: hidden;
+        }
+
+        #toc-tree {
+            --wb-connect-line-color: #bdc3c7;
+            border: none;
+        }
+
+        /* Windows Style Folder Icons */
+        #toc-tree .fa-folder,
+        #toc-tree .fa-folder-open {
+            font-weight: 900 !important;
+            font-size: 13px;
+            background: linear-gradient(180deg, var(--folder-gold-light) 0%, var(--folder-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 0.5px var(--folder-gold);
+        }
+
+        #toc-tree .fa-file {
+            color: #7f8c8d !important;
+            font-weight: 400 !important;
+        }
+
+        .wb-node-list.wb-connect-lines .wb-indent {
+            border-left: 1px solid var(--wb-connect-line-color);
+        }
+
+        div.wunderbaum {
+            height: calc(100% - 50px);
+            min-height: 4px;
+            background-color: var(--wb-background-color);
+            margin: 0;
+            padding: 0;
+            font-family: var(--wb-font-stack);
+            font-size: 14px;
+            color: var(--wb-node-text-color);
+            border: 2px solid var(--wb-border-color);
+            border-radius: 4px;
+            background-clip: content-box;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        div.wunderbaum span.wb-node span.wb-title {
+            font-family: 'Roboto', sans-serif;
+            vertical-align: top !important;
+            font-size: 13px;
+            padding-left: 3px;            
+        }  
+        
+        div.wunderbaum span.wb-node i.wb-expander, div.wunderbaum span.wb-node i.wb-icon {
+            font-size: 10px;
+            align-content: center;
+        }        
+
+        /* Search Filter */
+        .filter-wrapper {
+            margin-bottom: 15px;
+        }
+
+        #filterInput {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* Editor (Middle) - Modified to accommodate EasyMDE */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .EasyMDEContainer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .EasyMDEContainer .CodeMirror {
+            flex: 1;
+            border: none;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .EasyMDEContainer .editor-toolbar {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 5px 10px;
+        }
+
+        /* Preview (Right) */
+        #preview-area {
+            flex: 1;
+            padding: 25px 40px;
+            overflow-y: auto;
+            background: #fff;
+            scroll-behavior: smooth;
+        }
+
+        #preview-area h1 {
+            border-bottom: 2px solid #eee;
+        }
+
+        #preview-area h2 {
+            border-bottom: 1px solid #f0f0f0;
+            margin-top: 2em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div class="pane toc-sidebar">
+            <div class="pane-header">Table of Contents</div>
+            <div class="toc-content">
+                <div class="filter-wrapper">
+                    <input type="text" id="filterInput" placeholder="Filter headings...">
+                </div>
+                <div id="toc-tree"></div>
+            </div>
+        </div>
+
+        <div class="pane">
+            <div class="pane-header">Markdown Editor</div>
+            <div class="editor-container">
+                <textarea id="markdown-editor"># Project Alpha
+## Introduction
+Start typing here to see the TOC update.
+### Background
+## Features
+### Live Sync
+### Windows Folders</textarea>
+            </div>
+        </div>
+
+        <div class="pane" style="border-right: none;">
+            <div class="pane-header">Live Preview</div>
+            <div id="preview-area"></div>
+        </div>
+    </div>
+
+    <script>
+        class MarkdownApp {
+            constructor() {
+                this.editor = null; // Will be set by EasyMDE
+                this.preview = document.getElementById('preview-area');
+                this.filter = document.getElementById('filterInput');
+                this.treeInstance = null;
+
+                this.init();
+            }
+
+            init() {
+                // Initialize EasyMDE
+                this.editor = new EasyMDE({
+                    element: document.getElementById('markdown-editor'),
+                    autoDownloadFontAwesome: false,
+                    spellChecker: false,
+                    status: false,
+                    toolbar: [
+                        "bold", "italic", "strikethrough", "|",
+                        "heading-1", "heading-2", "heading-3", "heading-smaller", "heading-bigger", "|",
+                        "code", "quote", "unordered-list", "ordered-list", "|",
+                        "link", "image", "|",
+                        "preview", "side-by-side", "fullscreen", "|",
+                        "guide"
+                    ],
+                });
+
+                // Initial Render
+                this.refresh();
+
+                // Real-time update on input
+                this.editor.codemirror.on("change", () => this.refresh());
+
+                // Filtering logic
+                this.filter.addEventListener('input', (e) => {
+                    if (this.treeInstance) {
+                        this.treeInstance.filterNodes(e.target.value, { autoExpand: true });
+                    }
+                });
+            }
+
+            refresh() {
+                // 1. Get markdown content from EasyMDE
+                const markdownContent = this.editor.value();
+                
+                // 2. Convert MD to HTML
+                const htmlContent = marked.parse(markdownContent);
+                this.preview.innerHTML = htmlContent;
+
+                // 3. Map Headers to IDs
+                const headers = Array.from(this.preview.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+                headers.forEach((h, i) => h.id = `nav-header-${i}`);
+
+                // 4. Build Tree Structure
+                const treeData = this.buildTree(headers);
+
+                // 5. Update Tree - Using reload() for total reactivity
+                if (!this.treeInstance) {
+                    this.initTree(treeData);
+                } else {
+                    this.treeInstance.load(treeData);
+                }
+            }
+
+            buildTree(headers) {
+                const root = [];
+                const stack = [{ level: 0, children: root }];
+
+                headers.forEach(h => {
+                    const level = parseInt(h.tagName.substring(1));
+                    const node = {
+                        title: h.innerText,
+                        key: h.id,
+                        expanded: true, // Keep it expanded while typing
+                        children: []
+                    };
+
+                    while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+                        stack.pop();
+                    }
+
+                    stack[stack.length - 1].children.push(node);
+                    stack.push({ level, children: node.children });
+                });
+                return root;
+            }
+
+            initTree(data) {
+                this.treeInstance = new mar10.Wunderbaum({
+                    element: document.getElementById('toc-tree'),
+                    source: data,
+                    iconMap: {
+                        folder: "fa-solid fa-folder",
+                        folderOpen: "fa-solid fa-folder-open",
+                        doc: "fa-regular fa-file",
+                        expanderExpanded: "fa-solid fa-chevron-down",
+                        expanderCollapsed: "fa-solid fa-chevron-right",
+                    },
+                    header: false,
+                    connectLines: true,
+                    fixedCol: false,
+                    enhance: (e) => {
+                        // Force folder icon if node has children
+                        if (e.node.children && e.node.children.length > 0) {
+                            e.node.folder = true;
+                        }
+                    },
+                    click: (e) => {
+                        const target = document.getElementById(e.node.key);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            }
+        }
+
+        // Launch App
+        document.addEventListener('DOMContentLoaded', () => {
+            new MarkdownApp();
+        });
+    </script>
+</body>
+
+</html>
