@@ -1,0 +1,50 @@
+{
+    "title": "Project Report",
+    "sections": [
+        {
+            "id": "introduction",
+            "title": "Introduction",
+            "file": "01_introduction.md"
+        },
+        {
+            "id": "business_proposition",
+            "title": "Business Proposition",
+            "file": "02_business_proposition.md"
+        },
+        {
+            "id": "environment_setup",
+            "title": "Environment Setup",
+            "file": "03_environment_setup.md"
+        },
+        {
+            "id": "architecture",
+            "title": "Architecture",
+            "file": "04_architecture.md"
+        },
+        {
+            "id": "solvers_implementation",
+            "title": "Solvers Implementation",
+            "file": "05_solvers_implementation.md"
+        },
+        {
+            "id": "frontend_development",
+            "title": "Frontend Development",
+            "file": "06_frontend_development.md"
+        },
+        {
+            "id": "benchmark_results",
+            "title": "Benchmark Results",
+            "file": "07_benchmark_results.md"
+        },
+        {
+            "id": "conclusions",
+            "title": "Conclusions",
+            "file": "08_conclusions.md"
+        },
+        {
+            "id": "references",
+            "title": "References",
+            "file": "09_references.md"
+        }
+    ]
+}

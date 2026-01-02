@@ -12,6 +12,8 @@ import io
 import time
 from pathlib import Path
 
+from report_service import init_report_service, create_report_router
+
 # Add parent directories to Python path
 PROJECT_ROOT = Path(__file__).parent.parent.parent  # Points to src/
 sys.path.insert(0, str(PROJECT_ROOT / "shared"))
@@ -23,6 +25,10 @@ CLIENT_DIR = PROJECT_ROOT / "app" / "client"
 
 # Benchmark data directory
 BENCHMARK_DIR = PROJECT_ROOT / "app" / "server" / "benchmark"
+
+# Initialize Report Service
+REPORT_DIR = PROJECT_ROOT / "app" / "server" / "report"
+report_service = init_report_service(REPORT_DIR)
 
 # Gallery file for model name lookup
 GALLERY_FILE = CLIENT_DIR / "config" / "gallery_files.json"
@@ -75,6 +81,12 @@ benchmark_service, benchmark_handler = init_benchmark_service(BENCHMARK_DIR, GAL
 # Add benchmark API routes
 benchmark_router = create_benchmark_router(benchmark_service, GALLERY_FILE)
 app.include_router(benchmark_router)
+
+
+# Register Report API routes
+report_router = create_report_router(report_service)
+app.include_router(report_router)
+
 
 # ============================================================================
 # Socket.IO Setup
