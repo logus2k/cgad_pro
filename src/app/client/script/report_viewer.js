@@ -110,7 +110,12 @@ export class ReportViewerPanel {
         this.panel.style.height = '550px';
         this.panel.style.position = 'absolute';
         
-        document.body.appendChild(this.panel);
+        const overlay = document.getElementById('overlay');
+        if (overlay) {
+            overlay.appendChild(this.panel);
+        } else {
+            document.body.appendChild(this.panel);
+        }
     }
     
     render() {
