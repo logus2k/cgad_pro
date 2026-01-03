@@ -137,14 +137,14 @@ class MeshGallery {
                             ${meshOptionsHtml}
                         </select>
                     </div>
-                    <div class="complexity-badge ${this.getComplexityClass(defaultMesh?.elements)}" data-complexity>
-                        ${this.getComplexityLabel(defaultMesh?.elements)}
-                    </div>
                     <div class="solver-row">
                         <label>Solver:</label>
                         <select class="solver-select" data-index="${index}">
                             ${solverOptionsHtml}
                         </select>
+                    </div>
+                    <div class="complexity-badge ${this.getComplexityClass(defaultMesh?.elements)}" data-complexity>
+                        ${this.getComplexityLabel(defaultMesh?.elements)}
                     </div>
                 </div>
             `;

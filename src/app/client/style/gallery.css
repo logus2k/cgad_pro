@@ -197,12 +197,12 @@
 
 .complexity-low {
     color: #333333;
-    background-color: #8beb95;
+    background-color: #aee7b4;
 }
 
 .complexity-med {
     color: #333333;
-    background-color: #ffe97b;
+    background-color: #ffee9a;
 }
 
 .complexity-high {
@@ -211,8 +211,8 @@
 }
 
 .complexity-very-high {
-    color: #f9f9f9;
-    background-color: #df6666;
+    color: #333333;
+    background-color: #ffacac;
 }
 
 /* ==========================================================================
@@ -310,7 +310,9 @@
     justify-content: space-between;
     margin-top: 8px;
     padding-top: 8px;
+    padding-bottom: 8px;
     border-top: 1px dashed var(--hud-fg-dim, #ccc);
+    border-bottom: 1px dashed var(--hud-fg-dim, #ccc);
 }
 
 .solver-row label {
@@ -376,11 +378,4 @@
     outline: none;
     border-color: var(--hud-accent, #2266ff);
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
-}
-
-/* Remove top border from solver row since it follows complexity badge */
-.solver-row {
-    border-top: none;
-    padding-top: 10px;
-    border-top: 1px dashed var(--hud-fg-dim, #ccc);
 }
