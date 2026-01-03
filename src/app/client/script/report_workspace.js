@@ -29,6 +29,7 @@ export class ReportWorkspace {
         this.content = '';
         this.currentDocument = null;
         this.isDirty = false;
+        this.tocVisible = true;
         
         // Components
         this.treeInstance = null;
@@ -62,6 +63,10 @@ export class ReportWorkspace {
                 </div>
             </div>
             <div class="report-workspace-footer">
+                <button class="report-btn report-btn-toggle-toc" id="report-btn-toggle-toc" title="Toggle Table of Contents">
+                    <img src="./icons/left_panel_close.svg" alt="Toggle TOC" id="report-toggle-toc-icon">
+                </button>
+                <div class="report-footer-spacer"></div>
                 <button class="report-btn report-btn-edit" id="report-btn-edit" style="display:none;">Edit</button>
                 <button class="report-btn report-btn-preview" id="report-btn-preview" style="display:none;">Preview</button>
                 <button class="report-btn report-btn-undock" id="report-btn-undock" style="display:none;">Undock</button>
@@ -73,9 +78,12 @@ export class ReportWorkspace {
         this.btnPreview = this.container.querySelector('#report-btn-preview');
         this.btnUndock = this.container.querySelector('#report-btn-undock');
         this.btnSave = this.container.querySelector('#report-btn-save');
+        this.btnToggleToc = this.container.querySelector('#report-btn-toggle-toc');
+        this.toggleTocIcon = this.container.querySelector('#report-toggle-toc-icon');
         this.previewArea = this.container.querySelector('#report-preview-area');
         this.editorArea = this.container.querySelector('#report-editor-area');
         this.tocTree = this.container.querySelector('#report-toc-tree');
+        this.tocSidebar = this.container.querySelector('.report-toc-sidebar');
     }
     
     bindEvents() {
@@ -83,6 +91,21 @@ export class ReportWorkspace {
         this.btnPreview.addEventListener('click', () => this.enterPreviewMode());
         this.btnUndock.addEventListener('click', () => this.undockEditor());
         this.btnSave.addEventListener('click', () => this.saveContent());
+        this.btnToggleToc.addEventListener('click', () => this.toggleToc());
+    }
+    
+    toggleToc() {
+        this.tocVisible = !this.tocVisible;
+        
+        if (this.tocVisible) {
+            this.tocSidebar.classList.remove('collapsed');
+            this.toggleTocIcon.src = './icons/left_panel_close.svg';
+            this.btnToggleToc.title = 'Hide Table of Contents';
+        } else {
+            this.tocSidebar.classList.add('collapsed');
+            this.toggleTocIcon.src = './icons/left_panel_open.svg';
+            this.btnToggleToc.title = 'Show Table of Contents';
+        }
     }
     
     async loadDocuments() {

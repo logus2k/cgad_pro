@@ -26,10 +26,38 @@
 /* Footer with action buttons */
 .report-workspace-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    align-items: center;
     gap: 8px;
     padding: 10px 8px;
     flex-shrink: 0;
+}
+
+.report-footer-spacer {
+    flex: 1;
+}
+
+/* Toggle TOC button */
+.report-btn-toggle-toc {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    padding: 0px !important;
+}
+
+.report-btn-toggle-toc:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.report-btn-toggle-toc img {
+    width: 20px;
+    height: 20px;
 }
 
 /* Buttons */
@@ -100,6 +128,12 @@
     flex-direction: column;
     overflow: hidden;
     margin-top: 4px;
+    transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.report-toc-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
 }
 
 .report-toc-tree {
