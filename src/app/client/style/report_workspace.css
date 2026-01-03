@@ -317,7 +317,7 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
 
 .report-preview-area th,
 .report-preview-area td {
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     text-align: left;
 }
