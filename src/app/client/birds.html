@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Flock</title>
+    <link rel="stylesheet" href="./style/bird-flock.css">
+    <script type="text/javascript" src="./script/bird-flock.js"></script>
+</head>
+<body>
+    <div id="bird-horizon"></div>
+    <script>
+        const birdFlock = new BirdFlock("bird-horizon", {
+            top: 5,
+            height: 50,
+            speed: 60,
+            count: 8,
+            flocking: 0.8,
+            distance: 14,
+            loop: 0,
+            fadeOut: 0.5
+        });
+    </script>
+</body>
+</html>

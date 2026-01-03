@@ -1,5 +1,6 @@
 import { MillimetricScene } from '../script/scene.js';
 import { WaveBackground } from '../script/wave-background.js';
+import { BirdFlock } from '../script/bird-flock.js';
 import { FEMClient } from '../script/fem-client.js';
 import { MetricsDisplay } from '../script/metrics-display.js';
 import { FEMMeshRendererCPU } from '../script/fem-mesh-renderer-cpu.js';
@@ -86,6 +87,17 @@ const waveBackground = new WaveBackground(
 
 // Start the animation loop
 waveBackground.start();
+
+const birdFlock = new BirdFlock("bird-horizon", {
+    top: 1,
+    height: 50,
+    speed: 100,
+    count: 8,
+    flocking: 0.8,
+    distance: 16,
+    loop: 0,
+    fadeOut: 0.65
+});
 
 // Override millimetricScene.render to always include waves
 const originalRender = millimetricScene.render.bind(millimetricScene);
