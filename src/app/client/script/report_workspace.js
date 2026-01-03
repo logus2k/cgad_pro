@@ -113,6 +113,16 @@ export class ReportWorkspace {
         }));
         
         this.initTree(treeData);
+        
+        // Auto-select first document
+        if (this.documents.length > 0) {
+            const firstDoc = this.documents[0];
+            const firstNode = this.treeInstance?.findKey(firstDoc.id);
+            if (firstNode) {
+                firstNode.setActive(true);
+                this.loadDocument(firstDoc.id, firstNode);
+            }
+        }
     }
     
     initTree(data) {
@@ -169,10 +179,15 @@ export class ReportWorkspace {
             return;
         }
         
-        // Document - load it
+        // Document - load if different
         if (key !== this.currentDocument) {
             await this.loadDocument(key, node);
         }
+        
+        // Scroll to top - use scrollTop directly
+        console.log('[ReportWorkspace] Before scroll:', this.previewArea.scrollTop);
+        this.previewArea.scrollTop = 0;
+        console.log('[ReportWorkspace] After scroll:', this.previewArea.scrollTop);
     }
     
     async loadDocument(documentId, node) {
@@ -451,7 +466,7 @@ class UndockedEditorPanel {
         this.panel.style.cssText = 'top:100px;left:200px;width:700px;height:500px;position:absolute;';
         
         this.panel.innerHTML = `
-            <h1>EDITOR - ${this.documentTitle}</h1>
+            <h1>Editor: ${this.documentTitle}</h1>
             <button class="pm-close" title="Close">&times;</button>
             <div class="undocked-editor-body">
                 <div class="undocked-editor-container">
