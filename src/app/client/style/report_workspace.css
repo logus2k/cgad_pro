@@ -399,7 +399,7 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
 
 .report-editor-area .EasyMDEContainer .editor-toolbar {
     border: none;
-    background: #ffe29dd6;
+    background: #ffd891;
     border-bottom: 1px solid #ddd;
     padding: 2px;
 }
@@ -447,6 +447,7 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    margin: 5px;
 }
 
 .undocked-editor-container .EasyMDEContainer {
@@ -499,9 +500,9 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
 
 .undocked-editor-container .EasyMDEContainer .editor-toolbar {
     border: none;
-    background-color: #ffe7bc;
+    background-color: #ffd891;
     border-bottom: 0.5px solid #cecece;
-    padding: 0px 5px;
+    padding: 0px;
 }
 
 .undocked-editor-footer {
