@@ -512,6 +512,7 @@ export class BenchmarkPanel {
                 <td colspan="13">
                     <div class="group-header-content">
                         <span class="group-toggle">${toggleIcon}</span>
+                        <span class="group-hostname">${hostname}</span>
                         <span class="group-cpu" title="${config.cpu_model || ''}">${cpuShort}</span>
                         <span class="group-separator">|</span>
                         <span class="group-ram">${ram} RAM</span>
@@ -519,7 +520,6 @@ export class BenchmarkPanel {
                         <span class="group-gpu" title="${config.gpu_model || ''}">${gpuShort}</span>
                         <span class="group-separator">|</span>
                         <span class="group-vram">${vram} VRAM</span>
-                        <span class="group-hostname">[${hostname}]</span>
                         <span class="group-count">(${countDisplay})</span>
                     </div>
                 </td>

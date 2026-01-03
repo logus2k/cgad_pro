@@ -27,7 +27,7 @@
 }
 
 .benchmark-stat-value {
-    font-size: 18px;
+    font-size: 22px;
     font-family: 'Roboto', sans-serif;
     font-weight: 700;
     color: #2a922a;
@@ -222,14 +222,14 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
    ============================================ */
 
 .benchmark-group-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #ffe9d3 0%, #ffd79e 100%);
     cursor: pointer;
     user-select: none;
     border-bottom: 2px solid #dee2e6;
 }
 
 .benchmark-group-header:hover {
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    background: linear-gradient(135deg, #ffe9d3 0%, #ffd79e 100%);
 }
 
 .benchmark-group-header.collapsed {
@@ -237,7 +237,7 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 }
 
 .benchmark-group-header.expanded {
-    border-bottom: 2px solid #adb5bd;
+    border-bottom: 2px solid #f4d3b9;
 }
 
 .benchmark-group-header td {
@@ -281,17 +281,20 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 }
 
 .group-hostname {
-    color: #6c757d;
+    color: #333333;
     font-size: 0.7rem;
-    font-style: italic;
-    margin-left: auto;
+    margin-left: 0px;
+    border: 0.5 solid #cecece;
+    background-color: #9bd0a3;
+    border-radius: 4px;
+    padding: 4px 8px;
 }
 
 .group-count {
-    color: #868e96;
+    color: #333333;
     font-size: 0.7rem;
     font-weight: 400;
-    margin-left: 8px;
+    margin-left: auto;
 }
 
 /* Record rows within groups */
