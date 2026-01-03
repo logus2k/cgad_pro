@@ -166,7 +166,6 @@
 
 .model-metadata {
     border-top: 1px dashed var(--hud-fg-dim, #ccc);
-    padding-top: 8px;
 }
 
 .meta-row {
@@ -258,6 +257,10 @@
     gap: 10px;
 }
 
+button#nextBtn.btn.btn-primary {
+    margin-right: 135px;
+}
+
 /* Button Base Styles */
 .carousel-controls .btn {
     padding: 2px 15px;
@@ -309,9 +312,7 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 8px;
-    padding-top: 8px;
     padding-bottom: 8px;
-    border-top: 1px dashed var(--hud-fg-dim, #ccc);
     border-bottom: 1px dashed var(--hud-fg-dim, #ccc);
 }
 
@@ -345,10 +346,18 @@
    Mesh & Solver Selection Dropdowns
    ========================================================================== */
 
+.mesh-row {
+    padding-bottom: 8px;
+    padding-top: 8px;
+}
+
 .mesh-row, .solver-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-bottom: 8px;
+    padding-left: 4px;
+    border-bottom: 1px dashed var(--hud-fg-dim, #ccc);
 }
 
 .mesh-row label,

@@ -30,7 +30,8 @@ class MeshGallery {
         this.cancelBtn = document.getElementById('cancelBtn');
         this.gallery = document.getElementById('hud-gallery');
 
-        // Clear existing text and load SVG icons (if menuManager available)
+        // Clear existing text and load SVG icons
+        /*
         if (this.prevBtn) {
             this.prevBtn.textContent = '';
             if (window.menuManager) {
@@ -43,6 +44,7 @@ class MeshGallery {
                 window.menuManager.getSVGIconByName(this.nextBtn, 'next', 'Next');
             }
         }
+        */
         
         // Set up mesh loader progress callback
         meshLoader.setProgressCallback((stage, progress) => {
@@ -131,16 +133,16 @@ class MeshGallery {
                 <div class="model-name">${model.name}</div>
                 <div class="model-description">${model.description}</div>
                 <div class="model-metadata">
-                    <div class="mesh-row">
-                        <label>Mesh:</label>
-                        <select class="mesh-select" data-index="${index}">
-                            ${meshOptionsHtml}
-                        </select>
-                    </div>
                     <div class="solver-row">
                         <label>Solver:</label>
                         <select class="solver-select" data-index="${index}">
                             ${solverOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="mesh-row">
+                        <label>Mesh:</label>
+                        <select class="mesh-select" data-index="${index}">
+                            ${meshOptionsHtml}
                         </select>
                     </div>
                     <div class="complexity-badge ${this.getComplexityClass(defaultMesh?.elements)}" data-complexity>
