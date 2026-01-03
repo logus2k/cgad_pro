@@ -51,10 +51,6 @@
     padding: 0px !important;
 }
 
-.report-btn-toggle-toc:hover {
-    background: rgba(0, 0, 0, 0.08);
-}
-
 .report-btn-toggle-toc img {
     width: 20px;
     height: 20px;

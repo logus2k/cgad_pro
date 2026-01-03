@@ -77,16 +77,40 @@ div.wunderbaum {
     height: calc(100% - 50px);
     min-height: 4px;
     background-color: transparent !important;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
     font-family: var(--wb-font-stack);
     font-size: 14px;
     color: var(--wb-node-text-color);
     border: 0px solid var(--wb-border-color);
-    border-radius: 4px;
+    border-radius: 0px;
     background-clip: content-box;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+/* Width */
+div.wunderbaum::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+div.wunderbaum::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+div.wunderbaum::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+div.wunderbaum::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
 }
 
 div.wunderbaum span.wb-node span.wb-title {
