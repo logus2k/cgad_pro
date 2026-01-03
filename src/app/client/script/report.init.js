@@ -3,6 +3,7 @@
  * 
  * Integrates ReportWorkspace with MenuManager visibility system.
  * Initializes the workspace lazily when first shown.
+ * Configures marked.js with KaTeX and highlight.js extensions.
  * 
  * Location: /src/app/client/script/report.init.js
  */
@@ -11,12 +12,63 @@ import { ReportWorkspace } from './report_workspace.js';
 
 let reportWorkspace = null;
 let initialized = false;
+let markedConfigured = false;
+
+/**
+ * Configure marked.js with KaTeX math and highlight.js code highlighting
+ */
+function configureMarked() {
+    if (markedConfigured) return;
+    
+    if (!window.marked) {
+        console.warn('[Report] marked.js not loaded');
+        return;
+    }
+    
+    // Configure highlight.js extension for code syntax highlighting
+    // Must be configured BEFORE KaTeX extension
+    if (window.markedHighlight && window.hljs) {
+        window.marked.use(window.markedHighlight.markedHighlight({
+            langPrefix: 'hljs language-',
+            highlight: function(code, lang) {
+                if (lang && window.hljs.getLanguage(lang)) {
+                    try {
+                        return window.hljs.highlight(code, { language: lang }).value;
+                    } catch (e) {
+                        console.warn('[Report] Highlight error:', e);
+                    }
+                }
+                // Fallback to auto-detection
+                try {
+                    return window.hljs.highlightAuto(code).value;
+                } catch (e) {
+                    return code;
+                }
+            }
+        }));
+        console.log('[Report] highlight.js extension configured');
+    }
+    
+    // Configure KaTeX extension for math rendering
+    if (window.markedKatex) {
+        window.marked.use(window.markedKatex({
+            throwOnError: false,
+            output: 'html'
+        }));
+        console.log('[Report] KaTeX extension configured');
+    }
+    
+    markedConfigured = true;
+}
 
 /**
  * Initialize report workspace (called once when first shown)
  */
 function initReport() {
     if (initialized) return;
+    
+    // Configure marked extensions first
+    configureMarked();
     
     const container = document.querySelector('.report-workspace-container');
     if (!container) {
@@ -82,10 +134,14 @@ function setupVisibilityObserver() {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupVisibilityObserver);
+    document.addEventListener('DOMContentLoaded', () => {
+        configureMarked();
+        setupVisibilityObserver();
+    });
 } else {
+    configureMarked();
     setupVisibilityObserver();
 }
 
 // Export for external access
-export { reportWorkspace, initReport };
+export { reportWorkspace, initReport, configureMarked };

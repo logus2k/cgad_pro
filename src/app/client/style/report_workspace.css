@@ -547,3 +547,7 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
     flex-shrink: 0;
 }
+
+pre code.hljs {
+    font-size: 14px;
+}
