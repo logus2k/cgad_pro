@@ -190,9 +190,11 @@
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
-.complexity-low { color: #268a7e; }
-.complexity-med { color: #eb9148; }
-.complexity-high { color: var(--hud-warm, #d63939); }
+.complexity-unknown { color: #b0b0b0; }
+.complexity-low { color: #67c1b7; }
+.complexity-med { color: #eff2a2; }
+.complexity-high { color: var(--hud-warm, #ffb766); }
+.complexity-very-high { color: var(--hud-warm, #f54e4e); }
 
 /* ==========================================================================
    Navigation & Controls

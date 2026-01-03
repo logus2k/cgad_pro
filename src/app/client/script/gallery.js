@@ -204,17 +204,19 @@ class MeshGallery {
     }
     
     getComplexityClass(elements) {
-        if (!elements) return 'complexity-low';
-        if (elements < 5000) return 'complexity-low';
-        if (elements < 50000) return 'complexity-med';
-        return 'complexity-high';
+        if (!elements) return 'complexity-unknown';
+        if (elements < 500) return 'complexity-low';
+        if (elements < 100000) return 'complexity-med';
+        if (elements <= 200000) return 'complexity-high';
+        if (elements > 200000) return 'complexity-very-high';
     }
     
     getComplexityLabel(elements) {
-        if (!elements) return 'Unknown Complexity';
-        if (elements < 5000) return 'Low Complexity';
-        if (elements < 50000) return 'Medium Complexity';
-        return 'High Complexity';
+        if (!elements) return 'Unknown Size';
+        if (elements < 500) return 'Small';
+        if (elements < 100000) return 'Medium';
+        if (elements <= 200000) return 'Large';
+        if (elements > 200000) return 'Very Large';
     }
     
     renderNavDots() {

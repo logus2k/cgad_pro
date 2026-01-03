@@ -42,6 +42,11 @@
             "file": "tutorial2/tutorial2_impl_6_gpu_cupy.md"
         },
         {
+            "id": "tutorial2_benchmark_procedure",
+            "title": "Tutorial #2 - Benchmark Procedure",
+            "file": "tutorial2/tutorial2_benchmark_procedure.md"
+        },
+        {
             "id": "docker_user_manual",
             "title": "Docker User Manual",
             "file": "docker/docker_user_manual.md"

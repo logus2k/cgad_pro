@@ -42,30 +42,30 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
-					"label": "201 nodes, 53 elements",
-					"file": "./mesh/y_tube1_53.h5",
+					"label": "201 nodes, 52 elements",
+					"file": "./mesh/y_tube1_52.h5",
 					"nodes": 201,
-					"elements": 53
+					"elements": 52
 				},
 				{
-					"label": "196k nodes, 47k elements",
+					"label": "195k nodes, 48k elements",
 					"file": "./mesh/y_tube1_195k.h5",
 					"nodes": 195853,
-					"elements": 46607,
+					"elements": 48607,
 					"default": true
 				},
 				{
 					"label": "772k nodes, 192k elements",
 					"file": "./mesh/y_tube1_772k.h5",
-					"nodes": 195853,
-					"elements": 46607,
+					"nodes": 772069,
+					"elements": 192308,
 					"default": true
 				},
 				{
 					"label": "1.3M nodes, 338k elements",
 					"file": "./mesh/y_tube1_1_3m.h5",
-					"nodes": 195853,
-					"elements": 46607,
+					"nodes": 1357953,
+					"elements": 338544,
 					"default": true
 				}								
 			]
@@ -98,7 +98,7 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
-					"label": "196k nodes, 65k elements",
+					"label": "196k nodes, 64k elements",
 					"file": "./mesh/s_bend_196k.h5",
 					"nodes": 196078,
 					"elements": 64787,
@@ -116,10 +116,10 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
-					"label": "196k nodes, 66k elements",
+					"label": "196k nodes, 64k elements",
 					"file": "./mesh/t_junction_196k.h5",
 					"nodes": 196420,
-					"elements": 66453,
+					"elements": 64987,
 					"default": true
 				}
 			]
@@ -134,7 +134,7 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
-					"label": "195k nodes, 65k elements",
+					"label": "195k nodes, 64k elements",
 					"file": "./mesh/backward_step_195k.h5",
 					"nodes": 195362,
 					"elements": 64713,
