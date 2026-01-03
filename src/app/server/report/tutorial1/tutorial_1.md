@@ -28,7 +28,7 @@ By applying a variational (weak) formulation, the governing PDE is transformed i
 
 $$\mathbf{K}\mathbf{u} = \mathbf{f},$$
 
-where ($\mathbf{K}$) is the global stiffness matrix, ($\mathbf{u}$) is the vector of nodal unknowns, and ($\mathbf{f}$) represents the global load vector. The stiffness matrix is typically sparse, symmetric, and positive definite, properties that strongly influence the choice of numerical solvers and optimisation strategies.
+where $\mathbf{K}$ is the global stiffness matrix, $\mathbf{u}$ is the vector of nodal unknowns, and $\mathbf{f}$ represents the global load vector. The stiffness matrix is typically sparse, symmetric, and positive definite, properties that strongly influence the choice of numerical solvers and optimisation strategies.
 
 ---
 

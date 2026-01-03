@@ -41,6 +41,13 @@ export class ReportWorkspace {
     }
     
     async init() {
+        // Configure marked with KaTeX extension
+        if (window.marked && window.markedKatex) {
+            marked.use(markedKatex({
+                throwOnError: false
+            }));
+        }
+        
         this.render();
         this.bindEvents();
         await this.loadDocuments();
@@ -194,11 +201,8 @@ export class ReportWorkspace {
                 }
             }
             
-            // Scroll to the header
-            const target = document.getElementById(`report-heading-${index}`);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // Scroll to the header within main area
+            this.scrollToHeader(index);
             return;
         }
         
@@ -207,10 +211,19 @@ export class ReportWorkspace {
             await this.loadDocument(key, node);
         }
         
-        // Scroll to first header (top of content)
-        const firstHeader = document.getElementById('report-heading-0');
-        if (firstHeader) {
-            firstHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll to top
+        this.scrollToHeader(0);
+    }
+    
+    scrollToHeader(index) {
+        const mainArea = this.container.querySelector('.report-main-area');
+        const target = document.getElementById(`report-heading-${index}`);
+        
+        if (mainArea && target) {
+            const containerRect = mainArea.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+            const offset = targetRect.top - containerRect.top + mainArea.scrollTop;
+            mainArea.scrollTo({ top: offset, behavior: 'smooth' });
         }
     }
     
