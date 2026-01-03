@@ -86,7 +86,7 @@ div.wunderbaum {
     border-radius: 0px;
     background-clip: content-box;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 /* Width */

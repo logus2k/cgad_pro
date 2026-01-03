@@ -2,11 +2,6 @@
     "title": "Project Reports",
     "documents": [
         {
-            "id": "docker_user_manual",
-            "title": "Docker User Manual",
-            "file": "docker/docker_user_manual.md"
-        },
-        {
             "id": "tutorial_1",
             "title": "Tutorial #1 - Project Proposal",
             "file": "tutorial1/tutorial_1.md"
@@ -45,6 +40,11 @@
             "id": "tutorial2_impl_6_gpu_cupy",
             "title": "Tutorial #2 - GPU CuPy (RawKernel)",
             "file": "tutorial2/tutorial2_impl_6_gpu_cupy.md"
-        }        
+        },
+        {
+            "id": "docker_user_manual",
+            "title": "Docker User Manual",
+            "file": "docker/docker_user_manual.md"
+        }
     ]
 }
