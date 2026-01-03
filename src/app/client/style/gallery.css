@@ -190,11 +190,30 @@
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
-.complexity-unknown { color: #b0b0b0; }
-.complexity-low { color: #67c1b7; }
-.complexity-med { color: #eff2a2; }
-.complexity-high { color: var(--hud-warm, #ffb766); }
-.complexity-very-high { color: var(--hud-warm, #f54e4e); }
+.complexity-unknown {
+    color: #333333;
+    background-color: #b0b0b0;
+}
+
+.complexity-low {
+    color: #333333;
+    background-color: #8beb95;
+}
+
+.complexity-med {
+    color: #333333;
+    background-color: #ffe97b;
+}
+
+.complexity-high {
+    color: #333333;
+    background-color: #ffc27e;
+}
+
+.complexity-very-high {
+    color: #f9f9f9;
+    background-color: #df6666;
+}
 
 /* ==========================================================================
    Navigation & Controls
