@@ -89,7 +89,7 @@ const waveBackground = new WaveBackground(
 waveBackground.start();
 
 const birdFlock = new BirdFlock("bird-horizon", {
-    top: 1,
+    top: 10,
     height: 50,
     speed: 100,
     count: 8,
