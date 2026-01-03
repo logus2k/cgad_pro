@@ -94,7 +94,7 @@ div.wunderbaum span.wb-node span.wb-title {
     vertical-align: top !important;
     font-size: 13px;
     padding-left: 3px;
-    padding-top: 1px;
+    padding-top: 2px;
 }
 
 div.wunderbaum span.wb-node i.wb-expander, div.wunderbaum span.wb-node i.wb-icon {

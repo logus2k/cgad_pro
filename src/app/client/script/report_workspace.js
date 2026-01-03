@@ -467,7 +467,7 @@ class UndockedEditorPanel {
         this.panel.style.cssText = 'top:100px;left:200px;width:700px;height:500px;position:absolute;';
         
         this.panel.innerHTML = `
-            <h1>Editor: ${this.documentTitle}</h1>
+            <h1>EDITOR - ${this.documentTitle}</h1>
             <button class="pm-close" title="Close">&times;</button>
             <div class="undocked-editor-body">
                 <div class="undocked-editor-container">
