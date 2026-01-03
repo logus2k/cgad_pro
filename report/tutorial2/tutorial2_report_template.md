@@ -25,4 +25,3 @@ Overview of all 6 implementations and key findings.
 - Key takeaways
 - Recommendations for different use cases
 - Future improvements
-  

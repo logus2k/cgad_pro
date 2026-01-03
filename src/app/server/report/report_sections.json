@@ -2,14 +2,19 @@
     "title": "Project Reports",
     "documents": [
         {
+            "id": "docker_user_manual",
+            "title": "Docker User Manual",
+            "file": "docker/docker_user_manual.md"
+        },
+        {
             "id": "tutorial_1",
             "title": "Tutorial #1",
             "file": "tutorial1/tutorial_1.md"
         },
         {
-            "id": "tutorial_2",
-            "title": "Tutorial #2",
-            "file": "tutorial2/tutorial_2.md"
+            "id": "tutorial2_common_foundation",
+            "title": "Tutorial #2 - Common Foundation",
+            "file": "tutorial2/tutorial2_common_foundation.md"
         }
     ]
 }
