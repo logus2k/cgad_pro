@@ -360,9 +360,9 @@ div.report-main-area::-webkit-scrollbar-thumb:hover {
 
 .report-editor-area .EasyMDEContainer .editor-toolbar {
     border: none;
-    background: #f8f9fa;
+    background: #ffe29dd6;
     border-bottom: 1px solid #ddd;
-    padding: 5px 10px;
+    padding: 2px 5px;
 }
 
 .report-editor-area .EasyMDEContainer .editor-toolbar button {

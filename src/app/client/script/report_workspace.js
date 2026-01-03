@@ -184,10 +184,11 @@ export class ReportWorkspace {
             await this.loadDocument(key, node);
         }
         
-        // Scroll to top - use scrollTop directly
-        console.log('[ReportWorkspace] Before scroll:', this.previewArea.scrollTop);
-        this.previewArea.scrollTop = 0;
-        console.log('[ReportWorkspace] After scroll:', this.previewArea.scrollTop);
+        // Scroll to first header (top of content)
+        const firstHeader = document.getElementById('report-heading-0');
+        if (firstHeader) {
+            firstHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
     
     async loadDocument(documentId, node) {
