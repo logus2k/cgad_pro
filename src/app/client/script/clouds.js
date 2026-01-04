@@ -1,25 +1,45 @@
-function rn(from, to) {
-  return ~~(Math.random() * (to - from + 1)) + from;
-}
+export class CloudGradient {
 
-function rs() {
-  return arguments[rn(1, arguments.length) - 1];
-}
+	constructor(selector, options = {}) {
+		this.element = document.querySelector(selector);
+		this.count = options.count || 100;
+		this.colors = options.colors || ['#ffffff', '#f0fff3', '#f0f0f0', '#e8f8f8'];
+		this.blur = options.blur || [10, 25];
+		this.spread = options.spread || [1, 15];
+		this.x = options.x || [1, 100];
+		this.y = options.y || [-20, 120];
+	}
 
-function boxShadows(max) {
-  let ret = [];
-  for (let i = 0; i < max; ++i) {
-    ret.push(`
-      ${ rn(1, 100) }vw ${ rn(1, 100) }vh ${ rn(20, 40) }vmin ${ rn(1, 20) }vmin
-      ${ rs('#11cbd7', '#c6f1e7', '#f0fff3', '#f0f0f0') }
-    `)
-  }
-  return ret.join(',');
-}
+	rn(from, to) {
+		return ~~(Math.random() * (to - from + 1)) + from;
+	}
 
-const cloud = document.querySelector('#cloud');
-function update() {
-  cloud.style.boxShadow = boxShadows(100); 
-}
+	rs(arr) {
+		return arr[this.rn(0, arr.length - 1)];
+	}
 
-window.addEventListener('load', update); 
+	generateShadows() {
+		const shadows = [];
+		for (let i = 0; i < this.count; ++i) {
+			shadows.push(`
+        ${this.rn(this.x[0], this.x[1])}vw ${this.rn(this.y[0], this.y[1])}px ${this.rn(this.blur[0], this.blur[1])}px ${this.rn(this.spread[0], this.spread[1])}px
+        ${this.rs(this.colors)}
+      `);
+		}
+		return shadows.join(',');
+	}
+
+	update() {
+		if (this.element) {
+			this.element.style.boxShadow = this.generateShadows();
+		}
+	}
+
+	init() {
+		if (document.readyState === 'loading') {
+			window.addEventListener('load', () => this.update());
+		} else {
+			this.update();
+		}
+	}
+}

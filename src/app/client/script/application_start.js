@@ -1,6 +1,7 @@
 import { MillimetricScene } from '../script/scene.js';
 import { WaveBackground } from '../script/wave-background.js';
 import { BirdFlock } from '../script/bird-flock.js';
+import { CloudGradient } from '../script/clouds.js';
 import { FEMClient } from '../script/fem-client.js';
 import { MetricsDisplay } from '../script/metrics-display.js';
 import { FEMMeshRendererCPU } from '../script/fem-mesh-renderer-cpu.js';
@@ -98,6 +99,16 @@ const birdFlock = new BirdFlock("bird-horizon", {
     loop: 0,
     fadeOut: 0.65
 });
+
+const clouds = new CloudGradient('#cloud', {
+    count: 60,
+    colors: ['#ffffff', '#f0fff3', '#f8ffff', '#e8f8f8'],
+    blur: [5, 80],
+    spread: [10, 50],
+    x: [0, 100],
+    y: [-10, 70]
+});
+clouds.init();
 
 // Override millimetricScene.render to always include waves
 const originalRender = millimetricScene.render.bind(millimetricScene);
