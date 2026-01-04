@@ -3,7 +3,7 @@
     top: 0;
     right: 0;
     width: 80%;
-    height: calc(var(--horizon-top) + 11px);
+    height: calc(var(--horizon-top) + 12px);
     overflow: hidden;
     pointer-events: none;
     background: linear-gradient(to left, #73e7ee, #ffffff);
