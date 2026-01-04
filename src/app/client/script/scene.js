@@ -26,7 +26,7 @@ export class MillimetricScene {
         this.renderer = new THREE.WebGLRenderer({ 
             antialias: true,
             alpha: true,
-            powerPreference: "low-power" // Prefers integrated GPU to save energy
+            // powerPreference: "low-power" // Prefers integrated GPU to save energy
         });
         
         // Limit pixel ratio to 2. High-DPI (Retina) screens often 
@@ -38,7 +38,7 @@ export class MillimetricScene {
         // Controls Setup
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         
-        // DISABLING DAMPING: This ensures that when you stop moving the mouse, 
+        // DISABLING DAMPING: This ensures that when we stop moving the mouse, 
         // the 'change' event stops firing immediately, dropping GPU usage to 0%.
         this.controls.enableDamping = false; 
         

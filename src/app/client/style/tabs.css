@@ -65,7 +65,7 @@
 }
 
 .hud .tab.active:hover {
-    background-color: #fff4e5 !important;
+    background-color: #fff4e5ff !important;
     margin-bottom: -1px;
     border-bottom: 0.5px solid #fff4e5;
 }
