@@ -9,12 +9,11 @@
 
 /* Category sections */
 .metrics-category {
-    background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
 }
 
 .metrics-category + .metrics-category {
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.3);
 }
 
 .metrics-category-header {
@@ -61,7 +60,7 @@
 
 .metric-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: 4px 0px;
     border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
 }
