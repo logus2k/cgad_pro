@@ -17,8 +17,8 @@ html {
 
 .pena-palace {
     position: absolute;
-    width: 110px;
-    top: calc(var(--horizon-top) - 44px);
+    width: 125px;
+    top: calc(var(--horizon-top) - 50px);
     right: 120px;
     z-index: 1;
 }
