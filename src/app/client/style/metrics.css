@@ -31,7 +31,7 @@
 
 .metrics-container {
     margin: 0px;
-    padding: 4px 10px 4px 10px;
+    padding: 5px 12px 5px 12px;
 }
 
 .metrics-catalog-container {
@@ -58,4 +58,46 @@
     font-family: 'Roboto', sans-serif;
     font-size: 11px;
     color: #252525;
+}
+
+/* Action buttons */
+.metric-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0px 0px 0px;
+    margin-top: 3px;
+    border-top: 1px dashed #ccc;
+}
+
+.metric-actions .btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.metric-actions .btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    border-color: #0f9ce2;
+    color: #0f9ce2;
+}
+
+.metric-actions .btn-primary {
+    background: #0f9ce2;
+    color: white;
+    border: 1px solid #0f9ce2;
+}
+
+.metric-actions .btn-warning {
+    background: #ff9f43;
+    color: #333333;
+    border: 1px solid #e88a2d;
+}
+
+.metric-actions .btn-warning:hover:not(:disabled) {
+    background: #ffbe76;
+    border-color: #e88a2d;
+    color: #333333;
 }

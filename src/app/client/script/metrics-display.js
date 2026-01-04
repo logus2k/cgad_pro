@@ -2,6 +2,7 @@
  * Metrics Display Manager - Updates HUD with real-time solver metrics
   */
 export class MetricsDisplay {
+
     constructor(hudElement) {
         this.container = hudElement.querySelector('.metrics-container');
         this.metrics = {};
@@ -10,7 +11,13 @@ export class MetricsDisplay {
         this.residualHistory = [];
         this.maxHistory = 80; // Number of points displayed on the X-axis
         
+        // Current simulation info
+        this.currentModel = null;
+        this.currentMesh = null;
+        this.currentSolver = null;
+        
         this.createMetricElements();
+        this.bindEvents();
         
         // Initialize Canvas context
         this.canvas = document.getElementById('convergence-plot');
@@ -19,6 +26,18 @@ export class MetricsDisplay {
     
     createMetricElements() {
         this.container.innerHTML = `
+            <div class="metric-row">
+                <span class="metric-label">Model:</span>
+                <span class="metric-value" id="metric-model">-</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Mesh:</span>
+                <span class="metric-value" id="metric-mesh">-</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Solver:</span>
+                <span class="metric-value" id="metric-solver">-</span>
+            </div>
             <div class="metric-row">
                 <span class="metric-label">Status:</span>
                 <span class="metric-value" id="metric-status">Idle</span>
@@ -62,7 +81,73 @@ export class MetricsDisplay {
                 <span class="metric-label">Total Time:</span>
                 <span class="metric-value" id="metric-total-time">-</span>
             </div>
+            
+            <div class="metric-actions">
+                <button class="btn btn-warning" id="btn-clear-scene">Clear Scene</button>
+                <button class="btn btn-primary" id="btn-close-metrics">Close</button>
+            </div>
         `;
+    }
+    
+    bindEvents() {
+        // Listen for mesh selection
+        document.addEventListener('meshSelected', (e) => {
+            const { model, selectedMesh, mesh } = e.detail;
+            const solverType = mesh?.solver_type || 'gpu';
+            
+            this.currentModel = model?.name || '-';
+            this.currentMesh = selectedMesh?.label || '-';
+            this.currentSolver = this.formatSolverName(solverType);
+            
+            this.updateSimulationInfo();
+        });
+        
+        // Bind buttons after DOM is ready
+        setTimeout(() => {
+            const clearBtn = document.getElementById('btn-clear-scene');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => this.clearAll());
+            }
+            
+            const closeBtn = document.getElementById('btn-close-metrics');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => this.closePanel());
+            }
+        }, 0);
+    }
+    
+    formatSolverName(solverType) {
+        const names = {
+            'cpu': 'CPU (NumPy)',
+            'gpu': 'GPU (CuPy)',
+            'gpu_custom': 'GPU Custom (Numba)',
+            'cpu_scipy': 'CPU (SciPy)'
+        };
+        return names[solverType] || solverType.toUpperCase();
+    }
+    
+    updateSimulationInfo() {
+        const modelEl = document.getElementById('metric-model');
+        const meshEl = document.getElementById('metric-mesh');
+        const solverEl = document.getElementById('metric-solver');
+        
+        if (modelEl) modelEl.textContent = this.currentModel || '-';
+        if (meshEl) meshEl.textContent = this.currentMesh || '-';
+        if (solverEl) solverEl.textContent = this.currentSolver || '-';
+    }
+    
+    clearAll() {
+        // Clear 3D scene
+        if (window.clearScene) {
+            window.clearScene();
+        }
+        // Reset simulation info (only when user explicitly clears)
+        this.currentModel = null;
+        this.currentMesh = null;
+        this.currentSolver = null;
+        this.updateSimulationInfo();
+        // Reset metrics display
+        this.reset();
     }
     
     updateStatus(status) {
@@ -169,8 +254,11 @@ export class MetricsDisplay {
         const s = Math.floor(seconds % 60);
         return `${m}m ${s}s`;
     }
-    
+
     reset() {
+        // Don't reset simulation info here - keep model/mesh/solver visible
+        // They are only cleared when user explicitly clicks Clear button
+        
         this.updateStatus('Idle');
         this.residualHistory = [];
         document.getElementById('metric-stage').textContent = '-';
@@ -184,4 +272,26 @@ export class MetricsDisplay {
         document.getElementById('metric-total-time').textContent = '-';
         if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
+    closePanel() {
+        const metricsPanel = document.getElementById('hud-metrics');
+        if (metricsPanel) {
+            metricsPanel.style.transition = 'none';
+            metricsPanel.classList.remove('visible');
+            void metricsPanel.offsetHeight;
+            metricsPanel.style.transition = '';
+            
+            // Sync menu button state (deactivate the metrics button)
+            if (window.menuManager) {
+                const menuEl = window.menuManager.menuEl;
+                if (menuEl) {
+                    const btns = Array.from(menuEl.querySelectorAll('button'));
+                    const metricsIdx = window.menuManager.cfg.panelIds.indexOf('metrics');
+                    if (metricsIdx >= 0 && btns[metricsIdx]) {
+                        btns[metricsIdx].classList.remove('active');
+                    }
+                }
+            }
+        }
+    }    
 }

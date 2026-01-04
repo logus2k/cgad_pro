@@ -287,9 +287,9 @@
 }
 
 .carousel-controls .btn-secondary {
-    background: var(--hud-accent, #2266ff);
+    background: var(--hud-accent, #0f9ce2);
     color: white;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
 }
 
 .carousel-controls .btn-secondary:hover:not(:disabled) {
@@ -327,12 +327,12 @@
 }
 
 .solver-row select:hover {
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
 }
 
 .solver-row select:focus {
     outline: none;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
 }
 
