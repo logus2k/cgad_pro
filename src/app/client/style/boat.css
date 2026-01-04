@@ -2,8 +2,9 @@
     animation: boat-sway 6s ease-in-out infinite alternate;
     transform-origin: bottom center;
     position: absolute;
-    bottom: 20px;
-    left: 50px;
+    bottom: 16px;
+    width: 10%;
+    left: calc(100% - 95% - 20px);
 }
 
 .water-line {

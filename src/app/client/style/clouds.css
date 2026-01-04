@@ -6,7 +6,7 @@
     height: calc(var(--horizon-top) + 12px);
     overflow: hidden;
     pointer-events: none;
-    background: linear-gradient(to left, #73e7ee, #ffffff);
+    background: linear-gradient(to left, #73e7ee, transparent);
 }
 
 #cloud-layer {

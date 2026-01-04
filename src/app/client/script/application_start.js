@@ -103,10 +103,10 @@ const birdFlock = new BirdFlock("bird-horizon", {
 const clouds = new CloudGradient('#cloud', {
     count: 60,
     colors: ['#ffffff', '#f0fff3', '#f8ffff', '#e8f8f8'],
-    blur: [5, 80],
-    spread: [10, 50],
+    blur: [25, 80],
+    spread: [10, 25],
     x: [0, 100],
-    y: [-10, 70]
+    y: [0, 70]
 });
 clouds.init();
 
