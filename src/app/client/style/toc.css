@@ -115,10 +115,9 @@ div.wunderbaum::-webkit-scrollbar-thumb:hover {
 
 div.wunderbaum span.wb-node span.wb-title {
     font-family: 'Roboto', sans-serif;
-    vertical-align: top !important;
-    font-size: 13px;
+    vertical-align: middle !important;
+    font-size: 12px;
     padding-left: 3px;
-    padding-top: 2px;
 }
 
 div.wunderbaum span.wb-node i.wb-expander, div.wunderbaum span.wb-node i.wb-icon {
