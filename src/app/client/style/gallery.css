@@ -31,7 +31,7 @@
     display: flex;
     flex-wrap: nowrap;
     transition: transform 0.4s ease-out;
-    margin: 10px;
+    margin: 10px 10px 0px 10px;
     gap: 10px;
 }
 
@@ -248,7 +248,7 @@
 .carousel-controls {
     display: flex;
     justify-content: right;
-    padding: 10px 15px 15px 15px;
+    padding: 0px 15px 15px 15px;
 }
 
 .btn-group {
@@ -258,7 +258,7 @@
 
 /* Button Base Styles */
 .carousel-controls .btn {
-    padding: 2px 15px;
+    padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.8rem;
@@ -268,7 +268,7 @@
 
 .carousel-controls .btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 1);
-    border-color: var(--hud-accent, #2266ff);
+    border-color: #59bcee;
 }
 
 .carousel-controls .btn:disabled {
@@ -277,13 +277,13 @@
 
 /* Button Variants */
 .carousel-controls .btn-primary {
-    background: var(--hud-accent, #2266ff);
+    background: #0f9ce2;
     color: white;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: #0f9ce2;
 }
 
 .carousel-controls .btn-primary:hover:not(:disabled) {
-    background: #1a55dd;
+    background: #2aaff1;
 }
 
 .carousel-controls .btn-secondary {
