@@ -123,13 +123,14 @@
 
 				<div class="hud metrics" id="hud-metrics" style="z-index: 15;">
 
-					<h1>METRICS</h1>
+					<h1>SIMULATION</h1>
 					<div class="sep"></div>
 
 					<!-- Tabs container -->
 					<div class="tabs-container">
-						<div class="tab active" data-tab="tab-progress-report">Simulation</div>
-						<div class="tab" data-tab="tab-metrics-catalog">Catalog</div>
+						<div class="tab active" data-tab="tab-progress-report">Details</div>
+						<div class="tab" data-tab="tab-metrics-catalog">Metrics</div>
+						<div class="tab" data-tab="tab-metrics-settings">Settings</div>
 					</div>
 					
 					<!-- Tab content containers -->
@@ -141,7 +142,38 @@
 					<div class="tab-content" id="tab-metrics-catalog-content">
 						<div class="metrics-catalog-container">
 						</div>
-					</div>					
+					</div>
+
+					<div class="tab-content" id="tab-metrics-settings-content">
+						<div class="metrics-settings-container">
+
+							<div class="settings-group">
+								<!--
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-2dmesh">
+									<span>2D Mesh</span>
+								</label>
+								-->
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-grid" checked>
+									<span>Grid</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-particles" checked>
+									<span>Particles</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-view" checked>
+									<span>3D View</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-3dextrusion" checked>
+									<span>3D Extrusion</span>
+								</label>
+							</div>
+
+						</div>
+					</div>				
 
 				</div>
 
@@ -261,6 +293,7 @@
 	<script type="module" src="./script/gallery.js"></script>
 	<script type="module" src="./script/benchmark.init.js"></script>
 	<script type="module" src="./script/metrics-catalog.init.js"></script>
+	<script type="module" src="./script/metrics-settings.init.js"></script>	
 	<script type="module" src="./script/report.init.js"></script>
 	<script type="module" src="./script/report_viewer.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>

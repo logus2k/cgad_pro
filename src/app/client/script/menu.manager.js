@@ -86,7 +86,7 @@ export class MenuManager {
 
         const items = [
             { id: 'gallery', icon: 'deployed_code', label: 'Gallery' },
-            { id: 'metrics', icon: 'finance', label: 'Metrics' },
+            { id: 'metrics', icon: 'finance', label: 'Simulation' },
             { id: 'benchmark', icon: 'trophy', label: 'Benchmark' },
             { id: 'report', icon: 'assignment', label: 'Report' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
