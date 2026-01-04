@@ -155,7 +155,7 @@
     top: 130px;
     left: 50px;
 	width: 300px;
-	height: auto;
+	height: 200px;
 	overflow: hidden;
     background-color: #fff4e5c5;
 }
@@ -164,13 +164,11 @@
     background-color: #fff4e5;
 }
 
-.about-section {
-	font-size: 10px;
-	line-height: 1.4;
-	opacity: 0.9;
-	margin: 0px 10px 10px 10px;
+.about-container {
+	font-size: 12px;
+	line-height: 1.6;
+	margin: 10px;
 }
-
 
 .hud.settings .control-grid {
     grid-template-columns: 1fr minmax(175px, 1.2fr);
@@ -778,13 +776,6 @@ div.sep2 {
 	}
 }
 
-
-
-/* General HUD/Panel Styling */
-.hud.about {
-    /* Assuming a general style for the HUD panel container */
-    padding: 15px;
-}
 
 /* Horizontal Separator */
 .sep-line {
