@@ -103,3 +103,7 @@ body {
 #overlay {
 	pointer-events: none;
 }
+
+.application-logo {
+	position: absolute;
+}

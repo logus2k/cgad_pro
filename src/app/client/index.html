@@ -63,7 +63,7 @@
 					<div class="pena-palace-caption">ISCTE SINTRA</div>
 					<div class="boat"><img src="./images/logo/sailing_boat.svg" width="100px"></div>
 				</div>
-				<div>
+				<div class="application-logo">
 					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
 						<defs>
 							<filter id="softShadow" x="-20%" y="-20%" width="150%" height="150%">
@@ -264,42 +264,5 @@
 	<script type="module" src="./script/moveable.init.js"></script>
 	<script type="module" src="./script/report_workspace.js"></script>
 	<script type="module" src="./script/report.init.js"></script>
-
-
-
-
-  <script>
-    function rn(from, to) {
-      return ~~(Math.random() * (to - from + 1)) + from;
-    }
-
-    function rs() {
-      return arguments[rn(1, arguments.length) - 1];
-    }
-
-    function boxShadows(max) {
-      const ret = [];
-      for (let i = 0; i < max; ++i) {
-        ret.push(`
-          ${rn(1, 100)}vw ${rn(-20, 120)}px ${rn(10, 25)}px ${rn(1, 15)}px
-          ${rs('#ffffff', '#f0fff3', '#f0f0f0', '#e8f8f8')}
-        `);
-      }
-      return ret.join(',');
-    }
-
-    const cloud = document.querySelector('#cloud');
-
-    function updateClouds() {
-      cloud.style.boxShadow = boxShadows(100);
-    }
-
-    window.addEventListener('load', updateClouds);
-  </script>
-
-
-
-
-
 </body>
 </html>
