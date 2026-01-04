@@ -4,10 +4,6 @@ html {
     padding: 0;
     height: 100%;
     overflow: hidden;
-	background: linear-gradient(to bottom, #ffffff, #edfbff);
-	background-size: 100% calc(var(--horizon-top) + 10px);
-	background-position: top;
-	background-repeat: no-repeat;
 }
 
 .horizon-svg {
