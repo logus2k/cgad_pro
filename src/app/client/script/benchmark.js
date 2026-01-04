@@ -520,7 +520,7 @@ export class BenchmarkPanel {
                         <span class="group-gpu" title="${config.gpu_model || ''}">${gpuShort}</span>
                         <span class="group-separator">|</span>
                         <span class="group-vram">${vram} VRAM</span>
-                        <span class="group-count">(${countDisplay})</span>
+                        <span class="group-count">${countDisplay}</span>
                     </div>
                 </td>
             </tr>

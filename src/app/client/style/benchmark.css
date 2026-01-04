@@ -210,11 +210,11 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 }
 
 .benchmark-table tbody tr:hover {
-    background: rgba(34, 102, 255, 0.08);
+    background: rgba(255, 163, 34, 0.15);
 }
 
 .benchmark-table tbody tr.selected {
-    background: rgba(34, 102, 255, 0.15);
+    background: rgba(255, 163, 34, 0.25);
 }
 
 /* ============================================
@@ -237,7 +237,7 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 }
 
 .benchmark-group-header.expanded {
-    border-bottom: 2px solid #f4d3b9;
+    border-bottom: 0.5px solid #f4d3b9ef;
 }
 
 .benchmark-group-header td {
