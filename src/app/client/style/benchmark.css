@@ -9,42 +9,11 @@
     margin: 10px;
 }
 
-/* Stats summary - at top */
-.benchmark-summary {
-    display: flex;
-    gap: 30px;
-    padding: 10px 15px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    flex-shrink: 0;
-    justify-content: center;
-}
-
-.benchmark-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.benchmark-stat-value {
-    font-size: 22px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    color: #2a922a;
-}
-
-.benchmark-stat-label {
-    font-size: 11px;
-    color: #333;
-    text-transform: uppercase;
-    padding: 5px;
-}
-
-/* Controls bar - between summary and table */
+/* Controls bar - filters with labels */
 .benchmark-controls {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     padding: 8px 3px;
     border-radius: 4px;
     flex-shrink: 0;
@@ -52,18 +21,41 @@
 
 .benchmark-controls-left {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 12px;
+    align-items: flex-end;
 }
 
 .benchmark-controls-right {
     display: flex;
     gap: 8px;
+    align-items: flex-end;
+}
+
+/* Filter group with label above */
+.benchmark-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.benchmark-filter-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 4px;
+}
+
+/* Report controls (dropdown + button inline) */
+.benchmark-report-controls {
+    display: flex;
+    gap: 6px;
     align-items: center;
 }
 
 .benchmark-filter {
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -72,7 +64,7 @@
 }
 
 .benchmark-btn {
-    padding: 4px 12px;
+    padding: 6px 10px;
     font-size: 12px;
     border: none;
     border-radius: 4px;
@@ -144,18 +136,25 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
     cursor: pointer;
 }
 
-/* Footer with close button */
+/* Footer with buttons */
 .benchmark-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 5px 50px 5px;
     flex-shrink: 0;
+}
+
+.benchmark-footer-left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .benchmark-btn-close {
     background: #0f9ce2;
     color: #fff;
-    padding: 4px 12px;
+    padding: 6px 10px;
     font-size: 0.8rem;
 }
 
@@ -617,22 +616,6 @@ div.report-viewer-content::-webkit-scrollbar-thumb:hover {
 }
 
 
-/* Footer left section for benchmark panel */
-.benchmark-footer-left {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.benchmark-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 5px 50px 5px;
-    flex-shrink: 0;
-}
-
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
@@ -657,10 +640,12 @@ div.report-viewer-content::-webkit-scrollbar-thumb:hover {
     .benchmark-controls {
         flex-direction: column;
         gap: 8px;
+        align-items: flex-start;
     }
     
-    .benchmark-summary {
-        flex-wrap: wrap;
+    .benchmark-controls-left,
+    .benchmark-controls-right {
+        width: 100%;
     }
     
     .group-header-content {

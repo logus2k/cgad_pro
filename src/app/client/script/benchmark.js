@@ -53,44 +53,36 @@ export class BenchmarkPanel {
     
     render() {
         this.container.innerHTML = `
-            <div class="benchmark-summary" id="benchmark-summary">
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-total">0</span>
-                    <span class="benchmark-stat-label">Records</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-solvers">0</span>
-                    <span class="benchmark-stat-label">Solvers</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-models">0</span>
-                    <span class="benchmark-stat-label">Models</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-best-time">-</span>
-                    <span class="benchmark-stat-label">Best Time</span>
-                </div>
-            </div>
-            
             <div class="benchmark-controls">
                 <div class="benchmark-controls-left">
-                    <select class="benchmark-filter" id="benchmark-filter-solver">
-                        <option value="">All Solvers</option>
-                    </select>
-                    <select class="benchmark-filter" id="benchmark-filter-model">
-                        <option value="">All Models</option>
-                    </select>
-                    <select class="benchmark-filter" id="benchmark-filter-server">
-                        <option value="">All Servers</option>
-                    </select>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Solvers</label>
+                        <select class="benchmark-filter" id="benchmark-filter-solver">
+                            <option value="">All Solvers</option>
+                        </select>
+                    </div>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Meshes</label>
+                        <select class="benchmark-filter" id="benchmark-filter-model">
+                            <option value="">All Meshes</option>
+                        </select>
+                    </div>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Servers</label>
+                        <select class="benchmark-filter" id="benchmark-filter-server">
+                            <option value="">All Servers</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="benchmark-controls-right">
-                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
-                        Refresh
-                    </button>
-                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
-                        Delete Selected
-                    </button>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Reports</label>
+                        <div class="benchmark-report-controls">
+                            <select class="benchmark-filter" id="benchmark-report-section">
+                            </select>
+                            <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn">View</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -103,9 +95,12 @@ export class BenchmarkPanel {
             
             <div class="benchmark-footer">
                 <div class="benchmark-footer-left">
-                    <select class="benchmark-filter" id="benchmark-report-section">
-                    </select>
-                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn">View</button>
+                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
+                        Delete Selected
+                    </button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
+                        Refresh
+                    </button>
                 </div>
                 <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
             </div>
@@ -209,7 +204,6 @@ export class BenchmarkPanel {
                 const summary = await summaryResponse.json();
                 this.serverConfig = summary.server_config;
                 this.serverHash = summary.server_hash;
-                this.updateSummary(summary);
                 this.updateFilters(summary);
             }
             
@@ -218,28 +212,6 @@ export class BenchmarkPanel {
         } catch (error) {
             console.error('[Benchmark] Failed to fetch data:', error);
             this.renderError(error.message);
-        }
-    }
-    
-    updateSummary(summary) {
-        const statTotal = this.container.querySelector('#stat-total');
-        const statSolvers = this.container.querySelector('#stat-solvers');
-        const statModels = this.container.querySelector('#stat-models');
-        const statBestTime = this.container.querySelector('#stat-best-time');
-        
-        if (statTotal) statTotal.textContent = summary.total_records || 0;
-        if (statSolvers) statSolvers.textContent = (summary.solver_types || []).length;
-        if (statModels) statModels.textContent = (summary.models || []).length;
-        
-        // Find best time across all solvers
-        if (statBestTime && summary.best_times) {
-            const times = Object.values(summary.best_times).map(b => b.time).filter(t => t);
-            if (times.length > 0) {
-                const best = Math.min(...times);
-                statBestTime.textContent = this.formatTime(best);
-            } else {
-                statBestTime.textContent = '-';
-            }
         }
     }
     
@@ -261,7 +233,7 @@ export class BenchmarkPanel {
         
         if (modelFilter && summary.models) {
             const currentValue = modelFilter.value;
-            modelFilter.innerHTML = '<option value="">All Models</option>';
+            modelFilter.innerHTML = '<option value="">All Meshes</option>';
             summary.models.sort().forEach(model => {
                 const option = document.createElement('option');
                 option.value = model;
@@ -855,7 +827,6 @@ export class BenchmarkPanel {
             const select = this.container.querySelector('#benchmark-report-section');
             
             if (select && data.sections) {
-                // select.innerHTML = '<option value="">Select Report...</option>';
                 data.sections.forEach(section => {
                     const option = document.createElement('option');
                     option.value = section.id;
