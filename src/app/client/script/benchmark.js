@@ -550,11 +550,28 @@ export class BenchmarkPanel {
             countDisplay = `${filteredCount} of ${totalCount} records`;
         }
         
+        // Group checkbox - only show if this server owns the records
+        const canDelete = group.hash === this.serverHash;
+        const recordIds = group.filteredRecords.map(r => r.id);
+        const allSelected = recordIds.length > 0 && recordIds.every(id => this.selectedRecords.has(id));
+        const someSelected = recordIds.some(id => this.selectedRecords.has(id));
+        
+        const checkboxHtml = canDelete 
+            ? `<input type="checkbox" 
+                   class="benchmark-checkbox benchmark-group-checkbox" 
+                   data-group-key="${group.compositeKey}"
+                   data-record-ids="${recordIds.join(',')}"
+                   ${allSelected ? 'checked' : ''}
+                   ${someSelected && !allSelected ? 'indeterminate' : ''}
+                   title="Select all ${filteredCount} records in this group">`
+            : '';
+        
         return `
             <tr class="benchmark-group-header ${isExpanded ? 'expanded' : 'collapsed'}" 
                 data-group-hash="${group.compositeKey}">
                 <td colspan="13">
                     <div class="group-header-content">
+                        <span class="group-checkbox-container">${checkboxHtml}</span>
                         <span class="group-toggle">${toggleIcon}</span>
                         <span class="group-hostname">${hostname}</span>
                         <span class="group-cpu" title="${config.cpu_model || ''}">${cpuShort}</span>
@@ -649,8 +666,45 @@ export class BenchmarkPanel {
             });
         });
         
-        // Checkbox click for selection
-        table.querySelectorAll('.benchmark-checkbox').forEach(checkbox => {
+        // Group checkbox click - select/deselect all records in group
+        table.querySelectorAll('.benchmark-group-checkbox').forEach(checkbox => {
+            // Set indeterminate state (can't be set via HTML attribute)
+            const recordIds = checkbox.dataset.recordIds ? checkbox.dataset.recordIds.split(',') : [];
+            const allSelected = recordIds.length > 0 && recordIds.every(id => this.selectedRecords.has(id));
+            const someSelected = recordIds.some(id => this.selectedRecords.has(id));
+            checkbox.indeterminate = someSelected && !allSelected;
+            
+            checkbox.addEventListener('change', (e) => {
+                e.stopPropagation(); // Prevent group expand/collapse
+                
+                const recordIds = e.target.dataset.recordIds ? e.target.dataset.recordIds.split(',') : [];
+                
+                if (e.target.checked) {
+                    // Select all records in group
+                    recordIds.forEach(id => this.selectedRecords.add(id));
+                } else {
+                    // Deselect all records in group
+                    recordIds.forEach(id => this.selectedRecords.delete(id));
+                }
+                
+                this.updateDeleteButton();
+                
+                // Update individual row checkboxes and highlights
+                recordIds.forEach(id => {
+                    const rowCheckbox = table.querySelector(`.benchmark-checkbox[data-id="${id}"]`);
+                    if (rowCheckbox) {
+                        rowCheckbox.checked = e.target.checked;
+                        const row = rowCheckbox.closest('tr');
+                        if (row) {
+                            row.classList.toggle('selected', e.target.checked);
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Individual record checkbox click
+        table.querySelectorAll('.benchmark-checkbox:not(.benchmark-group-checkbox)').forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 const id = e.target.dataset.id;
                 if (e.target.checked) {
@@ -665,8 +719,36 @@ export class BenchmarkPanel {
                 if (row) {
                     row.classList.toggle('selected', e.target.checked);
                 }
+                
+                // Update group checkbox state
+                const groupHash = row?.dataset.groupHash;
+                if (groupHash) {
+                    this.updateGroupCheckboxState(table, groupHash);
+                }
             });
         });
+    }
+    
+    /**
+     * Update group checkbox checked/indeterminate state based on individual selections
+     */
+    updateGroupCheckboxState(table, groupHash) {
+        const groupCheckbox = table.querySelector(`.benchmark-group-checkbox[data-group-key="${groupHash}"]`);
+        if (!groupCheckbox) return;
+        
+        const recordIds = groupCheckbox.dataset.recordIds ? groupCheckbox.dataset.recordIds.split(',') : [];
+        const selectedCount = recordIds.filter(id => this.selectedRecords.has(id)).length;
+        
+        if (selectedCount === 0) {
+            groupCheckbox.checked = false;
+            groupCheckbox.indeterminate = false;
+        } else if (selectedCount === recordIds.length) {
+            groupCheckbox.checked = true;
+            groupCheckbox.indeterminate = false;
+        } else {
+            groupCheckbox.checked = false;
+            groupCheckbox.indeterminate = true;
+        }
     }
     
     toggleGroup(hash) {
@@ -697,24 +779,32 @@ export class BenchmarkPanel {
         const deleteBtn = this.container.querySelector('#benchmark-delete-btn');
         if (deleteBtn) {
             deleteBtn.disabled = true;
-            deleteBtn.textContent = 'Deleting...';
+            deleteBtn.textContent = `Deleting ${count}...`;
         }
         
         try {
-            const deletePromises = Array.from(this.selectedRecords).map(id =>
-                fetch(`${this.options.apiBase}/api/benchmark/${id}`, { method: 'DELETE' })
-            );
+            const ids = Array.from(this.selectedRecords);
             
-            await Promise.all(deletePromises);
+            const response = await fetch(`${this.options.apiBase}/api/benchmark/bulk-delete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
             
             this.selectedRecords.clear();
             await this.fetchData();
             
-            console.log(`[Benchmark] Deleted ${count} record(s)`);
+            console.log(`[Benchmark] Deleted ${result.deleted} record(s)`);
             
         } catch (error) {
             console.error('[Benchmark] Delete failed:', error);
-            alert('Failed to delete some records. Please try again.');
+            alert('Failed to delete records. Please try again.');
         }
         
         this.updateDeleteButton();

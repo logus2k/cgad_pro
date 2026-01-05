@@ -25,6 +25,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict, field
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 import threading
 import asyncio
@@ -347,27 +348,51 @@ class BenchmarkService:
             print(f"[Benchmark] Total: {total_loaded} records from {len(json_files)} file(s)")
     
     def _save_to_file(self) -> None:
-        """Save this server's records to its own JSON file."""
+        """Save this server's records to appropriate JSON files (manual and/or automated)."""
         with self._lock:
-            # Filter records belonging to this server
-            own_records = [
-                r.to_dict() for r in self._records.values()
-                if r.server_hash == self.server_hash
-            ]
+            # Separate records by type: manual vs automated
+            manual_records = []
+            automated_records = []
             
-            data = {
-                "version": "1.1",
-                "updated_at": datetime.utcnow().isoformat() + "Z",
-                "records": own_records
-            }
+            for r in self._records.values():
+                if r.server_hash != self.server_hash:
+                    continue  # Skip records from other servers
+                
+                if r.client_hash == "automated":
+                    automated_records.append(r.to_dict())
+                else:
+                    manual_records.append(r.to_dict())
             
-            # Write atomically
-            temp_file = self.own_data_file.with_suffix('.tmp')
-            with open(temp_file, 'w') as f:
-                json.dump(data, f, indent=2)
-            temp_file.replace(self.own_data_file)
+            # Save manual records to own_data_file
+            self._write_records_file(self.own_data_file, manual_records)
             
-            self._file_mtimes[str(self.own_data_file)] = self.own_data_file.stat().st_mtime
+            # Save automated records to _automated file
+            automated_file = self.data_dir / f"benchmark_{self.server_hash}_automated.json"
+            self._write_records_file(automated_file, automated_records)
+    
+    def _write_records_file(self, file_path: Path, records: list) -> None:
+        """Write records to a JSON file atomically."""
+        if not records:
+            # If no records, delete the file if it exists
+            if file_path.exists():
+                file_path.unlink()
+                self._file_mtimes.pop(str(file_path), None)
+                print(f"[Benchmark] Removed empty file: {file_path.name}")
+            return
+        
+        data = {
+            "version": "1.1",
+            "updated_at": datetime.utcnow().isoformat() + "Z",
+            "records": records
+        }
+        
+        # Write atomically
+        temp_file = file_path.with_suffix('.tmp')
+        with open(temp_file, 'w') as f:
+            json.dump(data, f, indent=2)
+        temp_file.replace(file_path)
+        
+        self._file_mtimes[str(file_path)] = file_path.stat().st_mtime
     
     def refresh(self) -> None:
         """Refresh data from all files if any changed externally."""
@@ -480,6 +505,41 @@ class BenchmarkService:
             del self._records[record_id]
             self._save_to_file()
             return True
+    
+    def delete_records(self, record_ids: List[str]) -> Dict[str, Any]:
+        """
+        Delete multiple records by ID (bulk operation).
+        
+        Note: Can only delete records belonging to this server.
+        Records from other servers are skipped.
+        
+        Returns:
+            Dict with 'deleted' count and 'skipped' count
+        """
+        deleted = 0
+        skipped = 0
+        
+        with self._lock:
+            for record_id in record_ids:
+                record = self._records.get(record_id)
+                if not record:
+                    skipped += 1
+                    continue
+                
+                # Check if this record belongs to this server
+                if record.server_hash != self.server_hash:
+                    skipped += 1
+                    continue
+                
+                del self._records[record_id]
+                deleted += 1
+            
+            # Save once after all deletions
+            if deleted > 0:
+                self._save_to_file()
+        
+        print(f"[Benchmark] Bulk delete: {deleted} deleted, {skipped} skipped")
+        return {"deleted": deleted, "skipped": skipped}
     
     def get_all_records(
         self,
@@ -742,6 +802,19 @@ def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Pa
         
         result = generator.generate_section(section_id)
         return result
+    
+    class BulkDeleteRequest(BaseModel):
+        ids: List[str]
+    
+    @router.post("/bulk-delete")
+    async def bulk_delete_benchmarks(request: BulkDeleteRequest):
+        """Delete multiple benchmark records in one operation."""
+        result = service.delete_records(request.ids)
+        return {
+            "status": "deleted",
+            "deleted": result["deleted"],
+            "skipped": result["skipped"]
+        }
     
     @router.get("/{record_id}")
     async def get_benchmark(record_id: str):
