@@ -55,6 +55,8 @@ Examples:
   python run_benchmark.py --dry-run              # Preview without running
   python run_benchmark.py --runs 5               # 5 runs per test
   python run_benchmark.py --clear                # Clear previous results first
+  python run_benchmark.py --resume               # Continue from last failure
+  python run_benchmark.py --resume --max-iterations 30000  # Resume with more iterations
 
 Available solvers:
   cpu, cpu_threaded, cpu_multiprocess, numba, numba_cuda, gpu
@@ -120,6 +122,19 @@ Available models:
     )
     
     parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip tests that already have results (continue from failure point)"
+    )
+    
+    parser.add_argument(
+        "--max-iterations",
+        type=int,
+        default=None,
+        help="Override max solver iterations (default: from config)"
+    )
+    
+    parser.add_argument(
         "--output-dir", "-o",
         type=str,
         default=None,
@@ -158,6 +173,10 @@ Available models:
     if args.runs:
         config.execution.runs_per_test = args.runs
     
+    # Override max iterations if specified
+    if args.max_iterations:
+        config.solver_params.max_iterations = args.max_iterations
+    
     # Output directory: /src/app/server/benchmark/
     if args.output_dir:
         output_dir = Path(args.output_dir)
@@ -189,7 +208,8 @@ Available models:
         solver_filter=args.solver,
         model_filter=args.model,
         max_nodes=args.max_nodes,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
+        resume=args.resume
     )
     
     if error and not args.dry_run:

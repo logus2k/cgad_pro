@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T21:22:55.202900Z",
+  "updated_at": "2026-01-05T23:01:32.934568Z",
   "records": [
     {
       "id": "211a6946",
@@ -2219,6 +2219,124 @@
         "baseline_ram_mb": 417.25,
         "baseline_vram_mb": 0.0,
         "sample_count": 248,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "7468fdcf",
+      "timestamp": "2026-01-05T22:46:56.477165Z",
+      "model_file": "venturi_763k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 763707,
+      "model_elements": 253704,
+      "solver_type": "cpu",
+      "converged": false,
+      "iterations": 10000,
+      "timings": {
+        "load_mesh": 0.08856372896116227,
+        "assemble_system": 121.77688625303563,
+        "apply_bc": 3.43731365702115,
+        "solve_system": 282.1928794659907,
+        "compute_derived": 31.93569632002618,
+        "print_stats": 0.004464022000320256,
+        "total_workflow": 439.7310085899662,
+        "total_program_time": 439.827975257067
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066417048715964
+        ],
+        "u_mean": 6.013433643483312,
+        "u_std": 4.360104717048615,
+        "final_residual": 0.00039648833232736334,
+        "relative_residual": 0.003771035716365518
+      },
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1189.45,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 412.39,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4270,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "7644d268",
+      "timestamp": "2026-01-05T23:01:32.925588Z",
+      "model_file": "venturi_763k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 763707,
+      "model_elements": 253704,
+      "solver_type": "cpu",
+      "converged": false,
+      "iterations": 10000,
+      "timings": {
+        "load_mesh": 0.012458991026505828,
+        "assemble_system": 121.91915522399358,
+        "apply_bc": 3.429634767002426,
+        "solve_system": 284.6904948569136,
+        "compute_derived": 32.09561882796697,
+        "print_stats": 0.003196178935468197,
+        "total_workflow": 442.2357157190563,
+        "total_program_time": 442.2368291550083
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066417048715964
+        ],
+        "u_mean": 6.013433643483312,
+        "u_std": 4.360104717048615,
+        "final_residual": 0.00039648833232736334,
+        "relative_residual": 0.003771035716365518
+      },
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1025.32,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 800.68,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4295,
         "interval_ms": 100,
         "gpu_available": true
       },

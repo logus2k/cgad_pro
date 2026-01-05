@@ -359,7 +359,8 @@ class BenchmarkRunner:
         solver_filter: Optional[str] = None,
         model_filter: Optional[str] = None,
         max_nodes: Optional[int] = None,
-        dry_run: bool = False
+        dry_run: bool = False,
+        resume: bool = False
     ) -> Tuple[List[TestResult], Optional[str]]:
         """Execute the benchmark suite."""
         test_cases = self.config.generate_test_matrix(
@@ -370,6 +371,20 @@ class BenchmarkRunner:
         
         if not test_cases:
             return [], "No test cases match the specified filters"
+        
+        # Filter out already-completed tests if resuming
+        if resume:
+            original_count = len(test_cases)
+            test_cases = [
+                tc for tc in test_cases
+                if not self.recorder.has_result(tc.solver_id, tc.model_name, tc.mesh_nodes)
+            ]
+            skipped = original_count - len(test_cases)
+            if skipped > 0:
+                print(f"\n[Resume] Skipping {skipped} already-completed tests")
+            if not test_cases:
+                print("[Resume] All tests already completed!")
+                return [], None
         
         self._print_header(test_cases, dry_run)
         

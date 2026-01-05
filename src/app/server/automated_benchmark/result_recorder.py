@@ -314,3 +314,25 @@ class ResultRecorder:
         """Get display name for the server."""
         hostname = self.server_config.get('hostname', 'UNKNOWN')
         return hostname.upper()
+    
+    def has_result(self, solver_type: str, model_name: str, mesh_nodes: int) -> bool:
+        """
+        Check if a result already exists for this test combination.
+        Used for --resume functionality.
+        """
+        for r in self.records:
+            if (r.solver_type == solver_type and 
+                r.model_name == model_name and 
+                r.model_nodes == mesh_nodes):
+                return True
+        return False
+    
+    def count_existing_for_test(self, solver_type: str, model_name: str, mesh_nodes: int) -> int:
+        """Count how many results exist for this test combination."""
+        count = 0
+        for r in self.records:
+            if (r.solver_type == solver_type and 
+                r.model_name == model_name and 
+                r.model_nodes == mesh_nodes):
+                count += 1
+        return count
