@@ -42,18 +42,11 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
-<<<<<<< HEAD
 					"label": "201 nodes, 53 elements",
 					"file": "./mesh/y_tube1_53.h5",
 					"nodes": 201,
-					"elements": 53
-=======
-					"label": "201 nodes, 52 elements",
-					"file": "./mesh/y_tube1_52.h5",
-					"nodes": 201,
-					"elements": 52,
+					"elements": 53,
 					"default": true
->>>>>>> 50af10cef321a41e69daa02e05c9507a091358d6
 				},
 				{
 					"label": "195k nodes, 48k elements",
