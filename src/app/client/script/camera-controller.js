@@ -7,6 +7,7 @@ import * as THREE from '../library/three.module.min.js';
  * 2D mode: Orthographic camera looking along -Z axis, XY grid (backdrop)
  */
 export class CameraController {
+
     constructor(perspectiveCamera, scene, renderer, orbitControls, config = {}) {
         this.perspectiveCamera = perspectiveCamera;
         this.scene = scene;

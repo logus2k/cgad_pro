@@ -270,7 +270,7 @@ export class MillimetricScene {
         const distanceH = (gridSize / 2) / (halfFovTan * aspect);
         const requiredDistance = Math.max(distanceV, distanceH); 
         
-        const margin = 0.8;
+        const margin = 1.0;
         const distance = requiredDistance * margin;
         
         // 70° from Z-axis, on the right side (positive X)
