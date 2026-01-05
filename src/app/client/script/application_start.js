@@ -829,9 +829,23 @@ window.toggle2DMesh = (visible) => {
 
 window.toggle3DExtrusion = (visible) => {
     if (meshExtruder) {
-        meshExtruder.set3DExtrusionVisible(visible);
+        if (visible) {
+            // Restore visibility based on current camera mode
+            const is2DMode = cameraController?.is2DMode ?? false;
+            if (is2DMode) {
+                meshExtruder.set2DMeshVisible(true);
+                meshExtruder.set3DExtrusionVisible(false);
+            } else {
+                meshExtruder.set2DMeshVisible(false);
+                meshExtruder.set3DExtrusionVisible(true);
+            }
+        } else {
+            // Hide both when unchecked
+            meshExtruder.set2DMeshVisible(false);
+            meshExtruder.set3DExtrusionVisible(false);
+        }
         millimetricScene.render();
-        console.log(`3D extrusion: ${visible ? 'visible' : 'hidden'}`);
+        console.log(`Solid mesh: ${visible ? 'visible' : 'hidden'}`);
     } else {
         console.warn('Mesh extruder not initialized');
     }
