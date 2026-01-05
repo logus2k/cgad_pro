@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T16:57:10.400620Z",
+  "updated_at": "2026-01-05T17:11:09.652386Z",
   "records": [
     {
       "id": "211a6946",
@@ -1455,6 +1455,711 @@
         "baseline_ram_mb": 412.57,
         "baseline_vram_mb": 0.0,
         "sample_count": 200,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "3d09afd1",
+      "timestamp": "2026-01-05T17:00:52.215952Z",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.1254035250749439,
+        "assemble_system": 0.023094389936886728,
+        "apply_bc": 0.089100246084854,
+        "convert_to_cpu": 0.05154720600694418,
+        "solve_system": 0.10491088393609971,
+        "compute_derived": 0.004980521043762565,
+        "total_workflow": 0.3552547610597685,
+        "total_program_time": 0.3871543010463938
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.501239432303468
+        ],
+        "u_mean": 7.158144659452723,
+        "u_std": 2.626034752555383,
+        "final_residual": 1.0271813113221858e-08,
+        "relative_residual": 9.304430469701129e-09
+      },
+      "matrix_nnz": 2571,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 296.72,
+        "peak_vram_mb": 0.14,
+        "baseline_ram_mb": 412.7,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "49d471aa",
+      "timestamp": "2026-01-05T17:01:07.847259Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.005428976961411536,
+        "assemble_system": 0.010819706949405372,
+        "apply_bc": 0.1187972859479487,
+        "convert_to_cpu": 3.1709101221058518,
+        "solve_system": 3.271933153970167,
+        "compute_derived": 0.002171665895730257,
+        "total_workflow": 3.423716304008849,
+        "total_program_time": 3.4246970270760357
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398817806
+        ],
+        "u_mean": 0.46867652562764306,
+        "u_std": 0.5027729817982839,
+        "final_residual": 5.9556147379963985e-09,
+        "relative_residual": 1.29473391207291e-08
+      },
+      "matrix_nnz": 5063,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 172.03,
+        "peak_vram_mb": 0.3,
+        "baseline_ram_mb": 712.42,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 35,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "0f27794d",
+      "timestamp": "2026-01-05T17:01:37.930245Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 142,
+      "timings": {
+        "load_mesh": 0.001991174998693168,
+        "assemble_system": 0.05604820104781538,
+        "apply_bc": 0.003621076000854373,
+        "solve_system": 0.028688120073638856,
+        "compute_derived": 0.01641172997187823,
+        "print_stats": 0.001884152996353805,
+        "total_workflow": 0.11109588202089071,
+        "total_program_time": 0.11203870794270188
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398640108
+        ],
+        "u_mean": 0.46867652562842654,
+        "u_std": 0.5027729817959949,
+        "final_residual": 5.508850681774332e-09,
+        "relative_residual": 1.1976086614089361e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1.56,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 882.45,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 2,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "d274fcc8",
+      "timestamp": "2026-01-05T17:01:48.507719Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "numba",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0064440189162269235,
+        "assemble_system": 0.27758611703757197,
+        "apply_bc": 0.009813678916543722,
+        "solve_system": 0.017958026030100882,
+        "compute_derived": 0.008492471999488771,
+        "total_workflow": 0.32396494306158274,
+        "total_program_time": 0.3262602440081537
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398535803
+        ],
+        "u_mean": 0.4686765256276832,
+        "u_std": 0.5027729817982048,
+        "final_residual": 6.693702387550174e-09,
+        "relative_residual": 1.455192093469807e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 40.31,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 884.02,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "eb8d2c46",
+      "timestamp": "2026-01-05T17:01:58.713544Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.002946065040305257,
+        "assemble_system": 0.023809890961274505,
+        "apply_bc": 0.0066795810125768185,
+        "solve_system": 0.0210491509642452,
+        "compute_derived": 0.007359068957157433,
+        "total_workflow": 0.06387658801395446,
+        "total_program_time": 0.06480251206085086
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398626457
+        ],
+        "u_mean": 0.46867652562806467,
+        "u_std": 0.5027729817981711,
+        "final_residual": 6.872920097757629e-09,
+        "relative_residual": 1.4941535201667444e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 924.33,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "4b74c1cd",
+      "timestamp": "2026-01-05T17:02:08.368291Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.005666134995408356,
+        "assemble_system": 2.4485817359527573,
+        "apply_bc": 0.005069229984655976,
+        "solve_system": 0.011714207008481026,
+        "compute_derived": 2.518381346948445,
+        "total_workflow": 4.992120509967208,
+        "total_program_time": 4.996033314964734
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398626457
+        ],
+        "u_mean": 0.46867652562806467,
+        "u_std": 0.5027729817981711,
+        "final_residual": 6.872920097757629e-09,
+        "relative_residual": 1.4941535201667444e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1.25,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 924.64,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 50,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "e746a6d8",
+      "timestamp": "2026-01-05T17:02:16.616329Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 142,
+      "timings": {
+        "load_mesh": 0.0021251250291243196,
+        "assemble_system": 0.06507652997970581,
+        "apply_bc": 0.006443747086450458,
+        "solve_system": 0.031345145078375936,
+        "compute_derived": 0.02503397106193006,
+        "print_stats": 0.0019671370973810554,
+        "total_workflow": 0.13516557903494686,
+        "total_program_time": 0.13607971894089133
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398640108
+        ],
+        "u_mean": 0.46867652562842654,
+        "u_std": 0.5027729817959949,
+        "final_residual": 5.508850681774332e-09,
+        "relative_residual": 1.1976086614089361e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 925.89,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 2,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "777ef207",
+      "timestamp": "2026-01-05T17:02:21.454093Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0027928079944103956,
+        "assemble_system": 0.009542824001982808,
+        "apply_bc": 0.03595758799929172,
+        "convert_to_cpu": 0.010903420974500477,
+        "solve_system": 0.09450886794365942,
+        "compute_derived": 0.002302946988493204,
+        "total_workflow": 0.15260927192866802,
+        "total_program_time": 0.153763378970325
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398817806
+        ],
+        "u_mean": 0.46867652562764306,
+        "u_std": 0.5027729817982839,
+        "final_residual": 5.9556147379963985e-09,
+        "relative_residual": 1.29473391207291e-08
+      },
+      "matrix_nnz": 5063,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1.88,
+        "peak_vram_mb": 0.29,
+        "baseline_ram_mb": 925.89,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 2,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "253199f9",
+      "timestamp": "2026-01-05T17:02:26.257393Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0034964100923389196,
+        "assemble_system": 0.009255081065930426,
+        "apply_bc": 0.041444172034971416,
+        "convert_to_cpu": 0.0077921750489622355,
+        "solve_system": 0.0899044870166108,
+        "compute_derived": 0.0030124280601739883,
+        "total_workflow": 0.15698073501698673,
+        "total_program_time": 0.15793946501798928
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398900453
+        ],
+        "u_mean": 0.468676525627783,
+        "u_std": 0.5027729817983075,
+        "final_residual": 5.856917840414774e-09,
+        "relative_residual": 1.2732774838220952e-08
+      },
+      "matrix_nnz": 5063,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 1.88,
+        "peak_vram_mb": 0.29,
+        "baseline_ram_mb": 925.77,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 2,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "722ac029",
+      "timestamp": "2026-01-05T17:02:33.964587Z",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "numba_cuda",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.004510452970862389,
+        "assemble_system": 0.9723667019279674,
+        "apply_bc": 0.005652658059261739,
+        "convert_to_gpu": 0.003716691047884524,
+        "solve_system": 0.06193223793525249,
+        "compute_derived": 0.49622852401807904,
+        "total_workflow": 1.544934552977793,
+        "total_program_time": 1.5457613199250773
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398677125
+        ],
+        "u_mean": 0.4686765256277221,
+        "u_std": 0.5027729817984111,
+        "final_residual": 6.747631182205756e-09,
+        "relative_residual": 1.4669160619179892e-08
+      },
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 57.19,
+        "peak_vram_mb": 0.07,
+        "baseline_ram_mb": 925.8,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 14,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "84029023",
+      "timestamp": "2026-01-05T17:03:14.160060Z",
+      "model_file": "elbow_90_1m.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 1044857,
+      "model_elements": 346621,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 8110,
+      "timings": {
+        "load_mesh": 0.05151860893238336,
+        "assemble_system": 0.21664405998308212,
+        "apply_bc": 4.315580466063693,
+        "convert_to_cpu": 0.07509531395044178,
+        "solve_system": 18.15202285500709,
+        "compute_derived": 0.004644142929464579,
+        "total_workflow": 22.755503233987838,
+        "total_program_time": 22.756481425953098
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9682853753513514
+        ],
+        "u_mean": 0.46184491458463856,
+        "u_std": 0.511358407308649,
+        "final_residual": 8.695373059939201e-10,
+        "relative_residual": 1.4279572488771254e-08
+      },
+      "matrix_nnz": 16280759,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 58.32,
+        "peak_vram_mb": 2442.74,
+        "baseline_ram_mb": 980.99,
+        "baseline_vram_mb": 0.07,
+        "sample_count": 224,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "dca4fae8",
+      "timestamp": "2026-01-05T17:11:09.647163Z",
+      "model_file": "venturi_1_2m.h5",
+      "model_name": "Venturi",
+      "model_nodes": 1284412,
+      "model_elements": 427017,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 10145,
+      "timings": {
+        "load_mesh": 0.18591014505364,
+        "assemble_system": 0.06945764704141766,
+        "apply_bc": 5.479907841072418,
+        "convert_to_cpu": 0.10058428102638572,
+        "solve_system": 20.281372587080114,
+        "compute_derived": 0.009048377978615463,
+        "total_workflow": 26.04088998597581,
+        "total_program_time": 26.09291344403755
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066926414002335
+        ],
+        "u_mean": 6.018201319388289,
+        "u_std": 4.360114984195543,
+        "final_residual": 1.2844534360302087e-09,
+        "relative_residual": 1.39250870629789e-08
+      },
+      "matrix_nnz": 20069252,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 410.9,
+        "peak_vram_mb": 1931.65,
+        "baseline_ram_mb": 413.46,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 258,
         "interval_ms": 100,
         "gpu_available": true
       },
