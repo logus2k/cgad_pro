@@ -554,7 +554,7 @@ div.report-viewer-content::-webkit-scrollbar-thumb:hover {
     width: calc(100% - 5px);
     border-collapse: collapse;
     margin: 10px 0px;
-    font-size: 11px;
+    font-size: 12px;
     background-color: #ffffffee;
 }
 
