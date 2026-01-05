@@ -10,7 +10,8 @@ import { MeshExtruderSDF } from '../script/mesh-extruder-sdf.js';
 import { MeshExtruderRect } from '../script/mesh-extruder-rect.js';
 import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
-import { SettingsManager } from './settings.manager.js';
+import { AxisScale } from '../script/axis-scale.js';
+import { SettingsManager } from '../script/settings.manager.js';
 import { initMetricsManager } from './metrics/MetricsManager.js';
 
 
@@ -74,6 +75,11 @@ cameraController = new CameraController(
 
 // Set reference to millimetricScene for grid switching
 cameraController.setMillimetricScene(millimetricScene);
+
+// Initialize axis scale system
+const axisScale = new AxisScale(millimetricScene.getScene());
+window.axisScale = axisScale;
+cameraController.setAxisScale(axisScale);
 
 // Set wave background (pass main scene and camera)
 const waveBackground = new WaveBackground(
@@ -215,6 +221,11 @@ function clearScene() {
         cameraController.setMeshExtruder(null);
         cameraController.setParticleFlow(null);
     }
+
+    // Hide axis scale (will be updated when new mesh loads)
+    if (axisScale) {
+        axisScale.mainGroup.visible = false;
+    }    
     
     // Render cleared scene
     millimetricScene.render();
@@ -365,6 +376,11 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
             
             millimetricScene.render();
             console.log('3D geometry created (cylindrical)');
+
+            // Update axis scale
+            if (axisScale) {
+                axisScale.updateFromMeshExtruder(meshExtruder);
+            }            
             
             if (resolveMeshExtruder) {
                 resolveMeshExtruder(meshExtruder);
@@ -436,6 +452,11 @@ function createThreeJSGeometryFromWorkerResult(result, meshData) {
     
     console.log('3D geometry created from Worker result');
     console.log(`   Vertices: ${geometry3D.vertexCount}, Mapping: ${vertexMapping.mapped} mapped, ${vertexMapping.unmapped} unmapped`);
+
+    // Update axis scale
+    if (axisScale) {
+        axisScale.updateFromMeshExtruder(meshExtruder);
+    }    
     
     // Resolve promise for any handlers waiting for meshExtruder
     if (resolveMeshExtruder) {
@@ -814,6 +835,22 @@ window.femClient = femClient;
 window.metricsDisplay = metricsDisplay;
 window.meshRenderer = meshRenderer;
 window.millimetricScene = millimetricScene;
+
+window.toggleAxisScale = (visible) => {
+    if (axisScale) {
+        if (visible === undefined) {
+            visible = axisScale.toggle();
+        } else {
+            axisScale.setVisible(visible);
+        }
+        millimetricScene.render();
+        console.log(`Axis scale: ${visible ? 'visible' : 'hidden'}`);
+        return visible;
+    } else {
+        console.warn('Axis scale not initialized');
+        return false;
+    }
+};
 
 // ============================================================================
 // Console Helper Functions

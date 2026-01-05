@@ -7,7 +7,8 @@ function initMetricsSettings() {
     const bindings = [
         { id: 'cfg-toggle-grid', fn: (checked) => window.toggleGrid?.(checked) },
         { id: 'cfg-toggle-particles', fn: (checked) => window.toggleParticles?.(checked) },
-        { id: 'cfg-toggle-3dextrusion', fn: (checked) => window.toggle3DExtrusion?.(checked) }
+        { id: 'cfg-toggle-3dextrusion', fn: (checked) => window.toggle3DExtrusion?.(checked) },
+        { id: 'cfg-toggle-axis-scale', fn: (checked) => window.toggleAxisScale?.(checked) }
     ];
     
     bindings.forEach(({ id, fn }) => {
