@@ -9,6 +9,9 @@ export class FEMMeshRendererGPU {
         this.scene = scene;
         this.meshObject = null;
         this.meshData = null;
+        
+        // Appearance settings
+        this.opacity = 1.0;
     }
 
     /**
@@ -51,11 +54,16 @@ export class FEMMeshRendererGPU {
         instancedGeo.setAttribute('nodeV_4_7', new THREE.InstancedBufferAttribute(new Float32Array(elementCount * 4), 4));
 
         const material = new THREE.ShaderMaterial({
-            uniforms: { uMin: { value: 0 }, uMax: { value: 1 } },
+            uniforms: { 
+                uMin: { value: 0 }, 
+                uMax: { value: 1 },
+                uOpacity: { value: this.opacity }
+            },
             vertexShader: this.#getVertexShader(),
             fragmentShader: this.#getFragmentShader(),
             side: THREE.DoubleSide,
-            wireframe: false // Default to solid for color visualization
+            wireframe: false,
+            transparent: this.opacity < 1.0
         });
 
         this.meshObject = new THREE.Mesh(instancedGeo, material);
@@ -126,6 +134,26 @@ export class FEMMeshRendererGPU {
             this.meshObject.material.wireframe = enabled;
         }
     }
+    
+    /**
+     * Set mesh opacity
+     * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque)
+     */
+    setOpacity(value) {
+        this.opacity = Math.max(0, Math.min(1, value));
+        if (this.meshObject && this.meshObject.material) {
+            this.meshObject.material.uniforms.uOpacity.value = this.opacity;
+            this.meshObject.material.transparent = this.opacity < 1.0;
+            this.meshObject.material.needsUpdate = true;
+        }
+    }
+    
+    /**
+     * Get current opacity
+     */
+    getOpacity() {
+        return this.opacity;
+    }
 
     /**
      * UI Compatibility: Stub for color scale logic
@@ -168,6 +196,7 @@ export class FEMMeshRendererGPU {
         return `
             uniform float uMin;
             uniform float uMax;
+            uniform float uOpacity;
             varying float vValue;
 
             void main() {
@@ -176,7 +205,7 @@ export class FEMMeshRendererGPU {
                 color.r = clamp(min(4.0 * t - 1.5, -4.0 * t + 4.5), 0.0, 1.0);
                 color.g = clamp(min(4.0 * t - 0.5, -4.0 * t + 3.5), 0.0, 1.0);
                 color.b = clamp(min(4.0 * t + 0.5, -4.0 * t + 2.5), 0.0, 1.0);
-                gl_FragColor = vec4(color, 1.0);
+                gl_FragColor = vec4(color, uOpacity);
             }
         `;
     }

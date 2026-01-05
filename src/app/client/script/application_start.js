@@ -1070,18 +1070,32 @@ window.setBrightness = (value) => {
 };
 
 /**
- * Set mesh opacity
+ * Set mesh opacity (applies to both 2D and 3D meshes)
  * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque)
  * Usage: setOpacity(0.8)
  * UI: <input type="range" min="0" max="1" step="0.05" oninput="setOpacity(this.value)">
  */
 window.setOpacity = (value) => {
+    const opacity = parseFloat(value);
+    let applied = false;
+    
+    // Apply to 3D mesh extruder
     if (meshExtruder) {
-        meshExtruder.setOpacity(parseFloat(value));
+        meshExtruder.setOpacity(opacity);
+        applied = true;
+    }
+    
+    // Apply to 2D mesh renderer
+    if (meshRenderer) {
+        meshRenderer.setOpacity(opacity);
+        applied = true;
+    }
+    
+    if (applied) {
         millimetricScene.render();
         console.log(`Opacity: ${value}`);
     } else {
-        console.warn('Mesh extruder not initialized');
+        console.warn('No mesh renderer or extruder initialized');
     }
 };
 

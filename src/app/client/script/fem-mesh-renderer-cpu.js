@@ -1,4 +1,4 @@
-// fem-mesh-renderer.js
+// fem-mesh-renderer-cpu.js
 
 import * as THREE from '../library/three.module.min.js';
 
@@ -11,6 +11,9 @@ export class FEMMeshRendererCPU {
         this.scene = scene;
         this.meshObject = null;
         this.meshData = null;
+        
+        // Appearance settings
+        this.opacity = 1.0;
         
         // Color scale for solution visualization
         this.colorScale = this.createColorScale();
@@ -47,7 +50,9 @@ export class FEMMeshRendererCPU {
         const material = new THREE.MeshBasicMaterial({
             color: 0x4a90e2,
             wireframe: true,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            transparent: this.opacity < 1.0,
+            opacity: this.opacity
         });
         
         this.meshObject = new THREE.Mesh(geometry, material);
@@ -158,7 +163,9 @@ export class FEMMeshRendererCPU {
         this.meshObject.material = new THREE.MeshBasicMaterial({
             vertexColors: true,
             side: THREE.DoubleSide,
-            wireframe: false
+            wireframe: false,
+            transparent: this.opacity < 1.0,
+            opacity: this.opacity
         });
     }
 
@@ -210,7 +217,9 @@ export class FEMMeshRendererCPU {
             this.meshObject.material = new THREE.MeshBasicMaterial({
                 vertexColors: true,
                 side: THREE.DoubleSide,
-                wireframe: false
+                wireframe: false,
+                transparent: this.opacity < 1.0,
+                opacity: this.opacity
             });
         }
     }   
@@ -290,6 +299,26 @@ export class FEMMeshRendererCPU {
     
     setWireframe(enabled) {
         if (this.meshObject) this.meshObject.material.wireframe = enabled;
+    }
+    
+    /**
+     * Set mesh opacity
+     * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque)
+     */
+    setOpacity(value) {
+        this.opacity = Math.max(0, Math.min(1, value));
+        if (this.meshObject && this.meshObject.material) {
+            this.meshObject.material.opacity = this.opacity;
+            this.meshObject.material.transparent = this.opacity < 1.0;
+            this.meshObject.material.needsUpdate = true;
+        }
+    }
+    
+    /**
+     * Get current opacity
+     */
+    getOpacity() {
+        return this.opacity;
     }
     
     clear() {
