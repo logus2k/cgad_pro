@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T05:11:56.296482Z",
+  "updated_at": "2026-01-05T05:17:32.333338Z",
   "records": [
     {
       "id": "211a6946",
@@ -983,6 +983,124 @@
         "baseline_ram_mb": 712.65,
         "baseline_vram_mb": 0.0,
         "sample_count": 256,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "f573a06c",
+      "timestamp": "2026-01-05T05:17:14.609934Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4034,
+      "timings": {
+        "load_mesh": 0.13685101899318397,
+        "assemble_system": 0.04919078794773668,
+        "apply_bc": 2.3397782390238717,
+        "convert_to_cpu": 0.07319081702735275,
+        "solve_system": 3.6989121589576825,
+        "compute_derived": 0.0037751899799332023,
+        "total_workflow": 6.238276137039065,
+        "total_program_time": 6.274054720066488
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640083801
+        ],
+        "u_mean": 6.0182481894931374,
+        "u_std": 4.364892150778565,
+        "final_residual": 2.017002193897575e-09,
+        "relative_residual": 1.3610329406605217e-08
+      },
+      "matrix_nnz": 3023503,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 321.88,
+        "peak_vram_mb": 160.24,
+        "baseline_ram_mb": 411.58,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 62,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "d7ef862e",
+      "timestamp": "2026-01-05T05:17:32.330569Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4035,
+      "timings": {
+        "load_mesh": 0.014988989918492734,
+        "assemble_system": 0.03373468795325607,
+        "apply_bc": 2.474077846040018,
+        "convert_to_cpu": 0.04115035606082529,
+        "solve_system": 3.8005968710640445,
+        "compute_derived": 0.002183006959967315,
+        "total_workflow": 6.337748396908864,
+        "total_program_time": 6.338688185904175
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.0668846400986
+        ],
+        "u_mean": 6.018248189492805,
+        "u_std": 4.364892150778318,
+        "final_residual": 2.0594149267123862e-09,
+        "relative_residual": 1.3896522087203377e-08
+      },
+      "matrix_nnz": 3023503,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 16.25,
+        "peak_vram_mb": 296.6,
+        "baseline_ram_mb": 729.61,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 63,
         "interval_ms": 100,
         "gpu_available": true
       },

@@ -88,7 +88,7 @@ export class MenuManager {
             { id: 'gallery', icon: 'filter', label: 'Gallery' },
             { id: 'metrics', icon: 'deployed_code', label: 'Simulation' },
             { id: 'benchmark', icon: 'finance', label: 'Benchmark' },
-            { id: 'report', icon: 'assignment', label: 'Report' },
+            { id: 'report', icon: 'assignment', label: 'Reporting' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
