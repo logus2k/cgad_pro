@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T03:37:19.328205Z",
+  "updated_at": "2026-01-05T03:56:23.116631Z",
   "records": [
     {
       "id": "211a6946",
@@ -804,6 +804,65 @@
         "peak_ram_mb": 322.34,
         "peak_vram_mb": 338.09,
         "baseline_ram_mb": 411.93,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 60,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "4e14b9bc",
+      "timestamp": "2026-01-05T03:56:23.114159Z",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 4033,
+      "timings": {
+        "load_mesh": 0.14271552907302976,
+        "assemble_system": 0.05189009697642177,
+        "apply_bc": 1.9983922459650785,
+        "convert_to_cpu": 0.07431747892405838,
+        "solve_system": 3.834589428966865,
+        "compute_derived": 0.0045640639727935195,
+        "total_workflow": 6.041480000014417,
+        "total_program_time": 6.079623794998042
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066884640079405
+        ],
+        "u_mean": 6.018248189492933,
+        "u_std": 4.364892150778444,
+        "final_residual": 2.017506376584779e-09,
+        "relative_residual": 1.361373153104252e-08
+      },
+      "matrix_nnz": 3023503,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 321.41,
+        "peak_vram_mb": 196.85,
+        "baseline_ram_mb": 412.79,
         "baseline_vram_mb": 0.0,
         "sample_count": 60,
         "interval_ms": 100,

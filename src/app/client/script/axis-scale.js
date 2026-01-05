@@ -1,7 +1,7 @@
 /**
  * AxisScale - Coordinate axes with tick marks and labels
  * 
- * 3D Mode: X, Y, Z axes at grid boundaries with arrows
+ * 3D Mode: X, Y, Z axes at grid boundaries with arrows, showing mesh coordinate values
  * 2D Mode: Chart-style X, Y axes close to mesh bounds
  * 
  * Location: /src/app/client/script/axis-scale.js
@@ -142,63 +142,86 @@ export class AxisScale {
     }
     
     /**
-     * Build 3D axes at grid boundaries with arrows
+     * Build 3D axes at grid boundaries with arrows, showing mesh coordinate values
      */
     build3DAxes() {
         const gridSize = this.options.gridSize;
         const halfGrid = gridSize / 2;
+        const bounds = this.meshBounds;
+        const scale = this.meshScale;
+        
+        // Calculate mesh extent in world space
+        const meshXLen = (bounds.xMax - bounds.xMin) * scale;
+        const meshYLen = (bounds.yMax - bounds.yMin) * scale;
+        const meshZLen = Math.abs(bounds.zMax - bounds.zMin) * scale || meshYLen * 0.3;
+        
+        // Mesh is centered on X, sits on floor (Y=0), centered on Z
+        const meshXStart = -meshXLen / 2;
+        const meshXEnd = meshXLen / 2;
+        const meshYStart = 0;
+        const meshYEnd = meshYLen;
+        const meshZStart = -meshZLen / 2;
+        const meshZEnd = meshZLen / 2;
         
         // Origin at front-left corner of grid (-50, 0, +50)
         const origin = new THREE.Vector3(-halfGrid, 0, halfGrid);
         
-        // X axis (red) - along front edge, pointing right
-        this.createAxis3D(
+        // X axis (red) - full grid length, but ticks only for mesh region
+        this.createAxis3DWithMeshTicks(
             origin,
             new THREE.Vector3(1, 0, 0),
             gridSize,
             this.colors.x,
             'X',
-            -halfGrid,
-            halfGrid
+            meshXStart,
+            meshXEnd,
+            bounds.xMin,
+            bounds.xMax,
+            -halfGrid  // grid start for offset calculation
         );
         
-        // Y axis (green) - pointing up from front-left corner
-        this.createAxis3D(
+        // Y axis (green) - pointing up, ticks for mesh height
+        this.createAxis3DWithMeshTicks(
             origin,
             new THREE.Vector3(0, 1, 0),
             halfGrid,
             this.colors.y,
             'Y',
-            0,
-            halfGrid
+            meshYStart,
+            meshYEnd,
+            bounds.yMin,
+            bounds.yMax,
+            0  // grid start (floor)
         );
         
-        // Z axis (blue) - pointing backward (into the scene)
-        this.createAxis3D(
+        // Z axis (blue) - pointing backward, ticks for mesh depth
+        this.createAxis3DWithMeshTicks(
             origin,
             new THREE.Vector3(0, 0, -1),
             gridSize,
             this.colors.z,
             'Z',
-            -halfGrid,
-            halfGrid
+            halfGrid - meshZEnd,  // convert to axis direction (axis goes negative Z)
+            halfGrid - meshZStart,
+            bounds.zMin,
+            bounds.zMax,
+            0  // grid start
         );
     }
     
     /**
-     * Create a single 3D axis with thick cylinder line, arrow, ticks, and labels
+     * Create a 3D axis with ticks positioned at mesh coordinates
      */
-    createAxis3D(origin, direction, length, color, label, minVal, maxVal) {
-        const { arrowHeadLength, arrowHeadRadius, axisRadius, tickLength, labelOffset, labelSize } = this.options;
+    createAxis3DWithMeshTicks(origin, direction, length, color, label, worldStart, worldEnd, valueMin, valueMax, gridStart) {
+        const { arrowHeadLength, arrowHeadRadius, axisRadius, labelOffset, labelSize } = this.options;
         
         // Axis line as cylinder (for thickness)
-        const lineLength = length;
-        const lineGeom = new THREE.CylinderGeometry(axisRadius, axisRadius, lineLength, 8);
+        const lineGeom = new THREE.CylinderGeometry(axisRadius, axisRadius, length, 8);
         const lineMat = new THREE.MeshBasicMaterial({ color });
         const line = new THREE.Mesh(lineGeom, lineMat);
         
         // Position and rotate cylinder to align with axis
-        const midPoint = origin.clone().add(direction.clone().multiplyScalar(lineLength / 2));
+        const midPoint = origin.clone().add(direction.clone().multiplyScalar(length / 2));
         line.position.copy(midPoint);
         
         // Rotate cylinder to point along direction
@@ -209,7 +232,6 @@ export class AxisScale {
         } else if (direction.z === -1) {
             line.rotation.x = -Math.PI / 2;
         }
-        // Y direction is default cylinder orientation
         
         this.group3D.add(line);
         
@@ -242,40 +264,48 @@ export class AxisScale {
         this.group3D.add(axisLabel);
         this.labelSprites.push(axisLabel);
         
-        // Add tick marks and labels
-        this.addTickMarks3D(origin, direction, length, color, minVal, maxVal, label);
+        // Add tick marks only in mesh region, with mesh coordinate values
+        this.addTickMarks3DForMesh(origin, direction, worldStart, worldEnd, valueMin, valueMax, label, gridStart);
     }
     
     /**
-     * Add tick marks along a 3D axis
+     * Add tick marks for the mesh region with actual coordinate values
      */
-    addTickMarks3D(origin, direction, length, color, minVal, maxVal, axisName) {
+    addTickMarks3DForMesh(origin, direction, worldStart, worldEnd, valueMin, valueMax, axisName, gridStart) {
         const { tickLength, tickRadius, labelOffset, tickLabelSize } = this.options;
         
-        // Calculate nice tick interval
-        const range = maxVal - minVal;
-        const tickInterval = this.calculateNiceInterval(range);
+        // Calculate nice tick interval based on mesh values
+        const valueRange = valueMax - valueMin;
+        const tickInterval = this.calculateNiceInterval(valueRange);
         
         // Determine tick perpendicular direction
         let perpDir;
         if (axisName === 'X') {
-            perpDir = new THREE.Vector3(0, 0, 1);   // Ticks go forward (toward viewer)
+            perpDir = new THREE.Vector3(0, 0, 1);
         } else if (axisName === 'Y') {
-            perpDir = new THREE.Vector3(1, 0, 1).normalize();  // Ticks go diagonal (visible from front-right)
+            perpDir = new THREE.Vector3(1, 0, 1).normalize();
         } else {
-            perpDir = new THREE.Vector3(1, 0, 0);   // Ticks go right
+            perpDir = new THREE.Vector3(1, 0, 0);
         }
         
-        // Generate ticks
-        const firstTick = Math.ceil(minVal / tickInterval) * tickInterval;
+        // World range for scaling
+        const worldRange = worldEnd - worldStart;
         
-        for (let val = firstTick; val <= maxVal; val += tickInterval) {
-            // Position along axis (normalized 0-1)
-            const t = (val - minVal) / range;
-            const worldPos = t * length;
+        // Generate ticks at nice value intervals
+        const firstTick = Math.ceil(valueMin / tickInterval) * tickInterval;
+        
+        for (let val = firstTick; val <= valueMax + tickInterval * 0.01; val += tickInterval) {
+            if (val > valueMax) break;
             
-            // Tick position
-            const tickPos = origin.clone().add(direction.clone().multiplyScalar(worldPos));
+            // Map value to world position
+            const t = (val - valueMin) / valueRange;
+            const worldPos = worldStart + t * worldRange;
+            
+            // Convert world position to axis position (distance from origin along axis)
+            const axisPos = worldPos - gridStart;
+            
+            // Tick position along axis
+            const tickPos = origin.clone().add(direction.clone().multiplyScalar(axisPos));
             
             // Tick line as thin cylinder
             const tickGeom = new THREE.CylinderGeometry(tickRadius, tickRadius, tickLength, 6);
@@ -290,15 +320,15 @@ export class AxisScale {
             if (perpDir.x !== 0 && perpDir.z !== 0) {
                 tick.rotation.z = Math.PI / 2;
                 tick.rotation.y = Math.PI / 4;
-            } else if (perpDir.z === -1) {
+            } else if (perpDir.z === 1) {
                 tick.rotation.x = Math.PI / 2;
-            } else if (perpDir.x === -1) {
+            } else if (perpDir.x === 1) {
                 tick.rotation.z = Math.PI / 2;
             }
             
             this.group3D.add(tick);
             
-            // Tick label
+            // Tick label with actual mesh value
             const labelPos = tickPos.clone().add(perpDir.clone().multiplyScalar(tickLength + labelOffset));
             const labelText = this.formatTickValue(val);
             const tickLabel = this.createTextSprite(labelText, 0x333333, tickLabelSize);
@@ -585,6 +615,18 @@ export class AxisScale {
             this.group2D.visible = this.is2DMode;
         }
     }
+
+    /**
+     * Set opacity for all axis materials (for fade effects)
+     */
+    setOpacity(opacity) {
+        this.mainGroup.traverse(obj => {
+            if (obj.material) {
+                obj.material.opacity = opacity;
+                obj.material.transparent = true;
+            }
+        });
+    }    
     
     /**
      * Toggle visibility and return new state
