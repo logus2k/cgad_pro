@@ -64,10 +64,13 @@ export class ReportViewerPanel {
             // Build query string from filters
             const params = new URLSearchParams();
             if (this.options.filters) {
-                const { solver_type, model_name, server_hash } = this.options.filters;
+                const { solver_type, model_name, server_hash, is_automated } = this.options.filters;
                 if (solver_type) params.append('solver_type', solver_type);
                 if (model_name) params.append('model_name', model_name);
                 if (server_hash) params.append('server_hash', server_hash);
+                if (is_automated !== null && is_automated !== undefined) {
+                    params.append('is_automated', is_automated.toString());
+                }
             }
             
             const queryString = params.toString();

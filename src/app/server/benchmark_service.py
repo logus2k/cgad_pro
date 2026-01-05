@@ -684,7 +684,8 @@ def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Pa
         section_id: str,
         solver_type: Optional[str] = Query(None, description="Filter by solver type"),
         model_name: Optional[str] = Query(None, description="Filter by model name"),
-        server_hash: Optional[str] = Query(None, description="Filter by server hash (supports _automated suffix)")
+        server_hash: Optional[str] = Query(None, description="Filter by server hash (supports _automated suffix)"),
+        is_automated: Optional[bool] = Query(None, description="Filter by automated (true) or manual (false) testing")
     ):
         """Generate a specific report section with optional filters."""
         from report_generator import create_report_generator_from_records, REPORT_SECTIONS
@@ -705,15 +706,20 @@ def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Pa
             filters["model_name"] = model_name
         
         # Handle composite server_hash (e.g., "abc123_automated")
-        # Extract actual hash and automated flag
-        is_automated_filter = None
+        # Extract actual hash and automated flag from composite key
+        is_automated_from_hash = None
         if server_hash:
             if server_hash.endswith("_automated"):
                 filters["server_hash"] = server_hash[:-10]  # Remove "_automated" suffix
-                is_automated_filter = True
+                is_automated_from_hash = True
             else:
                 filters["server_hash"] = server_hash
-                is_automated_filter = False
+                is_automated_from_hash = False
+        
+        # Determine final automated filter:
+        # - Explicit is_automated parameter takes precedence
+        # - Otherwise use value derived from composite server_hash
+        is_automated_filter = is_automated if is_automated is not None else is_automated_from_hash
         
         # Get filtered records as dicts
         filtered_records = service.get_all_records(

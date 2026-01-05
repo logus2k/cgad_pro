@@ -30,6 +30,7 @@ export class BenchmarkPanel {
         this.filterSolver = '';
         this.filterModel = '';
         this.filterServer = '';
+        this.filterTesting = '';  // '', 'manual', 'automated'
         this.serverConfig = null;
         this.serverHash = null;
         
@@ -71,6 +72,14 @@ export class BenchmarkPanel {
                         <label class="benchmark-filter-label">Servers</label>
                         <select class="benchmark-filter" id="benchmark-filter-server">
                             <option value="">All Servers</option>
+                        </select>
+                    </div>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Testing</label>
+                        <select class="benchmark-filter" id="benchmark-filter-testing">
+                            <option value="">All</option>
+                            <option value="manual">Manual</option>
+                            <option value="automated">Automated</option>
                         </select>
                     </div>
                 </div>
@@ -178,6 +187,20 @@ export class BenchmarkPanel {
                 this.renderTable();
             });
         }
+        
+        // Testing filter (manual/automated)
+        const testingFilter = this.container.querySelector('#benchmark-filter-testing');
+        if (testingFilter) {
+            testingFilter.addEventListener('change', (e) => {
+                this.filterTesting = e.target.value;
+                // Reset server filter when testing filter changes
+                this.filterServer = '';
+                const serverSelect = this.container.querySelector('#benchmark-filter-server');
+                if (serverSelect) serverSelect.value = '';
+                this.updateFilters({ solver_types: [], models: [] });
+                this.renderTable();
+            });
+        }
     }
     
     closePanel() {
@@ -245,6 +268,7 @@ export class BenchmarkPanel {
         
         // Populate server filter from records
         // Distinguishes between manual and automated records from the same server
+        // Respects the Testing filter to show only relevant servers
         const serverFilter = this.container.querySelector('#benchmark-filter-server');
         if (serverFilter && this.records.length > 0) {
             const currentValue = serverFilter.value;
@@ -256,6 +280,11 @@ export class BenchmarkPanel {
             this.records.forEach(record => {
                 const hash = record.server_hash;
                 const isAutomated = record.client_hash === 'automated';
+                
+                // Apply Testing filter to server list
+                if (this.filterTesting === 'manual' && isAutomated) return;
+                if (this.filterTesting === 'automated' && !isAutomated) return;
+                
                 const compositeKey = `${hash}${isAutomated ? '_automated' : ''}`;
                 
                 if (hash && !servers.has(compositeKey)) {
@@ -411,8 +440,28 @@ export class BenchmarkPanel {
             return;
         }
         
+        // Apply Testing filter first (manual/automated)
+        let filteredRecords = this.records;
+        if (this.filterTesting === 'manual') {
+            filteredRecords = this.records.filter(r => r.client_hash !== 'automated');
+        } else if (this.filterTesting === 'automated') {
+            filteredRecords = this.records.filter(r => r.client_hash === 'automated');
+        }
+        
+        if (filteredRecords.length === 0) {
+            container.innerHTML = `
+                <div class="benchmark-empty">
+                    <div class="benchmark-empty-icon">📊</div>
+                    <div class="benchmark-empty-text">
+                        No ${this.filterTesting || ''} benchmark records found.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
         // Group records by server
-        let groups = this.groupRecordsByServer(this.records);
+        let groups = this.groupRecordsByServer(filteredRecords);
         
         // Filter groups by server if selected (using composite key)
         if (this.filterServer) {
@@ -865,12 +914,21 @@ export class BenchmarkPanel {
     openReportViewer(sectionId) {
         // Use global ReportViewerPanel if available
         if (window.ReportViewerPanel) {
+            // Determine is_automated filter value
+            let isAutomated = null;
+            if (this.filterTesting === 'automated') {
+                isAutomated = true;
+            } else if (this.filterTesting === 'manual') {
+                isAutomated = false;
+            }
+            
             const panel = new window.ReportViewerPanel(sectionId, {
                 apiBase: this.options.apiBase,
                 filters: {
                     solver_type: this.filterSolver || null,
                     model_name: this.filterModel || null,
-                    server_hash: this.filterServer || null
+                    server_hash: this.filterServer || null,
+                    is_automated: isAutomated
                 }
             });
             panel.open();
