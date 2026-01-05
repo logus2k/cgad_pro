@@ -558,7 +558,7 @@
         "u_mean": 0.0,
         "u_std": 0.0,
         "final_residual": 0.0,
-        "relative_residual": NaN
+        "relative_residual": 0
       },
       "matrix_nnz": 2617747,
       "element_type": "quad8",
