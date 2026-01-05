@@ -84,10 +84,11 @@
 .pm-close {
     position: absolute;
     top: 5px;
-    right: 6px;
+    right: 7px;
     width: 18px;
-    height: 18px;
-    font-size: 10px;
+    height: 16px;
+    font-size: 12px;
+    padding-left: 5.5px;
     border: none;
     border-radius: 4px;
     background: rgb(255 251 242 / 39%);
@@ -97,7 +98,6 @@
     text-align: center;
     border: 0.5px solid #ffb247;
 }
-
 .pm-close:hover {
     background: #fd8f43;
     color: #390e00;

@@ -251,6 +251,7 @@
     padding: 8px 5px 5px 10px;
     margin: 0px 0px 0px 0px;
     background-color: #ffb44fb3;
+    border-radius: 8px 8px 0px 0px;
 }
 
 .hud.dragging {
