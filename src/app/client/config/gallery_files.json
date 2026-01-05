@@ -2,7 +2,7 @@
 	"solvers": [
 		{
 			"id": "cpu",
-			"name": "CPU (NumPy)",
+			"name": "CPU Baseline (NumPy)",
 			"description": "Single-threaded NumPy solver"
 		},
 		{
@@ -43,26 +43,26 @@
 			"meshes": [
 				{
 					"label": "201 nodes, 52 elements",
-					"file": "./mesh/y_tube1_52.h5",
+					"file": "./mesh/y_tube_201.h5",
 					"nodes": 201,
 					"elements": 52,
 					"default": true
 				},
 				{
 					"label": "195k nodes, 48k elements",
-					"file": "./mesh/y_tube1_195k.h5",
+					"file": "./mesh/y_tube_195k.h5",
 					"nodes": 195853,
 					"elements": 48607
 				},
 				{
 					"label": "772k nodes, 192k elements",
-					"file": "./mesh/y_tube1_772k.h5",
+					"file": "./mesh/y_tube_772k.h5",
 					"nodes": 772069,
 					"elements": 192308
 				},
 				{
 					"label": "1.3M nodes, 338k elements",
-					"file": "./mesh/y_tube1_1_3m.h5",
+					"file": "./mesh/y_tube_1_3m.h5",
 					"nodes": 1357953,
 					"elements": 338544
 				}								
@@ -78,12 +78,30 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
+					"label": "341 nodes, 86 elements",
+					"file": "./mesh/venturi_341.h5",
+					"nodes": 341,
+					"elements": 86
+				},				
+				{
 					"label": "194k nodes, 64k elements",
 					"file": "./mesh/venturi_194k.h5",
 					"nodes": 194325,
-					"elements": 64334,
+					"elements": 64334
+				},
+				{
+					"label": "763k nodes, 253k elements",
+					"file": "./mesh/venturi_763k.h5",
+					"nodes": 763707,
+					"elements": 253704,
 					"default": true
-				}
+				},
+				{
+					"label": "1.2M nodes, 427k elements",
+					"file": "./mesh/venturi_1_2m.h5",
+					"nodes": 1284412,
+					"elements": 427017
+				}								
 			]
 		},
 		{
@@ -96,12 +114,30 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
+					"label": "387 nodes, 222 elements",
+					"file": "./mesh/s_bend_387.h5",
+					"nodes": 387,
+					"elements": 222
+				},				
+				{
 					"label": "196k nodes, 64k elements",
 					"file": "./mesh/s_bend_196k.h5",
 					"nodes": 196078,
 					"elements": 64787,
 					"default": true
-				}
+				},
+				{
+					"label": "765k nodes, 254k elements",
+					"file": "./mesh/s_bend_765k.h5",
+					"nodes": 765441,
+					"elements": 254034
+				},
+				{
+					"label": "1.2M nodes, 427k elements",
+					"file": "./mesh/s_bend_1_2m.h5",
+					"nodes": 1286039,
+					"elements": 427244
+				}				
 			]
 		},
 		{
@@ -114,12 +150,30 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
+					"label": "393 nodes, 102 elements",
+					"file": "./mesh/t_junction_393.h5",
+					"nodes": 393,
+					"elements": 102
+				},
+				{
 					"label": "196k nodes, 64k elements",
 					"file": "./mesh/t_junction_196k.h5",
 					"nodes": 196420,
 					"elements": 64987,
-					"default": true
-				}
+					"default": true					
+				},
+				{
+					"label": "768k nodes, 255k elements",
+					"file": "./mesh/t_junction_768k.h5",
+					"nodes": 768898,
+					"elements": 255333
+				},
+				{
+					"label": "1.2M nodes, 429k elements",
+					"file": "./mesh/t_junction_1_2m.h5",
+					"nodes": 1291289,
+					"elements": 429176
+				}				
 			]
 		},
 		{
@@ -132,13 +186,67 @@
 			"progress_interval": 50,
 			"meshes": [
 				{
+					"label": "287 nodes, 82 elements",
+					"file": "./mesh/backward_step_287.h5",
+					"nodes": 287,
+					"elements": 82,
+					"default": true
+				},
+				{
 					"label": "195k nodes, 64k elements",
 					"file": "./mesh/backward_step_195k.h5",
 					"nodes": 195362,
-					"elements": 64713,
-					"default": true
-				}
+					"elements": 64713
+				},
+				{
+					"label": "766k nodes, 254k elements",
+					"file": "./mesh/backward_step_766k.h5",
+					"nodes": 766088,
+					"elements": 254551
+				},								
+				{
+					"label": "1.2M nodes, 426k elements",
+					"file": "./mesh/backward_step_1_2m.h5",
+					"nodes": 1283215,
+					"elements": 426686
+				}				
 			]
-		}
+		},
+		{
+			"name": "Elbow 90\u00B0",
+			"description": "A 90\u00B0 elbow with rounded corner.",
+			"problem_type": "2D Potential Flow (Laplace)",
+			"thumbnail": "./images/mesh/backward_step_195k.png",
+			"solver_type": "gpu",
+			"max_iterations": 10000,
+			"progress_interval": 50,
+			"meshes": [
+				{
+					"label": "411 nodes, 111 elements",
+					"file": "./mesh/elbow_90_411.h5",
+					"nodes": 411,
+					"elements": 111
+				},
+				{
+					"label": "161k nodes, 53k elements",
+					"file": "./mesh/elbow_90_161k.h5",
+					"nodes": 161984,
+					"elements": 53344
+				},
+				{
+					"label": "623k nodes, 206k elements",
+					"file": "./mesh/elbow_90_623k.h5",
+					"nodes": 623153,
+					"elements": 206435
+				},								
+				{
+					"label": "1M nodes, 346k elements",
+					"file": "./mesh/elbow_90_1m.h5",
+					"nodes": 1044857,
+					"elements": 346621,
+					"default": true
+				}				
+			]
+		}		
 	]
 }
