@@ -85,10 +85,10 @@ export class MenuManager {
         wrap.style.setProperty('--pm-m', `${this.cfg.margin}px`);
 
         const items = [
-            { id: 'gallery', icon: 'deployed_code', label: 'Gallery' },
-            { id: 'metrics', icon: 'finance', label: 'Metrics' },
-            { id: 'benchmark', icon: 'trophy', label: 'Benchmark' },
-            { id: 'report', icon: 'assignment', label: 'Report' },
+            { id: 'gallery', icon: 'filter', label: 'Gallery' },
+            { id: 'metrics', icon: 'deployed_code', label: 'Simulation' },
+            { id: 'benchmark', icon: 'finance', label: 'Benchmark' },
+            { id: 'report', icon: 'assignment', label: 'Reporting' },
             { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];

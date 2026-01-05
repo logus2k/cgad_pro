@@ -1,27 +1,15 @@
 @echo off
+setlocal
 
-:: Stop the Docker Compose service
-docker compose down femulator
+echo [%TIME%] Stopping FEMulator containers...
 
-:: Check the exit status of the command
-if %ERRORLEVEL% equ 0 (
-    :: Check if the container is still running
-    docker ps | findstr "femulator" >nul
-    if %ERRORLEVEL% equ 0 (
-        echo WARNING: The container is still running. Attempt to stop it again or check logs.
-        exit /b 1
-    ) else (
-        :: Verify if the container exists at all (running or stopped)
-        docker ps -a | findstr "femulator" >nul
-        if %ERRORLEVEL% neq 0 (
-            echo The FEMulator Pro application is not running.
-            echo Execute start.bat when you wish to launch the application.
-        ) else (
-            echo The container was not running, but it has been removed.
-            echo Execute start.bat when you wish to launch the application.
-        )
-    )
-) else (
-    echo ERROR: The container remove command failed.
-    exit /b 1
+:: Stop containers using both compose files (safe & deterministic)
+docker compose -f docker-compose-gpu.yml down >nul 2>&1
+docker compose -f docker-compose-cpu.yml down >nul 2>&1
+
+if %ERRORLEVEL% neq 0 (
+	echo [%TIME%] ERROR: Failed to stop containers.
+	exit /b 1
 )
+
+echo [%TIME%] Containers stopped successfully.

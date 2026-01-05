@@ -24,21 +24,21 @@
     display: grid;
     place-items: center;
     cursor: pointer;
-	border-radius: 8px;
-	border: 0.5px outset #c9c9c9;
-	fill: #646464;
-    stroke: #646464;
+    border-radius: 8px;
+    border: 0.5px outset #c9c9c9;
+    fill: #444444;
+    stroke: #444444;
     padding: 5px;
-	background-color: #ffffff96;
-	box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    background-color: #ffffff96;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .pm-menu button:hover .svg-icon {
     background-color: #ffffff;
     border: 0.5px outset #c9c9c9;
     border-radius: 8px;	
-	fill: #57b379;
-    stroke: #57b379;
+	fill: #569d70;
+    stroke: #569d70;
 }
 
 .pm-menu button.active .svg-icon {
@@ -83,22 +83,25 @@
 
 .pm-close {
     position: absolute;
-    top: 6px;
-    right: 7px;
-    width: 20px;
+    top: 5px;
+    right: 6px;
+    width: 18px;
     height: 18px;
+    font-size: 10px;
     border: none;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #aaaaaa;
+    background: rgba(255, 205, 79, 0.2);
+    color: #a66100;
     cursor: pointer;
     line-height: 1;
     text-align: center;
+    border: 0.5px solid #ffd59b;
 }
 
 .pm-close:hover {
     background: #ff9e8d;
-	color: #363636;
+    color: #333333;
+    border: 0.5px solid #666666;
 }
 
 .pm-bottom-center {

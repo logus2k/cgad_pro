@@ -18,7 +18,7 @@ export class BenchmarkPanel {
         
         this.options = {
             apiBase: options.apiBase || '',
-            pollInterval: options.pollInterval || 30000, // 30 seconds
+            pollInterval: options.pollInterval || 5000, // 5 seconds
             autoRefresh: options.autoRefresh !== false,
             ...options
         };
@@ -29,7 +29,9 @@ export class BenchmarkPanel {
         this.sortOrder = 'desc';
         this.filterSolver = '';
         this.filterModel = '';
+        this.filterServer = '';
         this.serverConfig = null;
+        this.serverHash = null;
         
         // Track expanded/collapsed state per server_hash
         this.expandedGroups = new Set();
@@ -51,41 +53,36 @@ export class BenchmarkPanel {
     
     render() {
         this.container.innerHTML = `
-            <div class="benchmark-summary" id="benchmark-summary">
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-total">0</span>
-                    <span class="benchmark-stat-label">Records</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-solvers">0</span>
-                    <span class="benchmark-stat-label">Solvers</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-models">0</span>
-                    <span class="benchmark-stat-label">Models</span>
-                </div>
-                <div class="benchmark-stat">
-                    <span class="benchmark-stat-value" id="stat-best-time">-</span>
-                    <span class="benchmark-stat-label">Best Time</span>
-                </div>
-            </div>
-            
             <div class="benchmark-controls">
                 <div class="benchmark-controls-left">
-                    <select class="benchmark-filter" id="benchmark-filter-solver">
-                        <option value="">All Solvers</option>
-                    </select>
-                    <select class="benchmark-filter" id="benchmark-filter-model">
-                        <option value="">All Models</option>
-                    </select>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Solvers</label>
+                        <select class="benchmark-filter" id="benchmark-filter-solver">
+                            <option value="">All Solvers</option>
+                        </select>
+                    </div>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Meshes</label>
+                        <select class="benchmark-filter" id="benchmark-filter-model">
+                            <option value="">All Meshes</option>
+                        </select>
+                    </div>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Servers</label>
+                        <select class="benchmark-filter" id="benchmark-filter-server">
+                            <option value="">All Servers</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="benchmark-controls-right">
-                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
-                        Refresh
-                    </button>
-                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
-                        Delete Selected
-                    </button>
+                    <div class="benchmark-filter-group">
+                        <label class="benchmark-filter-label">Reports</label>
+                        <div class="benchmark-report-controls">
+                            <select class="benchmark-filter" id="benchmark-report-section">
+                            </select>
+                            <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-view-report-btn">View</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -97,9 +94,15 @@ export class BenchmarkPanel {
             </div>
             
             <div class="benchmark-footer">
-                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">
-                    Close
-                </button>
+                <div class="benchmark-footer-left">
+                    <button class="benchmark-btn benchmark-btn-danger" id="benchmark-delete-btn" disabled>
+                        Delete Selected
+                    </button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-refresh-btn">
+                        Refresh
+                    </button>
+                </div>
+                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
             </div>
         `;
         
@@ -124,6 +127,30 @@ export class BenchmarkPanel {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closePanel());
         }
+
+        // Report section dropdown
+        const reportSection = this.container.querySelector('#benchmark-report-section');
+        const viewReportBtn = this.container.querySelector('#benchmark-view-report-btn');
+
+        if (reportSection) {
+            // Load available sections
+            this.loadReportSections();
+            
+            reportSection.addEventListener('change', (e) => {
+                if (viewReportBtn) {
+                    viewReportBtn.disabled = !e.target.value;
+                }
+            });
+        }
+
+        if (viewReportBtn) {
+            viewReportBtn.addEventListener('click', () => {
+                const sectionId = reportSection?.value;
+                if (sectionId) {
+                    this.openReportViewer(sectionId);
+                }
+            });
+        }        
         
         // Solver filter
         const solverFilter = this.container.querySelector('#benchmark-filter-solver');
@@ -142,6 +169,15 @@ export class BenchmarkPanel {
                 this.renderTable();
             });
         }
+        
+        // Server filter
+        const serverFilter = this.container.querySelector('#benchmark-filter-server');
+        if (serverFilter) {
+            serverFilter.addEventListener('change', (e) => {
+                this.filterServer = e.target.value;
+                this.renderTable();
+            });
+        }
     }
     
     closePanel() {
@@ -152,6 +188,10 @@ export class BenchmarkPanel {
     
     async fetchData() {
         try {
+            // First, trigger backend to reload files from disk
+            await fetch(`${this.options.apiBase}/api/benchmark/refresh`, { method: 'POST' });
+            
+            // Then fetch the updated records
             const response = await fetch(`${this.options.apiBase}/api/benchmark?sort_by=${this.sortColumn}&sort_order=${this.sortOrder}`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
@@ -163,7 +203,7 @@ export class BenchmarkPanel {
             if (summaryResponse.ok) {
                 const summary = await summaryResponse.json();
                 this.serverConfig = summary.server_config;
-                this.updateSummary(summary);
+                this.serverHash = summary.server_hash;
                 this.updateFilters(summary);
             }
             
@@ -172,28 +212,6 @@ export class BenchmarkPanel {
         } catch (error) {
             console.error('[Benchmark] Failed to fetch data:', error);
             this.renderError(error.message);
-        }
-    }
-    
-    updateSummary(summary) {
-        const statTotal = this.container.querySelector('#stat-total');
-        const statSolvers = this.container.querySelector('#stat-solvers');
-        const statModels = this.container.querySelector('#stat-models');
-        const statBestTime = this.container.querySelector('#stat-best-time');
-        
-        if (statTotal) statTotal.textContent = summary.total_records || 0;
-        if (statSolvers) statSolvers.textContent = (summary.solver_types || []).length;
-        if (statModels) statModels.textContent = (summary.models || []).length;
-        
-        // Find best time across all solvers
-        if (statBestTime && summary.best_times) {
-            const times = Object.values(summary.best_times).map(b => b.time).filter(t => t);
-            if (times.length > 0) {
-                const best = Math.min(...times);
-                statBestTime.textContent = this.formatTime(best);
-            } else {
-                statBestTime.textContent = '-';
-            }
         }
     }
     
@@ -215,7 +233,7 @@ export class BenchmarkPanel {
         
         if (modelFilter && summary.models) {
             const currentValue = modelFilter.value;
-            modelFilter.innerHTML = '<option value="">All Models</option>';
+            modelFilter.innerHTML = '<option value="">All Meshes</option>';
             summary.models.sort().forEach(model => {
                 const option = document.createElement('option');
                 option.value = model;
@@ -223,6 +241,39 @@ export class BenchmarkPanel {
                 modelFilter.appendChild(option);
             });
             modelFilter.value = currentValue;
+        }
+        
+        // Populate server filter from records
+        const serverFilter = this.container.querySelector('#benchmark-filter-server');
+        if (serverFilter && this.records.length > 0) {
+            const currentValue = serverFilter.value;
+            serverFilter.innerHTML = '<option value="">All Servers</option>';
+            
+            // Extract unique servers from records
+            const servers = new Map();
+            this.records.forEach(record => {
+                const hash = record.server_hash;
+                if (hash && !servers.has(hash)) {
+                    const config = record.server_config || {};
+                    const hostname = config.hostname || 'Unknown';
+                    const cpu = this.shortenCpuName(config.cpu_model);
+                    const gpu = this.shortenGpuName(config.gpu_model);
+                    const label = `${hostname} (${cpu}, ${gpu})`;
+                    servers.set(hash, label);
+                }
+            });
+            
+            // Sort by label and add options
+            [...servers.entries()]
+                .sort((a, b) => a[1].localeCompare(b[1]))
+                .forEach(([hash, label]) => {
+                    const option = document.createElement('option');
+                    option.value = hash;
+                    option.textContent = label;
+                    serverFilter.appendChild(option);
+                });
+            
+            serverFilter.value = currentValue;
         }
     }
     
@@ -344,6 +395,12 @@ export class BenchmarkPanel {
         
         // Group records by server
         let groups = this.groupRecordsByServer(this.records);
+        
+        // Filter groups by server if selected
+        if (this.filterServer) {
+            groups = groups.filter(g => g.hash === this.filterServer);
+        }
+        
         groups = this.applyFiltersToGroups(groups);
         
         // On first load, expand only the first group
@@ -427,6 +484,7 @@ export class BenchmarkPanel {
                 <td colspan="13">
                     <div class="group-header-content">
                         <span class="group-toggle">${toggleIcon}</span>
+                        <span class="group-hostname">${hostname}</span>
                         <span class="group-cpu" title="${config.cpu_model || ''}">${cpuShort}</span>
                         <span class="group-separator">|</span>
                         <span class="group-ram">${ram} RAM</span>
@@ -434,8 +492,7 @@ export class BenchmarkPanel {
                         <span class="group-gpu" title="${config.gpu_model || ''}">${gpuShort}</span>
                         <span class="group-separator">|</span>
                         <span class="group-vram">${vram} VRAM</span>
-                        <span class="group-hostname">[${hostname}]</span>
-                        <span class="group-count">(${countDisplay})</span>
+                        <span class="group-count">${countDisplay}</span>
                     </div>
                 </td>
             </tr>
@@ -451,14 +508,19 @@ export class BenchmarkPanel {
         const peakRam = record.memory?.peak_ram_mb;
         const peakVram = record.memory?.peak_vram_mb;
         
+        // Only show checkbox for records from this server
+        const canDelete = record.server_hash === this.serverHash;
+        
         return `
             <tr class="benchmark-record ${isSelected ? 'selected' : ''}" 
                 data-id="${record.id}" 
                 data-group-hash="${groupHash}">
                 <td>
-                    <input type="checkbox" class="benchmark-checkbox" 
-                           data-id="${record.id}" 
-                           ${isSelected ? 'checked' : ''}>
+                    ${canDelete 
+                        ? `<input type="checkbox" class="benchmark-checkbox" 
+                               data-id="${record.id}" 
+                               ${isSelected ? 'checked' : ''}>`
+                        : ''}
                 </td>
                 <td class="benchmark-cell-model" title="${record.model_name}">${record.model_name}</td>
                 <td class="benchmark-cell-solver">
@@ -755,9 +817,46 @@ export class BenchmarkPanel {
         
         return gpuModel;
     }
+
+    async loadReportSections() {
+        try {
+            const response = await fetch(`${this.options.apiBase}/api/benchmark/report/sections`);
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            const select = this.container.querySelector('#benchmark-report-section');
+            
+            if (select && data.sections) {
+                data.sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.id;
+                    option.textContent = section.title;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('[Benchmark] Failed to load report sections:', error);
+        }
+    }
+
+    openReportViewer(sectionId) {
+        // Use global ReportViewerPanel if available
+        if (window.ReportViewerPanel) {
+            const panel = new window.ReportViewerPanel(sectionId, {
+                apiBase: this.options.apiBase,
+                filters: {
+                    solver_type: this.filterSolver || null,
+                    model_name: this.filterModel || null,
+                    server_hash: this.filterServer || null
+                }
+            });
+            panel.open();
+        } else {
+            console.error('[Benchmark] ReportViewerPanel not available');
+        }
+    }  
     
     // Polling
-    
     startPolling() {
         this.stopPolling();
         this.pollTimer = setInterval(() => this.fetchData(), this.options.pollInterval);

@@ -9,12 +9,11 @@
 
 /* Category sections */
 .metrics-category {
-    background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
 }
 
 .metrics-category + .metrics-category {
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.3);
 }
 
 .metrics-category-header {
@@ -36,7 +35,8 @@
     font-family: 'Roboto', sans-serif;
     font-weight: 600;
     color: #333;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    padding-left: 5px;
 }
 
 .metrics-category-count {
@@ -46,8 +46,8 @@
 }
 
 .metrics-category-toggle {
-    font-size: 8px;
-    color: #888;
+    font-size: 9px;
+    color: #666;
 }
 
 .metrics-category.collapsed .metrics-category-items {
@@ -61,7 +61,7 @@
 
 .metric-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: 4px 0px;
     border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
 }

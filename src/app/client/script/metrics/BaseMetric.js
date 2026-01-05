@@ -103,6 +103,11 @@ export class BaseMetric {
                 e.preventDefault();
                 e.stopPropagation();
                 this.hide();
+                
+                // Sync catalog checkbox state
+                if (window.metricsCatalog) {
+                    window.metricsCatalog.setMetricEnabled(this.id, false);
+                }
             };
         }
         

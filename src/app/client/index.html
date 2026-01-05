@@ -20,27 +20,50 @@
 	<link rel="stylesheet" href="style/benchmark.css" />
 	<link rel="stylesheet" href="style/settings.css" />
 	<link rel="stylesheet" href="style/report.css" />
+	<link rel="stylesheet" href="style/report_workspace.css" />	
+    <link rel="stylesheet" href="style/wunderbaum.css">
+    <link rel="stylesheet" href="style/all.min.css">
+    <link rel="stylesheet" href="style/easymde.min.css">
+    <link rel="stylesheet" href="style/toc.css">
+	<link rel="stylesheet" href="style/bird-flock.css">
+	<link rel="stylesheet" href="style/boat.css">
+	<link rel="stylesheet" href="style/clouds.css">
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
 	<script type="text/javascript" src="./library/echarts.min.js"></script>
 	<script type="text/javascript" src="./library/marked.umd.js"></script>
+    <script type="text/javascript" src="./library/wunderbaum.umd.min.js"></script>
+    <script type="text/javascript" src="./library/easymde.min.js"></script>	
+
+	<link rel="stylesheet" href="./style/katex.min.css">
+	<link rel="stylesheet" href="./style/github.css">
+	<script type="text/javascript" src="./library/katex.min.js"></script>
+	<script type="text/javascript" src="./library/marked-katex-extension.umd.js"></script>
+	<script type="text/javascript" src="./library/highlight.min.js"></script>
+	<script type="text/javascript" src="./library/marked-highlight.js"></script>
+
 </head>
 <body>
 	<div id="root">
 		<div id="three-layer"></div>
 		<div id="ui-layer">
 			<div id="overlay">
-
 				<div class="scene">
+					<div id="cloud-container">
+						<div id="cloud-layer">
+							<div id="cloud"></div>
+						</div>
+					</div>
+					<div id="bird-horizon"></div>
 					<svg class="horizon-svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
 						<path id="horizon-path" fill="none" stroke="#333333" stroke-width="0.2"/>
 					</svg>
-					<img class="pena-palace" src="./images/logo/pena_palace.png" alt="Pena Palace">
+					<img class="pena-palace" src="./images/logo/pena_palace_color.png" alt="Pena Palace">
 					<div class="pena-palace-caption">ISCTE SINTRA</div>
+					<div class="boat"><img src="./images/logo/sailing_boat.svg" width="200px"></div>
 				</div>
-
-				<div>
+				<div class="application-logo">
 					<svg width="220" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
 						<defs>
 							<filter id="softShadow" x="-20%" y="-20%" width="150%" height="150%">
@@ -79,14 +102,16 @@
 								</div>
 							</div>
 
-							<div class="nav-dots" id="navDots"></div>
+							<div class="navigation-controls">
+								<button class="btn btn-primary" id="prevBtn"><img src="./icons/left_arrow.svg" alt="Previous"></button>
+								<div class="nav-dots" id="navDots"></div>
+								<button class="btn btn-primary" id="nextBtn"><img src="./icons/right_arrow.svg" alt="Next"></button>
+							</div>
 
 							<div class="carousel-controls">
 								<div class="btn-group">
-									<button class="btn btn-primary" id="prevBtn">Previous</button>
 									<button class="btn btn-primary" id="cancelBtn">Cancel</button>
-									<button class="btn btn-primary" id="selectBtn">Select Model</button>
-									<button class="btn btn-primary" id="nextBtn">Next</button>
+									<button class="btn btn-primary" id="selectBtn">Run Simulation</button>
 								</div>
 							</div>
 
@@ -98,13 +123,14 @@
 
 				<div class="hud metrics" id="hud-metrics" style="z-index: 15;">
 
-					<h1>METRICS</h1>
+					<h1>SIMULATION</h1>
 					<div class="sep"></div>
 
 					<!-- Tabs container -->
 					<div class="tabs-container">
-						<div class="tab active" data-tab="tab-progress-report">Simulation</div>
-						<div class="tab" data-tab="tab-metrics-catalog">Catalog</div>
+						<div class="tab active" data-tab="tab-progress-report">Details</div>
+						<div class="tab" data-tab="tab-metrics-catalog">Metrics</div>
+						<div class="tab" data-tab="tab-metrics-settings">Settings</div>
 					</div>
 					
 					<!-- Tab content containers -->
@@ -116,7 +142,66 @@
 					<div class="tab-content" id="tab-metrics-catalog-content">
 						<div class="metrics-catalog-container">
 						</div>
-					</div>					
+					</div>
+
+					<div class="tab-content" id="tab-metrics-settings-content">
+						<div class="metrics-settings-container">
+
+							<div class="settings-group">
+								<div class="settings-group-title">Visibility</div>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-view" checked>
+									<span>3D View</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-particles" checked>
+									<span>Particles Animation</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-color-by-speed" checked>
+									<span>Particles Color by Speed</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-grid" checked>
+									<span>Grid Visible</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-3dextrusion" checked>
+									<span>Solid Mesh Visible</span>
+								</label>
+								<label class="setting-item">
+									<input type="checkbox" id="cfg-toggle-axis-scale" checked>
+									<span>Coordinate Axes</span>
+								</label>
+							</div>
+
+							<div class="settings-group">
+								<div class="settings-group-title">Appearance</div>
+								<label class="setting-item-slider">
+									<span class="slider-label">Mesh Opacity</span>
+									<div class="slider-control">
+										<input type="range" id="cfg-mesh-opacity" min="0" max="1" step="0.05" value="1">
+										<span class="slider-value" id="cfg-mesh-opacity-value">100%</span>
+									</div>
+								</label>
+								<label class="setting-item-slider">
+									<span class="slider-label">Particle Count</span>
+									<div class="slider-control">
+										<input type="range" id="cfg-particle-count" min="100" max="5000" step="100" value="1000">
+										<span class="slider-value" id="cfg-particle-count-value">1,000</span>
+									</div>
+								</label>
+								<label class="setting-item-slider">
+									<span class="slider-label">Speed Scale</span>
+									<div class="slider-control">
+										<input type="range" id="cfg-speed-scale" min="0.1" max="2" step="0.1" value="0.3">
+										<span class="slider-value" id="cfg-speed-scale-value">0.3x</span>
+									</div>
+								</label>
+							</div>
+
+						</div>
+					</div>		
 
 				</div>
 
@@ -131,26 +216,10 @@
 				</div>
 
 				<div class="hud report" id="hud-report" style="z-index: 15;">
-					<h1>REPORT</h1>
+					<h1>REPORTING</h1>
 					<div class="sep"></div>
 
-					<div class="report-workspace">
-						<div class="report-pane editor-pane">
-							<div class="pane-header">
-								<span>Editor</span>
-								<button class="btn-icon" onclick="clearReport()">Clear</button>
-							</div>
-							<textarea id="report-editor" placeholder="Start writing your report in Markdown..."></textarea>
-						</div>
-
-						<div class="report-pane preview-pane">
-							<div class="pane-header">
-								<span>Preview</span>
-								<button class="btn-icon" onclick="exportReport()">Export</button>
-							</div>
-							<div id="report-preview" class="markdown-body">
-								</div>
-						</div>
+					<div class="report-workspace-container">
 					</div>
 				</div>
 
@@ -222,10 +291,19 @@
 
 				<div class="hud about" id="hud-about" style="z-index: 15;">
 
-					<h1>ABOUT FEMULATOR PRO</h1>
+					<h1>ABOUT</h1>
 					<div class="sep"></div>
 
 					<div class="about-container">
+						<b>FEMulator Pro</b>
+						<hr>
+						High Performance Graphical Computing<br>
+						<ul>
+							<li>António Cruz (140129)</li>
+							<li>Bruno Santos (140586)</li>
+							<li>Pedro Miranda (129268)</li>
+							<li>Ricardo Kayseller (95813)</li>
+						</ul>
 					</div>
 
 				</div>
@@ -243,7 +321,11 @@
 	<script type="module" src="./script/gallery.js"></script>
 	<script type="module" src="./script/benchmark.init.js"></script>
 	<script type="module" src="./script/metrics-catalog.init.js"></script>
+	<script type="module" src="./script/metrics-settings.init.js"></script>	
 	<script type="module" src="./script/report.init.js"></script>
+	<script type="module" src="./script/report_viewer.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
+	<script type="module" src="./script/report_workspace.js"></script>
+	<script type="module" src="./script/report.init.js"></script>
 </body>
 </html>

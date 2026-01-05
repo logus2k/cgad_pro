@@ -31,7 +31,7 @@
 
 .metrics-container {
     margin: 0px;
-    padding: 4px 10px 4px 10px;
+    padding: 5px 12px 5px 12px;
 }
 
 .metrics-catalog-container {
@@ -58,4 +58,174 @@
     font-family: 'Roboto', sans-serif;
     font-size: 11px;
     color: #252525;
+}
+
+/* Action buttons */
+.metric-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0px 0px 0px;
+    margin-top: 3px;
+    border-top: 1px dashed #ccc;
+}
+
+.metric-actions .btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.metric-actions .btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 1);
+    border-color: #0f9ce2;
+    color: #0f9ce2;
+}
+
+.metric-actions .btn-primary {
+    background: #0f9ce2;
+    color: white;
+    border: 1px solid #0f9ce2;
+}
+
+.metric-actions .btn-warning {
+    background: #ff9f43;
+    color: #333333;
+    border: 1px solid #e88a2d;
+}
+
+.metric-actions .btn-warning:hover:not(:disabled) {
+    background: #ffbe76;
+    border-color: #e88a2d;
+    color: #333333;
+}
+
+/* Metrics Settings Tab */
+.metrics-settings-container {
+    margin: 10px;
+    padding: 0px;
+}
+
+.metrics-settings-container .settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0px;
+}
+
+.metrics-settings-container .setting-item {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding: 2px 0px;
+    font-size: 11px;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+}
+
+.metrics-settings-container .setting-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.metrics-settings-container .setting-item span {
+    font-weight: 500;
+    padding-left: 5px;
+}
+
+.metrics-settings-container .setting-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+/* ============================================
+   Settings Sliders
+   ============================================ */
+
+/* Group title */
+.metrics-settings-container .settings-group-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Spacing between settings groups */
+.metrics-settings-container .settings-group {
+    margin-bottom: 12px;
+}
+
+.metrics-settings-container .settings-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Slider item container */
+.metrics-settings-container .setting-item-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.metrics-settings-container .slider-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+}
+
+.metrics-settings-container .slider-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metrics-settings-container .slider-control input[type="range"] {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.metrics-settings-container .slider-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #0f9ce2;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.metrics-settings-container .slider-control input[type="range"]::-webkit-slider-thumb:hover {
+    background: #0d8ac9;
+}
+
+.metrics-settings-container .slider-control input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #0f9ce2;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.metrics-settings-container .slider-value {
+    font-size: 11px;
+    font-family: 'Roboto', 'Monaco', monospace;
+    color: #555;
+    min-width: 42px;
+    text-align: right;
 }

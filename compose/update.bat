@@ -1,30 +1,25 @@
 @echo off
+setlocal
 
-set IMAGE_NAME=femulator:1.0
-set DOCKERFILE=femulator.Dockerfile
+set "IMAGE_NAME=femulator:1.0"
+set "DOCKERFILE=femulator.Dockerfile"
 
-echo Checking image: %IMAGE_NAME%
+echo [%TIME%] Updating image: %IMAGE_NAME%
 
-:: Check if the image exists
-docker image inspect %IMAGE_NAME% >nul 2>&1
-if %ERRORLEVEL% equ 0 (
-    echo Image '%IMAGE_NAME%' exists. Proceeding to stop containers and remove the image.
+:: Stop containers
+call stop.bat || exit /b 1
 
-    :: Stop containers using the stop.bat script
-    call stop.bat
-
-    :: Remove the image
-    docker rmi %IMAGE_NAME%
-    echo Image '%IMAGE_NAME%' removed.
-
-    :: Rebuild the image
-    echo Rebuilding image '%IMAGE_NAME%'...
-    docker build --no-cache -t %IMAGE_NAME% -f %DOCKERFILE% ..
-    echo Image '%IMAGE_NAME%' rebuilt.
-) else (
-    echo Image '%IMAGE_NAME%' does not exist. Building it now...
-    docker build --no-cache -t %IMAGE_NAME% -f %DOCKERFILE% ..
-    echo Image '%IMAGE_NAME%' built.
+:: Remove containers (if any)
+docker ps -aq --filter "name=femulator" >nul 2>&1 && (
+	docker rm -f femulator
 )
 
-echo Update complete. Run 'start.bat' to start the containers.
+:: Remove image (if exists)
+docker image inspect %IMAGE_NAME% >nul 2>&1 && (
+	docker rmi -f %IMAGE_NAME%
+)
+
+:: Rebuild image (cache allowed for update)
+docker build -t %IMAGE_NAME% -f %DOCKERFILE% .. || exit /b 1
+
+echo [%TIME%] Update complete. Run start.bat.

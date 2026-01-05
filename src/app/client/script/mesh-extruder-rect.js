@@ -865,24 +865,48 @@ export class MeshExtruderRect {
         if (this.mesh2D?.material) this.mesh2D.material.color.setRGB(v, v, v);
     }
     
+    /**
+     * REPLACE these methods in mesh-extruder-rect.js (around line 868)
+     * 
+     * Updated to apply opacity to BOTH mesh2D and mesh3D
+     */
     setOpacity(value) {
+        const opacity = Math.max(0, Math.min(1, value));
+        
         if (this.mesh3D?.material) {
-            this.mesh3D.material.opacity = Math.max(0, Math.min(1, value));
+            this.mesh3D.material.opacity = opacity;
+            this.mesh3D.material.transparent = opacity < 1;
+            this.mesh3D.material.needsUpdate = true;
+        }
+        
+        if (this.mesh2D?.material) {
+            this.mesh2D.material.opacity = opacity;
+            this.mesh2D.material.transparent = opacity < 1;
+            this.mesh2D.material.needsUpdate = true;
         }
     }
     
     setTransparent(enabled) {
         if (this.mesh3D?.material) {
             this.mesh3D.material.transparent = enabled;
+            this.mesh3D.material.needsUpdate = true;
+        }
+        
+        if (this.mesh2D?.material) {
+            this.mesh2D.material.transparent = enabled;
+            this.mesh2D.material.needsUpdate = true;
         }
     }
     
     getAppearanceSettings() {
-        if (!this.mesh3D?.material) return null;
+        // Prefer mesh3D settings, fall back to mesh2D
+        const mesh = this.mesh3D || this.mesh2D;
+        if (!mesh?.material) return null;
+        
         return {
-            brightness: this.mesh3D.material.color.r,
-            opacity: this.mesh3D.material.opacity,
-            transparent: this.mesh3D.material.transparent
+            brightness: mesh.material.color?.r ?? 1,
+            opacity: mesh.material.opacity ?? 1,
+            transparent: mesh.material.transparent ?? false
         };
     }
     

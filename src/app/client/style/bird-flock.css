@@ -1,0 +1,17 @@
+:root {
+    --bird-color: #2c3e50;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
+#bird-horizon {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+}

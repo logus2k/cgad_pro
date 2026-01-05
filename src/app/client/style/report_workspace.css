@@ -1,0 +1,553 @@
+/* ==========================================================================
+   Report Workspace Styles
+   ========================================================================== */
+
+:root {
+    --report-sidebar-width: 340px;
+    --report-folder-gold: #d4a017;
+    --report-folder-gold-light: #fcebb6;
+}
+
+/* Integrate with HUD panel - make it fill available space */
+.hud.report {
+    display: flex;
+    flex-direction: column;
+}
+
+.hud.report .report-workspace-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    margin: 5px 7px 0px 7px;
+}
+
+/* Footer with action buttons */
+.report-workspace-footer {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 8px;
+    flex-shrink: 0;
+}
+
+.report-footer-spacer {
+    flex: 1;
+}
+
+/* Toggle TOC button */
+.report-btn-toggle-toc {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    padding: 0px !important;
+}
+
+.report-btn-toggle-toc img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Buttons */
+.report-btn {
+    padding: 5px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.report-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.report-btn-edit {
+    background: #0f9ce2;
+    color: #ffffff;
+}
+
+.report-btn-edit:hover:not(:disabled) {
+    background: #1a55dd;
+}
+
+.report-btn-preview {
+    background: #28a745;
+    color: #fff;
+}
+
+.report-btn-preview:hover:not(:disabled) {
+    background: #218838;
+}
+
+.report-btn-undock {
+    background: #6c757d;
+    color: #fff;
+}
+
+.report-btn-undock:hover:not(:disabled) {
+    background: #5a6268;
+}
+
+.report-btn-save {
+    background: #fd7e14;
+    color: #fff;
+}
+
+.report-btn-save:hover:not(:disabled) {
+    background: #e76b00;
+}
+
+/* Body with sidebar and main area */
+.report-workspace-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* TOC Sidebar */
+.report-toc-sidebar {
+    width: var(--report-sidebar-width);
+    min-width: var(--report-sidebar-width);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: 4px;
+    transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.report-toc-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+}
+
+.report-toc-tree {
+    flex: 1;
+    overflow: auto;
+    padding: 10px 5px;
+}
+
+/* Wunderbaum tree customization */
+.report-toc-tree .wunderbaum {
+    height: 100%;
+    min-height: 4px;
+    background-color: transparent;
+    border: none;
+    font-size: 13px;
+}
+
+.report-toc-tree .wb-node-list.wb-connect-lines .wb-indent {
+    border-left: 1px solid #bdc3c7;
+}
+
+.report-toc-tree span.wb-node span.wb-title {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    padding-left: 3px;
+}
+
+.report-toc-tree span.wb-node i.wb-expander,
+.report-toc-tree span.wb-node i.wb-icon {
+    font-size: 10px;
+}
+
+/* Folder icons for documents */
+.report-toc-tree .fa-folder,
+.report-toc-tree .fa-folder-open {
+    font-weight: 900;
+    font-size: 12px;
+    background: linear-gradient(180deg, var(--report-folder-gold-light) 0%, var(--report-folder-gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.5px var(--report-folder-gold);
+}
+
+/* File icon for headers */
+.report-toc-tree .fa-file,
+.report-toc-tree .fa-file-lines {
+    color: #7f8c8d;
+    font-weight: 400;
+    font-size: 11px;
+}
+
+/* Active/selected node styling */
+.report-toc-tree .wb-row.wb-active {
+    background: rgba(34, 102, 255, 0.12);
+}
+
+.report-toc-tree .wb-row:hover {
+    background: rgba(34, 102, 255, 0.06);
+}
+
+/* Main content area */
+.report-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-y: auto;
+}
+
+/* Preview area */
+.report-preview-area {
+    flex: 1;
+    padding: 30px 42px 30px 70px;
+    background: #fff;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #333;
+    margin: 4px 10px 10px 10px;
+    border: 0.5px solid #cecece;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
+/* Width */
+div.report-main-area::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+div.report-main-area::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+div.report-main-area::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+div.report-main-area::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
+
+.report-preview-area h1 {
+    font-size: 1.6em;
+    margin: 0 0 15px 0;
+    padding-left: 0px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #999;
+    color: #333;
+    cursor: unset;
+    background-color: transparent;
+}
+
+.report-preview-area h2 {
+    font-size: 1.35em;
+    margin: 25px 0 12px 0;
+}
+
+.report-preview-area h3 {
+    font-size: 1.15em;
+    margin: 20px 0 10px 0;
+    color: #444;
+}
+
+.report-preview-area h4 {
+    font-size: 1.05em;
+    margin: 15px 0 8px 0;
+    color: #555;
+}
+
+.report-preview-area p {
+    margin: 0 0 12px 0;
+}
+
+.report-preview-area ul,
+.report-preview-area ol {
+    margin: 0 0 12px 0;
+    padding-left: 25px;
+}
+
+.report-preview-area li {
+    margin-bottom: 5px;
+}
+
+.report-preview-area code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+}
+
+.report-preview-area pre {
+    background: #f5f5f5;
+    padding: 12px 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.85em;
+}
+
+.report-preview-area pre code {
+    background: none;
+    padding: 0;
+}
+
+.report-preview-area blockquote {
+    margin: 15px 0;
+    padding: 10px 20px;
+    border-left: 4px solid var(--hud-accent, #2266ff);
+    background: #f9f9f9;
+    color: #555;
+}
+
+.report-preview-area table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 13px;
+}
+
+.report-preview-area th,
+.report-preview-area td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.report-preview-area th {
+    background: #ffedc9;
+    font-weight: 600;
+}
+
+.report-preview-area tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.report-preview-area hr {
+    border: none;
+    border-top: 1px solid #9c9c9c;
+    margin: 10px 0;
+}
+
+.report-preview-area a {
+    color: var(--hud-accent, #2266ff);
+    text-decoration: none;
+}
+
+.report-preview-area a:hover {
+    text-decoration: underline;
+}
+
+.report-preview-area img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Placeholder and error messages */
+.report-placeholder {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 40px;
+}
+
+.report-error {
+    color: var(--hud-warm, #e63946);
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Editor area */
+.report-editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.report-editor-area .EasyMDEContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 5px 5px 10px 15px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    overflow-y: auto;
+    overflow-x: inherit;
+}
+
+.CodeMirror-vscrollbar {
+    right: 0;
+    top: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    margin: 5px;
+}
+
+/* Width */
+.CodeMirror-vscrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+.CodeMirror-vscrollbar::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
+
+.report-editor-area .EasyMDEContainer .CodeMirror {
+    flex: 1;
+    border: none;
+    border-top: 1px solid #ddd;
+    font-size: 15px;
+    line-height: 1.6;
+    font-family: 'Roboto', sans-serif;
+    padding: 15px 15px 15px 30px;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar {
+    border: none;
+    background: #ffd891;
+    border-bottom: 1px solid #ddd;
+    padding: 2px;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button {
+    color: #333;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button:hover {
+    background: #e9ecef;
+}
+
+.report-editor-area .EasyMDEContainer .editor-toolbar button.active {
+    background: #dee2e6;
+}
+
+/* ==========================================================================
+   Undocked Editor Panel
+   ========================================================================== */
+
+.hud.undocked-editor {
+    min-width: 400px;
+    min-height: 300px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff4e5c5;
+}
+
+.hud.undocked-editor:hover {
+    background-color: #fff4e5;
+}
+
+.undocked-editor-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.undocked-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    margin: 5px;
+}
+
+.undocked-editor-container .EasyMDEContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+.undocked-editor-container .EasyMDEContainer .CodeMirror {
+    flex: 1;
+    border: none;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.EasyMDEContainer .CodeMirror-scroll {
+    cursor: text;
+}
+
+/* Width */
+.undocked-editor-container .EasyMDEContainer::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+.undocked-editor-container .EasyMDEContainer::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+}
+   
+/* Handle */
+.undocked-editor-container .EasyMDEContainer::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+.undocked-editor-container .EasyMDEContainer::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
+
+
+/* Scrollbar for undocked editor */
+.undocked-editor-container .CodeMirror-scroll {
+    overflow-y: auto !important;
+}
+
+.undocked-editor-container .EasyMDEContainer .editor-toolbar {
+    border: none;
+    background-color: #ffd891;
+    border-bottom: 0.5px solid #cecece;
+    padding: 0px;
+}
+
+.undocked-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 15px;
+    border-top: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+pre code.hljs {
+    font-size: 14px;
+}

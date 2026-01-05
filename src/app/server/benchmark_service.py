@@ -24,6 +24,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict, field
+from fastapi import APIRouter, HTTPException, Query
+
 import threading
 import asyncio
 
@@ -195,6 +197,7 @@ def generate_config_hash(config: Dict[str, Any], keys: List[str]) -> str:
 @dataclass
 class BenchmarkRecord:
     """Single benchmark result record."""
+    # Required fields (no defaults) - must come first
     id: str
     timestamp: str
     
@@ -213,14 +216,14 @@ class BenchmarkRecord:
     timings: Dict[str, float]
     solution_stats: Dict[str, Any]
     
-    # Memory usage (NEW)
+    # Fields with defaults - must come after required fields
+    matrix_nnz: int = 0
+    element_type: str = "quad8"
+    nodes_per_element: int = 8
+    solver_config: Dict[str, Any] = field(default_factory=dict)
     memory: Dict[str, Any] = field(default_factory=dict)
-    
-    # Server configuration
     server_config: Dict[str, Any] = field(default_factory=dict)
     server_hash: str = ""
-    
-    # Client configuration
     client_config: Dict[str, Any] = field(default_factory=dict)
     client_hash: str = ""
     
@@ -229,9 +232,17 @@ class BenchmarkRecord:
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'BenchmarkRecord':
-        # Handle records without memory field (backward compatibility)
+        # Handle records without new fields (backward compatibility)
         if 'memory' not in data:
             data['memory'] = {}
+        if 'matrix_nnz' not in data:
+            data['matrix_nnz'] = 0
+        if 'element_type' not in data:
+            data['element_type'] = 'quad8'
+        if 'nodes_per_element' not in data:
+            data['nodes_per_element'] = 8
+        if 'solver_config' not in data:
+            data['solver_config'] = {}
         return cls(**data)
 
 
@@ -373,6 +384,10 @@ class BenchmarkService:
         iterations: int,
         timings: Dict[str, float],
         solution_stats: Dict[str, Any],
+        matrix_nnz: int = 0,
+        element_type: str = "quad8",
+        nodes_per_element: int = 8,
+        solver_config: Optional[Dict[str, Any]] = None,
         memory: Optional[Dict[str, Any]] = None,
         client_config: Optional[Dict[str, Any]] = None
     ) -> BenchmarkRecord:
@@ -395,13 +410,15 @@ class BenchmarkService:
         Returns:
             Created BenchmarkRecord
         """
+        record_id = str(uuid.uuid4())[:8]
+        timestamp = datetime.utcnow().isoformat() + "Z"        
         client_config = client_config or {}
         memory = memory or {}
         client_hash = generate_config_hash(client_config, self.CLIENT_HASH_KEYS) if client_config else "unknown"
         
         record = BenchmarkRecord(
-            id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            id=record_id,
+            timestamp=timestamp,
             model_file=model_file,
             model_name=model_name,
             model_nodes=model_nodes,
@@ -411,10 +428,14 @@ class BenchmarkService:
             iterations=iterations,
             timings=timings,
             solution_stats=solution_stats,
-            memory=memory,
+            matrix_nnz=matrix_nnz,
+            element_type=element_type,
+            nodes_per_element=nodes_per_element,
+            solver_config=solver_config or {},
+            memory=memory or {},
             server_config=self.server_config,
             server_hash=self.server_hash,
-            client_config=client_config,
+            client_config=client_config or {},
             client_hash=client_hash
         )
         
@@ -589,10 +610,11 @@ class BenchmarkService:
 # FastAPI Router for Benchmark API
 # =============================================================================
 
-def create_benchmark_router(service: BenchmarkService):
+def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Path] = None):
     """Create FastAPI router for benchmark API endpoints."""
-    from fastapi import APIRouter, HTTPException, Query
-    
+
+    from report_generator import REPORT_SECTIONS
+
     router = APIRouter(prefix="/api/benchmark", tags=["benchmark"])
     
     @router.get("")
@@ -633,13 +655,52 @@ def create_benchmark_router(service: BenchmarkService):
             "hash": service.server_hash
         }
     
-    @router.get("/files")
-    async def list_files():
-        """List all benchmark files in the data directory."""
-        return {
-            "files": service.get_file_info(),
-            "own_file": f"benchmark_{service.server_hash}.json"
-        }
+    @router.get("/report/sections")
+    async def get_report_sections():
+        """Get list of available report sections."""
+        return {"sections": REPORT_SECTIONS}
+    
+    @router.get("/report/{section_id}")
+    async def get_report_section(
+        section_id: str,
+        solver_type: Optional[str] = Query(None, description="Filter by solver type"),
+        model_name: Optional[str] = Query(None, description="Filter by model name"),
+        server_hash: Optional[str] = Query(None, description="Filter by server hash")
+    ):
+        """Generate a specific report section with optional filters."""
+        from report_generator import create_report_generator_from_records, REPORT_SECTIONS
+        
+        # Validate section ID
+        valid_ids = [s["id"] for s in REPORT_SECTIONS]
+        if section_id not in valid_ids:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid section ID. Valid options: {valid_ids}"
+            )
+        
+        # Build filters dict
+        filters = {}
+        if solver_type:
+            filters["solver_type"] = solver_type
+        if model_name:
+            filters["model_name"] = model_name
+        if server_hash:
+            filters["server_hash"] = server_hash
+        
+        # Get filtered records as dicts
+        filtered_records = service.get_all_records(
+            filters=filters if filters else None
+        )
+        
+        # Create generator with filtered records
+        generator = create_report_generator_from_records(
+            records=filtered_records,
+            server_config=service.server_config,
+            gallery_file=gallery_file
+        )
+        
+        result = generator.generate_section(section_id)
+        return result
     
     @router.get("/{record_id}")
     async def get_benchmark(record_id: str):
@@ -651,14 +712,14 @@ def create_benchmark_router(service: BenchmarkService):
     
     @router.delete("/{record_id}")
     async def delete_benchmark(record_id: str):
-        """Delete a specific benchmark record (own server records only)."""
+        """Delete a specific benchmark record."""
         if service.delete_record(record_id):
             return {"status": "deleted", "id": record_id}
-        raise HTTPException(status_code=404, detail="Record not found or belongs to different server")
+        raise HTTPException(status_code=404, detail="Record not found")
     
     @router.post("/refresh")
     async def refresh_data():
-        """Force refresh data from all files."""
+        """Force refresh data from file."""
         service.refresh()
         return {"status": "refreshed", "count": len(service._records)}
     
@@ -681,17 +742,35 @@ class BenchmarkEventHandler:
         self.gallery_data: Dict[str, Any] = {}
         
         # Load gallery data for model name lookup
+        if gallery_file:
+            print(f"[Benchmark] Gallery file path: {gallery_file}")
+            print(f"[Benchmark] Gallery file exists: {gallery_file.exists()}")
+        
         if gallery_file and gallery_file.exists():
             try:
                 with open(gallery_file, 'r') as f:
                     gallery = json.load(f)
-                    for mesh in gallery.get('meshes', []):
-                        # Key by filename only (without path)
-                        filename = Path(mesh.get('file', '')).name
-                        self.gallery_data[filename] = mesh
-                print(f"[Benchmark] Loaded {len(self.gallery_data)} models from gallery")
+                    # Iterate through models and their meshes
+                    for model in gallery.get('models', []):
+                        model_name = model.get('name', '')
+                        for mesh in model.get('meshes', []):
+                            # Key by filename only (without path)
+                            file_path = mesh.get('file', '')
+                            filename = Path(file_path).name
+                            # Store model name with mesh entry
+                            self.gallery_data[filename] = {
+                                'name': model_name,
+                                'mesh': mesh,
+                                'model': model
+                            }
+                            print(f"[Benchmark] Mapped '{filename}' -> '{model_name}'")
+                    print(f"[Benchmark] Loaded {len(self.gallery_data)} meshes from gallery")
             except Exception as e:
                 print(f"[Benchmark] Warning: Could not load gallery: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print(f"[Benchmark] Warning: Gallery file not found or not provided")
     
     def get_model_name(self, mesh_file: str) -> str:
         """Get display name for a mesh file from gallery data."""
@@ -705,16 +784,7 @@ class BenchmarkEventHandler:
         job_data: Dict[str, Any],
         client_config: Optional[Dict[str, Any]] = None
     ) -> Optional[BenchmarkRecord]:
-        """
-        Handle solve_complete event and record benchmark.
-        
-        Args:
-            job_data: Job data including params, results, mesh_info
-            client_config: Client hardware configuration
-        
-        Returns:
-            Created BenchmarkRecord or None if recording failed
-        """
+        """Handle solve_complete event and record benchmark."""
         try:
             params = job_data.get('params', {})
             results = job_data.get('results', {})
@@ -723,7 +793,7 @@ class BenchmarkEventHandler:
             mesh_file = params.get('mesh_file', 'unknown')
             model_name = self.get_model_name(mesh_file)
             
-            # Extract memory data from results (NEW)
+            # Extract memory data from results
             memory = results.get('memory', {})
             
             record = self.service.add_record(
@@ -736,6 +806,10 @@ class BenchmarkEventHandler:
                 iterations=results.get('iterations', 0),
                 timings=results.get('timing_metrics', {}),
                 solution_stats=results.get('solution_stats', {}),
+                matrix_nnz=mesh_info.get('matrix_nnz', 0),
+                element_type=mesh_info.get('element_type', 'quad8'),
+                nodes_per_element=mesh_info.get('nodes_per_element', 8),
+                solver_config=results.get('solver_config', {}),
                 memory=memory,
                 client_config=client_config
             )

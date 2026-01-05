@@ -41,7 +41,7 @@ function initBenchmark() {
     
     benchmarkPanel = new BenchmarkPanel('.benchmark-container', {
         apiBase: apiBase,
-        pollInterval: 30000,  // Refresh every 30 seconds
+        pollInterval: 60000,  // 1 minute
         autoRefresh: true
     });
     

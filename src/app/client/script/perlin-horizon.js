@@ -1,6 +1,8 @@
 // perlin-horizon.js
 
+
 class PerlinHorizon {
+
     constructor(options = {}) {
         this.width = options.width || 1000;
         this.height = options.height || 100;

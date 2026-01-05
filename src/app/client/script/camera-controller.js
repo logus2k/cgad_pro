@@ -7,6 +7,7 @@ import * as THREE from '../library/three.module.min.js';
  * 2D mode: Orthographic camera looking along -Z axis, XY grid (backdrop)
  */
 export class CameraController {
+
     constructor(perspectiveCamera, scene, renderer, orbitControls, config = {}) {
         this.perspectiveCamera = perspectiveCamera;
         this.scene = scene;
@@ -22,6 +23,7 @@ export class CameraController {
         
         // State
         this.is2DMode = false;
+        this.axisScale = null;
         this.isTransitioning = false;
         this.transitionProgress = 0;
         this.transitionStartTime = 0;
@@ -176,6 +178,13 @@ export class CameraController {
     setParticleFlow(particleFlow) {
         this.particleFlow = particleFlow;
     }
+
+    /**
+     * Set axis scale reference for 2D/3D mode switching
+     */
+    setAxisScale(axisScale) {
+        this.axisScale = axisScale;
+    }    
     
     /**
      * Set margin for 2D view (0-1, percentage of mesh size)
@@ -264,6 +273,11 @@ export class CameraController {
         this.transitionProgress = 0;
         this.transitionStartTime = performance.now();
         this.transitionTarget = '2D';
+
+        // Hide axis during transition
+        if (this.axisScale) {
+            this.axisScale.mainGroup.visible = false;
+        }        
         
         this.animateTransition();
     }
@@ -298,6 +312,11 @@ export class CameraController {
         this.transitionProgress = 0;
         this.transitionStartTime = performance.now();
         this.transitionTarget = '3D';
+
+        // Hide axis during transition
+        if (this.axisScale) {
+            this.axisScale.mainGroup.visible = false;
+        }        
         
         this.animateTransition();
     }
@@ -468,6 +487,11 @@ export class CameraController {
             if (this.particleFlow) {
                 this.particleFlow.set2DMode(true);
             }
+
+            if (this.axisScale) {
+                this.axisScale.mainGroup.visible = this.axisScale.enabled;
+                this.axisScale.set2DMode(true);
+            }         
             
             // Stay with perspective camera to avoid flickering
             // (particles are flattened to Z=0, so perspective distortion is minimal)
@@ -495,6 +519,11 @@ export class CameraController {
             if (this.particleFlow) {
                 this.particleFlow.set2DMode(false);
             }
+
+            if (this.axisScale) {
+                this.axisScale.mainGroup.visible = this.axisScale.enabled;
+                this.axisScale.set2DMode(false);
+            }        
             
             // Disable 2D zoom
             this.enable2DZoom(false);

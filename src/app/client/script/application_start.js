@@ -1,5 +1,7 @@
 import { MillimetricScene } from '../script/scene.js';
 import { WaveBackground } from '../script/wave-background.js';
+import { BirdFlock } from '../script/bird-flock.js';
+import { CloudGradient } from '../script/clouds.js';
 import { FEMClient } from '../script/fem-client.js';
 import { MetricsDisplay } from '../script/metrics-display.js';
 import { FEMMeshRendererCPU } from '../script/fem-mesh-renderer-cpu.js';
@@ -8,7 +10,8 @@ import { MeshExtruderSDF } from '../script/mesh-extruder-sdf.js';
 import { MeshExtruderRect } from '../script/mesh-extruder-rect.js';
 import { ParticleFlow } from '../script/particle-flow.js';
 import { CameraController } from '../script/camera-controller.js';
-import { SettingsManager } from './settings.manager.js';
+import { AxisScale } from '../script/axis-scale.js';
+import { SettingsManager } from '../script/settings.manager.js';
 import { initMetricsManager } from './metrics/MetricsManager.js';
 
 
@@ -73,6 +76,11 @@ cameraController = new CameraController(
 // Set reference to millimetricScene for grid switching
 cameraController.setMillimetricScene(millimetricScene);
 
+// Initialize axis scale system
+const axisScale = new AxisScale(millimetricScene.getScene());
+window.axisScale = axisScale;
+cameraController.setAxisScale(axisScale);
+
 // Set wave background (pass main scene and camera)
 const waveBackground = new WaveBackground(
     millimetricScene.getRenderer(),
@@ -86,6 +94,27 @@ const waveBackground = new WaveBackground(
 
 // Start the animation loop
 waveBackground.start();
+
+const birdFlock = new BirdFlock("bird-horizon", {
+    top: 10,
+    height: 50,
+    speed: 125,
+    count: 8,
+    flocking: 0.8,
+    distance: 16,
+    loop: 0,
+    fadeOut: 0.65
+});
+
+const clouds = new CloudGradient('#cloud', {
+    count: 60,
+    colors: ['#ffffff', '#f0fff3', '#f8ffff', '#e8f8f8'],
+    blur: [25, 80],
+    spread: [10, 25],
+    x: [0, 100],
+    y: [0, 70]
+});
+clouds.init();
 
 // Override millimetricScene.render to always include waves
 const originalRender = millimetricScene.render.bind(millimetricScene);
@@ -192,6 +221,11 @@ function clearScene() {
         cameraController.setMeshExtruder(null);
         cameraController.setParticleFlow(null);
     }
+
+    // Hide axis scale (will be updated when new mesh loads)
+    if (axisScale) {
+        axisScale.mainGroup.visible = false;
+    }    
     
     // Render cleared scene
     millimetricScene.render();
@@ -245,7 +279,9 @@ function initGeometryWorker() {
 // Mesh Selected - Use Worker for geometry creation (non-blocking)
 // ============================================================================
 document.addEventListener('meshSelected', (event) => {
-    const { mesh, preloadedData, meshLoader } = event.detail;
+
+    const { mesh, preloadedData, meshLoader, extrusionType: selectedExtrusionType } = event.detail;
+    window.extrusionType = selectedExtrusionType || 'rectangular';    
     
     console.log('Mesh selected:', mesh.name);
     console.log('Preloaded data available:', preloadedData ? 'Yes' : 'No');
@@ -290,7 +326,7 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
     window.currentMeshData = meshData;
     
     // Create geometry based on mode
-    if (use3DExtrusion && extrusionType === 'rectangular') {
+    if (use3DExtrusion && window.extrusionType === 'rectangular') {
         // Use Worker for rectangular extrusion (heavy computation)
         console.log('Starting Worker-based geometry creation...');
         initGeometryWorker();
@@ -316,7 +352,7 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
             }
         });
         
-    } else if (use3DExtrusion && extrusionType === 'cylindrical') {
+    } else if (use3DExtrusion && window.extrusionType === 'cylindrical') {
         // Cylindrical mode - use existing synchronous approach
         console.log('Creating cylindrical geometry...');
         try {
@@ -340,6 +376,11 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
             
             millimetricScene.render();
             console.log('3D geometry created (cylindrical)');
+
+            // Update axis scale
+            if (axisScale) {
+                axisScale.updateFromMeshExtruder(meshExtruder);
+            }            
             
             if (resolveMeshExtruder) {
                 resolveMeshExtruder(meshExtruder);
@@ -411,6 +452,11 @@ function createThreeJSGeometryFromWorkerResult(result, meshData) {
     
     console.log('3D geometry created from Worker result');
     console.log(`   Vertices: ${geometry3D.vertexCount}, Mapping: ${vertexMapping.mapped} mapped, ${vertexMapping.unmapped} unmapped`);
+
+    // Update axis scale
+    if (axisScale) {
+        axisScale.updateFromMeshExtruder(meshExtruder);
+    }    
     
     // Resolve promise for any handlers waiting for meshExtruder
     if (resolveMeshExtruder) {
@@ -496,7 +542,7 @@ femClient.on('mesh_loaded', async (data) => {
             }
             
             // Create extruder without solution data (null)
-            if (extrusionType === 'cylindrical') {
+            if (window.extrusionType === 'cylindrical') {
                 meshExtruder = new MeshExtruderSDF(
                     millimetricScene.getScene(),
                     data,
@@ -790,6 +836,22 @@ window.metricsDisplay = metricsDisplay;
 window.meshRenderer = meshRenderer;
 window.millimetricScene = millimetricScene;
 
+window.toggleAxisScale = (visible) => {
+    if (axisScale) {
+        if (visible === undefined) {
+            visible = axisScale.toggle();
+        } else {
+            axisScale.setVisible(visible);
+        }
+        millimetricScene.render();
+        console.log(`Axis scale: ${visible ? 'visible' : 'hidden'}`);
+        return visible;
+    } else {
+        console.warn('Axis scale not initialized');
+        return false;
+    }
+};
+
 // ============================================================================
 // Console Helper Functions
 // ============================================================================
@@ -806,9 +868,23 @@ window.toggle2DMesh = (visible) => {
 
 window.toggle3DExtrusion = (visible) => {
     if (meshExtruder) {
-        meshExtruder.set3DExtrusionVisible(visible);
+        if (visible) {
+            // Restore visibility based on current camera mode
+            const is2DMode = cameraController?.is2DMode ?? false;
+            if (is2DMode) {
+                meshExtruder.set2DMeshVisible(true);
+                meshExtruder.set3DExtrusionVisible(false);
+            } else {
+                meshExtruder.set2DMeshVisible(false);
+                meshExtruder.set3DExtrusionVisible(true);
+            }
+        } else {
+            // Hide both when unchecked
+            meshExtruder.set2DMeshVisible(false);
+            meshExtruder.set3DExtrusionVisible(false);
+        }
         millimetricScene.render();
-        console.log(`3D extrusion: ${visible ? 'visible' : 'hidden'}`);
+        console.log(`Solid mesh: ${visible ? 'visible' : 'hidden'}`);
     } else {
         console.warn('Mesh extruder not initialized');
     }
@@ -994,18 +1070,32 @@ window.setBrightness = (value) => {
 };
 
 /**
- * Set mesh opacity
+ * Set mesh opacity (applies to both 2D and 3D meshes)
  * @param {number} value - 0.0 (invisible) to 1.0 (fully opaque)
  * Usage: setOpacity(0.8)
  * UI: <input type="range" min="0" max="1" step="0.05" oninput="setOpacity(this.value)">
  */
 window.setOpacity = (value) => {
+    const opacity = parseFloat(value);
+    let applied = false;
+    
+    // Apply to 3D mesh extruder
     if (meshExtruder) {
-        meshExtruder.setOpacity(parseFloat(value));
+        meshExtruder.setOpacity(opacity);
+        applied = true;
+    }
+    
+    // Apply to 2D mesh renderer
+    if (meshRenderer) {
+        meshRenderer.setOpacity(opacity);
+        applied = true;
+    }
+    
+    if (applied) {
         millimetricScene.render();
         console.log(`Opacity: ${value}`);
     } else {
-        console.warn('Mesh extruder not initialized');
+        console.warn('No mesh renderer or extruder initialized');
     }
 };
 

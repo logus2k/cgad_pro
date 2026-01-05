@@ -63,17 +63,17 @@
 
 /* Positions */
 .hud.metrics {
-    bottom: 50px;
+    bottom: 60px;
     right: 30px;
     display: flex;
     flex-direction: column;
     align-self: flex-end;
     width: 280px;
-    height: 400px;
+    height: 440px;
     min-width: 280px;
-    min-height: 400px;
+    min-height: 440px;
     max-width: 280px;
-    max-height: 400px;
+    max-height: 440px;
     background-color: #fff4e5c5;
 }
 
@@ -82,19 +82,19 @@
 }
 
 .hud.gallery {
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 770px;
-	min-width: 450px;
-	max-width: 770px;
-	height: 500px;
-	min-height: 500px;
-	max-height: 500px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	background-color: #fff4e5c5;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 770px;
+    min-width: 450px;
+    max-width: 770px;
+    height: 530px;
+    min-height: 530px;
+    max-height: 530px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff4e5c5;
 }
 
 .hud.gallery:hover {
@@ -155,7 +155,7 @@
     top: 130px;
     left: 50px;
 	width: 300px;
-	height: auto;
+	height: 200px;
 	overflow: hidden;
     background-color: #fff4e5c5;
 }
@@ -164,13 +164,11 @@
     background-color: #fff4e5;
 }
 
-.about-section {
-	font-size: 10px;
-	line-height: 1.4;
-	opacity: 0.9;
-	margin: 0px 10px 10px 10px;
+.about-container {
+	font-size: 12px;
+	line-height: 1.6;
+	margin: 10px;
 }
-
 
 .hud.settings .control-grid {
     grid-template-columns: 1fr minmax(175px, 1.2fr);
@@ -252,6 +250,7 @@
     cursor: move;
     padding: 9px 5px 4px 10px;
     margin: 0px 0px 0px 0px;
+    background-color: #ffcd4f33;
 }
 
 .hud.dragging {
@@ -391,7 +390,7 @@ summary::-webkit-details-marker {
 
 .hud .sep {
     height: 0.5px;
-    background: #cccccc;
+    background: #ffd59a;
 }
 
 .inline-controls {
@@ -777,13 +776,6 @@ div.sep2 {
 	}
 }
 
-
-
-/* General HUD/Panel Styling */
-.hud.about {
-    /* Assuming a general style for the HUD panel container */
-    padding: 15px;
-}
 
 /* Horizontal Separator */
 .sep-line {

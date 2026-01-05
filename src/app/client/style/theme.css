@@ -66,6 +66,14 @@ html, body {
 	overflow: hidden;
 }
 
+/*
+body {
+    background: linear-gradient(to left, #d3f2ff, #f4f8fa) no-repeat;
+    background-size: 100% 101px;
+    background-position: right top;	
+}
+*/
+
 #root {
 	position: relative;
 	width: 100%;
@@ -94,4 +102,8 @@ html, body {
 
 #overlay {
 	pointer-events: none;
+}
+
+.application-logo {
+	position: absolute;
 }

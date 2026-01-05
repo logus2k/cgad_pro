@@ -31,7 +31,7 @@
     display: flex;
     flex-wrap: nowrap;
     transition: transform 0.4s ease-out;
-    margin: 10px;
+    margin: 10px 10px 0px 10px;
     gap: 10px;
 }
 
@@ -131,13 +131,12 @@
    ========================================================================== */
 
 .model-image-container {
-    position: relative;  /* Added for preload indicator positioning */
-    /* height: 140px; */
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 .model-image {
@@ -145,7 +144,7 @@
     max-width: 100%;
     object-fit: contain;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
 .model-name {
@@ -166,7 +165,6 @@
 
 .model-metadata {
     border-top: 1px dashed var(--hud-fg-dim, #ccc);
-    padding-top: 8px;
 }
 
 .meta-row {
@@ -190,9 +188,30 @@
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 }
 
-.complexity-low { color: #268a7e; }
-.complexity-med { color: #eb9148; }
-.complexity-high { color: var(--hud-warm, #d63939); }
+.complexity-unknown {
+    color: #333333;
+    background-color: #b0b0b0;
+}
+
+.complexity-low {
+    color: #333333;
+    background-color: #aee7b4;
+}
+
+.complexity-med {
+    color: #333333;
+    background-color: #ffee9a;
+}
+
+.complexity-high {
+    color: #333333;
+    background-color: #ffc27e;
+}
+
+.complexity-very-high {
+    color: #333333;
+    background-color: #ffacac;
+}
 
 /* ==========================================================================
    Navigation & Controls
@@ -203,7 +222,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    padding: 5px 0px 10px 0px;
+    padding: 0px;
 }
 
 .nav-dot {
@@ -229,17 +248,17 @@
 .carousel-controls {
     display: flex;
     justify-content: right;
-    padding: 10px 15px 15px 15px;
+    padding: 0px 15px 15px 15px;
 }
 
 .btn-group {
     display: flex;
-    gap: 10px;
+    gap: 6px;
 }
 
 /* Button Base Styles */
 .carousel-controls .btn {
-    padding: 2px 15px;
+    padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.8rem;
@@ -249,29 +268,28 @@
 
 .carousel-controls .btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 1);
-    border-color: var(--hud-accent, #2266ff);
+    border-color: #59bcee;
 }
 
 .carousel-controls .btn:disabled {
     opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* Button Variants */
 .carousel-controls .btn-primary {
-    background: var(--hud-accent, #2266ff);
+    background: #0f9ce2;
     color: white;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: #0f9ce2;
 }
 
 .carousel-controls .btn-primary:hover:not(:disabled) {
-    background: #1a55dd;
+    background: #2aaff1;
 }
 
 .carousel-controls .btn-secondary {
-    background: var(--hud-accent, #2266ff);
+    background: var(--hud-accent, #0f9ce2);
     color: white;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
 }
 
 .carousel-controls .btn-secondary:hover:not(:disabled) {
@@ -288,8 +306,8 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--hud-fg-dim, #ccc);
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--hud-fg-dim, #ccc);
 }
 
 .solver-row label {
@@ -309,12 +327,12 @@
 }
 
 .solver-row select:hover {
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
 }
 
 .solver-row select:focus {
     outline: none;
-    border-color: var(--hud-accent, #2266ff);
+    border-color: var(--hud-accent, #0f9ce2);
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
 }
 
@@ -322,10 +340,18 @@
    Mesh & Solver Selection Dropdowns
    ========================================================================== */
 
+.mesh-row {
+    padding-bottom: 8px;
+    padding-top: 8px;
+}
+
 .mesh-row, .solver-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-bottom: 8px;
+    padding-left: 4px;
+    border-bottom: 1px dashed var(--hud-fg-dim, #ccc);
 }
 
 .mesh-row label,
@@ -357,9 +383,23 @@
     box-shadow: 0 0 0 2px rgba(34, 102, 255, 0.2);
 }
 
-/* Remove top border from solver row since it follows complexity badge */
-.solver-row {
-    border-top: none;
-    padding-top: 10px;
-    border-top: 1px dashed var(--hud-fg-dim, #ccc);
+/* Navigation Controls Row */
+.navigation-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navigation-controls .btn {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.navigation-controls .btn:disabled {
+    opacity: 0.5;
+}
+
+.navigation-controls .btn img {
+    width: 26px;
+    height: 26px;
+    vertical-align: middle;
 }

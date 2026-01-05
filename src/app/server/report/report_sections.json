@@ -1,0 +1,55 @@
+{
+    "title": "Project Reports",
+    "documents": [
+        {
+            "id": "tutorial_1",
+            "title": "Tutorial #1 - Project Proposal",
+            "file": "tutorial1/tutorial_1.md"
+        },
+        {
+            "id": "tutorial2_common_foundation",
+            "title": "Tutorial #2 - Common Foundation",
+            "file": "tutorial2/tutorial2_common_foundation.md"
+        },
+        {
+            "id": "tutorial2_impl_1_cpu_baseline",
+            "title": "Tutorial #2 - CPU Baseline",
+            "file": "tutorial2/tutorial2_impl_1_cpu_baseline.md"
+        },
+        {
+            "id": "tutorial2_impl_2_cpu_threaded",
+            "title": "Tutorial #2 - CPU Threaded",
+            "file": "tutorial2/tutorial2_impl_2_cpu_threaded.md"
+        },        
+        {
+            "id": "tutorial2_impl_3_cpu_multiprocess",
+            "title": "Tutorial #2 - CPU Multiprocess",
+            "file": "tutorial2/tutorial2_impl_3_cpu_multiprocess.md"
+        },        
+        {
+            "id": "tutorial2_impl_4_numba_jit",
+            "title": "Tutorial #2 - Numba JIT CPU",
+            "file": "tutorial2/tutorial2_impl_4_numba_jit.md"
+        },        
+        {
+            "id": "tutorial2_impl_5_numba_cuda",
+            "title": "Tutorial #2 - Numba CUDA",
+            "file": "tutorial2/tutorial2_impl_5_numba_cuda.md"
+        },        
+        {
+            "id": "tutorial2_impl_6_gpu_cupy",
+            "title": "Tutorial #2 - GPU CuPy (RawKernel)",
+            "file": "tutorial2/tutorial2_impl_6_gpu_cupy.md"
+        },
+        {
+            "id": "tutorial2_benchmark_procedure",
+            "title": "Tutorial #2 - Benchmark Procedure",
+            "file": "tutorial2/tutorial2_benchmark_procedure.md"
+        },
+        {
+            "id": "docker_user_manual",
+            "title": "Docker User Manual",
+            "file": "docker/docker_user_manual.md"
+        }
+    ]
+}

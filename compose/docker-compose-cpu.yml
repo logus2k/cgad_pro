@@ -1,26 +1,19 @@
 services:
-
   femulator:
     restart: unless-stopped
     image: femulator:1.0
     container_name: femulator
     hostname: femulator
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: "all"
-              capabilities: [gpu]
     logging:
       options:
         max-size: "10m"
-        max-file: "3"       
+        max-file: "3"
     ports:
       - "5868:5868"
     networks:
-      - logus2k_network
+      - femulator_network
 
 networks:
-  logus2k_network:
+  femulator_network:
     external: true
+    name: femulator_network

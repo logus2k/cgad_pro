@@ -35,7 +35,7 @@
     display: flex;
     width: 100%;
     padding: 0px 6px 0 6px;
-    margin: 5px 0px 0px 0px;
+    margin: 10px 0px 0px 0px;
     border-bottom: 0.5px solid #9c9c9c;
     box-sizing: border-box;
     gap: 1px;
@@ -59,13 +59,13 @@
     background-color: #fff4e5ff !important;
     color: #1a1a1a;
     z-index: 1;
-    margin-bottom: -1px;
+    margin-bottom: -2px;
     border-bottom: 1px solid #fff4e500 !important;
-    padding-top: 5px;
+    padding: 4px 8px 2px 8px;
 }
 
 .hud .tab.active:hover {
-    background-color: #fff4e5 !important;
+    background-color: #fff4e5ff !important;
     margin-bottom: -1px;
     border-bottom: 0.5px solid #fff4e5;
 }
@@ -73,5 +73,5 @@
 .hud .tab:not(.active) {
     border-bottom: 0.5px solid transparent;
     margin-bottom: -1px;
-    padding: 5px 10px 1px 10px;
+    padding: 4px 8px 2px 8px;
 }
