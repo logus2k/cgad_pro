@@ -243,7 +243,7 @@ export class AxisScale {
         this.labelSprites.push(axisLabel);
         
         // Add tick marks and labels
-        this.addTickMarks3D(origin, direction, length - arrowHeadLength * 0.5, color, minVal, maxVal, label);
+        this.addTickMarks3D(origin, direction, length, color, minVal, maxVal, label);
     }
     
     /**
