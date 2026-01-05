@@ -38,8 +38,12 @@ export class ParticleSphere extends ParticleBase {
         
         const geometry = new THREE.SphereGeometry(this.config.particleSize, 12, 8);
         
+        // When colorBySpeed is enabled, use white base color so speed colors show properly
+        // (instanceColor multiplies with material color)
+        const materialColor = this.config.colorBySpeed ? 0xffffff : this.config.particleColor;
+        
         const material = new THREE.MeshStandardMaterial({
-            color: this.config.particleColor,
+            color: materialColor,
             roughness: this.config.particleRoughness,
             metalness: this.config.particleMetalness,
             envMapIntensity: 0.5
@@ -62,7 +66,7 @@ export class ParticleSphere extends ParticleBase {
         
         this.group.add(this.mesh);
         
-        console.log(`ParticleSphere: Created ${count} sphere particles`);
+        console.log(`ParticleSphere: Created ${count} sphere particles (colorBySpeed: ${this.config.colorBySpeed})`);
     }
     
     /**
@@ -129,8 +133,15 @@ export class ParticleSphere extends ParticleBase {
             this.mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
         }
         
-        if (!enabled && this.mesh) {
-            this.mesh.material.color.setHex(this.config.particleColor);
+        // Update material color based on colorBySpeed setting
+        if (this.mesh && this.mesh.material) {
+            if (enabled) {
+                // Use white so speed colors show through
+                this.mesh.material.color.setHex(0xffffff);
+            } else {
+                // Restore original particle color
+                this.mesh.material.color.setHex(this.config.particleColor);
+            }
         }
     }
     
@@ -138,7 +149,16 @@ export class ParticleSphere extends ParticleBase {
      * Update configuration
      */
     updateConfig(newConfig) {
+        // Check if colorBySpeed is changing
+        const colorBySpeedChanging = newConfig.colorBySpeed !== undefined && 
+                                      newConfig.colorBySpeed !== this.config.colorBySpeed;
+        
         const needsRecreate = super.updateConfig(newConfig);
+        
+        // Handle colorBySpeed toggle without recreation
+        if (colorBySpeedChanging && !needsRecreate) {
+            this.setColorBySpeed(this.config.colorBySpeed);
+        }
         
         if (!needsRecreate && this.mesh) {
             if (newConfig.particleColor !== undefined && !this.config.colorBySpeed) {

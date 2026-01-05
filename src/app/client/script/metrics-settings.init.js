@@ -103,6 +103,14 @@ function initSliderBindings() {
             window.updateParticles?.({ speedScale: value });
         });
     }
+    
+    // Color by Speed checkbox
+    const colorBySpeedCheckbox = document.getElementById('cfg-color-by-speed');
+    if (colorBySpeedCheckbox) {
+        colorBySpeedCheckbox.addEventListener('change', (e) => {
+            window.updateParticles?.({ colorBySpeed: e.target.checked });
+        });
+    }
 }
 
 // Initialize when DOM is ready
