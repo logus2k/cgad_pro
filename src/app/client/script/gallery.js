@@ -120,6 +120,12 @@ class MeshGallery {
                 const selected = solver.id === model.solver_type ? 'selected' : '';
                 return `<option value="${solver.id}" title="${solver.description}" ${selected}>${solver.name}</option>`;
             }).join('');
+
+            // Build extrusion type options HTML
+            const extrusionOptionsHtml = `
+                <option value="rectangular" selected>Rectangular</option>
+                <option value="cylindrical">Cylindrical</option>
+            `;            
             
             item.innerHTML = `
                 <div class="model-image-container">
@@ -145,6 +151,12 @@ class MeshGallery {
                             ${meshOptionsHtml}
                         </select>
                     </div>
+                    <div class="solver-row">
+                        <label>Extrusion:</label>
+                        <select class="extrusion-select" data-index="${index}">
+                            ${extrusionOptionsHtml}
+                        </select>
+                    </div>                    
                     <div class="complexity-badge ${this.getComplexityClass(defaultMesh?.elements)}" data-complexity>
                         ${this.getComplexityLabel(defaultMesh?.elements)}
                     </div>
@@ -154,7 +166,8 @@ class MeshGallery {
             // Prevent dropdown clicks from triggering item selection
             const meshSelect = item.querySelector('.mesh-select');
             const solverSelect = item.querySelector('.solver-select');
-            
+            const extrusionSelect = item.querySelector('.extrusion-select');
+         
             if (meshSelect) {
                 meshSelect.addEventListener('click', (e) => e.stopPropagation());
                 meshSelect.addEventListener('change', (e) => this.onMeshSelectionChange(index, e.target.value));
@@ -164,6 +177,11 @@ class MeshGallery {
                 solverSelect.addEventListener('click', (e) => e.stopPropagation());
                 solverSelect.addEventListener('change', () => this.selectItem(index));
             }
+
+            if (extrusionSelect) {
+                extrusionSelect.addEventListener('click', (e) => e.stopPropagation());
+                extrusionSelect.addEventListener('change', () => this.selectItem(index));
+            }            
             
             item.addEventListener('click', () => this.selectItem(index));
             this.track.appendChild(item);
@@ -474,6 +492,9 @@ class MeshGallery {
         const selectedItem = this.track.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
         const solverDropdown = selectedItem?.querySelector('.solver-select');
         const solverType = solverDropdown?.value || model.solver_type || 'gpu';
+
+        const extrusionDropdown = selectedItem?.querySelector('.extrusion-select');
+        const extrusionType = extrusionDropdown?.value || 'rectangular';        
         
         const maxIterations = model.max_iterations || 50000;
         const progressInterval = model.progress_interval || 100;
@@ -483,6 +504,7 @@ class MeshGallery {
         console.log('Mesh:', selectedMesh.label);
         console.log('File:', selectedMesh.file);
         console.log('Solver:', solverType);
+        console.log('Extrusion:', extrusionType);        
         console.log('Max Iterations:', maxIterations);
         console.log('=================================');
         
@@ -493,6 +515,7 @@ class MeshGallery {
         const meshInfo = {
             ...model,
             ...selectedMesh,
+            extrusion_type: extrusionType,
             solver_type: solverType
         };
         
@@ -504,7 +527,8 @@ class MeshGallery {
                 selectedMesh: selectedMesh,
                 index: this.selectedIndex,
                 preloadedData: meshData,
-                meshLoader: meshLoader
+                meshLoader: meshLoader,
+                extrusionType: extrusionType
             }
         });
         document.dispatchEvent(event);

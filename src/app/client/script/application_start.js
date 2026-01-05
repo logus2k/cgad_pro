@@ -268,7 +268,9 @@ function initGeometryWorker() {
 // Mesh Selected - Use Worker for geometry creation (non-blocking)
 // ============================================================================
 document.addEventListener('meshSelected', (event) => {
-    const { mesh, preloadedData, meshLoader } = event.detail;
+
+    const { mesh, preloadedData, meshLoader, extrusionType: selectedExtrusionType } = event.detail;
+    window.extrusionType = selectedExtrusionType || 'rectangular';    
     
     console.log('Mesh selected:', mesh.name);
     console.log('Preloaded data available:', preloadedData ? 'Yes' : 'No');
@@ -313,7 +315,7 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
     window.currentMeshData = meshData;
     
     // Create geometry based on mode
-    if (use3DExtrusion && extrusionType === 'rectangular') {
+    if (use3DExtrusion && window.extrusionType === 'rectangular') {
         // Use Worker for rectangular extrusion (heavy computation)
         console.log('Starting Worker-based geometry creation...');
         initGeometryWorker();
@@ -339,7 +341,7 @@ async function handleGeometryCreation(mesh, preloadedData, meshLoader) {
             }
         });
         
-    } else if (use3DExtrusion && extrusionType === 'cylindrical') {
+    } else if (use3DExtrusion && window.extrusionType === 'cylindrical') {
         // Cylindrical mode - use existing synchronous approach
         console.log('Creating cylindrical geometry...');
         try {
@@ -519,7 +521,7 @@ femClient.on('mesh_loaded', async (data) => {
             }
             
             // Create extruder without solution data (null)
-            if (extrusionType === 'cylindrical') {
+            if (window.extrusionType === 'cylindrical') {
                 meshExtruder = new MeshExtruderSDF(
                     millimetricScene.getScene(),
                     data,
