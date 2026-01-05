@@ -35,7 +35,8 @@
     font-family: 'Roboto', sans-serif;
     font-weight: 600;
     color: #333;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
+    padding-left: 5px;
 }
 
 .metrics-category-count {
@@ -45,8 +46,8 @@
 }
 
 .metrics-category-toggle {
-    font-size: 8px;
-    color: #888;
+    font-size: 9px;
+    color: #666;
 }
 
 .metrics-category.collapsed .metrics-category-items {

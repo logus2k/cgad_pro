@@ -143,9 +143,9 @@ export class MetricsCatalog {
         return `
             <div class="metrics-category ${isOpen ? '' : 'collapsed'}" data-category="${category.id}">
                 <div class="metrics-category-header">
+                    <span class="metrics-category-toggle">${isOpen ? '▼' : '▶'}</span>
                     <span class="metrics-category-title">${category.title}</span>
                     <span class="metrics-category-count">${enabledInCategory}/${category.metrics.length}</span>
-                    <span class="metrics-category-toggle">${isOpen ? '▼' : '▶'}</span>
                 </div>
                 <div class="metrics-category-items">
                     ${category.metrics.map(metric => this.renderMetric(metric)).join('')}
