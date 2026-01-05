@@ -146,30 +146,6 @@
 					"default": true
 				}
 			]
-		},
-		{
-			"name": "Inverted-S Duct",
-			"description": "An Inverted-S Duct",
-			"problem_type": "2D Potential Flow (Laplace)",
-			"thumbnail": "./images/mesh/s_duct.png",
-			"solver_type": "gpu",
-			"max_iterations": 10000,
-			"progress_interval": 50,
-			"meshes": [
-				{
-					"label": "16k nodes, 4k elements",
-					"file": "./mesh/s_duct_16k.h5",
-					"nodes": 16795,
-					"elements": 4063
-				},
-				{
-					"label": "219k nodes, 54k elements",
-					"file": "./mesh/s_duct_219k.h5",
-					"nodes": 219657,
-					"elements": 54412,
-					"default": true
-				}
-			]
 		}
 	]
 }
