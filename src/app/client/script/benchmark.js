@@ -244,32 +244,46 @@ export class BenchmarkPanel {
         }
         
         // Populate server filter from records
+        // Distinguishes between manual and automated records from the same server
         const serverFilter = this.container.querySelector('#benchmark-filter-server');
         if (serverFilter && this.records.length > 0) {
             const currentValue = serverFilter.value;
             serverFilter.innerHTML = '<option value="">All Servers</option>';
             
             // Extract unique servers from records
+            // Use composite key: server_hash + automated flag
             const servers = new Map();
             this.records.forEach(record => {
                 const hash = record.server_hash;
-                if (hash && !servers.has(hash)) {
+                const isAutomated = record.client_hash === 'automated';
+                const compositeKey = `${hash}${isAutomated ? '_automated' : ''}`;
+                
+                if (hash && !servers.has(compositeKey)) {
                     const config = record.server_config || {};
-                    const hostname = config.hostname || 'Unknown';
+                    const hostname = (config.hostname || 'Unknown').toUpperCase();
                     const cpu = this.shortenCpuName(config.cpu_model);
                     const gpu = this.shortenGpuName(config.gpu_model);
-                    const label = `${hostname} (${cpu}, ${gpu})`;
-                    servers.set(hash, label);
+                    
+                    // Add "(Automated)" suffix for automated records
+                    const displayName = isAutomated ? `${hostname} (Automated)` : hostname;
+                    const label = `${displayName} - ${cpu}, ${gpu}`;
+                    
+                    servers.set(compositeKey, {
+                        label: label,
+                        hash: hash,
+                        isAutomated: isAutomated,
+                        displayName: displayName
+                    });
                 }
             });
             
             // Sort by label and add options
             [...servers.entries()]
-                .sort((a, b) => a[1].localeCompare(b[1]))
-                .forEach(([hash, label]) => {
+                .sort((a, b) => a[1].displayName.localeCompare(b[1].displayName))
+                .forEach(([compositeKey, info]) => {
                     const option = document.createElement('option');
-                    option.value = hash;
-                    option.textContent = label;
+                    option.value = compositeKey;
+                    option.textContent = info.label;
                     serverFilter.appendChild(option);
                 });
             
@@ -278,19 +292,23 @@ export class BenchmarkPanel {
     }
     
     /**
-     * Group records by server_hash
+     * Group records by server_hash and automated flag
      * @param {Array} records - Array of benchmark records
-     * @returns {Array} Array of {hash, config, records, filteredRecords, mostRecent}
+     * @returns {Array} Array of {hash, compositeKey, isAutomated, config, records, filteredRecords, mostRecent}
      */
     groupRecordsByServer(records) {
         const groups = new Map();
         
         records.forEach(record => {
             const hash = record.server_hash || 'unknown';
+            const isAutomated = record.client_hash === 'automated';
+            const compositeKey = `${hash}${isAutomated ? '_automated' : ''}`;
             
-            if (!groups.has(hash)) {
-                groups.set(hash, {
+            if (!groups.has(compositeKey)) {
+                groups.set(compositeKey, {
                     hash: hash,
+                    compositeKey: compositeKey,
+                    isAutomated: isAutomated,
                     config: record.server_config || {},
                     records: [],
                     filteredRecords: [],
@@ -298,7 +316,7 @@ export class BenchmarkPanel {
                 });
             }
             
-            const group = groups.get(hash);
+            const group = groups.get(compositeKey);
             group.records.push(record);
             
             // Track most recent timestamp for sorting groups
@@ -396,16 +414,16 @@ export class BenchmarkPanel {
         // Group records by server
         let groups = this.groupRecordsByServer(this.records);
         
-        // Filter groups by server if selected
+        // Filter groups by server if selected (using composite key)
         if (this.filterServer) {
-            groups = groups.filter(g => g.hash === this.filterServer);
+            groups = groups.filter(g => g.compositeKey === this.filterServer);
         }
         
         groups = this.applyFiltersToGroups(groups);
         
         // On first load, expand only the first group
         if (this.firstLoad && groups.length > 0) {
-            this.expandedGroups.add(groups[0].hash);
+            this.expandedGroups.add(groups[0].compositeKey);
             this.firstLoad = false;
         }
         
@@ -434,7 +452,7 @@ export class BenchmarkPanel {
         
         // Render each group
         groups.forEach(group => {
-            const isExpanded = this.expandedGroups.has(group.hash);
+            const isExpanded = this.expandedGroups.has(group.compositeKey);
             const totalCount = group.records.length;
             const filteredCount = group.filteredRecords.length;
             
@@ -444,7 +462,7 @@ export class BenchmarkPanel {
             // Render records if expanded
             if (isExpanded) {
                 group.filteredRecords.forEach(record => {
-                    tableHtml += this.renderRow(record, group.hash);
+                    tableHtml += this.renderRow(record, group.compositeKey);
                 });
             }
         });
@@ -468,7 +486,12 @@ export class BenchmarkPanel {
         const gpuShort = this.shortenGpuName(config.gpu_model);
         const ram = config.ram_gb ? `${config.ram_gb} GB` : '-';
         const vram = config.gpu_memory_gb ? `${config.gpu_memory_gb} GB` : '-';
-        const hostname = config.hostname || 'Unknown';
+        
+        // Add "(Automated)" suffix for automated records
+        let hostname = (config.hostname || 'Unknown').toUpperCase();
+        if (group.isAutomated) {
+            hostname += ' (Automated)';
+        }
         
         // Build count display
         let countDisplay;
@@ -480,7 +503,7 @@ export class BenchmarkPanel {
         
         return `
             <tr class="benchmark-group-header ${isExpanded ? 'expanded' : 'collapsed'}" 
-                data-group-hash="${group.hash}">
+                data-group-hash="${group.compositeKey}">
                 <td colspan="13">
                     <div class="group-header-content">
                         <span class="group-toggle">${toggleIcon}</span>

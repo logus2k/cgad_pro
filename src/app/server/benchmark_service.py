@@ -585,12 +585,28 @@ class BenchmarkService:
                 with open(json_file, 'r') as f:
                     data = json.load(f)
                 
-                # Extract server hash from filename
-                file_hash = json_file.stem.replace("benchmark_", "")
+                # Detect automated files and extract server hash
+                # Format: benchmark_{hash}.json or benchmark_{hash}_automated.json
+                basename = json_file.stem.replace("benchmark_", "")
+                is_automated = basename.endswith("_automated")
+                
+                if is_automated:
+                    file_hash = basename.replace("_automated", "")
+                else:
+                    file_hash = basename
+                
+                # Get hostname from file's server_config for display name
+                server_config = data.get('server_config', {})
+                hostname = server_config.get('hostname', file_hash).upper()
+                
+                # Build display name
+                display_name = f"{hostname} (Automated)" if is_automated else hostname
                 
                 files.append({
                     "filename": json_file.name,
                     "server_hash": file_hash,
+                    "display_name": display_name,
+                    "is_automated": is_automated,
                     "is_own": file_hash == self.server_hash,
                     "record_count": len(data.get('records', [])),
                     "size_kb": round(stat.st_size / 1024, 1),
@@ -602,6 +618,9 @@ class BenchmarkService:
                     "filename": json_file.name,
                     "error": str(e)
                 })
+        
+        # Sort by display_name for consistent ordering
+        files.sort(key=lambda x: x.get('display_name', x.get('filename', '')))
         
         return files
 
@@ -665,7 +684,7 @@ def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Pa
         section_id: str,
         solver_type: Optional[str] = Query(None, description="Filter by solver type"),
         model_name: Optional[str] = Query(None, description="Filter by model name"),
-        server_hash: Optional[str] = Query(None, description="Filter by server hash")
+        server_hash: Optional[str] = Query(None, description="Filter by server hash (supports _automated suffix)")
     ):
         """Generate a specific report section with optional filters."""
         from report_generator import create_report_generator_from_records, REPORT_SECTIONS
@@ -684,13 +703,29 @@ def create_benchmark_router(service: BenchmarkService, gallery_file: Optional[Pa
             filters["solver_type"] = solver_type
         if model_name:
             filters["model_name"] = model_name
+        
+        # Handle composite server_hash (e.g., "abc123_automated")
+        # Extract actual hash and automated flag
+        is_automated_filter = None
         if server_hash:
-            filters["server_hash"] = server_hash
+            if server_hash.endswith("_automated"):
+                filters["server_hash"] = server_hash[:-10]  # Remove "_automated" suffix
+                is_automated_filter = True
+            else:
+                filters["server_hash"] = server_hash
+                is_automated_filter = False
         
         # Get filtered records as dicts
         filtered_records = service.get_all_records(
             filters=filters if filters else None
         )
+        
+        # Apply automated filter (client_hash == "automated" for automated records)
+        if is_automated_filter is not None:
+            if is_automated_filter:
+                filtered_records = [r for r in filtered_records if r.get("client_hash") == "automated"]
+            else:
+                filtered_records = [r for r in filtered_records if r.get("client_hash") != "automated"]
         
         # Create generator with filtered records
         generator = create_report_generator_from_records(

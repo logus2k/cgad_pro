@@ -1,6 +1,20 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T18:57:20.805139Z",
+  "updated_at": "2026-01-05T18:14:43.793321+00:00",
+  "automated": true,
+  "server_hash": "9d97dd8f0128",
+  "server_config": {
+    "hostname": "MERCURY",
+    "os": "Ubuntu 24.04.3 LTS",
+    "architecture": "x86_64",
+    "python_version": "3.10.19",
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+    "cpu_cores": 20,
+    "ram_gb": 94.3,
+    "gpu_model": "NVIDIA GeForce RTX 4090",
+    "gpu_memory_gb": 24.0,
+    "cuda_version": "13.0"
+  },
   "records": [
     {
       "id": "a563f5d7-74dc-47dd-ab74-ac29d277bb33",
@@ -32,15 +46,6 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.47,
         "peak_vram_mb": 0.0,
@@ -66,7 +71,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e8948366-41f9-474a-b45e-fb2b082cbb29",
@@ -98,15 +112,6 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -132,7 +137,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "f09c67e9-4c27-46b1-ba7d-c6eab0633579",
@@ -164,15 +178,6 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -198,7 +203,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "9f202ac1-7f7b-4dd5-9969-2b7e0c1dc9b3",
@@ -230,15 +244,6 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -264,7 +269,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "aa30fd56-06a9-4d50-87d7-45e9c25d9da7",
@@ -296,15 +310,6 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -330,7 +335,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e78005e0-3561-458c-bfa9-2df6066a706a",
@@ -362,15 +376,6 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -396,7 +401,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "d418880e-9941-4afe-96b6-3efb8602ae10",
@@ -428,15 +442,6 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -462,7 +467,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "dd191dc7-061b-4f63-b543-986c3188f214",
@@ -494,15 +508,6 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -528,7 +533,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "041882d8-912f-4efe-88c7-d64485c99e9c",
@@ -560,15 +574,6 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -594,7 +599,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c3cbdbb1-23c1-467d-99d1-1f1a8d69a86c",
@@ -626,15 +640,6 @@
         "final_residual": 4.96153811571074e-09,
         "relative_residual": 1.0786244471908462e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -660,7 +665,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "32ff7352-acfc-459e-8c2f-77cd20944304",
@@ -692,15 +706,6 @@
         "final_residual": 4.96153811571074e-09,
         "relative_residual": 1.0786244471908462e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -726,7 +731,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "67cf0950-7525-48f2-902d-16cb1b6876fc",
@@ -758,15 +772,6 @@
         "final_residual": 4.96153811571074e-09,
         "relative_residual": 1.0786244471908462e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -792,7 +797,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "bd706116-20c5-4bc2-9b79-c062ab86387e",
@@ -824,15 +838,6 @@
         "final_residual": 5.750629931633875e-09,
         "relative_residual": 8.955603455104773e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -858,7 +863,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "38ee4e23-1bad-4e91-b16f-9340dfb5e85c",
@@ -890,15 +904,6 @@
         "final_residual": 5.750629931633875e-09,
         "relative_residual": 8.955603455104773e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -924,7 +929,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "41b34cf1-4d09-4765-8af1-21d014c2ec3f",
@@ -956,15 +970,6 @@
         "final_residual": 5.750629931633875e-09,
         "relative_residual": 8.955603455104773e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -990,7 +995,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "b0dbaac1-edb5-43db-b003-0ceb42693de6",
@@ -1022,15 +1036,6 @@
         "final_residual": 5.508850681774332e-09,
         "relative_residual": 1.1976086614089361e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1056,7 +1061,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "584e7aed-68d1-4968-8cb5-59eb8e8eb9a3",
@@ -1088,15 +1102,6 @@
         "final_residual": 5.508850681774332e-09,
         "relative_residual": 1.1976086614089361e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1122,7 +1127,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "4741518b-545a-472b-9eeb-fd96109ddb51",
@@ -1154,15 +1168,6 @@
         "final_residual": 5.508850681774332e-09,
         "relative_residual": 1.1976086614089361e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1188,7 +1193,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ef23966a-2be1-4fd2-ab21-19bab1ffe597",
@@ -1219,15 +1233,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1253,7 +1258,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "a2ce998d-db36-4620-a923-fe85ae03cab2",
@@ -1284,15 +1298,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1318,7 +1323,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c647c201-3a50-4302-b9bb-a954764cb801",
@@ -1349,15 +1363,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1383,7 +1388,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "8e47ba17-e1a0-47f3-9080-ae36381a03eb",
@@ -1414,15 +1428,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1448,7 +1453,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "80706d63-9052-4bfa-9316-72f56d6202a6",
@@ -1479,15 +1493,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1513,7 +1518,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "d3b6f996-6487-4827-96bc-ff326386b346",
@@ -1544,15 +1558,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1578,7 +1583,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "eb07c514-4889-4c00-b920-3921c992074f",
@@ -1609,15 +1623,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1643,7 +1648,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "64e2dbdc-ced5-4ebc-a091-02bd8f200db2",
@@ -1674,15 +1688,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1708,7 +1713,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "8c83dab4-3d3b-414e-82ab-a7f3d46de11a",
@@ -1739,15 +1753,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1773,7 +1778,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "5e82c4b8-1271-41e4-8dd0-41a74ad15580",
@@ -1804,15 +1818,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1838,7 +1843,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "9891cc50-23c9-4a65-a24e-197c39322dcc",
@@ -1869,15 +1883,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1903,7 +1908,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "feca2619-fe85-420c-8364-96f1679af792",
@@ -1934,15 +1948,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1968,7 +1973,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "af7f1eee-a349-4d38-9a5e-bf34948d96a1",
@@ -1999,15 +2013,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2033,7 +2038,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "0bcd083f-a150-4828-818b-a418bf4598e2",
@@ -2064,15 +2078,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2098,7 +2103,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "de9a35d8-c427-4265-a993-583649b4ea51",
@@ -2129,15 +2143,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2163,7 +2168,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ce8e3daa-e921-426c-8214-d425870ac1a4",
@@ -2194,15 +2208,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2228,7 +2233,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "f725be35-bdc4-492a-aab2-62c3204ddb53",
@@ -2259,15 +2273,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2293,7 +2298,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "4c91cdba-ece7-447e-9785-57e32635541d",
@@ -2324,15 +2338,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2358,7 +2363,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e3748983-fcef-4854-b607-5f7c55f31449",
@@ -2389,15 +2403,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.16,
         "peak_vram_mb": 0.0,
@@ -2423,7 +2428,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "d1438bb9-1fb2-4c29-bb74-f4bd1280c5da",
@@ -2454,15 +2468,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2488,7 +2493,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "feea2fa1-99f0-4183-9012-906e31dbabc3",
@@ -2519,15 +2533,6 @@
         "final_residual": 1.0546651293208589e-08,
         "relative_residual": 9.55338483714519e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2553,7 +2558,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "7b04986d-0c4c-4826-8c2e-973e11791bda",
@@ -2584,15 +2598,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.16,
         "peak_vram_mb": 0.0,
@@ -2618,7 +2623,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "2651c05f-f31d-424a-bd8e-7c2b27daec87",
@@ -2649,15 +2663,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.16,
         "peak_vram_mb": 0.0,
@@ -2683,7 +2688,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "619c5c47-f774-48d9-b0dd-cf965a947927",
@@ -2714,15 +2728,6 @@
         "final_residual": 6.072096036816179e-09,
         "relative_residual": 8.049337184064928e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2748,7 +2753,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ec810d27-4bdc-471e-b57d-463f137eda46",
@@ -2779,15 +2793,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2813,7 +2818,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "91410d85-aa86-4b91-8c75-8497d4e40cf2",
@@ -2844,15 +2858,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2878,7 +2883,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "deb3b424-1e6a-46d9-a6c0-cf0e1be6c536",
@@ -2909,15 +2923,6 @@
         "final_residual": 5.813711280978109e-09,
         "relative_residual": 1.2638844991869835e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -2943,7 +2948,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "2e3b97b2-5390-4a05-b93b-c7b2d5bfa468",
@@ -2974,15 +2988,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3008,7 +3013,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "471e3987-2c87-4c53-a020-ece03c76ba98",
@@ -3039,15 +3053,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3073,7 +3078,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "9d2e7590-1843-4c5a-a203-1a5812a0fce1",
@@ -3104,15 +3118,6 @@
         "final_residual": 5.149112159427898e-09,
         "relative_residual": 1.1194025173161401e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3138,7 +3143,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "d3afeb30-9bdb-42ad-8f56-eeb690d44677",
@@ -3169,15 +3183,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3203,7 +3208,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "a5b1e4b7-00a7-495c-9a8e-d24581a9c8f9",
@@ -3234,15 +3248,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3268,7 +3273,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "aea2e348-8947-41ba-abbf-eeca202085cf",
@@ -3299,15 +3313,6 @@
         "final_residual": 5.5944670255310614e-09,
         "relative_residual": 8.712406956968052e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3333,7 +3338,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "691094dc-7d4e-4a40-9e8b-36488aa18bf4",
@@ -3364,15 +3378,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3398,7 +3403,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "388fbea5-3604-432d-bac0-20a92ade2564",
@@ -3429,15 +3443,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3463,7 +3468,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "58e7848d-e9c3-40b8-aae7-d998dbba45a3",
@@ -3494,15 +3508,6 @@
         "final_residual": 6.872920097757629e-09,
         "relative_residual": 1.4941535201667444e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3528,7 +3533,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "aaa7c513-cb64-4aa4-b403-114bbc71a364",
@@ -3559,15 +3573,6 @@
         "final_residual": 1.026564154518251e-08,
         "relative_residual": 9.298840129896638e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.47,
         "peak_vram_mb": 0.0,
@@ -3593,7 +3598,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c3d73c6d-adb3-4242-b251-effb2b1a5ac5",
@@ -3624,15 +3638,6 @@
         "final_residual": 1.026564154518251e-08,
         "relative_residual": 9.298840129896638e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3658,7 +3663,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "34bf62b2-cb26-4f9d-8a22-04651e2b0319",
@@ -3689,15 +3703,6 @@
         "final_residual": 1.026564154518251e-08,
         "relative_residual": 9.298840129896638e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3723,7 +3728,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "f14489da-bca7-43f1-bace-b274f15e3a81",
@@ -3754,15 +3768,6 @@
         "final_residual": 5.9484310720625835e-09,
         "relative_residual": 7.885403512212278e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3788,7 +3793,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ba15386c-97bf-425a-8aae-8d0dfaad30b8",
@@ -3819,15 +3833,6 @@
         "final_residual": 5.9484310720625835e-09,
         "relative_residual": 7.885403512212278e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3853,7 +3858,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "aa9bd52f-5d97-4859-807b-09dcfcb805e0",
@@ -3884,15 +3898,6 @@
         "final_residual": 5.9484310720625835e-09,
         "relative_residual": 7.885403512212278e-09
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3918,7 +3923,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "f33ec768-79ba-4ea4-960d-2aae7a2093d3",
@@ -3949,15 +3963,6 @@
         "final_residual": 4.404844878557355e-09,
         "relative_residual": 9.576009014323074e-09
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -3983,7 +3988,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "1aeffa21-004d-4787-a9d2-06a0462e8833",
@@ -4014,15 +4028,6 @@
         "final_residual": 4.404844878557355e-09,
         "relative_residual": 9.576009014323074e-09
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4048,7 +4053,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "52caa5b0-498c-4e4a-b8ea-ecb5c6616b53",
@@ -4079,15 +4093,6 @@
         "final_residual": 4.404844878557355e-09,
         "relative_residual": 9.576009014323074e-09
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4113,7 +4118,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e0ad2594-3960-43ce-94a6-166f5488adc8",
@@ -4144,15 +4158,6 @@
         "final_residual": 5.07670837180518e-09,
         "relative_residual": 1.1036621373013651e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4178,7 +4183,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ced98879-2621-49d7-9520-d5f45b10aa26",
@@ -4209,15 +4223,6 @@
         "final_residual": 5.07670837180518e-09,
         "relative_residual": 1.1036621373013651e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4243,7 +4248,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "716f3955-eb60-4456-a344-b28473499bc0",
@@ -4274,15 +4288,6 @@
         "final_residual": 5.07670837180518e-09,
         "relative_residual": 1.1036621373013651e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4308,7 +4313,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "3c26b309-a502-4972-b87a-ce343c0f7491",
@@ -4339,15 +4353,6 @@
         "final_residual": 5.572942720228627e-09,
         "relative_residual": 8.678886604375926e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4373,7 +4378,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "4989d488-dc34-4a5c-99b2-bc39d5ff9d50",
@@ -4404,15 +4418,6 @@
         "final_residual": 5.572942720228627e-09,
         "relative_residual": 8.678886604375926e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4438,7 +4443,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "99edd7db-ca8b-4b4f-b087-06bf8c7ccb68",
@@ -4469,15 +4483,6 @@
         "final_residual": 5.572942720228627e-09,
         "relative_residual": 8.678886604375926e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4503,7 +4508,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "77ddcb22-84ab-42a3-ad01-2e15393cd186",
@@ -4534,15 +4548,6 @@
         "final_residual": 6.693702387550174e-09,
         "relative_residual": 1.455192093469807e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4568,7 +4573,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "838a1f9e-1034-46f7-aa79-03dff063697e",
@@ -4599,15 +4613,6 @@
         "final_residual": 6.693702387550174e-09,
         "relative_residual": 1.455192093469807e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4633,7 +4638,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c1e97e0f-a964-4971-af40-dc30e337b074",
@@ -4664,15 +4678,6 @@
         "final_residual": 6.693702387550174e-09,
         "relative_residual": 1.455192093469807e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4698,7 +4703,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e32e46d8-d13a-476c-9747-a0d12f9a829c",
@@ -4730,15 +4744,6 @@
         "final_residual": 1.016878909244582e-08,
         "relative_residual": 9.211109083549173e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4764,7 +4769,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "f24fcf58-296c-4b74-842f-b92ad9f66955",
@@ -4796,15 +4810,6 @@
         "final_residual": 1.016878909244582e-08,
         "relative_residual": 9.211109083549173e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4830,7 +4835,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "895ea6ce-d266-45e9-a6ff-bcd321c203f3",
@@ -4862,15 +4876,6 @@
         "final_residual": 1.016878909244582e-08,
         "relative_residual": 9.211109083549173e-09
       },
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4896,7 +4901,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c353cb4a-a8ec-4353-bb9d-b045e2cdcf85",
@@ -4928,15 +4942,6 @@
         "final_residual": 7.584984378119034e-09,
         "relative_residual": 1.0054863497738423e-08
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -4962,7 +4967,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "06f8d5e9-d90f-475c-bece-48a3884d84af",
@@ -4994,15 +5008,6 @@
         "final_residual": 7.584984378119034e-09,
         "relative_residual": 1.0054863497738423e-08
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5028,7 +5033,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "0566376e-cbe9-48ad-ac05-ecb389d4437a",
@@ -5060,15 +5074,6 @@
         "final_residual": 7.584984378119034e-09,
         "relative_residual": 1.0054863497738423e-08
       },
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5094,7 +5099,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "3363aa41-d522-4bf1-b20e-cb83d419fe7d",
@@ -5126,15 +5140,6 @@
         "final_residual": 5.98441450489257e-09,
         "relative_residual": 1.3009949004847987e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5160,7 +5165,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "42eb52c8-c18d-46bd-bf9d-a81521cef39d",
@@ -5192,15 +5206,6 @@
         "final_residual": 5.98441450489257e-09,
         "relative_residual": 1.3009949004847987e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5226,7 +5231,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "2fe7b7d7-4e1c-422d-b6e3-ac00d0e7ad6b",
@@ -5258,15 +5272,6 @@
         "final_residual": 5.98441450489257e-09,
         "relative_residual": 1.3009949004847987e-08
       },
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5292,7 +5297,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "7d321ec2-bf75-430a-b870-df702b1366d0",
@@ -5324,15 +5338,6 @@
         "final_residual": 4.722441971633105e-09,
         "relative_residual": 1.0266456171956525e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5358,7 +5363,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "87b8e72e-d92f-4a77-9661-9d7722cb84d3",
@@ -5390,15 +5404,6 @@
         "final_residual": 4.722441971633105e-09,
         "relative_residual": 1.0266456171956525e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5424,7 +5429,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "b7bcfe3f-4cd9-4260-86c1-8d44542a9b7f",
@@ -5456,15 +5470,6 @@
         "final_residual": 4.722441971633105e-09,
         "relative_residual": 1.0266456171956525e-08
       },
-      "matrix_nnz": 5489,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5490,7 +5495,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "98f282a1-b098-465b-97c2-87b200e27f18",
@@ -5522,15 +5536,6 @@
         "final_residual": 5.405879646745559e-09,
         "relative_residual": 8.41871499606652e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5556,7 +5561,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "29613131-a20f-4078-a4f5-5b1d79673284",
@@ -5588,15 +5602,6 @@
         "final_residual": 5.405879646745559e-09,
         "relative_residual": 8.41871499606652e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5622,7 +5627,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "c92cc009-f2f1-4ea1-b4f0-12ae8e668f76",
@@ -5654,15 +5668,6 @@
         "final_residual": 5.405879646745559e-09,
         "relative_residual": 8.41871499606652e-09
       },
-      "matrix_nnz": 4015,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5688,7 +5693,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "98d082c5-977d-43ea-9c78-87da8583a9ac",
@@ -5720,15 +5734,6 @@
         "final_residual": 6.747631182205756e-09,
         "relative_residual": 1.4669160619179892e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5754,7 +5759,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "8deaa1de-a374-4e76-97d0-b3e03c9f2f51",
@@ -5786,15 +5800,6 @@
         "final_residual": 6.747631182205756e-09,
         "relative_residual": 1.4669160619179892e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5820,7 +5825,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "a7610b60-1dda-4ac0-a6ac-cda732634faf",
@@ -5852,15 +5866,6 @@
         "final_residual": 6.747631182205756e-09,
         "relative_residual": 1.4669160619179892e-08
       },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -5886,7 +5891,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "7bb87ee2-4e2f-4a47-83f6-23e31564e8c1",
@@ -5918,15 +5932,6 @@
         "final_residual": 1.0271813113221858e-08,
         "relative_residual": 9.304430469701129e-09
       },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.16,
         "peak_vram_mb": 0.0,
@@ -5952,7 +5957,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2571,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "3eb169dc-42d6-4054-8f15-5ed9ab129d96",
@@ -5984,15 +5998,6 @@
         "final_residual": 1.0271813113221858e-08,
         "relative_residual": 9.304430469701129e-09
       },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.47,
         "peak_vram_mb": 0.0,
@@ -6018,7 +6023,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2571,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ade05f33-0246-4852-b6c4-2dce38046c90",
@@ -6050,15 +6064,6 @@
         "final_residual": 1.0271813113221858e-08,
         "relative_residual": 9.304430469701129e-09
       },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6084,7 +6089,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 2571,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "97bb03d3-3322-4b91-ac77-226d33c23ae1",
@@ -6116,15 +6130,6 @@
         "final_residual": 8.350556954822652e-09,
         "relative_residual": 1.1069727520210631e-08
       },
-      "matrix_nnz": 4061,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.16,
         "peak_vram_mb": 0.0,
@@ -6150,7 +6155,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4061,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "34159c37-837d-4594-a43d-effadfcd9f1d",
@@ -6182,15 +6196,6 @@
         "final_residual": 8.350556954822652e-09,
         "relative_residual": 1.1069727520210631e-08
       },
-      "matrix_nnz": 4061,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6216,7 +6221,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4061,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "05a58847-35b4-42a9-afec-c330ff92978b",
@@ -6248,15 +6262,6 @@
         "final_residual": 8.350556954822652e-09,
         "relative_residual": 1.1069727520210631e-08
       },
-      "matrix_nnz": 4061,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6282,7 +6287,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4061,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "fd8dcd2b-04d5-42ef-b563-62a8e2b296ad",
@@ -6314,15 +6328,6 @@
         "final_residual": 3.026139754221108e-09,
         "relative_residual": 6.578742807967743e-09
       },
-      "matrix_nnz": 4109,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6348,7 +6353,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4109,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "8f50492d-1808-4718-aae3-d509e30f07a3",
@@ -6380,15 +6394,6 @@
         "final_residual": 3.026139754221108e-09,
         "relative_residual": 6.578742807967743e-09
       },
-      "matrix_nnz": 4109,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6414,7 +6419,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4109,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "7d5618b3-d103-42ad-a021-bdc49b13e4b2",
@@ -6446,15 +6460,6 @@
         "final_residual": 3.026139754221108e-09,
         "relative_residual": 6.578742807967743e-09
       },
-      "matrix_nnz": 4109,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6480,7 +6485,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 4109,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "ba45a6df-1940-49b9-83f3-913cd2d8c5db",
@@ -6512,15 +6526,6 @@
         "final_residual": 5.9220746316965914e-09,
         "relative_residual": 1.2874423871923905e-08
       },
-      "matrix_nnz": 5357,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6546,7 +6551,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "9489bbad-71c2-4c37-8421-020e3e27a2e2",
@@ -6578,15 +6592,6 @@
         "final_residual": 5.9220746316965914e-09,
         "relative_residual": 1.2874423871923905e-08
       },
-      "matrix_nnz": 5357,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6612,7 +6617,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "db20026e-4d64-425a-a042-da8bd9a100a7",
@@ -6644,15 +6658,6 @@
         "final_residual": 5.297399522084445e-09,
         "relative_residual": 1.1516397733525969e-08
       },
-      "matrix_nnz": 5357,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6678,7 +6683,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "e0d8a892-1280-43b0-bf1c-46781d5c1703",
@@ -6710,15 +6724,6 @@
         "final_residual": 5.700584335742707e-09,
         "relative_residual": 8.877666165311481e-09
       },
-      "matrix_nnz": 3873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6744,7 +6749,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 3873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "b9b01920-be8a-42df-821a-4fad8c638013",
@@ -6776,15 +6790,6 @@
         "final_residual": 5.388290342128266e-09,
         "relative_residual": 8.391322720946017e-09
       },
-      "matrix_nnz": 3873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6810,7 +6815,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 3873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "71bf9135-a3f7-4d5f-93eb-e0587d05e3e4",
@@ -6842,15 +6856,6 @@
         "final_residual": 5.700584335742707e-09,
         "relative_residual": 8.877666165311481e-09
       },
-      "matrix_nnz": 3873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6876,7 +6881,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 3873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "d6de037b-98e8-493c-b8d0-331315870cfa",
@@ -6908,15 +6922,6 @@
         "final_residual": 5.9556147379963985e-09,
         "relative_residual": 1.29473391207291e-08
       },
-      "matrix_nnz": 5063,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -6942,7 +6947,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5063,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "9dc2580e-18e1-4951-be4a-91e58730b558",
@@ -6974,15 +6988,6 @@
         "final_residual": 5.9556147379963985e-09,
         "relative_residual": 1.29473391207291e-08
       },
-      "matrix_nnz": 5063,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -7008,7 +7013,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
+      "client_hash": "automated",
+      "matrix_nnz": 5063,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     },
     {
       "id": "8bbd730c-fd17-4d78-8807-1e04d5548b9f",
@@ -7040,15 +7054,6 @@
         "final_residual": 5.9556147379963985e-09,
         "relative_residual": 1.29473391207291e-08
       },
-      "matrix_nnz": 5063,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -7074,2243 +7079,16 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated"
-    },
-    {
-      "id": "211a6946",
-      "timestamp": "2026-01-01T23:20:43.966621Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "cpu",
-      "converged": true,
-      "iterations": 4390,
-      "timings": {
-        "load_mesh": 0.009625597042031586,
-        "assemble_system": 30.67767379898578,
-        "apply_bc": 0.903253962052986,
-        "solve_system": 36.72961264709011,
-        "compute_derived": 7.999717143015005,
-        "print_stats": 0.0021216650493443012,
-        "total_workflow": 76.35946173593402,
-        "total_program_time": 76.36222134996206
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.06587701258541
-        ],
-        "u_mean": 6.0178281330178285,
-        "u_std": 4.364542193814102,
-        "final_residual": 2.037412357133618e-09,
-        "relative_residual": 1.3748053126354048e-08
-      },
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 314.11,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 825.09,
-        "baseline_vram_mb": 0.04,
-        "sample_count": 738,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "2a7fc6ba",
-      "timestamp": "2026-01-01T23:23:11.460664Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "cpu_threaded",
-      "converged": true,
-      "iterations": 4043,
-      "timings": {
-        "load_mesh": 0.007401722948998213,
-        "assemble_system": 10.374982798006386,
-        "apply_bc": 1.4158682849956676,
-        "solve_system": 33.45493287895806,
-        "compute_derived": 5.834662019973621,
-        "total_workflow": 51.11348072998226,
-        "total_program_time": 51.11546076997183
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.065875774234158
-        ],
-        "u_mean": 6.0178274602044475,
-        "u_std": 4.364541806046081,
-        "final_residual": 2.02697975610195e-09,
-        "relative_residual": 1.3677656010754332e-08
-      },
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 346.93,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 943.78,
-        "baseline_vram_mb": 0.04,
-        "sample_count": 483,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "88822ee1",
-      "timestamp": "2026-01-01T23:29:13.547108Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "cpu_multiprocess",
-      "converged": true,
-      "iterations": 4041,
-      "timings": {
-        "load_mesh": 0.007040668977424502,
-        "assemble_system": 6.107470476068556,
-        "apply_bc": 1.3694141340674832,
-        "solve_system": 33.21888882701751,
-        "compute_derived": 4.412829067092389,
-        "total_workflow": 45.140719742979854,
-        "total_program_time": 45.14246946503408
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.06587577424525
-        ],
-        "u_mean": 6.017827460205727,
-        "u_std": 4.364541806047161,
-        "final_residual": 2.014036475486009e-09,
-        "relative_residual": 1.3590317328963077e-08
-      },
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 290.09,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 1166.63,
-        "baseline_vram_mb": 0.04,
-        "sample_count": 446,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "a9590dd5",
-      "timestamp": "2026-01-01T23:30:25.598154Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "numba",
-      "converged": true,
-      "iterations": 4355,
-      "timings": {
-        "load_mesh": 0.005641944007948041,
-        "assemble_system": 0.2156339029315859,
-        "apply_bc": 1.3095495230518281,
-        "solve_system": 37.19854044599924,
-        "compute_derived": 0.0041457300540059805,
-        "total_workflow": 38.83731723099481,
-        "total_program_time": 38.84010682196822
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.06587701258243
-        ],
-        "u_mean": 6.017828133021807,
-        "u_std": 4.3645421938166225,
-        "final_residual": 1.984690111016981e-09,
-        "relative_residual": 1.3392293901661812e-08
-      },
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 237.18,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 1224.68,
-        "baseline_vram_mb": 0.04,
-        "sample_count": 384,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "cc9e876b",
-      "timestamp": "2026-01-01T23:30:45.896286Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "numba_cuda",
-      "converged": true,
-      "iterations": 4040,
-      "timings": {
-        "load_mesh": 0.010184052051045,
-        "assemble_system": 1.3706295830197632,
-        "apply_bc": 1.4017495770240203,
-        "convert_to_gpu": 0.03962392604444176,
-        "solve_system": 5.691807072958909,
-        "compute_derived": 0.005975774955004454,
-        "total_workflow": 8.606560686952434,
-        "total_program_time": 8.607863315963186
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.065874700721453
-        ],
-        "u_mean": 6.017826939294469,
-        "u_std": 4.364541434317984,
-        "final_residual": 2.0114516381865082e-09,
-        "relative_residual": 1.3572875361267094e-08
-      },
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 240.73,
-        "peak_vram_mb": 96.03,
-        "baseline_ram_mb": 1238.29,
-        "baseline_vram_mb": 0.04,
-        "sample_count": 80,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "18979e28",
-      "timestamp": "2026-01-05T01:04:34.321513Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4038,
-      "timings": {
-        "load_mesh": 0.16217383393086493,
-        "assemble_system": 0.04818691196851432,
-        "apply_bc": 2.298130647977814,
-        "convert_to_cpu": 0.07085439597722143,
-        "solve_system": 3.7325790770119056,
-        "compute_derived": 0.0038323990302160382,
-        "total_workflow": 6.255423902068287,
-        "total_program_time": 6.294792078086175
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.06688464018637
-        ],
-        "u_mean": 6.018248189493458,
-        "u_std": 4.364892150778508,
-        "final_residual": 1.9875407390369483e-09,
-        "relative_residual": 1.3411529372245253e-08
-      },
-      "matrix_nnz": 3023503,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 320.94,
-        "peak_vram_mb": 160.24,
-        "baseline_ram_mb": 412.8,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 63,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "3238b3ab",
-      "timestamp": "2026-01-05T01:06:47.210925Z",
-      "model_file": "y_tube1_52.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 201,
-      "model_elements": 52,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 115,
-      "timings": {
-        "load_mesh": 0.00730125093832612,
-        "assemble_system": 0.008015729952603579,
-        "apply_bc": 0.027108296984806657,
-        "convert_to_cpu": 0.043965401011519134,
-        "solve_system": 0.11283402005210519,
-        "compute_derived": 0.002216010936535895,
-        "total_workflow": 0.16854227590374649,
-        "total_program_time": 0.16948157793376595
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.501239432303468
-        ],
-        "u_mean": 7.158144659452723,
-        "u_std": 2.626034752555383,
-        "final_residual": 1.0271813113221858e-08,
-        "relative_residual": 9.304430469701129e-09
-      },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 2.03,
-        "peak_vram_mb": 0.15,
-        "baseline_ram_mb": 729.9,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "2f198c25",
-      "timestamp": "2026-01-05T01:07:27.993538Z",
-      "model_file": "y_tube1_195k.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 195853,
-      "model_elements": 48607,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 3741,
-      "timings": {
-        "load_mesh": 0.048427044064737856,
-        "assemble_system": 0.02008283801842481,
-        "apply_bc": 2.3966526630101725,
-        "convert_to_cpu": 0.020544235012494028,
-        "solve_system": 3.0139004699885845,
-        "compute_derived": 0.002242483082227409,
-        "total_workflow": 5.4917110420065,
-        "total_program_time": 5.492931813932955
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.825326806317026
-        ],
-        "u_mean": 5.739263771821377,
-        "u_std": 4.383973066680882,
-        "final_residual": 2.5887508920257457e-09,
-        "relative_residual": 1.4183901348614711e-08
-      },
-      "matrix_nnz": 2336363,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 22.5,
-        "peak_vram_mb": 197.37,
-        "baseline_ram_mb": 729.93,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 54,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "3e10f720",
-      "timestamp": "2026-01-05T01:08:17.937672Z",
-      "model_file": "s_bend_196k.h5",
-      "model_name": "S-Bend",
-      "model_nodes": 196078,
-      "model_elements": 64787,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4652,
-      "timings": {
-        "load_mesh": 0.01585875207092613,
-        "assemble_system": 0.030600167927332222,
-        "apply_bc": 1.4204404479824007,
-        "convert_to_cpu": 0.026033743983134627,
-        "solve_system": 4.388090451946482,
-        "compute_derived": 0.0026042000390589237,
-        "total_workflow": 5.866959242965095,
-        "total_program_time": 5.867871604044922
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          13.360260531012969
-        ],
-        "u_mean": 6.347318712969595,
-        "u_std": 3.516300529037715,
-        "final_residual": 1.360188254817543e-09,
-        "relative_residual": 1.3228090621111152e-08
-      },
-      "matrix_nnz": 3048794,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 14.22,
-        "peak_vram_mb": 173.64,
-        "baseline_ram_mb": 748.43,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 58,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "a878e186",
-      "timestamp": "2026-01-05T01:08:47.772584Z",
-      "model_file": "s_duct_219k.h5",
-      "model_name": "Inverted-S Duct",
-      "model_nodes": 219657,
-      "model_elements": 54412,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 0,
-      "timings": {
-        "load_mesh": 0.04461401898879558,
-        "assemble_system": 0.02371350198518485,
-        "apply_bc": 0.8076128789689392,
-        "convert_to_cpu": 0.030408209888264537,
-        "solve_system": 0.051901076920330524,
-        "compute_derived": 0.004140901961363852,
-        "total_workflow": 0.9411348580615595,
-        "total_program_time": 0.9425524530233815
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          0.0
-        ],
-        "u_mean": 0.0,
-        "u_std": 0.0,
-        "final_residual": 0.0,
-        "relative_residual": 0
-      },
-      "matrix_nnz": 2617747,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 14.53,
-        "peak_vram_mb": 416.53,
-        "baseline_ram_mb": 747.16,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 9,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "ea3db64b",
-      "timestamp": "2026-01-05T01:09:49.323803Z",
-      "model_file": "s_duct_219k.h5",
-      "model_name": "Inverted-S Duct",
-      "model_nodes": 219657,
-      "model_elements": 54412,
-      "solver_type": "numba_cuda",
-      "converged": true,
-      "iterations": 4830,
-      "timings": {
-        "load_mesh": 0.04807351203635335,
-        "assemble_system": 2.312182647990994,
-        "apply_bc": 1.4643964290153235,
-        "convert_to_gpu": 0.027580045978538692,
-        "solve_system": 5.0379424499114975,
-        "compute_derived": 0.3746792289894074,
-        "total_workflow": 9.352057619951665,
-        "total_program_time": 9.353108942974359
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          7.024716414773998
-        ],
-        "u_mean": 1.9856884869280695,
-        "u_std": 2.0287960428266762,
-        "final_residual": 6.097737180065047e-10,
-        "relative_residual": 1.3465971102230253e-08
-      },
-      "matrix_nnz": 2619809,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 431.84,
-        "peak_vram_mb": 90.15,
-        "baseline_ram_mb": 752.91,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 87,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "ab737d05",
-      "timestamp": "2026-01-05T01:11:04.033959Z",
-      "model_file": "backward_step_195k.h5",
-      "model_name": "Backward-Facing Step",
-      "model_nodes": 195362,
-      "model_elements": 64713,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 3992,
-      "timings": {
-        "load_mesh": 0.010912075988017023,
-        "assemble_system": 0.025711579015478492,
-        "apply_bc": 1.0743814089801162,
-        "convert_to_cpu": 0.03783090494107455,
-        "solve_system": 4.960785628994927,
-        "compute_derived": 0.0032066339626908302,
-        "total_workflow": 6.082339405082166,
-        "total_program_time": 6.0833693069871515
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          6.563119846577642
-        ],
-        "u_mean": 2.3728629303776514,
-        "u_std": 1.6028731152274656,
-        "final_residual": 1.6737219664223458e-09,
-        "relative_residual": 1.415650088739496e-08
-      },
-      "matrix_nnz": 3042302,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 12.19,
-        "peak_vram_mb": 377.28,
-        "baseline_ram_mb": 951.41,
-        "baseline_vram_mb": 34.17,
-        "sample_count": 60,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "94e6aa9a",
-      "timestamp": "2026-01-05T01:12:04.033155Z",
-      "model_file": "t_junction_196k.h5",
-      "model_name": "T-Junction",
-      "model_nodes": 196420,
-      "model_elements": 64987,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4319,
-      "timings": {
-        "load_mesh": 0.010059193009510636,
-        "assemble_system": 0.03239185700658709,
-        "apply_bc": 1.2980781749356538,
-        "convert_to_cpu": 0.019390776986256242,
-        "solve_system": 4.485784752992913,
-        "compute_derived": 0.0027202339842915535,
-        "total_workflow": 5.8364389759954065,
-        "total_program_time": 5.837625073036179
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          7.3087675116365975
-        ],
-        "u_mean": 3.6494508618243553,
-        "u_std": 1.809287943142712,
-        "final_residual": 1.3890907960207334e-09,
-        "relative_residual": 1.350917335569739e-08
-      },
-      "matrix_nnz": 3057464,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 11.56,
-        "peak_vram_mb": 331.41,
-        "baseline_ram_mb": 957.6,
-        "baseline_vram_mb": 34.17,
-        "sample_count": 58,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "a70fd1c0",
-      "timestamp": "2026-01-05T05:04:34.486759Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4034,
-      "timings": {
-        "load_mesh": 0.1768312118947506,
-        "assemble_system": 0.05145513394381851,
-        "apply_bc": 2.4404778770403937,
-        "convert_to_cpu": 0.06642546295188367,
-        "solve_system": 3.5624749270500615,
-        "compute_derived": 0.003956482978537679,
-        "total_workflow": 6.2461566959973425,
-        "total_program_time": 6.2810920169577
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.06688464009354
-        ],
-        "u_mean": 6.018248189493777,
-        "u_std": 4.364892150778977,
-        "final_residual": 2.0107951642254305e-09,
-        "relative_residual": 1.3568445605620741e-08
-      },
-      "matrix_nnz": 3023503,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 321.72,
-        "peak_vram_mb": 338.09,
-        "baseline_ram_mb": 413.16,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 62,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "b0548127",
-      "timestamp": "2026-01-05T05:05:42.395324Z",
-      "model_file": "y_tube1_52.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 201,
-      "model_elements": 52,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 115,
-      "timings": {
-        "load_mesh": 0.008298769011162221,
-        "assemble_system": 0.023469284060411155,
-        "apply_bc": 0.12326715001836419,
-        "convert_to_cpu": 0.05321140994783491,
-        "solve_system": 0.10519442905206233,
-        "compute_derived": 0.002294457983225584,
-        "total_workflow": 0.27414890902582556,
-        "total_program_time": 0.27626750408671796
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.501239432303468
-        ],
-        "u_mean": 7.158144659452723,
-        "u_std": 2.626034752555383,
-        "final_residual": 1.0271813113221858e-08,
-        "relative_residual": 9.304430469701129e-09
-      },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 2.19,
-        "peak_vram_mb": 0.15,
-        "baseline_ram_mb": 725.37,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 3,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "8cec35b2",
-      "timestamp": "2026-01-05T05:10:02.139757Z",
-      "model_file": "y_tube1_52.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 201,
-      "model_elements": 52,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 115,
-      "timings": {
-        "load_mesh": 0.12136231793556362,
-        "assemble_system": 0.024341108975932002,
-        "apply_bc": 0.10651412804145366,
-        "convert_to_cpu": 0.05373853095807135,
-        "solve_system": 0.10886096500325948,
-        "compute_derived": 0.004513388965278864,
-        "total_workflow": 0.3745024510426447,
-        "total_program_time": 0.4129292730940506
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.501239432303468
-        ],
-        "u_mean": 7.158144659452723,
-        "u_std": 2.626034752555383,
-        "final_residual": 1.0271813113221858e-08,
-        "relative_residual": 9.304430469701129e-09
-      },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 288.44,
-        "peak_vram_mb": 0.16,
-        "baseline_ram_mb": 413.0,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 4,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "8d521072",
-      "timestamp": "2026-01-05T05:11:56.293956Z",
-      "model_file": "y_tube1_1_3m.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 1357953,
-      "model_elements": 338544,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 9871,
-      "timings": {
-        "load_mesh": 0.2875103630358353,
-        "assemble_system": 0.20459391409531236,
-        "apply_bc": 5.954130975995213,
-        "convert_to_cpu": 0.06841896800324321,
-        "solve_system": 19.570238656015135,
-        "compute_derived": 0.004993064911104739,
-        "total_workflow": 26.036393732996657,
-        "total_program_time": 26.037367381970398
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.825326862041528
-        ],
-        "u_mean": 5.755062507219717,
-        "u_std": 4.390800552371692,
-        "final_residual": 1.6077235452307175e-09,
-        "relative_residual": 1.4381714371318976e-08
-      },
-      "matrix_nnz": 16258759,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 117.52,
-        "peak_vram_mb": 2425.56,
-        "baseline_ram_mb": 712.65,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 256,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "f573a06c",
-      "timestamp": "2026-01-05T05:17:14.609934Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4034,
-      "timings": {
-        "load_mesh": 0.13685101899318397,
-        "assemble_system": 0.04919078794773668,
-        "apply_bc": 2.3397782390238717,
-        "convert_to_cpu": 0.07319081702735275,
-        "solve_system": 3.6989121589576825,
-        "compute_derived": 0.0037751899799332023,
-        "total_workflow": 6.238276137039065,
-        "total_program_time": 6.274054720066488
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.066884640083801
-        ],
-        "u_mean": 6.0182481894931374,
-        "u_std": 4.364892150778565,
-        "final_residual": 2.017002193897575e-09,
-        "relative_residual": 1.3610329406605217e-08
-      },
-      "matrix_nnz": 3023503,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 321.88,
-        "peak_vram_mb": 160.24,
-        "baseline_ram_mb": 411.58,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 62,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "d7ef862e",
-      "timestamp": "2026-01-05T05:17:32.330569Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4035,
-      "timings": {
-        "load_mesh": 0.014988989918492734,
-        "assemble_system": 0.03373468795325607,
-        "apply_bc": 2.474077846040018,
-        "convert_to_cpu": 0.04115035606082529,
-        "solve_system": 3.8005968710640445,
-        "compute_derived": 0.002183006959967315,
-        "total_workflow": 6.337748396908864,
-        "total_program_time": 6.338688185904175
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.0668846400986
-        ],
-        "u_mean": 6.018248189492805,
-        "u_std": 4.364892150778318,
-        "final_residual": 2.0594149267123862e-09,
-        "relative_residual": 1.3896522087203377e-08
-      },
-      "matrix_nnz": 3023503,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 16.25,
-        "peak_vram_mb": 296.6,
-        "baseline_ram_mb": 729.61,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 63,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "b4f6cc2c",
-      "timestamp": "2026-01-05T05:28:14.295407Z",
-      "model_file": "y_tube1_772k.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 772069,
-      "model_elements": 192308,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 7508,
-      "timings": {
-        "load_mesh": 0.25875466503202915,
-        "assemble_system": 0.05426048405934125,
-        "apply_bc": 4.4584939980413765,
-        "convert_to_cpu": 0.07757836696691811,
-        "solve_system": 15.676261920016259,
-        "compute_derived": 0.008299404988065362,
-        "total_workflow": 20.471220277948305,
-        "total_program_time": 20.506390932947397
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.825326857515686
-        ],
-        "u_mean": 5.735933633244894,
-        "u_std": 4.38622913677893,
-        "final_residual": 1.836815380351738e-09,
-        "relative_residual": 1.423028266777358e-08
-      },
-      "matrix_nnz": 9237237,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 357.9,
-        "peak_vram_mb": 1377.86,
-        "baseline_ram_mb": 412.5,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 204,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "1f0fb17b",
-      "timestamp": "2026-01-05T05:36:15.952019Z",
-      "model_file": "backward_step_195k.h5",
-      "model_name": "Backward-Facing Step",
-      "model_nodes": 195362,
-      "model_elements": 64713,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 3990,
-      "timings": {
-        "load_mesh": 0.13120080798398703,
-        "assemble_system": 0.05553546908777207,
-        "apply_bc": 1.0534597770310938,
-        "convert_to_cpu": 0.06855162396095693,
-        "solve_system": 4.6389655120437965,
-        "compute_derived": 0.004547839052975178,
-        "total_workflow": 5.893748229951598,
-        "total_program_time": 5.930860233027488
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          6.563119846594208
-        ],
-        "u_mean": 2.37286293037774,
-        "u_std": 1.6028731152273377,
-        "final_residual": 1.6909488919661083e-09,
-        "relative_residual": 1.430220787555659e-08
-      },
-      "matrix_nnz": 3042302,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 321.25,
-        "peak_vram_mb": 340.04,
-        "baseline_ram_mb": 413.08,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 59,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "0b142cae",
-      "timestamp": "2026-01-05T14:20:24.212934Z",
-      "model_file": "venturi_194k.h5",
-      "model_name": "Venturi",
-      "model_nodes": 194325,
-      "model_elements": 64334,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 4034,
-      "timings": {
-        "load_mesh": 0.15565277100540698,
-        "assemble_system": 0.12454641400836408,
-        "apply_bc": 2.3996226439485326,
-        "convert_to_cpu": 0.07483886298723519,
-        "solve_system": 3.23942302307114,
-        "compute_derived": 0.0070742289535701275,
-        "total_workflow": 5.937250917078927,
-        "total_program_time": 5.968204493983649
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.066884640086764
-        ],
-        "u_mean": 6.018248189493517,
-        "u_std": 4.364892150778799,
-        "final_residual": 2.008474615002215e-09,
-        "relative_residual": 1.355278700126832e-08
-      },
-      "matrix_nnz": 3023503,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 321.09,
-        "peak_vram_mb": 165.46,
-        "baseline_ram_mb": 412.51,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 59,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "afd059bd",
-      "timestamp": "2026-01-05T16:02:46.889757Z",
-      "model_file": "backward_step_1_3m.h5",
-      "model_name": "Backward-Facing Step",
-      "model_nodes": 1283215,
-      "model_elements": 426686,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 10846,
-      "timings": {
-        "load_mesh": 0.2156272999709472,
-        "assemble_system": 0.14239162800367922,
-        "apply_bc": 2.786958646029234,
-        "convert_to_cpu": 0.09912770800292492,
-        "solve_system": 21.495964531903155,
-        "compute_derived": 0.010646566981449723,
-        "total_workflow": 24.667074272991158,
-        "total_program_time": 24.704000035999343
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          6.563860647129122
-        ],
-        "u_mean": 2.370587761813015,
-        "u_std": 1.5943852669673133,
-        "final_residual": 1.067048685770381e-09,
-        "relative_residual": 1.4400464362566318e-08
-      },
-      "matrix_nnz": 20056653,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 392.48,
-        "peak_vram_mb": 1930.07,
-        "baseline_ram_mb": 412.26,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 244,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "47479ec2",
-      "timestamp": "2026-01-05T16:04:40.975314Z",
-      "model_file": "y_tube_52.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 201,
-      "model_elements": 52,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 115,
-      "timings": {
-        "load_mesh": 0.01092687901109457,
-        "assemble_system": 0.0029986599693074822,
-        "apply_bc": 0.023885919945314527,
-        "convert_to_cpu": 0.032492897007614374,
-        "solve_system": 0.10449366096872836,
-        "compute_derived": 0.002135689021088183,
-        "total_workflow": 0.15188536094501615,
-        "total_program_time": 0.1527229759376496
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.501239432303468
-        ],
-        "u_mean": 7.158144659452723,
-        "u_std": 2.626034752555383,
-        "final_residual": 1.0271813113221858e-08,
-        "relative_residual": 9.304430469701129e-09
-      },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 1.88,
-        "peak_vram_mb": 0.15,
-        "baseline_ram_mb": 789.66,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "f5349e0c",
-      "timestamp": "2026-01-05T16:57:10.397035Z",
-      "model_file": "elbow_90_1m.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 1044857,
-      "model_elements": 346621,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 8113,
-      "timings": {
-        "load_mesh": 0.1634336789138615,
-        "assemble_system": 0.0762162139872089,
-        "apply_bc": 3.6192263020202518,
-        "convert_to_cpu": 0.1026092260144651,
-        "solve_system": 16.219961935072206,
-        "compute_derived": 0.008897371939383447,
-        "total_workflow": 20.10336211102549,
-        "total_program_time": 20.13969716092106
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.968285375363094
-        ],
-        "u_mean": 0.4618449145850429,
-        "u_std": 0.5113584073083007,
-        "final_residual": 8.541782513230612e-10,
-        "relative_residual": 1.4027345548052665e-08
-      },
-      "matrix_nnz": 16280759,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 394.36,
-        "peak_vram_mb": 1512.86,
-        "baseline_ram_mb": 412.57,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 200,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "3d09afd1",
-      "timestamp": "2026-01-05T17:00:52.215952Z",
-      "model_file": "y_tube_201.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 201,
-      "model_elements": 52,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 115,
-      "timings": {
-        "load_mesh": 0.1254035250749439,
-        "assemble_system": 0.023094389936886728,
-        "apply_bc": 0.089100246084854,
-        "convert_to_cpu": 0.05154720600694418,
-        "solve_system": 0.10491088393609971,
-        "compute_derived": 0.004980521043762565,
-        "total_workflow": 0.3552547610597685,
-        "total_program_time": 0.3871543010463938
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.501239432303468
-        ],
-        "u_mean": 7.158144659452723,
-        "u_std": 2.626034752555383,
-        "final_residual": 1.0271813113221858e-08,
-        "relative_residual": 9.304430469701129e-09
-      },
-      "matrix_nnz": 2571,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 296.72,
-        "peak_vram_mb": 0.14,
-        "baseline_ram_mb": 412.7,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 4,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "49d471aa",
-      "timestamp": "2026-01-05T17:01:07.847259Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.005428976961411536,
-        "assemble_system": 0.010819706949405372,
-        "apply_bc": 0.1187972859479487,
-        "convert_to_cpu": 3.1709101221058518,
-        "solve_system": 3.271933153970167,
-        "compute_derived": 0.002171665895730257,
-        "total_workflow": 3.423716304008849,
-        "total_program_time": 3.4246970270760357
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398817806
-        ],
-        "u_mean": 0.46867652562764306,
-        "u_std": 0.5027729817982839,
-        "final_residual": 5.9556147379963985e-09,
-        "relative_residual": 1.29473391207291e-08
-      },
+      "client_hash": "automated",
       "matrix_nnz": 5063,
       "element_type": "quad8",
       "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 172.03,
-        "peak_vram_mb": 0.3,
-        "baseline_ram_mb": 712.42,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 35,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "0f27794d",
-      "timestamp": "2026-01-05T17:01:37.930245Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "cpu",
-      "converged": true,
-      "iterations": 142,
-      "timings": {
-        "load_mesh": 0.001991174998693168,
-        "assemble_system": 0.05604820104781538,
-        "apply_bc": 0.003621076000854373,
-        "solve_system": 0.028688120073638856,
-        "compute_derived": 0.01641172997187823,
-        "print_stats": 0.001884152996353805,
-        "total_workflow": 0.11109588202089071,
-        "total_program_time": 0.11203870794270188
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398640108
-        ],
-        "u_mean": 0.46867652562842654,
-        "u_std": 0.5027729817959949,
-        "final_residual": 5.508850681774332e-09,
-        "relative_residual": 1.1976086614089361e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 1.56,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 882.45,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "d274fcc8",
-      "timestamp": "2026-01-05T17:01:48.507719Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "numba",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.0064440189162269235,
-        "assemble_system": 0.27758611703757197,
-        "apply_bc": 0.009813678916543722,
-        "solve_system": 0.017958026030100882,
-        "compute_derived": 0.008492471999488771,
-        "total_workflow": 0.32396494306158274,
-        "total_program_time": 0.3262602440081537
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398535803
-        ],
-        "u_mean": 0.4686765256276832,
-        "u_std": 0.5027729817982048,
-        "final_residual": 6.693702387550174e-09,
-        "relative_residual": 1.455192093469807e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 40.31,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 884.02,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 4,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "eb8d2c46",
-      "timestamp": "2026-01-05T17:01:58.713544Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "cpu_threaded",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.002946065040305257,
-        "assemble_system": 0.023809890961274505,
-        "apply_bc": 0.0066795810125768185,
-        "solve_system": 0.0210491509642452,
-        "compute_derived": 0.007359068957157433,
-        "total_workflow": 0.06387658801395446,
-        "total_program_time": 0.06480251206085086
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398626457
-        ],
-        "u_mean": 0.46867652562806467,
-        "u_std": 0.5027729817981711,
-        "final_residual": 6.872920097757629e-09,
-        "relative_residual": 1.4941535201667444e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 0.0,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 924.33,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 1,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "4b74c1cd",
-      "timestamp": "2026-01-05T17:02:08.368291Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "cpu_multiprocess",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.005666134995408356,
-        "assemble_system": 2.4485817359527573,
-        "apply_bc": 0.005069229984655976,
-        "solve_system": 0.011714207008481026,
-        "compute_derived": 2.518381346948445,
-        "total_workflow": 4.992120509967208,
-        "total_program_time": 4.996033314964734
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398626457
-        ],
-        "u_mean": 0.46867652562806467,
-        "u_std": 0.5027729817981711,
-        "final_residual": 6.872920097757629e-09,
-        "relative_residual": 1.4941535201667444e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 1.25,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 924.64,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 50,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "e746a6d8",
-      "timestamp": "2026-01-05T17:02:16.616329Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "cpu",
-      "converged": true,
-      "iterations": 142,
-      "timings": {
-        "load_mesh": 0.0021251250291243196,
-        "assemble_system": 0.06507652997970581,
-        "apply_bc": 0.006443747086450458,
-        "solve_system": 0.031345145078375936,
-        "compute_derived": 0.02503397106193006,
-        "print_stats": 0.0019671370973810554,
-        "total_workflow": 0.13516557903494686,
-        "total_program_time": 0.13607971894089133
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398640108
-        ],
-        "u_mean": 0.46867652562842654,
-        "u_std": 0.5027729817959949,
-        "final_residual": 5.508850681774332e-09,
-        "relative_residual": 1.1976086614089361e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 0.0,
-        "peak_vram_mb": 0.0,
-        "baseline_ram_mb": 925.89,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "777ef207",
-      "timestamp": "2026-01-05T17:02:21.454093Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.0027928079944103956,
-        "assemble_system": 0.009542824001982808,
-        "apply_bc": 0.03595758799929172,
-        "convert_to_cpu": 0.010903420974500477,
-        "solve_system": 0.09450886794365942,
-        "compute_derived": 0.002302946988493204,
-        "total_workflow": 0.15260927192866802,
-        "total_program_time": 0.153763378970325
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398817806
-        ],
-        "u_mean": 0.46867652562764306,
-        "u_std": 0.5027729817982839,
-        "final_residual": 5.9556147379963985e-09,
-        "relative_residual": 1.29473391207291e-08
-      },
-      "matrix_nnz": 5063,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 1.88,
-        "peak_vram_mb": 0.29,
-        "baseline_ram_mb": 925.89,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "253199f9",
-      "timestamp": "2026-01-05T17:02:26.257393Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.0034964100923389196,
-        "assemble_system": 0.009255081065930426,
-        "apply_bc": 0.041444172034971416,
-        "convert_to_cpu": 0.0077921750489622355,
-        "solve_system": 0.0899044870166108,
-        "compute_derived": 0.0030124280601739883,
-        "total_workflow": 0.15698073501698673,
-        "total_program_time": 0.15793946501798928
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398900453
-        ],
-        "u_mean": 0.468676525627783,
-        "u_std": 0.5027729817983075,
-        "final_residual": 5.856917840414774e-09,
-        "relative_residual": 1.2732774838220952e-08
-      },
-      "matrix_nnz": 5063,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 1.88,
-        "peak_vram_mb": 0.29,
-        "baseline_ram_mb": 925.77,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 2,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "722ac029",
-      "timestamp": "2026-01-05T17:02:33.964587Z",
-      "model_file": "elbow_90_411.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 411,
-      "model_elements": 111,
-      "solver_type": "numba_cuda",
-      "converged": true,
-      "iterations": 141,
-      "timings": {
-        "load_mesh": 0.004510452970862389,
-        "assemble_system": 0.9723667019279674,
-        "apply_bc": 0.005652658059261739,
-        "convert_to_gpu": 0.003716691047884524,
-        "solve_system": 0.06193223793525249,
-        "compute_derived": 0.49622852401807904,
-        "total_workflow": 1.544934552977793,
-        "total_program_time": 1.5457613199250773
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9641869398677125
-        ],
-        "u_mean": 0.4686765256277221,
-        "u_std": 0.5027729817984111,
-        "final_residual": 6.747631182205756e-09,
-        "relative_residual": 1.4669160619179892e-08
-      },
-      "matrix_nnz": 5421,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 57.19,
-        "peak_vram_mb": 0.07,
-        "baseline_ram_mb": 925.8,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 14,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "84029023",
-      "timestamp": "2026-01-05T17:03:14.160060Z",
-      "model_file": "elbow_90_1m.h5",
-      "model_name": "Elbow 90\u00b0",
-      "model_nodes": 1044857,
-      "model_elements": 346621,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 8110,
-      "timings": {
-        "load_mesh": 0.05151860893238336,
-        "assemble_system": 0.21664405998308212,
-        "apply_bc": 4.315580466063693,
-        "convert_to_cpu": 0.07509531395044178,
-        "solve_system": 18.15202285500709,
-        "compute_derived": 0.004644142929464579,
-        "total_workflow": 22.755503233987838,
-        "total_program_time": 22.756481425953098
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          1.9682853753513514
-        ],
-        "u_mean": 0.46184491458463856,
-        "u_std": 0.511358407308649,
-        "final_residual": 8.695373059939201e-10,
-        "relative_residual": 1.4279572488771254e-08
-      },
-      "matrix_nnz": 16280759,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 58.32,
-        "peak_vram_mb": 2442.74,
-        "baseline_ram_mb": 980.99,
-        "baseline_vram_mb": 0.07,
-        "sample_count": 224,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "dca4fae8",
-      "timestamp": "2026-01-05T17:11:09.647163Z",
-      "model_file": "venturi_1_2m.h5",
-      "model_name": "Venturi",
-      "model_nodes": 1284412,
-      "model_elements": 427017,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 10145,
-      "timings": {
-        "load_mesh": 0.18591014505364,
-        "assemble_system": 0.06945764704141766,
-        "apply_bc": 5.479907841072418,
-        "convert_to_cpu": 0.10058428102638572,
-        "solve_system": 20.281372587080114,
-        "compute_derived": 0.009048377978615463,
-        "total_workflow": 26.04088998597581,
-        "total_program_time": 26.09291344403755
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          12.066926414002335
-        ],
-        "u_mean": 6.018201319388289,
-        "u_std": 4.360114984195543,
-        "final_residual": 1.2844534360302087e-09,
-        "relative_residual": 1.39250870629789e-08
-      },
-      "matrix_nnz": 20069252,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 410.9,
-        "peak_vram_mb": 1931.65,
-        "baseline_ram_mb": 413.46,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 258,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
-    },
-    {
-      "id": "a5c1746d",
-      "timestamp": "2026-01-05T18:57:20.783394Z",
-      "model_file": "y_tube_1_3m.h5",
-      "model_name": "Y-Shaped",
-      "model_nodes": 1357953,
-      "model_elements": 338544,
-      "solver_type": "gpu",
-      "converged": true,
-      "iterations": 9871,
-      "timings": {
-        "load_mesh": 0.34107460698578507,
-        "assemble_system": 0.06483580300118774,
-        "apply_bc": 5.378715723985806,
-        "convert_to_cpu": 0.12600814504548907,
-        "solve_system": 19.289699577027932,
-        "compute_derived": 0.008989601978100836,
-        "total_workflow": 25.098332443041727,
-        "total_program_time": 25.133749446016736
-      },
-      "solution_stats": {
-        "u_range": [
-          0.0,
-          11.8253268620415
-        ],
-        "u_mean": 5.755062507219595,
-        "u_std": 4.390800552371578,
-        "final_residual": 1.6077266080230633e-09,
-        "relative_residual": 1.438174176919147e-08
-      },
-      "matrix_nnz": 16258759,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {},
-      "memory": {
-        "peak_ram_mb": 413.07,
-        "peak_vram_mb": 2425.56,
-        "baseline_ram_mb": 417.25,
-        "baseline_vram_mb": 0.0,
-        "sample_count": 248,
-        "interval_ms": 100,
-        "gpu_available": true
-      },
-      "server_config": {
-        "hostname": "MERCURY",
-        "os": "Ubuntu 24.04.3 LTS",
-        "architecture": "x86_64",
-        "python_version": "3.10.19",
-        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-        "cpu_cores": 20,
-        "ram_gb": 94.3,
-        "gpu_model": "NVIDIA GeForce RTX 4090",
-        "gpu_memory_gb": 24.0,
-        "cuda_version": "13.0"
-      },
-      "server_hash": "9d97dd8f0128",
-      "client_config": {},
-      "client_hash": "unknown"
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
     }
   ]
 }

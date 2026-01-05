@@ -1,0 +1,35 @@
+{
+    "version": "1.0",
+    "description": "FEMulator Pro Automated Benchmark Suite",
+    
+    "gallery_file": "../../client/config/gallery_files.json",
+    
+    "execution": {
+        "runs_per_test": 3,
+        "warmup_runs": 1,
+        "timeout_seconds": 600,
+        "abort_on_failure": true,
+        "verbose": true
+    },
+    
+    "solver_params": {
+        "max_iterations": 15000,
+        "progress_interval": 100,
+        "verbose": false
+    },
+    
+    "filters": {
+        "solvers": {
+            "enabled": [],
+            "disabled": []
+        },
+        "models": {
+            "enabled": [],
+            "disabled": []
+        },
+        "mesh_sizes": {
+            "min_nodes": 0,
+            "max_nodes": null
+        }
+    }
+}
