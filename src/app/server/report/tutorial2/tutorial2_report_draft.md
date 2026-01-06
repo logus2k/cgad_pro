@@ -2078,17 +2078,83 @@ This progression reflects a deliberate transition from interpreter-driven execut
 
 ---
 
-## 4.4 GPU Hardware Pool
+## 4.4 Testing Environment
 
-Benchmark experiments were executed on multiple systems with different NVIDIA GPUs, covering both high-end and mid-range architectures. This diversity allows evaluation of performance sensitivity to **memory bandwidth**, **VRAM size**, and overall GPU throughput.
+At this stage of the project, the experimental evaluation is conducted using a selected set of servers and problem sizes. In a subsequent phase, the study will be extended to include a larger pool of computational servers as well as significantly larger models, with increased numbers of nodes and elements, in order to further highlight performance, scalability, and hardware sensitivity. The current setup therefore represents an initial and controlled benchmarking baseline.
+
+### Contributing Servers
+
+Benchmark data aggregated from **5 servers**:
+
+| # | Hostname | CPU | Cores | RAM | GPU | VRAM | Records |
+|---|----------|-----|-------|-----|-----|------|---------|
+| 1 | DESKTOP-3MCDHQ7 | AMD64 Family 25 Model 97 St... | 12 | - | NVIDIA GeForce RT... | 15.9 GB | 237 |
+| 2 | DESKTOP-B968RT3 | AMD64 Family 25 Model 97 St... | 12 | - | NVIDIA GeForce RT... | 15.9 GB | 33 |
+| 3 | KRATOS | Intel64 Family 6 Model 183 ... | 28 | - | NVIDIA GeForce RT... | 12.0 GB | 81 |
+| 4 | MERCURY | 13th Gen Intel(R) Core(TM) ... | 20 | 94.3 GB | NVIDIA GeForce RT... | 24.0 GB | 275 |
+| 5 | RICKYROG700 | Intel64 Family 6 Model 198 ... | 24 | - | NVIDIA GeForce RT... | 31.8 GB | 238 |
+
+### Test Meshes
+
+| Model | Size | Nodes | Elements | Matrix NNZ |
+|-------|------|-------|----------|------------|
+| Backward-Facing Step | XS | 287 | 82 | 3,873 |
+| Backward-Facing Step | M | 195,362 | 64,713 | 3,042,302 |
+| Backward-Facing Step | L | 766,088 | 254,551 | 11,973,636 |
+| Backward-Facing Step | XL | 1,283,215 | 426,686 | 20,066,869 |
+| Elbow 90° | XS | 411 | 111 | 5,063 |
+| Elbow 90° | M | 161,984 | 53,344 | 2,503,138 |
+| Elbow 90° | L | 623,153 | 206,435 | 9,712,725 |
+| Elbow 90° | XL | 1,044,857 | 346,621 | 16,304,541 |
+| Inverted-S Duct | M | 219,657 | 54,412 | 2,619,809 |
+| S-Bend | XS | 387 | 222 | 4,109 |
+| S-Bend | M | 196,078 | 64,787 | 3,048,794 |
+| S-Bend | L | 765,441 | 254,034 | 11,952,725 |
+| S-Bend | XL | 1,286,039 | 427,244 | 20,097,467 |
+| T-Junction | XS | 393 | 102 | 5,357 |
+| T-Junction | M | 196,420 | 64,987 | 3,057,464 |
+| T-Junction | L | 768,898 | 255,333 | 12,012,244 |
+| T-Junction | XL | 1,291,289 | 429,176 | 20,186,313 |
+| Venturi | XS | 341 | 86 | 4,061 |
+| Venturi | M | 194,325 | 64,334 | 3,023,503 |
+| Venturi | L | 763,707 | 253,704 | 11,934,351 |
+| Venturi | XL | 1,284,412 | 427,017 | 20,083,132 |
+| Y-Shaped | XS | 201 | 52 | 2,571 |
+| Y-Shaped | M | 195,853 | 48,607 | 2,336,363 |
+| Y-Shaped | L | 772,069 | 192,308 | 9,242,129 |
+| Y-Shaped | XL | 1,357,953 | 338,544 | 16,265,217 |
+| y_tube1_53.h5 | XS | 201 | 52 | 0 |
+
+### Solver Configuration
+
+| Parameter | Value |
+|-----------|-------|
+| Problem Type | 2D Potential Flow (Laplace) |
+| Element Type | Quad-8 (8-node serendipity quadrilateral) |
+| Linear Solver | CG |
+| Tolerance | 1e-08 |
+| Max Iterations | 15,000,000 |
+| Preconditioner | Jacobi |
+
+### Implementations Tested
+
+| # | Implementation | File | Parallelism Strategy |
+|---|----------------|------|----------------------|
+| 1 | CPU Baseline | `quad8_cpu_v3.py` | Sequential Python loops |
+| 2 | CPU Threaded | `quad8_cpu_threaded.py` | ThreadPoolExecutor (GIL-limited) |
+| 3 | CPU Multiprocess | `quad8_cpu_multiprocess.py` | multiprocessing.Pool |
+| 4 | Numba CPU | `quad8_numba.py` | @njit + prange |
+| 5 | Numba CUDA | `quad8_numba_cuda.py` | @cuda.jit kernels |
+| 6 | CuPy GPU | `quad8_gpu_v3.py` | CUDA C RawKernels |
+
+In line with this scope, the benchmarks presented below are conducted on three representative systems and on meshes with a limited number of nodes and elements, ensuring consistent and reproducible measurements:
+
 
 | System | GPU Model | VRAM | Benchmark Relevance |
 |------|-----------|------|---------------------|
 | RICKYROG700 | RTX 5090 | 31.8 GB | Upper performance ceiling |
 | MERCURY | RTX 4090 | 24 GB | High-end reference GPU |
 | DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
-
-The inclusion of multiple GPUs enables both **absolute performance comparison** and **scaling analysis** across hardware tiers.
 
 ---
 
