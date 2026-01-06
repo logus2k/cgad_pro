@@ -246,12 +246,22 @@ export class ReportWorkspace {
     }
     
     renderPreview() {
+        // Dispose any existing charts before replacing content
+        if (window.ChartUtils && this.previewArea) {
+            window.ChartUtils.disposeCharts(this.previewArea);
+        }
+        
         let html = this.content;
         if (window.marked) {
             html = window.marked.parse(this.content);
         }
         
         this.previewArea.innerHTML = html;
+        
+        // Initialize any charts in the preview
+        if (window.ChartUtils && this.previewArea) {
+            window.ChartUtils.initializeCharts(this.previewArea);
+        }
         
         const headers = this.previewArea.querySelectorAll('h1, h2, h3, h4, h5, h6');
         headers.forEach((h, i) => {
@@ -372,6 +382,19 @@ export class ReportWorkspace {
                 "link", "image", "|",
                 "guide"
             ],
+            previewRender: (plainText, preview) => {
+                const html = marked.parse(plainText);
+                setTimeout(() => {
+                    if (window.ChartUtils) {
+                        // EasyMDE's preview element
+                        const previewEl = preview || document.querySelector('.editor-preview-active');
+                        if (previewEl) {
+                            window.ChartUtils.initializeCharts(previewEl);
+                        }
+                    }
+                }, 10);
+                return html;
+            }
         });
         
         this.editorInstance.codemirror.on("change", () => {
@@ -547,6 +570,7 @@ class UndockedEditorPanel {
         const textarea = this.panel.querySelector(`#${this.panelId}-textarea`);
         if (!textarea || typeof EasyMDE === 'undefined') return;
         
+        const self = this;
         this.editorInstance = new EasyMDE({
             element: textarea,
             autoDownloadFontAwesome: false,
@@ -559,6 +583,18 @@ class UndockedEditorPanel {
                 "link", "image", "|",
                 "guide"
             ],
+            previewRender: (plainText, preview) => {
+                const html = marked.parse(plainText);
+                setTimeout(() => {
+                    if (window.ChartUtils) {
+                        const previewEl = preview || self.panel.querySelector('.editor-preview-active');
+                        if (previewEl) {
+                            window.ChartUtils.initializeCharts(previewEl);
+                        }
+                    }
+                }, 10);
+                return html;
+            }
         });
         
         this.editorInstance.value(this.content);

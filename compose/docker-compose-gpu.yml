@@ -4,6 +4,8 @@ services:
     image: femulator:1.0
     container_name: femulator
     hostname: femulator
+    volumes:
+          - /src/app:/src/app    
     deploy:
       resources:
         reservations:

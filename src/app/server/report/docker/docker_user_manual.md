@@ -2,6 +2,27 @@
 
 ## 1. Overview
 
+## Critical Analysis
+
+### Bottleneck Evolution
+
+As optimizations progress, the computational bottleneck shifts:
+
+> Percentages averaged across 4 servers.
+
+#### Backward-Facing Step (M) - 195,362 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CuPy GPU | Solve (80%) | BC (18%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-0" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.7},{"name":"Solve","value":79.9},{"name":"Apply BC","value":17.7},{"name":"Post-Process","value":0.1}]}'></div>
+
+
+
+
 The **FEMulator Pro** can be distributed as a containerized application using **Docker**.
 To simplify usage, all Docker operations are wrapped in **platform-specific helper scripts**.
 

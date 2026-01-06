@@ -27,6 +27,19 @@ class TocMarkdownRender {
                 "preview", "side-by-side", "fullscreen", "|",
                 "guide"
             ],
+            previewRender: (plainText, preview) => {
+                // Render markdown to HTML
+                const html = marked.parse(plainText);
+                
+                // Initialize charts after DOM update
+                setTimeout(() => {
+                    if (window.ChartUtils && preview) {
+                        window.ChartUtils.initializeCharts(preview);
+                    }
+                }, 0);
+                
+                return html;
+            }
         });
 
         // Initial Render
@@ -47,18 +60,28 @@ class TocMarkdownRender {
         // 1. Get markdown content from EasyMDE
         const markdownContent = this.editor.value();
         
-        // 2. Convert MD to HTML
+        // 2. Dispose existing charts before replacing content
+        if (window.ChartUtils && this.preview) {
+            window.ChartUtils.disposeCharts(this.preview);
+        }
+        
+        // 3. Convert MD to HTML
         const htmlContent = marked.parse(markdownContent);
         this.preview.innerHTML = htmlContent;
+        
+        // 4. Initialize any charts in the preview
+        if (window.ChartUtils && this.preview) {
+            window.ChartUtils.initializeCharts(this.preview);
+        }
 
-        // 3. Map Headers to IDs
+        // 5. Map Headers to IDs
         const headers = Array.from(this.preview.querySelectorAll('h1, h2, h3, h4, h5, h6'));
         headers.forEach((h, i) => h.id = `nav-header-${i}`);
 
-        // 4. Build Tree Structure
+        // 6. Build Tree Structure
         const treeData = this.buildTree(headers);
 
-        // 5. Update Tree - Using reload() for total reactivity
+        // 7. Update Tree - Using reload() for total reactivity
         if (!this.treeInstance) {
             this.initTree(treeData);
         } else {
