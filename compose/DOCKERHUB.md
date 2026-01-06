@@ -49,7 +49,7 @@ The application will download the necessary images and start. You can now access
 
 ---
 
-## 🛠 Management Commands
+## Management Commands
 
 **View Application Logs** If you need to check the status or troubleshoot:
 
@@ -72,15 +72,5 @@ docker-compose pull
 docker-compose up -d
 
 ```
-
----
-
-## Technical Details
-
-| Detail | Setting |
-| --- | --- |
-| **Image** | `logus2k/femulator:1.0` |
-| **Default Port** | `5868` |
-| **Restart Policy** | `unless-stopped` |
 
 ---
