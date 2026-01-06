@@ -45,7 +45,12 @@
             "id": "tutorial2_benchmark_procedure",
             "title": "Tutorial #2 - Benchmark Procedure",
             "file": "tutorial2/tutorial2_benchmark_procedure.md"
-        },        
+        },  
+        {
+            "id": "RK_tutorial2_impl_4_5_6_final",
+            "title": "Tutorial #2 - RK_tutorial2_impl_4_5_6_final",
+            "file": "tutorial2/RK_tutorial2_impl_4_5_6_final.md"
+        },
         {
             "id": "docker_user_manual",
             "title": "Docker User Manual",
