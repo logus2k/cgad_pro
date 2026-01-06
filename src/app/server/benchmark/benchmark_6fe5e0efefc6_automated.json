@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-06T19:50:04.033078+00:00",
+  "updated_at": "2026-01-06T19:52:24.758959+00:00",
   "automated": true,
   "server_hash": "6fe5e0efefc6",
   "server_config": {
@@ -4744,6 +4744,396 @@
       },
       "client_hash": "automated",
       "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "bcc7c0b0-7f27-4641-ae7c-28b370b6dd17",
+      "timestamp": "2026-01-06T19:52:24.253261+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 4650,
+      "timings": {
+        "load_mesh": 0.002570200012996793,
+        "assemble_system": 5.672244200017303,
+        "apply_bc": 0.5036516999825835,
+        "solve_system": 25.70849360001739,
+        "compute_derived": 2.8648769999854267,
+        "total_workflow": 34.751856700051576,
+        "total_program_time": 34.752377399941906
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359540034386391
+        ],
+        "u_mean": 6.347138716480916,
+        "u_std": 3.516084221534836,
+        "final_residual": 1.380187741780096e-09,
+        "relative_residual": 1.3422589452415845e-08
+      },
+      "memory": {
+        "peak_ram_mb": 248.09,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 413.68,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 307,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "583903d9-8f14-47c0-b431-07f6bba6f10a",
+      "timestamp": "2026-01-06T19:52:24.263258+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 4650,
+      "timings": {
+        "load_mesh": 0.0022437000880017877,
+        "assemble_system": 5.8745039000641555,
+        "apply_bc": 0.5809832999948412,
+        "solve_system": 26.45994420000352,
+        "compute_derived": 2.71676760003902,
+        "total_workflow": 35.63445950008463,
+        "total_program_time": 35.63529710005969
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.35954003438156
+        ],
+        "u_mean": 6.347138716476679,
+        "u_std": 3.516084221533052,
+        "final_residual": 1.3865209037739021e-09,
+        "relative_residual": 1.3484180662658637e-08
+      },
+      "memory": {
+        "peak_ram_mb": 267.3,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 416.43,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 316,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "c9a5ae62-2938-4eb8-9aa6-cd3621c63233",
+      "timestamp": "2026-01-06T19:52:24.278968+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 4650,
+      "timings": {
+        "load_mesh": 0.002546599949710071,
+        "assemble_system": 5.842497200006619,
+        "apply_bc": 0.49592869996558875,
+        "solve_system": 25.530896700103767,
+        "compute_derived": 2.557543700095266,
+        "total_workflow": 34.4294320999179,
+        "total_program_time": 34.42992439994123
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359540034378268
+        ],
+        "u_mean": 6.347138716478047,
+        "u_std": 3.516084221533311,
+        "final_residual": 1.4636521273536408e-09,
+        "relative_residual": 1.423429654670355e-08
+      },
+      "memory": {
+        "peak_ram_mb": 306.17,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 416.4,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 302,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "42ffe760-c59a-45d9-b25b-4ffe05a5f310",
+      "timestamp": "2026-01-06T19:52:24.735517+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.0007190000033006072,
+        "assemble_system": 0.009122599964030087,
+        "apply_bc": 0.0007302999729290605,
+        "solve_system": 0.002688599983230233,
+        "compute_derived": 0.003674800042062998,
+        "total_workflow": 0.016942800022661686,
+        "total_program_time": 0.017301499960012734
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207406323217229e-14,
+          7.298818325462857
+        ],
+        "u_mean": 3.675200285717741,
+        "u_std": 1.8426634332374328,
+        "final_residual": 5.149112159427898e-09,
+        "relative_residual": 1.1194025173161401e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 417.41,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "983e9271-5408-499f-b597-9f2f9883dcf5",
+      "timestamp": "2026-01-06T19:52:24.748513+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.000800000037997961,
+        "assemble_system": 0.008432899951003492,
+        "apply_bc": 0.0007152000907808542,
+        "solve_system": 0.0023681001039221883,
+        "compute_derived": 0.003375000087544322,
+        "total_workflow": 0.015698600094765425,
+        "total_program_time": 0.016097299987450242
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207406323217229e-14,
+          7.298818325462857
+        ],
+        "u_mean": 3.675200285717741,
+        "u_std": 1.8426634332374328,
+        "final_residual": 5.149112159427898e-09,
+        "relative_residual": 1.1194025173161401e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 417.46,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "ea459c4c-1be6-436a-8e81-f411c43c41cf",
+      "timestamp": "2026-01-06T19:52:24.758959+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.0007747000781819224,
+        "assemble_system": 0.009363200049847364,
+        "apply_bc": 0.0007101999362930655,
+        "solve_system": 0.002216199995018542,
+        "compute_derived": 0.0041446000104770064,
+        "total_workflow": 0.01721620000898838,
+        "total_program_time": 0.017932299990206957
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207406323217229e-14,
+          7.298818325462857
+        ],
+        "u_mean": 3.675200285717741,
+        "u_std": 1.8426634332374328,
+        "final_residual": 5.149112159427898e-09,
+        "relative_residual": 1.1194025173161401e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.01,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 417.49,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "rickyrog700",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 198 Stepping 2, GenuineIntel",
+        "cpu_cores": 24,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 5090",
+        "gpu_memory_gb": 31.8,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "6fe5e0efefc6",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
       "element_type": "quad8",
       "nodes_per_element": 8,
       "solver_config": {
