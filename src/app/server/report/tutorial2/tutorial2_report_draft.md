@@ -2086,9 +2086,8 @@ Benchmark experiments were executed on multiple systems with different NVIDIA GP
 |------|-----------|------|---------------------|
 | RICKYROG700 | RTX 5090 | 31.8 GB | Upper performance ceiling |
 | MERCURY | RTX 4090 | 24 GB | High-end reference GPU |
-| KRATOS | RTX 4070 | 12 GB | Upper mid-range GPU |
 | DESKTOP-3MCDHQ7 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
-| DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU (replication) |
+| DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
 
 The inclusion of multiple GPUs enables both **absolute performance comparison** and **scaling analysis** across hardware tiers.
 
