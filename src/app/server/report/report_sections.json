@@ -52,6 +52,11 @@
             "file": "tutorial2/RK_tutorial2_impl_4_5_6_final.md"
         },
         {
+            "id": "Intro_FEM",
+            "title": "Tutorial #2 - Intro_FEM",
+            "file": "tutorial2/Intro_fem.md"
+        },
+        {
             "id": "docker_user_manual",
             "title": "Docker User Manual",
             "file": "docker/docker_user_manual.md"
