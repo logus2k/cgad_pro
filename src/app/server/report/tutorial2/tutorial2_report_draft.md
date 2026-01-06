@@ -2092,3 +2092,14 @@ Benchmark experiments were executed on multiple systems with different NVIDIA GP
 The inclusion of multiple GPUs enables both **absolute performance comparison** and **scaling analysis** across hardware tiers.
 
 ---
+
+### 4.5 RTX 5090 Performance
+
+
+### 4.6 RTX 4090 Performance
+
+
+### 4.7 RTX 5060 Ti (1) Performance
+
+
+### 4.8 RTX 5060 Ti (2) Performance
