@@ -1,49 +1,67 @@
 # Implementation 2: CPU Threaded
 
 ## 1. Overview
-The CPU Threaded implementation introduces shared-memory parallelism using Python’s `ThreadPoolExecutor`. It evaluates the extent to which multi-threading can accelerate FEM assembly and post-processing under CPython’s Global Interpreter Lock (GIL), leveraging the fact that NumPy and SciPy release the GIL during computational kernels.
+
+The CPU Threaded implementation extends the CPU baseline by introducing parallelism through Python’s `concurrent.futures.ThreadPoolExecutor`. The objective is to evaluate whether multi-threading can accelerate FEM assembly and post-processing despite the presence of Python’s Global Interpreter Lock (GIL).
+
+Unlike the baseline, which executes all element-level operations sequentially, this implementation partitions the mesh into batches processed concurrently by multiple threads. The approach relies on the fact that NumPy releases the GIL during computational kernels, allowing partial overlap of execution across threads.
 
 | Attribute | Description |
-|---------|-------------|
-| Technology | Python (ThreadPoolExecutor, NumPy, SciPy) |
-| Execution Model | Multi-threaded, shared memory |
-| Role | Assess threading benefits and limitations under GIL constraints |
-| Dependencies | NumPy, SciPy, concurrent.futures |
+|-----------|-------------|
+| Technology | Python ThreadPoolExecutor (`concurrent.futures`) |
+| Execution Model | Multi-threaded with GIL constraints |
+| Role | Evaluate benefits and limits of threading on CPU |
+| Dependencies | NumPy, SciPy, concurrent.futures (stdlib) |
 
 ---
 
 ## 2. Technology Background
 
 ### 2.1 Python Threading and the Global Interpreter Lock
-Python threading is constrained by the Global Interpreter Lock (GIL), which enforces mutual exclusion on Python bytecode execution. As a result, Python-level loops, indexing operations, and object manipulation remain serialized even when multiple threads are active.
 
-However, many NumPy and SciPy operations release the GIL during execution in optimized C/Fortran kernels. This enables concurrent execution of numerical kernels across threads, provided that computation is structured to maximize time spent in GIL-released regions.
+Python’s Global Interpreter Lock (GIL) enforces serialized execution of Python bytecode, preventing true parallel execution of CPU-bound workloads across threads. This simplifies memory management but significantly constrains scalability for numerical applications implemented at the Python level.
 
-For FEM workloads, this leads to a hybrid execution profile:
+However, many NumPy operations release the GIL during execution, including:
 
-- **Python control flow:** serialized due to the GIL  
-- **Dense numerical kernels (BLAS/LAPACK):** potentially parallel  
-- **Sparse matrix construction and indexing:** GIL-held  
+- Vectorized array arithmetic  
+- Dense linear algebra routines (BLAS/LAPACK)  
+- Element-wise mathematical kernels  
 
-The effectiveness of threading therefore depends on increasing the ratio of GIL-released computation relative to Python-level coordination.
+This behavior enables limited concurrency when the computation is structured to maximize time spent inside GIL-released NumPy kernels, while minimizing Python-level control flow.
 
 ### 2.2 ThreadPoolExecutor Execution Model
-The `ThreadPoolExecutor` provides a fixed pool of worker threads and a future-based interface for task submission and result collection. In this implementation, it is used to process batches of elements concurrently while maintaining shared access to read-only mesh data.
 
-Key characteristics relevant to this implementation include:
+The `ThreadPoolExecutor` abstraction provides a pool of reusable worker threads and a future-based execution model.
 
-- Thread reuse to reduce creation overhead  
-- Dynamic task scheduling and load balancing  
-- Shared-memory access to NumPy arrays without data duplication  
+Key characteristics include:
+
+- Persistent worker threads, reducing creation overhead  
+- Asynchronous task submission via `Future` objects  
+- Automatic synchronization and cleanup through context management  
+- Dynamic scheduling that enables basic load balancing  
+
+This abstraction simplifies parallel orchestration while preserving shared-memory access to NumPy arrays.
+
+### 2.3 Implications for FEM Workloads
+
+Relative to the CPU baseline, the expected impact of threading on FEM operations is mixed:
+
+| Operation | GIL Released | Expected Benefit |
+|----------|--------------|------------------|
+| Python loop iteration | No | None |
+| Sparse matrix indexing | No | None |
+| NumPy dense kernels | Yes | Moderate |
+| Element-wise NumPy ops | Yes | Moderate |
+
+The overall benefit therefore depends on increasing the ratio of GIL-free numerical computation relative to GIL-held Python coordination.
 
 ---
 
 ## 3. Implementation Strategy
 
-### 3.1 Batch-Oriented Assembly Architecture
-Instead of assigning individual elements to threads, the implementation groups contiguous ranges of elements into batches. Each batch is processed by a single thread, increasing computational granularity and amortizing Python-level coordination overhead.
+### 3.1 Batch-Based Parallelization
 
-The resulting execution architecture is illustrated below:
+To amortize threading overhead and reduce GIL contention, elements are grouped into fixed-size batches. Each batch is processed by a single thread, enabling coarse-grained parallelism:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -70,97 +88,129 @@ The resulting execution architecture is illustrated below:
 ```
 
 
-This architecture enables thread-safe parallel assembly by ensuring that each thread operates exclusively on private batch-local data structures during the parallel phase.
 
-### 3.2 Parallel System Assembly
-Assembly proceeds in two distinct phases:
+Each thread operates independently on a contiguous range of elements, computing local stiffness contributions and storing results in thread-local buffers.
 
-1. **Parallel batch processing:**  
-   Each thread computes element stiffness matrices for its assigned batch and stores contributions in local COO-format arrays.
+### 3.2 Element Batch Processing
 
-2. **Global aggregation:**  
-   Batch-level COO arrays are concatenated in the main thread and converted to CSR format. Duplicate entries resulting from shared nodes are automatically summed during conversion.
+Each batch computes stiffness matrices and load contributions for a subset of elements and stores results in pre-allocated arrays using COO (Coordinate) format.
 
-This approach avoids concurrent writes to shared sparse matrices and preserves numerical correctness.
+Key steps include:
 
-### 3.3 Boundary Condition Application
-Boundary conditions are applied after global assembly using the same formulation as the baseline implementation. Their computational cost is negligible relative to assembly and is not parallelized.
+1. Pre-allocation of output arrays for rows, columns, and values  
+2. Sequential processing of elements within the batch  
+3. Computation of local stiffness matrices using NumPy operations  
+4. Storage of local contributions in thread-local COO arrays  
 
-### 3.4 Linear System Solution
-The linear system is solved using the same Conjugate Gradient configuration as the baseline, including diagonal equilibration and Jacobi preconditioning.
+This design avoids shared writes during assembly and minimizes synchronization.
 
-The solver itself is not parallelized at the Python level. While internal BLAS routines may exploit multi-threading, solver control flow remains serialized.
+### 3.3 Parallel Assembly Orchestration
 
+The main assembly routine dispatches batches to worker threads using a thread pool. Results are collected asynchronously, allowing faster threads to return without blocking on slower batches. After all threads complete, individual COO arrays are concatenated and converted to CSR format.
 
-### 3.5 Threaded Post-Processing
-Post-processing operations are parallelized using the same batch-based threading strategy. Each thread processes a disjoint element range and writes results to non-overlapping output regions, avoiding synchronization overhead.
+### 3.4 COO-Based Global Assembly
+
+Unlike the baseline implementation, which performs incremental insertion into a LIL matrix, this implementation assembles the global stiffness matrix using COO format:
+
+| Aspect | Baseline (LIL) | Threaded (COO) |
+|------|----------------|----------------|
+| Thread safety | Not thread-safe | Naturally thread-safe |
+| Insertion pattern | Incremental | Batched |
+| Duplicate handling | Explicit | Automatic on CSR conversion |
+| Parallel suitability | Poor | High |
+
+The final `COO → CSR` conversion automatically merges duplicate entries arising from shared nodes between elements.
+
+### 3.5 Post-Processing Parallelization
+
+Derived field computation (velocity and magnitude) follows the same batch-based threading strategy. Each thread processes a disjoint subset of elements and writes results into non-overlapping regions of the output arrays, avoiding data races.
+
+### 3.6 Linear System Solution
+
+The linear solver is identical to the CPU baseline. SciPy’s Conjugate Gradient solver is used with the same preconditioning and convergence criteria. No Python-level threading is applied to the solver phase, as SciPy internally manages optimized numerical kernels and threading via BLAS libraries.
 
 ---
 
 ## 4. Optimization Techniques Applied
 
 ### 4.1 Batch Size Selection
-Batch size controls the trade-off between coordination overhead and load balance. Larger batches improve cache locality and amortize Python-level overhead, while excessively large batches may reduce thread utilization.
 
+Batch size is a critical tuning parameter controlling the balance between coordination overhead and load balance. Empirical testing indicates that batch sizes between 500 and 2000 elements provide the best trade-off for typical problem sizes.
 
-### 4.2 COO-Based Sparse Assembly
-Using COO aggregation instead of incremental insertion enables thread-safe assembly and eliminates contention on shared sparse data structures.
+### 4.2 Pre-allocation of Thread-Local Buffers
 
+Each batch allocates fixed-size arrays once per thread invocation, avoiding repeated dynamic memory allocation within inner loops. This reduces overhead and improves cache locality.
 
-### 4.3 Pre-allocation of Batch Buffers
-Batch-level arrays are pre-allocated to avoid repeated memory allocation inside inner loops, reducing allocator pressure and improving cache efficiency.
+### 4.3 Inlined Element Computation
 
+Element stiffness computation is implemented directly within the batch function to minimize function call overhead and maximize time spent in GIL-released NumPy kernels.
 
-### 4.4 Shared Read-Only Data Access
-Mesh coordinates, connectivity, and integration data are shared across threads by reference, avoiding memory duplication while maintaining thread safety.
+### 4.4 Shared Read-Only Data
+
+Mesh coordinates, connectivity, and quadrature data are shared across threads as read-only NumPy arrays. This avoids memory duplication while maintaining thread safety.
 
 ---
 
 ## 5. Challenges and Limitations
 
 ### 5.1 GIL Contention
-A significant fraction of runtime remains in GIL-held Python code, including loop iteration, indexing, and sparse index generation. This fundamentally limits scalability.
 
+Despite NumPy releasing the GIL during numerical kernels, a substantial fraction of execution time remains GIL-bound due to Python loops, indexing, and sparse data manipulation. This fundamentally limits scalability.
 
 ### 5.2 Memory Bandwidth Saturation
-All threads share the same memory subsystem, leading to contention for memory bandwidth and cache resources as thread count increases.
 
+All threads share the same memory subsystem, leading to contention and diminishing returns beyond a modest number of threads.
 
-### 5.3 Sparse Construction Overhead
-Although COO aggregation avoids unsafe writes, constructing and concatenating large coordinate arrays introduces overhead that scales sub-linearly with thread count.
+### 5.3 Thread Management Overhead
 
+Task submission, scheduling, and result aggregation introduce non-negligible overhead, which dominates execution time for small problem sizes.
 
-### 5.4 Thread Coordination Overhead
-Task scheduling, future management, and result aggregation introduce fixed overheads that dominate performance for small problem sizes.
+### 5.4 Limited Solver Parallelism
 
-
-### 5.5 Solver-Level Serialization
-Solver control flow remains serialized at the Python level, constraining end-to-end speedup even when assembly scales moderately well.
+The solver phase remains effectively sequential at the Python level. While underlying BLAS libraries may use threads, overall solver performance is memory-bound and does not benefit significantly from additional Python threading.
 
 ---
 
-## 6. Performance Characteristics and Baseline Role
+## 6. Performance Characteristics and Role
 
-### 6.1 Expected Scaling
-Relative to the CPU baseline:
+### 6.1 Expected Scaling Behavior
 
-- **Assembly:** sub-linear speedup due to GIL-held control flow and sparse construction overhead  
-- **Solve:** similar behavior to baseline, dominated by memory-bound SpMV operations  
-- **Post-processing:** moderate speedup possible for large meshes  
+Thread-level parallelism yields sub-linear speedup governed by Amdahl’s Law. Only portions of the assembly and post-processing phases benefit from concurrent execution.
 
-Overall speedup is bounded by the serial fraction of Python-level coordination.
+### 6.2 Practical Speedup Regime
 
+Empirical behavior typically shows:
 
-### 6.2 Baseline Role
-This implementation defines the upper bound of performance achievable with shared-memory threading in CPython and serves as a reference point between the sequential baseline and GIL-bypassing approaches.
+- Modest gains with 2–4 threads  
+- Diminishing returns beyond 4–8 threads  
+- Potential slowdowns when contention outweighs parallel benefits  
+
+### 6.3 Role in the Implementation Suite
+
+This implementation serves as an intermediate reference between the sequential CPU baseline and more aggressive parallelization strategies. It highlights the structural limitations imposed by the GIL and motivates approaches that bypass it entirely.
 
 ---
 
 ## 7. Summary
-The CPU Threaded implementation preserves numerical equivalence with the baseline while introducing batch-based shared-memory parallelism. It demonstrates that:
 
-- Threading can accelerate FEM workloads when computation occurs in GIL-released kernels  
-- GIL contention and memory bandwidth fundamentally limit scalability  
-- Speedup saturates at modest thread counts  
+The CPU Threaded implementation demonstrates both the potential and limitations of Python threading for numerical computation:
 
-This implementation clarifies the practical limits of Python threading for FEM assembly and motivates the use of multiprocessing, JIT compilation, or GPU offloading for higher scalability.
+**Achievements:**
+
+- Introduced parallelism without external dependencies
+- Developed batch processing pattern reusable in other implementations
+- Identified COO assembly as thread-safe alternative to LIL
+- Established baseline for comparing more aggressive parallelization
+
+**Limitations:**
+
+- GIL contention limits achievable speedup
+- Memory bandwidth shared across threads
+- Python-level overhead remains significant
+- Scaling plateaus at modest thread counts
+
+**Key Insight:** For FEM workloads with significant per-element Python overhead, threading provides limited benefit. True parallelism requires either bypassing the GIL (multiprocessing, Numba) or offloading to hardware with native parallelism (GPU).
+
+The batch processing architecture developed here, however, establishes a pattern that transfers to more effective parallelization strategies in subsequent implementations.
+
+---
