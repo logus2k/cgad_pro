@@ -2080,7 +2080,7 @@ This progression reflects a deliberate transition from interpreter-driven execut
 
 ## 4.4 Testing Environment
 
-At this stage of the project, the experimental evaluation is conducted using a selected set of servers and problem sizes. In a subsequent phase, the study will be extended to include a larger pool of computational servers as well as significantly larger models, with increased numbers of nodes and elements, in order to further highlight performance, scalability, and hardware sensitivity. The current setup therefore represents an initial and controlled benchmarking baseline.
+At this stage of the project, the experimental evaluation is conducted using a selected set of servers (**ids: #1/#4/#5**) and problem sizes. In a subsequent phase, the study will be extended to include a larger pool of computational servers as well as significantly larger models, with increased numbers of nodes and elements, in order to further highlight performance, scalability, and hardware sensitivity. The current setup therefore represents an initial and controlled benchmarking baseline.
 
 ### Contributing Servers
 
@@ -2106,7 +2106,6 @@ Benchmark data aggregated from **5 servers**:
 | Elbow 90° | M | 161,984 | 53,344 | 2,503,138 |
 | Elbow 90° | L | 623,153 | 206,435 | 9,712,725 |
 | Elbow 90° | XL | 1,044,857 | 346,621 | 16,304,541 |
-| Inverted-S Duct | M | 219,657 | 54,412 | 2,619,809 |
 | S-Bend | XS | 387 | 222 | 4,109 |
 | S-Bend | M | 196,078 | 64,787 | 3,048,794 |
 | S-Bend | L | 765,441 | 254,034 | 11,952,725 |
@@ -2123,7 +2122,6 @@ Benchmark data aggregated from **5 servers**:
 | Y-Shaped | M | 195,853 | 48,607 | 2,336,363 |
 | Y-Shaped | L | 772,069 | 192,308 | 9,242,129 |
 | Y-Shaped | XL | 1,357,953 | 338,544 | 16,265,217 |
-| y_tube1_53.h5 | XS | 201 | 52 | 0 |
 
 ### Solver Configuration
 
