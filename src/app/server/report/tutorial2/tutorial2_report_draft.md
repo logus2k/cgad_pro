@@ -3401,6 +3401,184 @@ As optimizations progress, the computational bottleneck shifts:
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
 
+## 4.8 Cross-Platform Comparative Analysis
+
+This section consolidates the benchmark results presented in Sections 4.5–4.7 into a unified comparative analysis.  
+Rather than reiterating individual measurements, the focus here is on **interpreting performance trends**, **explaining architectural effects**, and **extracting general conclusions** regarding execution models and GPU classes.
+
+---
+
+### 4.8.1 CPU vs GPU: Where the Paradigm Shifts
+
+Across all geometries and medium-to-large meshes, a clear and consistent transition point emerges:
+
+- **Small meshes (XS)**  
+  GPU execution is systematically slower than optimized CPU variants due to:
+  - kernel launch overhead,
+  - PCIe latency,
+  - underutilization of GPU parallelism.
+
+- **Medium meshes (M)**  
+  GPU acceleration becomes dominant, with speedups ranging from:
+  - **~11× (RTX 5060 Ti)**  
+  - **~20–40× (RTX 4090)**  
+  - **~30–60× (RTX 5090)**  
+
+This confirms that GPU acceleration is not universally beneficial, but **highly problem-size dependent**.
+
+---
+
+### 4.8.2 CPU Scaling Limits
+
+The benchmark reveals well-defined limits for CPU-based optimization strategies.
+
+| CPU Strategy | Observed Benefit | Limiting Factor |
+|-------------|------------------|-----------------|
+| Threading | 1.2× – 2.1× | Python GIL |
+| Multiprocessing | 1.5× – 2.7× | IPC overhead |
+| Numba JIT | 2× – 6× | Memory bandwidth |
+
+Even with aggressive JIT compilation, **CPU performance saturates early**.  
+For medium meshes, the solver becomes:
+
+- **memory-bound**, and  
+- dominated by **sparse matrix–vector products**.
+
+This explains why Numba CPU converges to similar performance as multiprocessing for large problems.
+
+---
+
+### 4.8.3 GPU Acceleration: Numba CUDA vs CuPy RawKernel
+
+A consistent hierarchy is observed across all GPUs:
+
+| GPU Execution Model | Characteristics | Performance |
+|--------------------|------------------|-------------|
+| Numba CUDA | Python-defined kernels, easier development | High |
+| CuPy RawKernel | Native CUDA C, full control | Highest |
+
+Key observations:
+
+- **CuPy GPU consistently outperforms Numba CUDA** for medium meshes.
+- Gains range from **1.3× to 1.8×** over Numba CUDA.
+- The advantage increases with:
+  - mesh size,
+  - solver dominance,
+  - memory bandwidth pressure.
+
+This confirms that **kernel maturity and low-level control matter** once GPU execution becomes solver-bound.
+
+---
+
+### 4.8.4 Cross-GPU Performance Scaling
+
+A core objective of this benchmark was to separate **software scaling** from **hardware scaling**.
+
+#### Aggregate Speedup (Medium Meshes)
+
+| GPU | Typical Speedup vs CPU Baseline |
+|----|--------------------------------|
+| RTX 5060 Ti | 11× – 18× |
+| RTX 4090 | 20× – 42× |
+| RTX 5090 | 25× – 60× |
+
+However, performance does **not** scale linearly with theoretical FLOPs.
+
+#### Interpretation
+
+- The FEM solver is **memory-bandwidth dominated**, not compute-bound.
+- Higher-end GPUs benefit from:
+  - larger L2 cache,
+  - higher memory throughput,
+  - better latency hiding.
+- The RTX 5090 advantage is strongest for:
+  - CG-heavy cases,
+  - large sparse matrices,
+  - solver-dominated workloads.
+
+This confirms that **architectural balance**, not raw FLOPs, drives FEM performance.
+
+---
+
+### 4.8.5 Bottleneck Evolution Across Platforms
+
+A central insight from the benchmark is the **systematic migration of bottlenecks**:
+
+| Execution Stage | CPU Baseline | Numba CPU | GPU (CuPy) |
+|----------------|-------------|-----------|------------|
+| Assembly | Dominant | Minor | Negligible |
+| Solve | Secondary | Dominant | Overwhelming |
+| Apply BC | Minor | Minor | Non-negligible |
+| Post-processing | Visible | Minimal | Negligible |
+
+Key implications:
+
+- GPU acceleration **eliminates assembly as a bottleneck**.
+- The **linear solver dominates runtime** in all optimized variants.
+- On GPU, boundary condition application becomes visible due to:
+  - atomic operations,
+  - irregular memory access,
+  - limited arithmetic intensity.
+
+This validates the design decision to prioritize GPU-resident solvers.
+
+---
+
+### 4.8.6 Efficiency vs Absolute Performance
+
+While the RTX 5090 delivers the highest absolute performance, efficiency considerations are relevant:
+
+| GPU | Relative Performance | Cost / Power Consideration |
+|----|----------------------|----------------------------|
+| RTX 5060 Ti | Moderate | High efficiency per cost |
+| RTX 4090 | Very high | Balanced performance |
+| RTX 5090 | Extreme | Diminishing returns |
+
+For production environments, this suggests:
+
+- **Mid-range GPUs** are sufficient for moderate FEM workloads.
+- **High-end GPUs** are justified for:
+  - very large meshes,
+  - repeated simulations,
+  - solver-dominated pipelines.
+
+---
+
+### 4.8.7 Robustness and Numerical Consistency
+
+Crucially, acceleration does **not** alter numerical behavior:
+
+- Identical CG iteration counts across platforms.
+- Consistent residual norms at convergence.
+- No divergence or fallback behavior observed.
+
+This confirms that performance gains are achieved **without sacrificing numerical correctness**.
+
+---
+
+### 4.8.8 Consolidated Summary
+
+| Aspect | Key Conclusion |
+|------|----------------|
+| CPU optimization | Quickly saturates |
+| GPU benefit | Strongly size-dependent |
+| Best execution model | CuPy RawKernel |
+| Dominant bottleneck | Sparse solver |
+| Best scaling factor | Memory bandwidth |
+| Best overall GPU | RTX 5090 |
+| Best cost-efficiency | RTX 5060 Ti |
+
+---
+
+### 4.8.9 Final Insight
+
+The benchmark demonstrates that **GPU acceleration fundamentally changes the performance landscape of FEM solvers**, but only when:
+
+- the problem size is sufficiently large,
+- data remains resident on the GPU,
+- solver execution dominates the pipeline.
+
+Beyond this point, performance becomes a function of **memory architecture rather than algorithmic complexity**, placing modern GPUs at a decisive advantage over CPUs for large-scale finite element simulations.
 
 
 ## Conclusions
