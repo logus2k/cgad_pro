@@ -541,6 +541,24 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
     cursor: pointer;
 }
 
+/* Enable text selection in report viewer content */
+.report-viewer-content {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    cursor: auto;
+}
+
+.report-viewer-content * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+/* Keep header non-selectable for dragging */
+.report-viewer-panel h1,
+.report-viewer-panel .pm-close {
+    user-select: none;
+}
+
 /* Markdown content styling */
 .report-viewer-content h1 {
     font-size: 1.4em;
