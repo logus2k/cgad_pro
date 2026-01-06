@@ -1,11 +1,11 @@
-# Finite Element Method
-## 1. General Overview
+# General Overview
+## 1. Finite Element Method
 
 The Finite Element Method (FEM) is a numerical technique widely used to approximate solutions of partial differential equations arising in engineering and scientific problems. Its main strength lies in its ability to handle complex geometries, heterogeneous materials, and general boundary conditions, which are often intractable using analytical approaches.
 
 The fundamental idea of FEM is to replace a continuous problem by a discrete one. The physical domain is subdivided into a finite number of smaller regions, called elements, over which the unknown field is approximated using interpolation functions. By assembling the contributions of all elements, the original continuous problem is transformed into a system of algebraic equations that can be solved numerically.
 
-(Adicionar imagem de um dos casos com mesh visível. Label: Discretization of a two-dimensional domain into quadrilateral finite elements. Each element is defined by its nodal connectivity and contributes locally to the global system.)
+IMAGE1
 
 Because of this formulation, FEM naturally maps to linear algebra operations and therefore constitutes an ideal candidate for high-performance computing and parallel execution.
 
@@ -57,21 +57,13 @@ This equation captures all the essential computational challenges of FEM and is 
 
 In FEM, the continuous domain is discretized into a finite number of elements connected at nodes. Within each element, the unknown field is approximated using shape functions defined over the element’s geometry.
 
-IMAGEM
+IMAGE2
 
 Several element types exist, depending on dimensionality and interpolation order. In two dimensions, common choices include triangular and quadrilateral elements, with either linear or higher-order interpolation.
 
 In this work, eight-node quadrilateral elements (Quad-8) are used. These elements employ quadratic interpolation functions, allowing higher accuracy compared to linear elements while preserving numerical stability. 
 
-```
-        η
-        ↑
-    4───7───3
-    │       │
-    8   ·   6  → ξ
-    │       │
-    1───5───2
-```
+IMAGE 3
 
 Each element comprises 8 nodes: 4 corner nodes and 4 mid-edge nodes.
 Node numbering follows the standard convention with counter-clockwise ordering starting from the bottom-left corner.
@@ -100,7 +92,7 @@ The FEM formulation begins by expressing the governing differential equation in 
 
 $$\int_{\Omega} \nabla v \cdot \nabla \phi \, d\Omega = \int_{\Gamma} v\, q \, d\Gamma$$
 
-where $$\phi$$ is the unknown scalar field, $$v$$ is a test function, and $$q$$ represents prescribed boundary fluxes.
+where $\phi$ is the unknown scalar field, $v$ is a test function, and $q$ represents prescribed boundary fluxes.
 After discretization using shape functions, the weak formulation results in a linear system of equations:
 
 $$Ku=f $$
@@ -114,9 +106,10 @@ The global stiffness matrix is then assembled from element-level contributions o
 
 $$\mathbf{K}^{(e)} = \int_{\Omega_e} (\nabla \mathbf{N})^T \mathbf{D} (\nabla \mathbf{N}) \, d\Omega$$ 
 
-where $$N$$ denotes the shape functions and $$D$$ represents the material or conductivity matrix. The resulting global matrix is sparse, symmetric, and positive definite, which strongly influences solver choice and performance behavior.
+where $N$ denotes the shape functions and $D$ represents the material or conductivity matrix. The resulting global matrix is sparse, symmetric, and positive definite, which strongly influences solver choice and performance behavior.
 
-imagem
+IMAGE 4
+
 
 #### 1.2.3. Boundary Conditions
 
@@ -124,7 +117,7 @@ Boundary conditions (BCs) specify the constraints and interactions imposed on th
 
 ##### 1.2.3.1. Dirichlet Boundary Conditions
 
-Dirichlet (essential) boundary conditions specify fixed potential values at designated boundary nodes:
+Dirichlet boundary conditions specify fixed potential values at designated boundary nodes:
 
 $$u = \bar{u} \quad \text{on } \Gamma_D$$
 
@@ -138,7 +131,7 @@ In the project context, Dirichlet conditions are applied at outlet boundaries wh
 
 ##### 1.2.3.2. Robin Boundary Conditions
 
-Robin (mixed) boundary conditions combine flux and potential contributions at inlet boundaries:
+Robin boundary conditions combine flux and potential contributions at inlet boundaries:
 
 $$p \cdot u + \frac{\partial u}{\partial n} = \gamma \quad \text{on } \Gamma_R$$
 
@@ -166,7 +159,7 @@ All implementations use the Conjugate Gradient (CG) method for solving the linea
 3. **Predictable convergence**: Error reduction bounded by condition number
 4. **Parallelization potential**: Core operations (SpMV, dot products, axpy) are data-parallel
 
-The CG algorithm generates a sequence of iterates $\mathbf{u}^{(k)}$ that minimize the $\mathbf{K}$-norm of the error over a Krylov subspace of increasing dimension.
+The CG algorithm generates a sequence of iterates $\mathbf{u}^{(k)}$ that minimize the $\mathbf{K}-norm$ Ajuof the error over a Krylov subspace of increasing dimension.
 
 #### 1.3.2. Jacobi Preconditioning
 
@@ -199,7 +192,7 @@ The following parameters are held constant across all implementations:
 | Preconditioner | Jacobi (diagonal) | Parallelizes uniformly |
 | Relative tolerance | $10^{-8}$ | Engineering accuracy |
 | Absolute tolerance | $0$ | Rely on relative criterion |
-| Maximum iterations | 15,000 | Sufficient for test problems |
+| Maximum iterations | 300,000 | Sufficient for test problems |
 | Progress reporting | Every 50 iterations | Balance monitoring vs. overhead |
 
  #### 1.3.4. Convergence Monitoring
@@ -318,7 +311,7 @@ for each prescribed node i do
 end for
 ```
 
-Once the system is fully assembled, the resulting linear system is solved using an iterative solver. This stage usually dominates execution time, as it involves repeated sparse matrix–vector multiplications and vector operations.
+Once the system is fully assembled, the resulting linear system is solved using an iterative solver. This stage usually dominates execution time, as it involves repeated sparse matrix-vector multiplications and vector operations.
 
 ```java
 Initialize u₀
@@ -344,6 +337,8 @@ Finally, post-processing is performed to reconstruct the solution field, compute
 
 #### 1.5.1. Parallelization Targets
 
+The assembly stage exhibits the highest parallelization potential because each element's stiffness matrix can be computed independently. The solve stage benefits from parallel SpMV but faces memory bandwidth constraints characteristic of sparse computations. Post-processing mirrors assembly in its parallel structure.
+
 | Stage | Computational Pattern | Parallelization Opportunity |
 |-------|----------------------|----------------------------|
 | Load Mesh | I/O bound | Limited (disk/memory bandwidth) |
@@ -353,32 +348,11 @@ Finally, post-processing is performed to reconstruct the solution field, compute
 | Compute Derived | Element-independent loops | **High** (embarrassingly parallel) |
 | Export Results | I/O bound | Limited (disk bandwidth) |
 
-The assembly stage exhibits the highest parallelization potential because each element's stiffness matrix can be computed independently. The solve stage benefits from parallel SpMV but faces memory bandwidth constraints characteristic of sparse computations. Post-processing mirrors assembly in its parallel structure.
 
 
----
-
-### 1.6 Timing Instrumentation
-
-Each solver records per-stage wall-clock time using high-resolution timers (`time.perf_counter()`). The timing dictionary structure is consistent across all implementations:
-
-```python
-timing_metrics = {
-    'load_mesh': float,        # Mesh loading time (seconds)
-    'assemble_system': float,  # Global assembly time
-    'apply_bc': float,         # Boundary condition application
-    'solve_system': float,     # Linear solver time
-    'compute_derived': float,  # Post-processing time
-    'total_workflow': float,   # Sum of above stages
-    'total_program_time': float # Wall-clock from initialization
-}
-```
-
-This granular timing enables identification of which stages benefit most from each parallelization strategy.
 
 ---
 
----
 
 ## 2. Software Architecture
 
@@ -495,7 +469,27 @@ class ProgressCallback:
 
 This callback system enables the web interface to display live progress, convergence curves, and intermediate solution fields regardless of which solver implementation is executing.
 
-### 2.4 Result Format
+### 2.4 Timing Instrumentation
+
+Each solver records per-stage wall-clock time using high-resolution timers (`time.perf_counter()`). The timing dictionary structure is consistent across all implementations:
+
+```python
+timing_metrics = {
+    'load_mesh': float,        # Mesh loading time (seconds)
+    'assemble_system': float,  # Global assembly time
+    'apply_bc': float,         # Boundary condition application
+    'solve_system': float,     # Linear solver time
+    'compute_derived': float,  # Post-processing time
+    'total_workflow': float,   # Sum of above stages
+    'total_program_time': float # Wall-clock from initialization
+}
+```
+
+This granular timing enables identification of which stages benefit most from each parallelization strategy.
+
+---
+
+### 2.5 Result Format
 
 All solvers return a standardized dictionary structure containing solution fields, convergence status, timing metrics, and metadata:
 
@@ -554,9 +548,9 @@ The `timing_metrics` dictionary is essential for performance analysis, providing
 
 ---
 
-## 3. Shared Computational Modules
+## 2.6. Shared Computational Modules
 
-### 3.1 Module Organization
+### 2.6.1. Module Organization
 
 Each implementation variant includes adapted versions of four core computational modules. While the mathematical operations are identical, each version is optimized for its execution model:
 
@@ -567,7 +561,7 @@ Each implementation variant includes adapted versions of four core computational
 | `elem_quad8` | Element stiffness matrix | `np.outer`, matrix ops | `@njit`, nested loops | `cp.outer`, matrix ops | Full kernel |
 | `robin_quadr` | Robin BC edge integration | NumPy loops | `@njit` loops | CuPy loops | CPU fallback |
 
-### 3.2 Implementation Adaptations
+### 2.6.2. Implementation Adaptations
 
 **NumPy (CPU Baseline)**
 
@@ -638,21 +632,21 @@ __global__ void quad8_assembly_kernel(...) {
 }
 ```
 
-### 3.3 Mathematical Equivalence
+### 2.6.3. Mathematical Equivalence
 
 Despite implementation differences, all versions compute mathematically identical results (within floating-point precision). This is verified by:
 
 1. Comparing solution vectors across implementations
-2. Checking that relative differences are within machine epsilon ($\approx 10^{-15}$)
+2. Checking that relative differences are within machine epsilon ( $\approx 10^{-15}$ )
 3. Ensuring identical iteration counts for CG convergence
 
 This equivalence is essential for valid performance comparisons: timing differences reflect execution model efficiency, not algorithmic variations.
 
 ---
 
-## 4. Mesh Format and I/O
+## 2.7. Mesh Format and I/O
 
-### 4.1 HDF5 Mesh Format
+### 2.7.1. HDF5 Mesh Format
 
 Meshes are stored in HDF5 format for efficient I/O operations:
 
@@ -665,7 +659,7 @@ mesh.h5
     └── quad8 (int32, shape: Nelements × 8)
 ```
 
-### 4.2 Format Advantages
+### 2.7.2. Format Advantages
 
 HDF5 provides several advantages for this application:
 
@@ -678,7 +672,7 @@ HDF5 provides several advantages for this application:
 | Hierarchical structure | Organized data layout |
 | Partial reads | Future extensibility for distributed computing |
 
-### 4.3 Legacy Format Support
+### 2.7.3. Legacy Format Support
 
 For compatibility, the solver also supports:
 
@@ -687,25 +681,9 @@ For compatibility, the solver also supports:
 
 All formats are converted to the internal NumPy array representation upon loading.
 
-### 4.4 Mesh Loading Implementation
-
-```python
-def load_mesh(self) -> None:
-    """Load mesh from HDF5 file."""
-    import h5py
-    
-    with h5py.File(self.mesh_file, 'r') as f:
-        self.x = f['coordinates/x'][:]
-        self.y = f['coordinates/y'][:]
-        self.quad8 = f['connectivity/quad8'][:]
-    
-    self.Nnds = len(self.x)
-    self.Nels = len(self.quad8)
-```
-
 ---
 
-## 5. Summary
+## 2.8. Summary
 
 The common foundation described in this section ensures that all six solver implementations operate on identical mathematical and algorithmic ground. Key design decisions supporting fair performance comparison include:
 

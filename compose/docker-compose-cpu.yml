@@ -4,6 +4,9 @@ services:
     image: femulator:1.0
     container_name: femulator
     hostname: femulator
+    volumes:
+          - ../src/app/server/report:/src/app/server/report
+          - ../src/app/client/images:/src/app/client/images    
     logging:
       options:
         max-size: "10m"
