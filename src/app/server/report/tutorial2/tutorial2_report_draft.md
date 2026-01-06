@@ -2086,7 +2086,6 @@ Benchmark experiments were executed on multiple systems with different NVIDIA GP
 |------|-----------|------|---------------------|
 | RICKYROG700 | RTX 5090 | 31.8 GB | Upper performance ceiling |
 | MERCURY | RTX 4090 | 24 GB | High-end reference GPU |
-| DESKTOP-3MCDHQ7 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
 | DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
 
 The inclusion of multiple GPUs enables both **absolute performance comparison** and **scaling analysis** across hardware tiers.
@@ -2099,7 +2098,6 @@ The inclusion of multiple GPUs enables both **absolute performance comparison** 
 ### 4.6 RTX 4090 Performance
 
 
-### 4.7 RTX 5060 Ti (1) Performance
+### 4.7 RTX 5060 Ti  Performance
 
 
-### 4.8 RTX 5060 Ti (2) Performance
