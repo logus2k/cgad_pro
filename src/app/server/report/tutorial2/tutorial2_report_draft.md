@@ -2024,3 +2024,72 @@ This implementation establishes the upper bound for single-GPU performance in th
 ---
 
 # 4. Performance Evaluation
+
+## 4.1 Motivation and Scope
+
+This section presents a systematic benchmark study of the finite element solver developed in this work, with the objective of **quantifying performance gains across execution models**, from conventional CPU-based implementations to fully GPU-resident solvers.
+
+Rather than restricting the analysis to a single machine, the benchmark was designed as a **cross-hardware evaluation**, where identical solver implementations were executed on multiple systems equipped with different NVIDIA GPUs. This approach enables a clear separation between:
+
+- algorithmic effects (assembly strategy, solver configuration), and  
+- hardware effects (CPU vs GPU, GPU architecture, memory bandwidth, VRAM capacity).
+
+All implementations solve the *same mathematical problem* using the *same FEM formulation*, ensuring that observed differences arise exclusively from the execution model and underlying hardware.
+
+---
+
+## 4.2 Benchmark Objectives
+
+The benchmark addresses the following key questions:
+
+1. **CPU scaling limits**  
+   How far can performance be improved on CPU using:
+   - threading,
+   - multiprocessing, and
+   - JIT compilation with Numba,
+   before memory bandwidth and Python overhead become dominant?
+
+2. **GPU acceleration impact**  
+   What is the performance gain when offloading:
+   - element-level assembly,
+   - sparse linear system solution, and
+   - post-processing
+   to the GPU using Numba CUDA and CuPy RawKernel?
+
+3. **Cross-GPU scalability**  
+   How does solver performance scale across GPUs with different compute capabilities, memory bandwidth, and VRAM capacity?
+
+---
+
+## 4.3 Solver Variants Under Test
+
+All benchmark runs use the same mesh, boundary conditions, numerical parameters, and convergence criteria. Only the execution backend changes.
+
+| Solver Variant | Execution Target | Description | Primary Role |
+|---------------|------------------|-------------|--------------|
+| **CPU Baseline** | CPU | Sequential NumPy/SciPy | Correctness reference |
+| **CPU Threaded** | CPU | ThreadPool-based batching | Evaluate GIL-limited threading |
+| **CPU Multiprocess** | CPU | Process-level parallelism | True CPU parallelism |
+| **Numba JIT (CPU)** | CPU | `@njit` + `prange` | High-performance shared-memory CPU |
+| **Numba CUDA** | GPU | Python CUDA kernels | GPU acceleration with Python kernels |
+| **GPU CuPy (RawKernel)** | GPU | CUDA C kernels + CuPy sparse | Maximum single-GPU performance |
+
+This progression reflects a deliberate transition from interpreter-driven execution to compiled and accelerator-based computation.
+
+---
+
+## 4.4 GPU Hardware Pool
+
+Benchmark experiments were executed on multiple systems with different NVIDIA GPUs, covering both high-end and mid-range architectures. This diversity allows evaluation of performance sensitivity to **memory bandwidth**, **VRAM size**, and overall GPU throughput.
+
+| System | GPU Model | VRAM | Benchmark Relevance |
+|------|-----------|------|---------------------|
+| RICKYROG700 | RTX 5090 | 31.8 GB | Upper performance ceiling |
+| MERCURY | RTX 4090 | 24 GB | High-end reference GPU |
+| KRATOS | RTX 4070 | 12 GB | Upper mid-range GPU |
+| DESKTOP-3MCDHQ7 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
+| DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU (replication) |
+
+The inclusion of multiple GPUs enables both **absolute performance comparison** and **scaling analysis** across hardware tiers.
+
+---
