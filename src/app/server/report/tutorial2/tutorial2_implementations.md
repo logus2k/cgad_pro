@@ -451,6 +451,9 @@ The multiprocessing execution model spawns multiple independent worker processes
 └─────────────────────────────────────────────────────────────┘
 ```
 
+![Multithreading](multithreading.png)
+
+
 
 Key characteristics:
 
