@@ -2,7 +2,7 @@
     "version": "1.0",
     "description": "FEMulator Pro Automated Benchmark Suite",
     
-    "gallery_file": "../../client/config/gallery_files.json",
+    "gallery_file": "../../client/config/gallery_files_small.json",
     
     "execution": {
         "runs_per_test": 3,
@@ -13,7 +13,7 @@
     },
     
     "solver_params": {
-        "max_iterations": 15000,
+        "max_iterations": 15000000,
         "progress_interval": 100,
         "verbose": false
     },
