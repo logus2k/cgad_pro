@@ -65,6 +65,11 @@
             "id": "docker_user_manual",
             "title": "Docker User Manual",
             "file": "docker/docker_user_manual.md"
+        },
+        {
+            "id": "sandbox",
+            "title": "Sandbox",
+            "file": "sandbox/sandbox.md"
         }
     ]
 }

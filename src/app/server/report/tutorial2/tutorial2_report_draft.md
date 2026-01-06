@@ -4,7 +4,7 @@ The Finite Element Method (FEM) is a numerical technique widely used to approxim
 
 The fundamental idea of FEM is to replace a continuous problem by a discrete one. The physical domain is subdivided into a finite number of smaller regions, called elements, over which the unknown field is approximated using interpolation functions. By assembling the contributions of all elements, the original continuous problem is transformed into a system of algebraic equations that can be solved numerically.
 
-IMAGE1
+![](images/documents/tutorial2/image1.png)
 
 Because of this formulation, FEM naturally maps to linear algebra operations and therefore constitutes an ideal candidate for high-performance computing and parallel execution.
 
@@ -56,7 +56,7 @@ This equation captures all the essential computational challenges of FEM and is 
 
 In FEM, the continuous domain is discretized into a finite number of elements connected at nodes. Within each element, the unknown field is approximated using shape functions defined over the element’s geometry.
 
-IMAGE2
+![](images/documents/tutorial2/image2.png)
 
 Several element types exist, depending on dimensionality and interpolation order. In two dimensions, common choices include triangular and quadrilateral elements, with either linear or higher-order interpolation.
 
@@ -107,7 +107,7 @@ $$\mathbf{K}^{(e)} = \int_{\Omega_e} (\nabla \mathbf{N})^T \mathbf{D} (\nabla \m
 
 where $N$ denotes the shape functions and $D$ represents the material or conductivity matrix. The resulting global matrix is sparse, symmetric, and positive definite, which strongly influences solver choice and performance behavior.
 
-IMAGE 4
+![](images/documents/tutorial2/image4.png)
 
 
 ### 1.2.3. Boundary Conditions
@@ -973,31 +973,7 @@ The overall benefit therefore depends on increasing the ratio of GIL-free numeri
 
 To amortize threading overhead and reduce GIL contention, elements are grouped into fixed-size batches. Each batch is processed by a single thread, enabling coarse-grained parallelism:
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Element Range                     │
-│  [0, 1000) [1000, 2000) [2000, 3000) ... [N-1000, N) │
-└──────┬──────────┬───────────┬──────────────┬────────┘
-       │          │           │              │
-       ▼          ▼           ▼              ▼
-   ┌───────┐  ┌───────┐  ┌───────┐      ┌───────┐
-   │Thread │  │Thread │  │Thread │ ...  │Thread │
-   │  0    │  │  1    │  │  2    │      │  N-1  │
-   └───┬───┘  └───┬───┘  └───┬───┘      └───┬───┘
-       │          │           │              │
-       ▼          ▼           ▼              ▼
-   ┌───────────────────────────────────────────────┐
-   │              COO Data Aggregation              │
-   │        rows[], cols[], vals[] per batch        │
-   └───────────────────────────────────────────────┘
-                          │
-                          ▼
-   ┌───────────────────────────────────────────────┐
-   │         COO → CSR Matrix Construction          │
-   └───────────────────────────────────────────────┘
-```
-
-
+![](images/documents/tutorial2/multithreading.png)
 
 Each thread operates independently on a contiguous range of elements, computing local stiffness contributions and storing results in thread-local buffers.
 
@@ -1146,26 +1122,8 @@ The CPU Multiprocess implementation achieves true parallelism by using process-b
 
 The multiprocessing execution model spawns multiple independent worker processes. Each worker runs its own Python interpreter with an isolated memory space and its own Global Interpreter Lock.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Main Process                             │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
-│  │ Worker  │  │ Worker  │  │ Worker  │  │ Worker  │        │
-│  │Process 0│  │Process 1│  │Process 2│  │Process 3│        │
-│  │         │  │         │  │         │  │         │        │
-│  │Own GIL  │  │Own GIL  │  │Own GIL  │  │Own GIL  │        │
-│  │Own Heap │  │Own Heap │  │Own Heap │  │Own Heap │        │
-│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘        │
-│       │            │            │            │              │
-│       └────────────┴────────────┴────────────┘              │
-│                          │                                   │
-│                    Pickle/IPC                                │
-└─────────────────────────────────────────────────────────────┘
-```
 
-![Multithreading](multithreading.png)
-
-
+![Multiprocessing](images/documents/tutorial2/multiprocessing.png)
 
 Key characteristics:
 
@@ -1241,17 +1199,8 @@ Batching amortizes IPC overhead and reduces scheduling frequency.
 
 Unlike threading, multiprocessing requires explicit data transfer per batch:
 
-```
-Main Process                    Worker Process
-     │                               │
-     │  pickle(x, y, quad8)          │
-     ├──────────────────────────────▶│
-     │                               │  (compute element matrices)
-     │  pickle(rows, cols, vals)     │
-     │◀──────────────────────────────┤
-     │                               │
-```
 
+![Multiprocessing Data Serialization](images/documents/tutorial2/multiprocessing_dataserial.png)
 
 For large meshes, serialization frequency and volume become dominant performance constraints.
 
@@ -1855,31 +1804,8 @@ CuPy's `RawKernel` allows embedding CUDA C code directly in Python. This provide
 
 #### 3.7.2.4 GPU Memory Model
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Host (CPU) Memory                     │
-└─────────────────────────────────────────────────────────┘
-                           ↕ PCIe Transfer
-┌─────────────────────────────────────────────────────────┐
-│                   Device (GPU) Memory                    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │              Global Memory (VRAM)                │    │
-│  │   - CuPy arrays (cp.array)                       │    │
-│  │   - Sparse matrices (cupyx.scipy.sparse)         │    │
-│  │   - Kernel input/output buffers                  │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │         Shared Memory (per thread block)         │    │
-│  │   - __shared__ arrays in CUDA C                  │    │
-│  │   - Fast inter-thread communication              │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │              Registers (per thread)              │    │
-│  │   - Local variables in kernel                    │    │
-│  │   - Fastest access                               │    │
-│  └─────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────┘
-```
+
+![GPU Memory Architeture](images/documents/tutorial2/gpumemory.png)
 
 ---
 
