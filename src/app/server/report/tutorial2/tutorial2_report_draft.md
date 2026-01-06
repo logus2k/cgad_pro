@@ -1757,14 +1757,13 @@ This implementation represents a practical and accessible entry point for GPU ac
 
 ### 3.7.1. Overview
 
-The GPU CuPy implementation (`quad8_gpu_v3.py`) represents the most performance-oriented approach, using CuPy's `RawKernel` to execute hand-written CUDA C kernels directly on the GPU. This provides maximum control over GPU execution while leveraging CuPy's ecosystem for sparse matrix operations and iterative solvers.
+The GPU CuPy implementation represents the most performance-oriented approach, using CuPy's `RawKernel` to execute hand-written CUDA C kernels directly on the GPU. This provides maximum control over GPU execution while leveraging CuPy's ecosystem for sparse matrix operations and iterative solvers.
 
 | Attribute | Description |
 |-----------|-------------|
 | Technology | CuPy RawKernel (CUDA C), CuPy sparse |
 | Execution Model | GPU SIMT with native CUDA C kernels |
 | Role | Maximum GPU performance, production-quality implementation |
-| Source File | `quad8_gpu_v3.py` |
 | Dependencies | NumPy, SciPy, CuPy |
 
 ---
@@ -1805,7 +1804,7 @@ CuPy's `RawKernel` allows embedding CUDA C code directly in Python. This provide
 #### 3.7.2.4 GPU Memory Model
 
 
-![GPU Memory Architeture](images/documents/tutorial2/gpumemory.png)
+![GPU Memory Architeture](images/documents/tutorial2/gpu_memory.png)
 
 ---
 
