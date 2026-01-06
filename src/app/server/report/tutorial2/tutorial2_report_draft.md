@@ -2094,10 +2094,1383 @@ The inclusion of multiple GPUs enables both **absolute performance comparison** 
 
 ### 4.5 RTX 5090 Performance
 
+Key results from performance benchmarks comparing FEM solver implementations.
+
+**Backward-Facing Step (XS)** (287 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 30ms ± 2ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 4ms | 1.7x | 3 |
+| CPU Multiprocess | 996ms ± 48ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 5.0x | 3 |
+| Numba CUDA | 49ms ± 6ms | 0.6x | 3 |
+| CuPy GPU | 58ms ± 0ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-0" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.7,0.0,5.0,0.6,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Backward-Facing Step (M)** (195,362 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 41.59s ± 0.12s | 1.0x | 3 |
+| CPU Threaded | 31.23s ± 0.18s | 1.3x | 3 |
+| CPU Multiprocess | 23.66s ± 0.22s | 1.8x | 3 |
+| Numba CPU | 23.41s ± 0.17s | 1.8x | 3 |
+| Numba CUDA | 2.56s ± 0.10s | 16.2x | 3 |
+| CuPy GPU | 1.45s ± 0.01s | 28.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-1" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.3,1.8,1.8,16.2,28.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (XS)** (411 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 42ms ± 5ms | 1.0x | 3 |
+| CPU Threaded | 21ms ± 4ms | 2.0x | 3 |
+| CPU Multiprocess | 911ms ± 28ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 1ms | 8.0x | 3 |
+| Numba CUDA | 53ms ± 7ms | 0.8x | 3 |
+| CuPy GPU | 82ms ± 4ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-2" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.0,0.0,8.0,0.8,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (M)** (161,984 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 36.82s ± 0.16s | 1.0x | 3 |
+| CPU Threaded | 21.98s ± 0.16s | 1.7x | 3 |
+| CPU Multiprocess | 16.65s ± 0.48s | 2.2x | 3 |
+| Numba CPU | 21.35s ± 0.18s | 1.7x | 3 |
+| Numba CUDA | 2.12s ± 0.07s | 17.3x | 3 |
+| CuPy GPU | 1.25s ± 0.02s | 29.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-3" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.7,2.2,1.7,17.3,29.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (XS)** (387 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 27ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 15ms ± 3ms | 1.8x | 3 |
+| CPU Multiprocess | 860ms ± 42ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 1ms | 4.2x | 3 |
+| Numba CUDA | 54ms ± 5ms | 0.5x | 3 |
+| CuPy GPU | 82ms ± 3ms | 0.3x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-4" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.8,0.0,4.2,0.5,0.3]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (M)** (196,078 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 42.00s ± 0.14s | 1.0x | 3 |
+| CPU Threaded | 34.94s ± 0.62s | 1.2x | 3 |
+| CPU Multiprocess | 26.73s ± 0.47s | 1.6x | 3 |
+| Numba CPU | 27.79s ± 0.19s | 1.5x | 3 |
+| Numba CUDA | 2.80s ± 0.14s | 15.0x | 3 |
+| CuPy GPU | 1.77s ± 0.12s | 23.7x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-5" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.2,1.6,1.5,15.0,23.7]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**T-Junction (XS)** (393 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 34ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 17ms ± 1ms | 2.0x | 3 |
+| CPU Multiprocess | 890ms ± 23ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 5.7x | 3 |
+| Numba CUDA | 70ms ± 4ms | 0.5x | 3 |
+| CuPy GPU | 71ms ± 5ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-6" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.0,0.0,5.7,0.5,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**T-Junction (M)** (196,420 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 1m 39.2s ± 105.6s | 1.0x | 3 |
+| CPU Threaded | 31.54s ± 0.61s | 3.1x | 3 |
+| CPU Multiprocess | 25.29s ± 0.04s | 3.9x | 3 |
+| Numba CPU | 24.14s ± 0.35s | 4.1x | 3 |
+| Numba CUDA | 2.67s ± 0.10s | 37.2x | 3 |
+| CuPy GPU | 1.64s ± 0.05s | 60.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-7" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[3.1,3.9,4.1,37.2,60.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Venturi (XS)** (341 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 30ms ± 2ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 4ms | 1.6x | 3 |
+| CPU Multiprocess | 1.05s ± 0.02s | 0.0x | 3 |
+| Numba CPU | <0.01s ± 1ms | 6.2x | 3 |
+| Numba CUDA | 52ms ± 5ms | 0.6x | 3 |
+| CuPy GPU | 76ms ± 4ms | 0.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-8" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.6,0.0,6.2,0.6,0.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Venturi (M)** (194,325 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 41.96s ± 0.16s | 1.0x | 3 |
+| CPU Threaded | 31.34s ± 0.42s | 1.3x | 3 |
+| CPU Multiprocess | 24.63s ± 1.60s | 1.7x | 3 |
+| Numba CPU | 23.02s ± 0.36s | 1.8x | 3 |
+| Numba CUDA | 2.48s ± 0.03s | 16.9x | 3 |
+| CuPy GPU | 1.66s ± 0.03s | 25.3x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-9" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.3,1.7,1.8,16.9,25.3]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**Y-Shaped (XS)** (201 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 19ms ± 2ms | 1.0x | 3 |
+| CPU Threaded | 11ms ± 1ms | 1.8x | 3 |
+| CPU Multiprocess | 1.00s ± 0.01s | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 3.5x | 3 |
+| Numba CUDA | 40ms ± 2ms | 0.5x | 3 |
+| CuPy GPU | 59ms ± 4ms | 0.3x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-10" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.8,0.0,3.5,0.5,0.3]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Y-Shaped (M)** (195,853 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 34.38s ± 1.80s | 1.0x | 3 |
+| CPU Threaded | 26.06s ± 0.34s | 1.3x | 3 |
+| CPU Multiprocess | 22.53s ± 0.22s | 1.5x | 3 |
+| Numba CPU | 19.15s ± 0.03s | 1.8x | 3 |
+| Numba CUDA | 2.36s ± 0.05s | 14.6x | 3 |
+| CuPy GPU | 1.54s ± 0.01s | 22.3x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-11" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.3,1.5,1.8,14.6,22.3]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+
+#### Critical Analysis
+
+## Critical Analysis
+
+### Bottleneck Evolution
+
+As optimizations progress, the computational bottleneck shifts:
+
+#### Backward-Facing Step (XS) - 287 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (64%) | Post-Proc (18%) |
+| CPU Threaded | Assembly (46%) | Post-Proc (22%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (50%) |
+| Numba CPU | Solve (46%) | BC (13%) |
+| Numba CUDA | Solve (87%) | Assembly (6%) |
+| CuPy GPU | Solve (69%) | BC (25%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-0" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":63.7},{"name":"Solve","value":7.2},{"name":"Apply BC","value":0.7},{"name":"Post-Process","value":17.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-1" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.4},{"name":"Solve","value":68.7},{"name":"Apply BC","value":24.7},{"name":"Post-Process","value":0.7}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-2" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[63.7,46.0,49.7,12.5,6.0,2.4]},{"name":"Solve","data":[7.2,15.8,0.3,45.9,86.7,68.7]},{"name":"Apply BC","data":[0.7,3.3,0.1,12.9,1.3,24.7]},{"name":"Post-Process","data":[17.8,22.3,49.7,1.3,2.4,0.7]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Backward-Facing Step (M) - 195,362 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (53%) | Assembly (36%) |
+| CPU Threaded | Solve (72%) | Assembly (17%) |
+| CPU Multiprocess | Solve (88%) | Assembly (5%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (51%) | Assembly (25%) |
+| CuPy GPU | Solve (90%) | BC (10%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-3" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":36.5},{"name":"Solve","value":53.3},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":10.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-4" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":89.9},{"name":"Apply BC","value":9.6},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-5" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[36.5,17.2,5.4,0.6,25.1,0.1]},{"name":"Solve","data":[53.3,72.5,87.7,97.0,51.3,89.9]},{"name":"Apply BC","data":[0.2,1.9,2.0,2.4,22.2,9.6]},{"name":"Post-Process","data":[10.0,8.5,4.9,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (XS) - 411 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (70%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (50%) | Post-Proc (24%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (45%) | BC (17%) |
+| Numba CUDA | Solve (87%) | Assembly (6%) |
+| CuPy GPU | Solve (65%) | BC (30%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-6" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":69.6},{"name":"Solve","value":5.8},{"name":"Apply BC","value":1.1},{"name":"Post-Process","value":20.3}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-7" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.4},{"name":"Solve","value":65.0},{"name":"Apply BC","value":29.8},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-8" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[69.6,50.4,50.5,12.9,5.8,2.4]},{"name":"Solve","data":[5.8,10.9,0.3,44.7,87.3,65.0]},{"name":"Apply BC","data":[1.1,4.6,0.1,16.7,1.6,29.8]},{"name":"Post-Process","data":[20.3,23.7,49.0,1.5,2.2,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (M) - 161,984 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (56%) | Assembly (35%) |
+| CPU Threaded | Solve (68%) | Assembly (20%) |
+| CPU Multiprocess | Solve (84%) | Assembly (7%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (50%) | Assembly (25%) |
+| CuPy GPU | Solve (85%) | BC (15%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-9" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":34.8},{"name":"Solve","value":55.5},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":9.4}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-10" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":84.8},{"name":"Apply BC","value":14.7},{"name":"Post-Process","value":0.1}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-11" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[34.8,20.3,6.9,0.5,25.3,0.1]},{"name":"Solve","data":[55.5,67.8,84.5,97.2,50.2,84.8]},{"name":"Apply BC","data":[0.3,2.1,2.4,2.2,23.0,14.7]},{"name":"Post-Process","data":[9.4,9.7,6.1,0.0,0.1,0.1]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (XS) - 387 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (65%) | Post-Proc (19%) |
+| CPU Threaded | Assembly (46%) | Post-Proc (26%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (44%) | BC (17%) |
+| Numba CUDA | Solve (84%) | Assembly (8%) |
+| CuPy GPU | Solve (69%) | BC (24%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-12" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":65.2},{"name":"Solve","value":8.8},{"name":"Apply BC","value":1.4},{"name":"Post-Process","value":19.2}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-13" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.9},{"name":"Solve","value":69.0},{"name":"Apply BC","value":24.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-14" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[65.2,45.8,50.5,10.8,7.7,1.9]},{"name":"Solve","data":[8.8,14.5,0.3,43.7,84.2,69.0]},{"name":"Apply BC","data":[1.4,4.9,0.1,16.7,2.0,24.4]},{"name":"Post-Process","data":[19.2,26.2,49.0,1.1,2.0,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (M) - 196,078 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (59%) | Assembly (32%) |
+| CPU Threaded | Solve (74%) | Assembly (17%) |
+| CPU Multiprocess | Solve (89%) | Assembly (5%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (55%) | Assembly (24%) |
+| CuPy GPU | Solve (89%) | BC (10%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-15" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":31.9},{"name":"Solve","value":59.0},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":8.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-16" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":89.2},{"name":"Apply BC","value":10.4},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-17" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[31.9,16.6,4.9,0.6,24.1,0.1]},{"name":"Solve","data":[59.0,74.1,88.8,97.2,54.9,89.2]},{"name":"Apply BC","data":[0.2,1.5,1.7,2.2,19.7,10.4]},{"name":"Post-Process","data":[8.8,7.8,4.6,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### T-Junction (XS) - 393 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (67%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (52%) | Post-Proc (22%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (47%) | BC (16%) |
+| Numba CUDA | Solve (89%) | Assembly (5%) |
+| CuPy GPU | Solve (65%) | BC (30%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-20" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":67.1},{"name":"Solve","value":8.3},{"name":"Apply BC","value":0.9},{"name":"Post-Process","value":20.1}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-21" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.9},{"name":"Solve","value":64.8},{"name":"Apply BC","value":29.7},{"name":"Post-Process","value":0.4}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-22" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[67.1,52.4,50.2,13.1,5.2,1.9]},{"name":"Solve","data":[8.3,14.2,0.4,46.8,88.6,64.8]},{"name":"Apply BC","data":[0.9,4.2,0.1,15.5,1.5,29.7]},{"name":"Post-Process","data":[20.1,21.8,49.2,1.2,2.1,0.4]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### T-Junction (M) - 196,420 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (83%) | Assembly (14%) |
+| CPU Threaded | Solve (75%) | Assembly (16%) |
+| CPU Multiprocess | Solve (89%) | Assembly (5%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (55%) | Assembly (24%) |
+| CuPy GPU | Solve (88%) | BC (11%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-23" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":13.6},{"name":"Solve","value":82.6},{"name":"Apply BC","value":0.1},{"name":"Post-Process","value":3.7}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-24" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":88.3},{"name":"Apply BC","value":11.3},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-25" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[13.6,15.7,5.0,0.6,24.1,0.1]},{"name":"Solve","data":[82.6,75.1,88.5,97.1,54.7,88.3]},{"name":"Apply BC","data":[0.1,1.7,1.8,2.3,20.1,11.3]},{"name":"Post-Process","data":[3.7,7.5,4.6,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### Venturi (XS) - 341 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (65%) | Post-Proc (19%) |
+| CPU Threaded | Assembly (47%) | Post-Proc (22%) |
+| CPU Multiprocess | Post-Proc (50%) | Assembly (50%) |
+| Numba CPU | Solve (45%) | BC (16%) |
+| Numba CUDA | Solve (85%) | Assembly (7%) |
+| CuPy GPU | Solve (60%) | BC (34%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-27" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":65.2},{"name":"Solve","value":7.6},{"name":"Apply BC","value":1.2},{"name":"Post-Process","value":18.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-28" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.3},{"name":"Solve","value":59.8},{"name":"Apply BC","value":34.3},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-29" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[65.2,47.1,49.5,12.3,6.7,2.3]},{"name":"Solve","data":[7.6,14.7,0.3,44.9,85.4,59.8]},{"name":"Apply BC","data":[1.2,4.7,0.1,16.4,1.8,34.3]},{"name":"Post-Process","data":[18.8,22.5,49.9,1.7,2.3,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Venturi (M) - 194,325 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (55%) | Assembly (35%) |
+| CPU Threaded | Solve (72%) | Assembly (17%) |
+| CPU Multiprocess | Solve (87%) | Assembly (6%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (52%) | Assembly (25%) |
+| CuPy GPU | Solve (81%) | BC (19%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-30" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":35.3},{"name":"Solve","value":54.7},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":9.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-31" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":80.8},{"name":"Apply BC","value":18.8},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-32" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[35.3,17.4,6.0,0.5,25.0,0.1]},{"name":"Solve","data":[54.7,72.3,86.6,97.1,52.2,80.8]},{"name":"Apply BC","data":[0.2,1.8,2.2,2.3,21.5,18.8]},{"name":"Post-Process","data":[9.8,8.4,5.2,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### Y-Shaped (XS) - 201 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (58%) | Post-Proc (18%) |
+| CPU Threaded | Assembly (45%) | Solve (18%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (39%) | Assembly (13%) |
+| Numba CUDA | Solve (80%) | Assembly (8%) |
+| CuPy GPU | Solve (61%) | BC (32%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-35" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":58.0},{"name":"Solve","value":10.7},{"name":"Apply BC","value":1.3},{"name":"Post-Process","value":18.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-36" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.3},{"name":"Solve","value":61.3},{"name":"Apply BC","value":32.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-37" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[58.0,45.3,50.0,13.1,8.4,2.3]},{"name":"Solve","data":[10.7,17.8,0.3,38.9,80.4,61.3]},{"name":"Apply BC","data":[1.3,6.1,0.1,10.2,1.3,32.4]},{"name":"Post-Process","data":[18.0,17.2,49.5,1.6,2.5,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Y-Shaped (M) - 195,853 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (56%) | Assembly (34%) |
+| CPU Threaded | Solve (74%) | Assembly (16%) |
+| CPU Multiprocess | Solve (87%) | Assembly (6%) |
+| Numba CPU | Solve (96%) | BC (3%) |
+| Numba CUDA | Solve (51%) | BC (26%) |
+| CuPy GPU | Solve (80%) | BC (18%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-38" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":34.2},{"name":"Solve","value":55.9},{"name":"Apply BC","value":0.4},{"name":"Post-Process","value":9.4}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-39" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":80.4},{"name":"Apply BC","value":18.0},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-40" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[34.2,16.2,5.7,0.7,21.3,0.1]},{"name":"Solve","data":[55.9,73.8,86.8,96.2,51.1,80.4]},{"name":"Apply BC","data":[0.4,2.2,2.3,3.0,25.9,18.0]},{"name":"Post-Process","data":[9.4,7.7,5.1,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+### Why Each Optimization Helps
+
+| Transition | Reason |
+|------------|--------|
+| Baseline → Threaded | Limited by Python GIL; threads only help for I/O |
+| Threaded → Multiprocess | Bypasses GIL via separate processes; IPC overhead limits gains |
+| Multiprocess → Numba CPU | JIT compilation eliminates interpreter overhead; true parallel loops |
+| Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
+| Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
+
+
 
 ### 4.6 RTX 4090 Performance
 
 
+
+
+Key results from performance benchmarks comparing FEM solver implementations.
+
+**Backward-Facing Step (XS)** (287 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 25ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 17ms ± 2ms | 1.5x | 3 |
+| CPU Multiprocess | 233ms ± 10ms | 0.1x | 3 |
+| Numba CPU | <0.01s ± 0ms | 6.1x | 3 |
+| Numba CUDA | 45ms ± 10ms | 0.6x | 3 |
+| CuPy GPU | 51ms ± 4ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-0" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,0.1,6.1,0.6,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Backward-Facing Step (M)** (195,362 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 46.68s ± 1.66s | 1.0x | 3 |
+| CPU Threaded | 37.41s ± 0.38s | 1.2x | 3 |
+| CPU Multiprocess | 26.60s ± 0.18s | 1.8x | 3 |
+| Numba CPU | 29.17s ± 2.04s | 1.6x | 3 |
+| Numba CUDA | 2.40s ± 0.03s | 19.4x | 3 |
+| CuPy GPU | 1.27s ± 0.02s | 36.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-1" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.2,1.8,1.6,19.4,36.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (XS)** (411 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 38ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 1ms | 2.1x | 3 |
+| CPU Multiprocess | 230ms ± 5ms | 0.2x | 3 |
+| Numba CPU | <0.01s ± 2ms | 5.5x | 3 |
+| Numba CUDA | 44ms ± 1ms | 0.9x | 3 |
+| CuPy GPU | 53ms ± 2ms | 0.7x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-2" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.1,0.2,5.5,0.9,0.7]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (M)** (161,984 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 43.70s ± 0.62s | 1.0x | 3 |
+| CPU Threaded | 27.97s ± 0.44s | 1.6x | 3 |
+| CPU Multiprocess | 19.95s ± 1.64s | 2.2x | 3 |
+| Numba CPU | 27.40s ± 1.48s | 1.6x | 3 |
+| Numba CUDA | 1.97s ± 0.02s | 22.1x | 3 |
+| CuPy GPU | 1.05s ± 0.05s | 41.7x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-3" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.6,2.2,1.6,22.1,41.7]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (XS)** (387 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 34ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 17ms ± 3ms | 2.1x | 3 |
+| CPU Multiprocess | 219ms ± 6ms | 0.2x | 3 |
+| Numba CPU | <0.01s ± 2ms | 5.8x | 3 |
+| Numba CUDA | 63ms ± 6ms | 0.5x | 3 |
+| CuPy GPU | 62ms ± 8ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-4" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.1,0.2,5.8,0.5,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (M)** (196,078 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 38.82s ± 0.42s | 1.0x | 3 |
+| CPU Threaded | 42.24s ± 1.49s | 0.9x | 3 |
+| CPU Multiprocess | 31.68s ± 1.12s | 1.2x | 3 |
+| Numba CPU | 33.08s ± 0.33s | 1.2x | 3 |
+| Numba CUDA | 2.44s ± 0.05s | 15.9x | 3 |
+| CuPy GPU | 1.54s ± 0.05s | 25.2x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-5" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[0.9,1.2,1.2,15.9,25.2]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**T-Junction (XS)** (393 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 35ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 2ms | 1.9x | 3 |
+| CPU Multiprocess | 232ms ± 8ms | 0.1x | 3 |
+| Numba CPU | <0.01s ± 1ms | 6.1x | 3 |
+| Numba CUDA | 48ms ± 4ms | 0.7x | 3 |
+| CuPy GPU | 64ms ± 8ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-6" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.9,0.1,6.1,0.7,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**T-Junction (M)** (196,420 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 48.55s ± 0.08s | 1.0x | 3 |
+| CPU Threaded | 41.12s ± 0.61s | 1.2x | 3 |
+| CPU Multiprocess | 29.56s ± 1.14s | 1.6x | 3 |
+| Numba CPU | 28.00s ± 1.65s | 1.7x | 3 |
+| Numba CUDA | 2.33s ± 0.03s | 20.8x | 3 |
+| CuPy GPU | 1.43s ± 0.01s | 34.0x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-7" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.2,1.6,1.7,20.8,34.0]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Venturi (XS)** (341 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 30ms ± 2ms | 1.0x | 3 |
+| CPU Threaded | 15ms ± 3ms | 2.0x | 3 |
+| CPU Multiprocess | 203ms ± 11ms | 0.1x | 3 |
+| Numba CPU | <0.01s ± 0ms | 6.6x | 3 |
+| Numba CUDA | 60ms ± 9ms | 0.5x | 3 |
+| CuPy GPU | 53ms ± 2ms | 0.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-8" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.0,0.1,6.6,0.5,0.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Venturi (M)** (194,325 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 32.22s ± 0.16s | 1.0x | 3 |
+| CPU Threaded | 38.35s ± 0.25s | 0.8x | 3 |
+| CPU Multiprocess | 27.15s ± 1.38s | 1.2x | 3 |
+| Numba CPU | 29.96s ± 0.27s | 1.1x | 3 |
+| Numba CUDA | 2.38s ± 0.08s | 13.5x | 3 |
+| CuPy GPU | 1.40s ± 0.05s | 23.0x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-9" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[0.8,1.2,1.1,13.5,23.0]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**Y-Shaped (XS)** (201 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 20ms ± 3ms | 1.0x | 6 |
+| CPU Threaded | <0.01s ± 1ms | 2.1x | 3 |
+| CPU Multiprocess | 169ms ± 5ms | 0.1x | 3 |
+| Numba CPU | <0.01s ± 0ms | 5.3x | 3 |
+| Numba CUDA | 53ms ± 13ms | 0.4x | 3 |
+| CuPy GPU | 52ms ± 6ms | 0.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-10" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.1,0.1,5.3,0.4,0.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Y-Shaped (M)** (195,853 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 25.05s ± 0.49s | 1.0x | 3 |
+| CPU Threaded | 31.45s ± 0.54s | 0.8x | 3 |
+| CPU Multiprocess | 23.40s ± 0.34s | 1.1x | 3 |
+| Numba CPU | 22.86s ± 0.32s | 1.1x | 3 |
+| Numba CUDA | 2.20s ± 0.08s | 11.4x | 3 |
+| CuPy GPU | 1.35s ± 0.01s | 18.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-11" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[0.8,1.1,1.1,11.4,18.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+#### Critical Analysis
+
+## Critical Analysis
+
+### Bottleneck Evolution
+
+As optimizations progress, the computational bottleneck shifts:
+
+#### Backward-Facing Step (XS) - 287 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (68%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (52%) | Post-Proc (21%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (48%) |
+| Numba CPU | Solve (45%) | Assembly (14%) |
+| Numba CUDA | Solve (87%) | Assembly (6%) |
+| CuPy GPU | Solve (72%) | BC (22%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-0" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":68.2},{"name":"Solve","value":7.2},{"name":"Apply BC","value":0.9},{"name":"Post-Process","value":19.7}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-1" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.0},{"name":"Solve","value":71.7},{"name":"Apply BC","value":22.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-2" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[68.2,51.6,49.8,14.2,6.3,2.0]},{"name":"Solve","data":[7.2,11.7,0.9,44.6,86.8,71.7]},{"name":"Apply BC","data":[0.9,3.7,0.3,12.2,1.2,22.4]},{"name":"Post-Process","data":[19.7,21.0,48.4,3.0,2.1,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Backward-Facing Step (M) - 195,362 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (59%) | Assembly (32%) |
+| CPU Threaded | Solve (67%) | Assembly (19%) |
+| CPU Multiprocess | Solve (92%) | Assembly (3%) |
+| Numba CPU | Solve (98%) | BC (1%) |
+| Numba CUDA | Solve (49%) | Assembly (30%) |
+| CuPy GPU | Solve (89%) | BC (11%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-3" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":31.9},{"name":"Solve","value":58.9},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":9.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-4" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":88.7},{"name":"Apply BC","value":10.9},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-5" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[31.9,19.1,3.5,0.6,29.8,0.1]},{"name":"Solve","data":[58.9,67.3,92.1,98.0,49.1,88.7]},{"name":"Apply BC","data":[0.2,1.2,1.7,1.4,20.0,10.9]},{"name":"Post-Process","data":[9.0,12.5,2.7,0.0,0.2,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (XS) - 411 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (69%) | Post-Proc (21%) |
+| CPU Threaded | Assembly (53%) | Post-Proc (24%) |
+| CPU Multiprocess | Assembly (51%) | Post-Proc (47%) |
+| Numba CPU | Solve (39%) | BC (16%) |
+| Numba CUDA | Solve (86%) | Assembly (7%) |
+| CuPy GPU | Solve (67%) | BC (27%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-6" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":68.7},{"name":"Solve","value":6.3},{"name":"Apply BC","value":1.1},{"name":"Post-Process","value":21.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-7" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.0},{"name":"Solve","value":66.9},{"name":"Apply BC","value":27.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-8" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[68.7,52.8,50.7,15.1,6.6,2.0]},{"name":"Solve","data":[6.3,11.5,0.9,39.3,86.0,66.9]},{"name":"Apply BC","data":[1.1,4.7,0.5,15.9,1.9,27.4]},{"name":"Post-Process","data":[21.0,23.6,47.4,3.0,2.4,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (M) - 161,984 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (63%) | Assembly (28%) |
+| CPU Threaded | Solve (64%) | Assembly (21%) |
+| CPU Multiprocess | Solve (92%) | Assembly (4%) |
+| Numba CPU | Solve (98%) | BC (1%) |
+| Numba CUDA | Solve (49%) | Assembly (31%) |
+| CuPy GPU | Solve (83%) | BC (16%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-9" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":28.5},{"name":"Solve","value":63.4},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":7.9}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-10" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":83.1},{"name":"Apply BC","value":16.5},{"name":"Post-Process","value":0.1}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-11" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[28.5,21.0,3.8,0.5,30.9,0.1]},{"name":"Solve","data":[63.4,64.1,91.6,98.2,48.7,83.1]},{"name":"Apply BC","data":[0.2,1.2,1.9,1.3,19.2,16.5]},{"name":"Post-Process","data":[7.9,13.7,2.6,0.0,0.2,0.1]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (XS) - 387 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (68%) | Post-Proc (17%) |
+| CPU Threaded | Assembly (55%) | Post-Proc (17%) |
+| CPU Multiprocess | Assembly (51%) | Post-Proc (46%) |
+| Numba CPU | Solve (39%) | BC (16%) |
+| Numba CUDA | Solve (91%) | Assembly (4%) |
+| CuPy GPU | Solve (66%) | BC (29%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-12" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":67.5},{"name":"Solve","value":7.2},{"name":"Apply BC","value":1.2},{"name":"Post-Process","value":17.1}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-13" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.6},{"name":"Solve","value":65.8},{"name":"Apply BC","value":29.0},{"name":"Post-Process","value":0.4}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-14" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[67.5,54.7,51.2,14.6,4.0,1.6]},{"name":"Solve","data":[7.2,12.5,1.2,38.9,91.2,65.8]},{"name":"Apply BC","data":[1.2,4.5,0.5,15.9,1.2,29.0]},{"name":"Post-Process","data":[17.1,17.2,46.0,2.0,1.6,0.4]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (M) - 196,078 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (47%) | Assembly (42%) |
+| CPU Threaded | Solve (71%) | Assembly (17%) |
+| CPU Multiprocess | Solve (94%) | Assembly (3%) |
+| Numba CPU | Solve (98%) | BC (1%) |
+| Numba CUDA | Solve (53%) | Assembly (28%) |
+| CuPy GPU | Solve (89%) | BC (11%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-15" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":41.6},{"name":"Solve","value":46.8},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":11.4}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-16" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":88.6},{"name":"Apply BC","value":11.1},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-17" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[41.6,16.9,2.9,0.5,27.8,0.1]},{"name":"Solve","data":[46.8,70.8,93.5,98.2,52.9,88.6]},{"name":"Apply BC","data":[0.3,1.1,1.4,1.3,18.3,11.1]},{"name":"Post-Process","data":[11.4,11.2,2.2,0.0,0.2,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### T-Junction (XS) - 393 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (69%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (52%) | Post-Proc (23%) |
+| CPU Multiprocess | Assembly (52%) | Post-Proc (46%) |
+| Numba CPU | Solve (41%) | Assembly (15%) |
+| Numba CUDA | Solve (85%) | Assembly (8%) |
+| CuPy GPU | Solve (73%) | BC (23%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-19" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":68.8},{"name":"Solve","value":6.9},{"name":"Apply BC","value":1.0},{"name":"Post-Process","value":19.7}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-20" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.4},{"name":"Solve","value":72.8},{"name":"Apply BC","value":23.1},{"name":"Post-Process","value":0.4}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-21" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[68.8,52.4,52.3,14.6,7.8,1.4]},{"name":"Solve","data":[6.9,12.2,1.0,40.5,84.6,72.8]},{"name":"Apply BC","data":[1.0,4.1,0.5,14.6,1.7,23.1]},{"name":"Post-Process","data":[19.7,22.8,45.5,2.1,2.4,0.4]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### T-Junction (M) - 196,420 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (60%) | Assembly (31%) |
+| CPU Threaded | Solve (70%) | Assembly (18%) |
+| CPU Multiprocess | Solve (93%) | Assembly (3%) |
+| Numba CPU | Solve (98%) | BC (1%) |
+| Numba CUDA | Solve (51%) | Assembly (29%) |
+| CuPy GPU | Solve (87%) | BC (12%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-22" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":31.4},{"name":"Solve","value":59.8},{"name":"Apply BC","value":0.2},{"name":"Post-Process","value":8.6}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-23" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":87.4},{"name":"Apply BC","value":12.2},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-24" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[31.4,17.5,3.0,0.5,29.1,0.1]},{"name":"Solve","data":[59.8,69.8,93.0,98.0,51.2,87.4]},{"name":"Apply BC","data":[0.2,1.1,1.5,1.5,18.6,12.2]},{"name":"Post-Process","data":[8.6,11.6,2.5,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Venturi (XS) - 341 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (65%) | Post-Proc (17%) |
+| CPU Threaded | Assembly (50%) | Post-Proc (23%) |
+| CPU Multiprocess | Assembly (52%) | Post-Proc (46%) |
+| Numba CPU | Solve (43%) | BC (16%) |
+| Numba CUDA | Solve (90%) | Assembly (5%) |
+| CuPy GPU | Solve (65%) | BC (30%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-25" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":65.1},{"name":"Solve","value":6.4},{"name":"Apply BC","value":1.3},{"name":"Post-Process","value":17.1}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-26" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.7},{"name":"Solve","value":64.7},{"name":"Apply BC","value":30.1},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-27" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[65.1,49.8,52.0,14.0,4.8,1.7]},{"name":"Solve","data":[6.4,12.3,1.0,43.3,89.5,64.7]},{"name":"Apply BC","data":[1.3,4.9,0.5,15.6,1.4,30.1]},{"name":"Post-Process","data":[17.1,22.5,45.9,3.0,2.0,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Venturi (M) - 194,325 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Solve (45%) | Assembly (43%) |
+| CPU Threaded | Solve (68%) | Assembly (19%) |
+| CPU Multiprocess | Solve (92%) | Assembly (3%) |
+| Numba CPU | Solve (98%) | BC (1%) |
+| Numba CUDA | Solve (48%) | Assembly (29%) |
+| CuPy GPU | Solve (81%) | BC (19%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-28" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":42.7},{"name":"Solve","value":45.2},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":11.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-29" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":81.0},{"name":"Apply BC","value":18.7},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-30" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[42.7,18.7,3.3,0.6,29.3,0.1]},{"name":"Solve","data":[45.2,67.7,92.5,98.0,48.3,81.0]},{"name":"Apply BC","data":[0.3,1.2,1.7,1.4,21.5,18.7]},{"name":"Post-Process","data":[11.8,12.4,2.5,0.0,0.2,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### Y-Shaped (XS) - 201 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (63%) | Post-Proc (17%) |
+| CPU Threaded | Assembly (44%) | Post-Proc (22%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (48%) |
+| Numba CPU | Solve (39%) | Assembly (14%) |
+| Numba CUDA | Solve (89%) | Assembly (5%) |
+| CuPy GPU | Solve (60%) | BC (30%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-33" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":62.8},{"name":"Solve","value":8.5},{"name":"Apply BC","value":1.3},{"name":"Post-Process","value":17.1}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-34" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":2.9},{"name":"Solve","value":60.4},{"name":"Apply BC","value":30.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-35" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[62.8,43.8,49.8,14.0,4.9,2.9]},{"name":"Solve","data":[8.5,16.4,1.0,39.4,88.6,60.4]},{"name":"Apply BC","data":[1.3,5.2,0.4,11.0,1.1,30.4]},{"name":"Post-Process","data":[17.1,21.9,48.0,3.3,2.2,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Y-Shaped (M) - 195,853 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (45%) | Solve (42%) |
+| CPU Threaded | Solve (71%) | Assembly (17%) |
+| CPU Multiprocess | Solve (92%) | Assembly (3%) |
+| Numba CPU | Solve (97%) | BC (2%) |
+| Numba CUDA | Solve (50%) | Assembly (26%) |
+| CuPy GPU | Solve (79%) | BC (19%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-36" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":44.8},{"name":"Solve","value":42.4},{"name":"Apply BC","value":0.5},{"name":"Post-Process","value":12.3}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-37" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":79.4},{"name":"Apply BC","value":19.0},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-38" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[44.8,16.7,3.0,0.6,25.9,0.1]},{"name":"Solve","data":[42.4,70.9,92.2,97.3,50.3,79.4]},{"name":"Apply BC","data":[0.5,1.4,2.0,2.1,22.1,19.0]},{"name":"Post-Process","data":[12.3,11.0,2.7,0.0,0.2,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+
+### Why Each Optimization Helps
+
+| Transition | Reason |
+|------------|--------|
+| Baseline → Threaded | Limited by Python GIL; threads only help for I/O |
+| Threaded → Multiprocess | Bypasses GIL via separate processes; IPC overhead limits gains |
+| Multiprocess → Numba CPU | JIT compilation eliminates interpreter overhead; true parallel loops |
+| Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
+| Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
+
 ### 4.7 RTX 5060 Ti  Performance
 
+Key results from performance benchmarks comparing FEM solver implementations.
 
+**Backward-Facing Step (XS)** (287 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 35ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 17ms ± 0ms | 2.1x | 3 |
+| CPU Multiprocess | 796ms ± 24ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 5.4x | 3 |
+| Numba CUDA | 53ms ± 0ms | 0.7x | 3 |
+| CuPy GPU | 70ms ± 9ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-0" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.1,0.0,5.4,0.7,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Backward-Facing Step (M)** (195,362 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 39.07s ± 0.20s | 1.0x | 3 |
+| CPU Threaded | 25.93s ± 0.65s | 1.5x | 3 |
+| CPU Multiprocess | 17.22s ± 0.02s | 2.3x | 3 |
+| Numba CPU | 16.88s ± 2.95s | 2.3x | 3 |
+| Numba CUDA | 3.19s ± 0.10s | 12.2x | 3 |
+| CuPy GPU | 2.22s ± 0.06s | 17.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-1" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Backward-Facing Step (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,2.3,2.3,12.2,17.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (XS)** (411 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 44ms ± 0ms | 1.0x | 3 |
+| CPU Threaded | 36ms ± 2ms | 1.2x | 3 |
+| CPU Multiprocess | 800ms ± 20ms | 0.1x | 3 |
+| Numba CPU | <0.01s ± 0ms | 5.6x | 3 |
+| Numba CUDA | 59ms ± 3ms | 0.7x | 3 |
+| CuPy GPU | 94ms ± 8ms | 0.5x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-2" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.2,0.1,5.6,0.7,0.5]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Elbow 90° (M)** (161,984 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 33.09s ± 0.59s | 1.0x | 3 |
+| CPU Threaded | 19.19s ± 0.07s | 1.7x | 3 |
+| CPU Multiprocess | 12.42s ± 0.04s | 2.7x | 3 |
+| Numba CPU | 14.30s ± 0.05s | 2.3x | 3 |
+| Numba CUDA | 2.98s ± 0.61s | 11.1x | 3 |
+| CuPy GPU | 1.90s ± 0.06s | 17.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-3" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Elbow 90\u00b0 (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.7,2.7,2.3,11.1,17.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (XS)** (387 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 34ms ± 0ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 0ms | 1.9x | 3 |
+| CPU Multiprocess | 789ms ± 23ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 4.2x | 3 |
+| Numba CUDA | 63ms ± 4ms | 0.5x | 3 |
+| CuPy GPU | 91ms ± 7ms | 0.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-4" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.9,0.0,4.2,0.5,0.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**S-Bend (M)** (196,078 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 40.28s ± 0.10s | 1.0x | 3 |
+| CPU Threaded | 26.05s ± 0.07s | 1.5x | 3 |
+| CPU Multiprocess | 21.00s ± 0.71s | 1.9x | 3 |
+| Numba CPU | 18.06s ± 0.23s | 2.2x | 3 |
+| Numba CUDA | 3.47s ± 0.09s | 11.6x | 3 |
+| CuPy GPU | 2.52s ± 0.10s | 16.0x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-5" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - S-Bend (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,1.9,2.2,11.6,16.0]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**T-Junction (XS)** (393 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 44ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 22ms ± 0ms | 2.0x | 3 |
+| CPU Multiprocess | 828ms ± 66ms | 0.1x | 3 |
+| Numba CPU | 13ms ± 4ms | 3.4x | 3 |
+| Numba CUDA | 65ms ± 1ms | 0.7x | 3 |
+| CuPy GPU | 101ms ± 17ms | 0.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-6" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[2.0,0.1,3.4,0.7,0.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**T-Junction (M)** (196,420 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 39.19s ± 0.47s | 1.0x | 3 |
+| CPU Threaded | 25.37s ± 0.43s | 1.5x | 3 |
+| CPU Multiprocess | 18.31s ± 0.15s | 2.1x | 3 |
+| Numba CPU | 18.77s ± 5.17s | 2.1x | 3 |
+| Numba CUDA | 3.35s ± 0.03s | 11.7x | 3 |
+| CuPy GPU | 2.43s ± 0.24s | 16.2x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-7" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - T-Junction (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,2.1,2.1,11.7,16.2]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**Venturi (XS)** (341 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 34ms ± 0ms | 1.0x | 3 |
+| CPU Threaded | 18ms ± 0ms | 1.9x | 3 |
+| CPU Multiprocess | 889ms ± 17ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 4.9x | 3 |
+| Numba CUDA | 53ms ± 1ms | 0.6x | 3 |
+| CuPy GPU | 92ms ± 16ms | 0.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-8" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.9,0.0,4.9,0.6,0.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Venturi (M)** (194,325 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 38.42s ± 0.09s | 1.0x | 3 |
+| CPU Threaded | 23.74s ± 0.41s | 1.6x | 3 |
+| CPU Multiprocess | 17.85s ± 0.55s | 2.2x | 3 |
+| Numba CPU | 15.80s ± 0.42s | 2.4x | 3 |
+| Numba CUDA | 3.20s ± 0.05s | 12.0x | 3 |
+| CuPy GPU | 2.50s ± 0.11s | 15.4x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-9" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Venturi (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.6,2.2,2.4,12.0,15.4]}],"yAxisName":"Speedup (x)"}'></div>
+
+
+**Y-Shaped (XS)** (201 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 23ms ± 1ms | 1.0x | 3 |
+| CPU Threaded | 13ms ± 1ms | 1.8x | 3 |
+| CPU Multiprocess | 889ms ± 9ms | 0.0x | 3 |
+| Numba CPU | <0.01s ± 0ms | 3.8x | 3 |
+| Numba CUDA | 44ms ± 1ms | 0.5x | 3 |
+| CuPy GPU | 65ms ± 7ms | 0.3x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-10" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XS)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.8,0.0,3.8,0.5,0.3]}],"yAxisName":"Speedup (x)"}'></div>
+
+**Y-Shaped (M)** (195,853 nodes)
+
+| Implementation | Total Time | Speedup vs Baseline | N |
+|----------------|------------|---------------------|---|
+| CPU Baseline | 31.21s ± 0.74s | 1.0x | 3 |
+| CPU Threaded | 20.27s ± 0.04s | 1.5x | 3 |
+| CPU Multiprocess | 16.05s ± 0.79s | 1.9x | 3 |
+| Numba CPU | 13.41s ± 0.09s | 2.3x | 3 |
+| Numba CUDA | 2.89s ± 0.04s | 10.8x | 3 |
+| CuPy GPU | 2.30s ± 0.05s | 13.6x | 3 |
+
+<div class="echart-container bar-chart" id="exec-speedup-11" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,1.9,2.3,10.8,13.6]}],"yAxisName":"Speedup (x)"}'></div>
+
+#### Critical Analysis
+
+## Critical Analysis
+
+### Bottleneck Evolution
+
+As optimizations progress, the computational bottleneck shifts:
+
+#### Backward-Facing Step (XS) - 287 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (68%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (51%) | Post-Proc (25%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (55%) | BC (16%) |
+| Numba CUDA | Solve (88%) | Assembly (6%) |
+| CuPy GPU | Solve (72%) | BC (23%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-0" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":68.1},{"name":"Solve","value":7.8},{"name":"Apply BC","value":0.8},{"name":"Post-Process","value":20.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-1" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.8},{"name":"Solve","value":72.1},{"name":"Apply BC","value":23.2},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-2" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[68.1,50.9,50.3,10.5,6.0,1.8]},{"name":"Solve","data":[7.8,13.5,0.4,55.0,88.2,72.1]},{"name":"Apply BC","data":[0.8,4.1,0.1,15.6,1.4,23.2]},{"name":"Post-Process","data":[20.0,24.6,48.9,0.8,1.8,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Backward-Facing Step (M) - 195,362 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (50%) | Solve (36%) |
+| CPU Threaded | Solve (56%) | Assembly (28%) |
+| CPU Multiprocess | Solve (78%) | Assembly (12%) |
+| Numba CPU | Solve (94%) | BC (4%) |
+| Numba CUDA | Solve (50%) | Assembly (27%) |
+| CuPy GPU | Solve (88%) | BC (12%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-3" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":49.7},{"name":"Solve","value":36.4},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":13.6}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-4" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.2},{"name":"Solve","value":88.1},{"name":"Apply BC","value":11.6},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-5" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[49.7,28.0,12.1,1.4,26.8,0.2]},{"name":"Solve","data":[36.4,56.2,77.7,94.4,49.8,88.1]},{"name":"Apply BC","data":[0.3,2.8,3.7,4.2,22.2,11.6]},{"name":"Post-Process","data":[13.6,13.1,6.5,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (XS) - 411 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (71%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (59%) | Post-Proc (24%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (53%) | BC (22%) |
+| Numba CUDA | Solve (87%) | Assembly (6%) |
+| CuPy GPU | Solve (74%) | BC (22%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-6" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":70.5},{"name":"Solve","value":6.2},{"name":"Apply BC","value":1.1},{"name":"Post-Process","value":19.6}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-7" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.5},{"name":"Solve","value":74.3},{"name":"Apply BC","value":21.9},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-8" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[70.5,59.3,50.0,10.4,6.4,1.5]},{"name":"Solve","data":[6.2,9.1,0.5,52.6,87.4,74.3]},{"name":"Apply BC","data":[1.1,4.1,0.2,21.7,1.9,21.9]},{"name":"Post-Process","data":[19.6,24.1,49.2,0.8,1.8,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Elbow 90° (M) - 161,984 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (47%) | Solve (40%) |
+| CPU Threaded | Solve (51%) | Assembly (31%) |
+| CPU Multiprocess | Solve (73%) | Assembly (15%) |
+| Numba CPU | Solve (94%) | BC (4%) |
+| Numba CUDA | Solve (48%) | Assembly (28%) |
+| CuPy GPU | Solve (81%) | BC (19%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-9" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":47.4},{"name":"Solve","value":39.7},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":12.6}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-10" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.2},{"name":"Solve","value":81.1},{"name":"Apply BC","value":18.5},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-11" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[47.4,30.8,14.8,1.4,28.0,0.2]},{"name":"Solve","data":[39.7,51.0,72.7,94.4,47.8,81.1]},{"name":"Apply BC","data":[0.3,3.1,4.3,4.1,23.1,18.5]},{"name":"Post-Process","data":[12.6,15.1,8.1,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (XS) - 387 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (69%) | Post-Proc (19%) |
+| CPU Threaded | Assembly (50%) | Post-Proc (20%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (52%) | BC (21%) |
+| Numba CUDA | Solve (89%) | Assembly (5%) |
+| CuPy GPU | Solve (72%) | BC (23%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-12" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":68.8},{"name":"Solve","value":8.0},{"name":"Apply BC","value":1.4},{"name":"Post-Process","value":18.9}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-13" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.8},{"name":"Solve","value":72.4},{"name":"Apply BC","value":23.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-14" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[68.8,50.4,50.2,9.6,5.1,1.8]},{"name":"Solve","data":[8.0,16.8,0.5,52.4,88.5,72.4]},{"name":"Apply BC","data":[1.4,6.8,0.2,20.7,2.0,23.4]},{"name":"Post-Process","data":[18.9,20.1,48.9,1.1,2.1,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### S-Bend (M) - 196,078 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (46%) | Solve (41%) |
+| CPU Threaded | Solve (58%) | Assembly (26%) |
+| CPU Multiprocess | Solve (80%) | Assembly (11%) |
+| Numba CPU | Solve (95%) | BC (4%) |
+| Numba CUDA | Solve (52%) | Assembly (26%) |
+| CuPy GPU | Solve (87%) | BC (12%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-15" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":46.1},{"name":"Solve","value":41.2},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":12.4}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-16" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":87.3},{"name":"Apply BC","value":12.4},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-17" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[46.1,26.4,10.6,1.3,25.8,0.1]},{"name":"Solve","data":[41.2,58.4,80.4,94.7,52.3,87.3]},{"name":"Apply BC","data":[0.3,2.2,3.6,4.0,20.9,12.4]},{"name":"Post-Process","data":[12.4,12.9,5.4,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### T-Junction (XS) - 393 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (71%) | Post-Proc (19%) |
+| CPU Threaded | Assembly (53%) | Post-Proc (24%) |
+| CPU Multiprocess | Assembly (51%) | Post-Proc (48%) |
+| Numba CPU | Solve (59%) | BC (17%) |
+| Numba CUDA | Solve (88%) | Assembly (6%) |
+| CuPy GPU | Solve (74%) | BC (22%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-20" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":70.9},{"name":"Solve","value":6.9},{"name":"Apply BC","value":1.1},{"name":"Post-Process","value":19.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-21" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.5},{"name":"Solve","value":74.2},{"name":"Apply BC","value":22.1},{"name":"Post-Process","value":0.4}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-22" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[70.9,53.0,51.1,7.3,5.7,1.5]},{"name":"Solve","data":[6.9,13.4,0.4,59.1,88.4,74.2]},{"name":"Apply BC","data":[1.1,4.4,0.1,16.5,1.8,22.1]},{"name":"Post-Process","data":[19.0,23.9,48.2,1.2,1.7,0.4]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### T-Junction (M) - 196,420 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (49%) | Solve (37%) |
+| CPU Threaded | Solve (57%) | Assembly (28%) |
+| CPU Multiprocess | Solve (79%) | Assembly (11%) |
+| Numba CPU | Solve (95%) | BC (4%) |
+| Numba CUDA | Solve (51%) | Assembly (27%) |
+| CuPy GPU | Solve (87%) | BC (13%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-23" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":49.4},{"name":"Solve","value":37.2},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":13.0}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-24" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":87.0},{"name":"Apply BC","value":12.7},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-25" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[49.4,27.7,11.3,1.3,26.8,0.1]},{"name":"Solve","data":[37.2,56.9,79.2,94.9,51.5,87.0]},{"name":"Apply BC","data":[0.3,2.2,3.3,3.8,20.6,12.7]},{"name":"Post-Process","data":[13.0,13.1,6.1,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Venturi (XS) - 341 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (69%) | Post-Proc (19%) |
+| CPU Threaded | Assembly (51%) | Post-Proc (24%) |
+| CPU Multiprocess | Assembly (50%) | Post-Proc (49%) |
+| Numba CPU | Solve (49%) | BC (21%) |
+| Numba CUDA | Solve (87%) | Assembly (6%) |
+| CuPy GPU | Solve (67%) | BC (29%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-27" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":69.0},{"name":"Solve","value":7.1},{"name":"Apply BC","value":1.4},{"name":"Post-Process","value":19.5}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-28" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.6},{"name":"Solve","value":66.7},{"name":"Apply BC","value":29.3},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-29" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[69.0,50.6,50.0,10.0,5.9,1.6]},{"name":"Solve","data":[7.1,13.3,0.4,49.3,87.1,66.7]},{"name":"Apply BC","data":[1.4,5.7,0.2,20.5,2.3,29.3]},{"name":"Post-Process","data":[19.5,24.3,49.3,0.9,1.9,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Venturi (M) - 194,325 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (48%) | Solve (39%) |
+| CPU Threaded | Solve (55%) | Assembly (29%) |
+| CPU Multiprocess | Solve (78%) | Assembly (12%) |
+| Numba CPU | Solve (94%) | BC (5%) |
+| Numba CUDA | Solve (49%) | Assembly (28%) |
+| CuPy GPU | Solve (79%) | BC (21%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-30" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":47.9},{"name":"Solve","value":39.0},{"name":"Apply BC","value":0.3},{"name":"Post-Process","value":12.8}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-31" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":78.6},{"name":"Apply BC","value":21.1},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-32" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[47.9,28.7,11.9,1.5,27.9,0.1]},{"name":"Solve","data":[39.0,55.2,78.0,93.7,49.4,78.6]},{"name":"Apply BC","data":[0.3,2.5,3.8,4.8,21.5,21.1]},{"name":"Post-Process","data":[12.8,13.7,6.3,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+#### Y-Shaped (XS) - 201 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (63%) | Post-Proc (20%) |
+| CPU Threaded | Assembly (44%) | Post-Proc (26%) |
+| CPU Multiprocess | Assembly (51%) | Post-Proc (49%) |
+| Numba CPU | Solve (52%) | BC (15%) |
+| Numba CUDA | Solve (86%) | Assembly (6%) |
+| CuPy GPU | Solve (61%) | BC (34%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-35" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":63.4},{"name":"Solve","value":9.8},{"name":"Apply BC","value":1.2},{"name":"Post-Process","value":20.3}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-36" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":1.9},{"name":"Solve","value":60.5},{"name":"Apply BC","value":34.4},{"name":"Post-Process","value":0.5}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-37" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[63.4,43.9,50.6,9.7,6.2,1.9]},{"name":"Solve","data":[9.8,15.9,0.4,51.7,86.5,60.5]},{"name":"Apply BC","data":[1.2,5.5,0.1,14.5,1.6,34.4]},{"name":"Post-Process","data":[20.3,25.6,48.7,1.1,2.2,0.5]}],"yAxisName":"Percentage (%)"}'></div>
+
+#### Y-Shaped (M) - 195,853 nodes
+
+| Implementation | Primary Bottleneck | Secondary Bottleneck |
+|----------------|--------------------|---------------------|
+| CPU Baseline | Assembly (46%) | Solve (41%) |
+| CPU Threaded | Solve (59%) | Assembly (26%) |
+| CPU Multiprocess | Solve (79%) | Assembly (10%) |
+| Numba CPU | Solve (93%) | BC (6%) |
+| Numba CUDA | Solve (48%) | BC (26%) |
+| CuPy GPU | Solve (79%) | BC (20%) |
+
+**Time Distribution:**
+
+<div class="echart-container pie-chart" id="analysis-pie-38" style="height:280px" data-chart='{"type":"pie","title":"CPU Baseline - Time Distribution","data":[{"name":"Assembly","value":46.4},{"name":"Solve","value":40.5},{"name":"Apply BC","value":0.6},{"name":"Post-Process","value":12.4}]}'></div>
+
+<div class="echart-container pie-chart" id="analysis-pie-39" style="height:280px" data-chart='{"type":"pie","title":"CuPy GPU - Time Distribution","data":[{"name":"Assembly","value":0.1},{"name":"Solve","value":79.4},{"name":"Apply BC","value":19.5},{"name":"Post-Process","value":0.0}]}'></div>
+
+<div class="echart-container stacked-bar-chart" id="analysis-stacked-40" style="height:320px" data-chart='{"type":"stacked-bar","title":"Time Distribution by Implementation (%)","categories":["CPU Baseline","CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Assembly","data":[46.4,25.5,10.3,1.5,24.3,0.1]},{"name":"Solve","data":[40.5,58.9,79.3,92.8,47.7,79.4]},{"name":"Apply BC","data":[0.6,2.9,4.2,5.6,26.4,19.5]},{"name":"Post-Process","data":[12.4,12.6,6.1,0.0,0.1,0.0]}],"yAxisName":"Percentage (%)"}'></div>
+
+
+### Why Each Optimization Helps
+
+| Transition | Reason |
+|------------|--------|
+| Baseline → Threaded | Limited by Python GIL; threads only help for I/O |
+| Threaded → Multiprocess | Bypasses GIL via separate processes; IPC overhead limits gains |
+| Multiprocess → Numba CPU | JIT compilation eliminates interpreter overhead; true parallel loops |
+| Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
+| Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
+
+
+
+## Conclusions
+
+### Key Findings
+
+> Conclusions based on mean times across 3 servers.
+
+#### Backward-Facing Step (XS) - 287 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.5x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.8x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 5.4x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 71% of total time.
+
+#### Backward-Facing Step (M) - 195,362 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 25.1x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.3x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 1.8x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 89% of total time.
+
+#### Elbow 90° (XS) - 411 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.5x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.6x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 6.1x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 69% of total time.
+
+#### Elbow 90° (M) - 161,984 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 26.2x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.6x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 1.7x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 83% of total time.
+
+#### S-Bend (XS) - 387 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.4x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.9x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 4.7x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 69% of total time.
+
+#### S-Bend (M) - 196,078 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 20.7x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.2x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 1.5x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 88% of total time.
+
+
+#### T-Junction (XS) - 393 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.5x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 2.0x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 4.6x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 71% of total time.
+
+#### T-Junction (M) - 196,420 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 30.4x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.7x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 2.4x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 87% of total time.
+
+#### Venturi (XS) - 341 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.4x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.9x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 6.0x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 64% of total time.
+
+#### Venturi (M) - 194,325 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 20.6x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.2x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 1.7x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 80% of total time.
+
+#### Y-Shaped (XS) - 201 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 0.4x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.9x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 4.1x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 61% of total time.
+
+#### Y-Shaped (M) - 195,853 nodes
+
+1. **Maximum Speedup:** CuPy GPU achieves 17.3x speedup over CPU Baseline.
+
+2. **Threading Effect:** CPU Threaded shows 1.2x speedup.
+
+3. **JIT Compilation:** Numba CPU delivers 1.6x speedup by eliminating interpreter overhead.
+
+4. **GPU Bottleneck:** On GPU, the iterative solver consumes 80% of total time.
+
+
+### Recommendations
+
+| Use Case | Recommended Implementation |
+|----------|---------------------------|
+| Development/debugging | CPU Baseline or Numba CPU |
+| Production (no GPU) | Numba CPU |
+| Production (with GPU) | CuPy GPU |
+| Small meshes (<10K nodes) | Numba CPU (GPU overhead not worthwhile) |
+| Large meshes (>100K nodes) | CuPy GPU |
