@@ -144,6 +144,230 @@ export class ReportViewerPanel {
                 </div>
             </div>
         `;
+        
+        // Initialize ECharts if available
+        this.initializeCharts();
+    }
+    
+    initializeCharts() {
+        if (typeof echarts === 'undefined') {
+            console.log('[ReportViewer] ECharts not available, skipping chart initialization');
+            return;
+        }
+        
+        const container = this.panel.querySelector('.report-viewer-content');
+        if (!container) return;
+        
+        const chartElements = container.querySelectorAll('.echart-container[data-chart]');
+        if (chartElements.length === 0) return;
+        
+        console.log(`[ReportViewer] Initializing ${chartElements.length} chart(s)`);
+        
+        // Store chart instances for cleanup
+        this.chartInstances = this.chartInstances || [];
+        
+        // Color palette matching dark theme
+        const colors = ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0', '#00BCD4'];
+        
+        chartElements.forEach((el, index) => {
+            try {
+                const config = JSON.parse(el.dataset.chart);
+                const chart = echarts.init(el, null, { renderer: 'svg' });
+                
+                const option = this.buildChartOption(config, colors);
+                chart.setOption(option);
+                
+                this.chartInstances.push(chart);
+                
+                // Handle resize
+                const resizeHandler = () => chart.resize();
+                window.addEventListener('resize', resizeHandler);
+                el._resizeHandler = resizeHandler;
+                
+            } catch (err) {
+                console.error(`[ReportViewer] Chart ${index} error:`, err);
+                el.innerHTML = `<div style="color: #f44; padding: 20px;">Chart error: ${err.message}</div>`;
+            }
+        });
+    }
+    
+    buildChartOption(config, colors) {
+        const baseOption = {
+            backgroundColor: 'transparent',
+            textStyle: { color: '#333' },
+            title: {
+                text: config.title || '',
+                left: 'center',
+                textStyle: { color: '#1a5a7a', fontSize: 14, fontWeight: 'bold' }
+            },
+            tooltip: {
+                trigger: config.type === 'pie' ? 'item' : 'axis'
+            },
+            color: colors
+        };
+
+        if (config.type === 'pie') {
+            return {
+                ...baseOption,
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}% ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 20,
+                    top: 'center',
+                    textStyle: { color: '#333' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['40%', '55%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: {
+                        borderRadius: 4,
+                        borderColor: '#fff4e5',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{b}: {c}%',
+                        color: '#333',
+                        fontSize: 12
+                    },
+                    labelLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#666',
+                            width: 1
+                        },
+                        smooth: 0.2,
+                        length: 10,
+                        length2: 15
+                    },
+                    data: config.data
+                }]
+            };
+        }
+
+        if (config.type === 'bar') {
+            return {
+                ...baseOption,
+                legend: {
+                    data: config.series.map(s => s.name),
+                    bottom: 10,
+                    textStyle: { color: '#333' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: config.categories,
+                    axisLabel: { color: '#333', rotate: 30 },
+                    axisLine: { lineStyle: { color: '#999' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: config.yAxisName || '',
+                    nameTextStyle: { color: '#333' },
+                    axisLabel: { color: '#333' },
+                    axisLine: { lineStyle: { color: '#999' } },
+                    splitLine: { lineStyle: { color: '#ddd' } }
+                },
+                series: config.series.map(s => ({
+                    name: s.name,
+                    type: 'bar',
+                    data: s.data,
+                    barGap: '10%'
+                }))
+            };
+        }
+
+        if (config.type === 'stacked-bar') {
+            return {
+                ...baseOption,
+                legend: {
+                    data: config.series.map(s => s.name),
+                    bottom: 10,
+                    textStyle: { color: '#333' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: config.categories,
+                    axisLabel: { color: '#333', rotate: 30 },
+                    axisLine: { lineStyle: { color: '#999' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: config.yAxisName || '',
+                    nameTextStyle: { color: '#333' },
+                    axisLabel: { color: '#333' },
+                    axisLine: { lineStyle: { color: '#999' } },
+                    splitLine: { lineStyle: { color: '#ddd' } }
+                },
+                series: config.series.map(s => ({
+                    name: s.name,
+                    type: 'bar',
+                    stack: 'total',
+                    emphasis: { focus: 'series' },
+                    data: s.data
+                }))
+            };
+        }
+
+        if (config.type === 'line') {
+            return {
+                ...baseOption,
+                legend: {
+                    data: config.series.map(s => s.name),
+                    bottom: 10,
+                    textStyle: { color: '#333' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    name: config.xAxisName || '',
+                    nameTextStyle: { color: '#333' },
+                    data: config.categories,
+                    axisLabel: { color: '#333' },
+                    axisLine: { lineStyle: { color: '#999' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: config.yAxisName || '',
+                    nameTextStyle: { color: '#333' },
+                    axisLabel: { color: '#333' },
+                    axisLine: { lineStyle: { color: '#999' } },
+                    splitLine: { lineStyle: { color: '#ddd' } }
+                },
+                series: config.series.map(s => ({
+                    name: s.name,
+                    type: 'line',
+                    smooth: true,
+                    data: s.data
+                }))
+            };
+        }
+
+        return baseOption;
     }
     
     bindEvents() {
@@ -409,6 +633,28 @@ export class ReportViewerPanel {
         if (this.occlusionHandler) {
             document.removeEventListener('mousemove', this.occlusionHandler);
             this.occlusionHandler = null;
+        }
+        
+        // Dispose ECharts instances
+        if (this.chartInstances) {
+            this.chartInstances.forEach(chart => {
+                try {
+                    chart.dispose();
+                } catch (e) {
+                    // Ignore disposal errors
+                }
+            });
+            this.chartInstances = [];
+        }
+        
+        // Remove resize handlers from chart elements
+        if (this.panel) {
+            const chartElements = this.panel.querySelectorAll('.echart-container');
+            chartElements.forEach(el => {
+                if (el._resizeHandler) {
+                    window.removeEventListener('resize', el._resizeHandler);
+                }
+            });
         }
         
         // Destroy moveable

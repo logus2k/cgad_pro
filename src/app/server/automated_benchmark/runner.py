@@ -161,13 +161,23 @@ class BenchmarkRunner:
         
         self._solver_wrapper_class = None
         self._abort_requested = False
+        self._force_exit_requested = False
         
         signal.signal(signal.SIGINT, self._signal_handler)
     
     def _signal_handler(self, signum, frame):
-        """Handle Ctrl+C gracefully."""
-        print("\n\n[!] Interrupt received, aborting after current test...")
-        self._abort_requested = True
+        """Handle Ctrl+C gracefully, with double-press for immediate exit."""
+        if self._abort_requested:
+            # Second Ctrl+C - force immediate exit
+            print("\n\n[!] Force exit requested. Terminating immediately...")
+            self._force_exit_requested = True
+            import os
+            os._exit(130)  # Forceful exit, bypasses all handlers
+        else:
+            # First Ctrl+C - graceful stop after current test
+            print("\n\n[!] Interrupt received. Will stop after current test completes.")
+            print("    Press Ctrl+C again to force immediate exit.")
+            self._abort_requested = True
     
     def _get_solver_wrapper(self):
         """Lazy import of SolverWrapper."""

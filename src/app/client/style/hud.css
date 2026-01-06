@@ -49,15 +49,9 @@
 /* Hover / focus: visible border */
 .hud:hover,
 .hud:focus-within {
-    /*background: var(--hud-bg-hover);*/
-
-
     backdrop-filter: blur(2px) saturate(115%);
     -webkit-backdrop-filter: blur(2px) saturate(115%);
-
-    box-shadow: var(--hud-shadow),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
+    box-shadow: var(--hud-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     z-index: 10;
 }
 
@@ -105,8 +99,8 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 1100px;
-	min-width: 600px;
+	width: 1200px;
+	min-width: 1100px;
 	max-width: 1500px;
 	height: 700px;
 	min-height: 500px;

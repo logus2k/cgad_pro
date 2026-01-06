@@ -277,6 +277,139 @@ def collect_unique_servers(records: List[Dict]) -> List[Dict[str, Any]]:
     return list(servers.values())
 
 
+# =============================================================================
+# Chart Generation Helpers (ECharts integration)
+# =============================================================================
+
+def generate_pie_chart(
+    chart_id: str,
+    title: str,
+    data: List[Dict[str, Any]],
+    height: str = "300px"
+) -> str:
+    """
+    Generate HTML placeholder for a pie chart.
+    
+    Args:
+        chart_id: Unique identifier for the chart
+        title: Chart title
+        data: List of {"name": str, "value": float} dicts
+        height: CSS height value
+    
+    Returns:
+        HTML string with data-chart attribute for ECharts initialization
+    """
+    config = {
+        "type": "pie",
+        "title": title,
+        "data": data
+    }
+    config_json = json.dumps(config, separators=(',', ':'))
+    return f'<div class="echart-container pie-chart" id="{chart_id}" style="height:{height}" data-chart=\'{config_json}\'></div>'
+
+
+def generate_bar_chart(
+    chart_id: str,
+    title: str,
+    categories: List[str],
+    series: List[Dict[str, Any]],
+    height: str = "350px",
+    y_axis_name: str = ""
+) -> str:
+    """
+    Generate HTML placeholder for a bar chart.
+    
+    Args:
+        chart_id: Unique identifier for the chart
+        title: Chart title
+        categories: X-axis category labels
+        series: List of {"name": str, "data": List[float]} dicts
+        height: CSS height value
+        y_axis_name: Label for Y-axis
+    
+    Returns:
+        HTML string with data-chart attribute for ECharts initialization
+    """
+    config = {
+        "type": "bar",
+        "title": title,
+        "categories": categories,
+        "series": series,
+        "yAxisName": y_axis_name
+    }
+    config_json = json.dumps(config, separators=(',', ':'))
+    return f'<div class="echart-container bar-chart" id="{chart_id}" style="height:{height}" data-chart=\'{config_json}\'></div>'
+
+
+def generate_stacked_bar_chart(
+    chart_id: str,
+    title: str,
+    categories: List[str],
+    series: List[Dict[str, Any]],
+    height: str = "350px",
+    y_axis_name: str = ""
+) -> str:
+    """
+    Generate HTML placeholder for a stacked bar chart.
+    
+    Args:
+        chart_id: Unique identifier for the chart
+        title: Chart title
+        categories: X-axis category labels
+        series: List of {"name": str, "data": List[float]} dicts
+        height: CSS height value
+        y_axis_name: Label for Y-axis
+    
+    Returns:
+        HTML string with data-chart attribute for ECharts initialization
+    """
+    config = {
+        "type": "stacked-bar",
+        "title": title,
+        "categories": categories,
+        "series": series,
+        "yAxisName": y_axis_name
+    }
+    config_json = json.dumps(config, separators=(',', ':'))
+    return f'<div class="echart-container stacked-bar-chart" id="{chart_id}" style="height:{height}" data-chart=\'{config_json}\'></div>'
+
+
+def generate_line_chart(
+    chart_id: str,
+    title: str,
+    categories: List[str],
+    series: List[Dict[str, Any]],
+    height: str = "350px",
+    y_axis_name: str = "",
+    x_axis_name: str = ""
+) -> str:
+    """
+    Generate HTML placeholder for a line chart.
+    
+    Args:
+        chart_id: Unique identifier for the chart
+        title: Chart title
+        categories: X-axis category labels
+        series: List of {"name": str, "data": List[float]} dicts
+        height: CSS height value
+        y_axis_name: Label for Y-axis
+        x_axis_name: Label for X-axis
+    
+    Returns:
+        HTML string with data-chart attribute for ECharts initialization
+    """
+    config = {
+        "type": "line",
+        "title": title,
+        "categories": categories,
+        "series": series,
+        "yAxisName": y_axis_name,
+        "xAxisName": x_axis_name
+    }
+    config_json = json.dumps(config, separators=(',', ':'))
+    return f'<div class="echart-container line-chart" id="{chart_id}" style="height:{height}" data-chart=\'{config_json}\'></div>'
+
+
 def get_best_record_per_solver(records: List[Dict], model_name: Optional[str] = None) -> Dict[str, Dict]:
     """
     Get the best (fastest) record for each solver type.
@@ -1142,11 +1275,9 @@ class ReportGenerator:
             lines.append("")
         
         return "\n".join(lines)
-        
-        return "\n".join(lines)
     
     def _generate_analysis(self) -> str:
-        """Generate Analysis & Discussion section."""
+        """Generate Analysis & Discussion section with ECharts visualizations."""
         lines = [
             "## Critical Analysis",
             "",
@@ -1165,6 +1296,7 @@ class ReportGenerator:
             lines.append("")
         
         # Generate analysis for each model+size
+        chart_counter = 0
         for model_name, nodes in self.model_size_keys:
             solver_stats = self._get_solver_stats_for_size(model_name, nodes)
             if not solver_stats:
@@ -1206,35 +1338,69 @@ class ReportGenerator:
                     name = SOLVER_NAMES.get(solver, solver)
                     lines.append(f"| {name} | {primary} | {secondary} |")
             
-            # Add text-based visualization (stacked bar)
-            lines.extend([
-                "",
-                "**Time Distribution Visualization:**",
-                "",
-                "```",
-            ])
+            # Generate pie charts for key solvers (CPU Baseline vs GPU)
+            lines.append("")
+            lines.append("**Time Distribution:**")
+            lines.append("")
             
-            for solver in self.solvers:
+            # Create a row of pie charts for CPU baseline and GPU
+            key_solvers = ["cpu", "gpu"]
+            for solver in key_solvers:
                 if solver in solver_stage_pcts:
                     pcts = solver_stage_pcts[solver]
-                    name = SOLVER_NAMES.get(solver, solver)
+                    solver_name = SOLVER_NAMES.get(solver, solver)
+                    chart_id = f"analysis-pie-{chart_counter}"
+                    chart_counter += 1
                     
-                    # Create a 50-char wide bar
-                    bar_width = 50
-                    assembly_chars = int(pcts["Assembly"] / 100 * bar_width)
-                    solve_chars = int(pcts["Solve"] / 100 * bar_width)
-                    bc_chars = int(pcts["BC"] / 100 * bar_width)
-                    post_chars = bar_width - assembly_chars - solve_chars - bc_chars
+                    pie_data = [
+                        {"name": "Assembly", "value": round(pcts["Assembly"], 1)},
+                        {"name": "Solve", "value": round(pcts["Solve"], 1)},
+                        {"name": "Apply BC", "value": round(pcts["BC"], 1)},
+                        {"name": "Post-Process", "value": round(pcts["Post-Proc"], 1)},
+                    ]
                     
-                    bar = "█" * assembly_chars + "▓" * solve_chars + "░" * bc_chars + "·" * max(0, post_chars)
-                    
-                    lines.append(f"{name:20s} |{bar}|")
+                    chart_html = generate_pie_chart(
+                        chart_id=chart_id,
+                        title=f"{solver_name} - Time Distribution",
+                        data=pie_data,
+                        height="280px"
+                    )
+                    lines.append(chart_html)
+                    lines.append("")
             
-            lines.extend([
-                "```",
-                "Legend: █ Assembly  ▓ Solve  ░ BC  · Post-Process",
-                "",
-            ])
+            # Add stacked bar chart showing all solvers
+            if len(solver_stage_pcts) > 1:
+                categories = []
+                assembly_data = []
+                solve_data = []
+                bc_data = []
+                post_data = []
+                
+                for solver in self.solvers:
+                    if solver in solver_stage_pcts:
+                        pcts = solver_stage_pcts[solver]
+                        categories.append(SOLVER_NAMES.get(solver, solver))
+                        assembly_data.append(round(pcts["Assembly"], 1))
+                        solve_data.append(round(pcts["Solve"], 1))
+                        bc_data.append(round(pcts["BC"], 1))
+                        post_data.append(round(pcts["Post-Proc"], 1))
+                
+                stacked_chart = generate_stacked_bar_chart(
+                    chart_id=f"analysis-stacked-{chart_counter}",
+                    title="Time Distribution by Implementation (%)",
+                    categories=categories,
+                    series=[
+                        {"name": "Assembly", "data": assembly_data},
+                        {"name": "Solve", "data": solve_data},
+                        {"name": "Apply BC", "data": bc_data},
+                        {"name": "Post-Process", "data": post_data},
+                    ],
+                    height="320px",
+                    y_axis_name="Percentage (%)"
+                )
+                chart_counter += 1
+                lines.append(stacked_chart)
+                lines.append("")
         
         lines.extend([
             "### Why Each Optimization Helps",
