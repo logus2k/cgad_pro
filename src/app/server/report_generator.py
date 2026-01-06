@@ -674,7 +674,7 @@ class ReportGenerator:
         return result
 
     def _generate_executive_summary(self) -> str:
-        """Generate Executive Summary (Mesh Performance) section."""
+        """Generate Executive Summary (Mesh Performance) section with speedup chart."""
         lines = ["Key results from performance benchmarks comparing FEM solver implementations."]
         
         # Add multi-server note if applicable
@@ -686,6 +686,8 @@ class ReportGenerator:
         if not self.records:
             lines.append("\n*No benchmark data available.*")
             return "\n".join(lines)
+        
+        chart_counter = 0
         
         # Show results for each model+size combination
         for model_name, nodes in self.model_size_keys:
@@ -703,6 +705,10 @@ class ReportGenerator:
             lines.append("| Implementation | Total Time | Speedup vs Baseline | N |")
             lines.append("|----------------|------------|---------------------|---|")
             
+            # Collect data for chart
+            chart_categories = []
+            chart_speedups = []
+            
             for solver in self.solvers:
                 stats = solver_stats.get(solver)
                 if stats:
@@ -718,6 +724,25 @@ class ReportGenerator:
                     speedup_str = format_speedup(speedup) if solver != "cpu" else "1.0x"
                     
                     lines.append(f"| {name} | {time_str} | {speedup_str} | {n} |")
+                    
+                    # Collect for chart (skip baseline for cleaner visualization)
+                    if solver != "cpu" and speedup:
+                        chart_categories.append(name)
+                        chart_speedups.append(round(speedup, 1))
+            
+            # Add speedup bar chart
+            if chart_speedups:
+                lines.append("")
+                chart_html = generate_bar_chart(
+                    chart_id=f"exec-speedup-{chart_counter}",
+                    title=f"Speedup vs CPU Baseline - {model_name} ({size_label})",
+                    categories=chart_categories,
+                    series=[{"name": "Speedup", "data": chart_speedups}],
+                    height="250px",
+                    y_axis_name="Speedup (x)"
+                )
+                chart_counter += 1
+                lines.append(chart_html)
         
         return "\n".join(lines)
     
@@ -846,7 +871,7 @@ class ReportGenerator:
         return "\n".join(lines)
     
     def _generate_results_total_time(self) -> str:
-        """Generate Results: Total Time section."""
+        """Generate Results: Total Time section with bar chart."""
         lines = [
             "## Total Workflow Time",
             "",
@@ -859,6 +884,9 @@ class ReportGenerator:
         if self.multi_server:
             lines.append(f"> Values are mean ± std across {len(self.server_hashes)} servers.")
             lines.append("")
+        
+        # Collect data for bar chart (times by solver across mesh sizes)
+        chart_counter = 0
         
         # Generate table for each model+size (cleaner than one giant table)
         for model_name, nodes in self.model_size_keys:
@@ -876,6 +904,10 @@ class ReportGenerator:
                 "|----------------|------------|---------|---|",
             ])
             
+            # Collect data for this mesh's bar chart
+            chart_categories = []
+            chart_times = []
+            
             for solver in self.solvers:
                 stats = solver_stats.get(solver)
                 if stats:
@@ -891,6 +923,24 @@ class ReportGenerator:
                     speedup_str = format_speedup(speedup) if solver != "cpu" else "1.0x"
                     
                     lines.append(f"| {name} | {time_str} | {speedup_str} | {n} |")
+                    
+                    # Collect for chart
+                    chart_categories.append(name)
+                    chart_times.append(round(time_mean, 2) if time_mean else 0)
+            
+            # Add bar chart for this mesh
+            if chart_times:
+                lines.append("")
+                chart_html = generate_bar_chart(
+                    chart_id=f"total-time-bar-{chart_counter}",
+                    title=f"Total Time Comparison - {model_name} ({size_label})",
+                    categories=chart_categories,
+                    series=[{"name": "Total Time (s)", "data": chart_times}],
+                    height="280px",
+                    y_axis_name="Time (seconds)"
+                )
+                chart_counter += 1
+                lines.append(chart_html)
             
             lines.append("")
         
@@ -1029,7 +1079,7 @@ class ReportGenerator:
         return "\n".join(lines)
     
     def _generate_scaling_analysis(self) -> str:
-        """Generate Scaling Analysis section."""
+        """Generate Scaling Analysis section with line chart."""
         lines = [
             "## Scaling Analysis",
             "",
@@ -1059,6 +1109,10 @@ class ReportGenerator:
         lines.append(header)
         lines.append(separator)
         
+        # Collect data for chart
+        chart_categories = []  # X-axis labels (node counts)
+        chart_series_data = {solver: [] for solver in non_baseline_solvers}
+        
         # Iterate through model+size combinations
         for model_name, nodes in self.model_size_keys:
             solver_stats = self._get_solver_stats_for_size(model_name, nodes)
@@ -1069,14 +1123,45 @@ class ReportGenerator:
             size_label = get_model_size_label(nodes)
             
             row = f"| {model_name} | {size_label} | {format_number(nodes)} |"
+            
+            # Add to chart data
+            chart_categories.append(f"{size_label}\n({format_number(nodes)})")
+            
             for solver in non_baseline_solvers:
                 solver_mean = solver_stats.get(solver, {}).get("total_time", {}).get("mean")
                 speedup = calculate_speedup(baseline_mean, solver_mean)
                 row += f" {format_speedup(speedup)} |"
+                
+                # Store speedup value for chart (or 0 if None)
+                chart_series_data[solver].append(round(speedup, 1) if speedup else 0)
             
             lines.append(row)
         
-        if len(self.model_size_keys) >= 2:
+        # Add line chart if we have multiple data points
+        if len(chart_categories) >= 2:
+            lines.append("")
+            lines.append("**Speedup Scaling Visualization:**")
+            lines.append("")
+            
+            # Build series for chart
+            chart_series = []
+            for solver in non_baseline_solvers:
+                chart_series.append({
+                    "name": SOLVER_NAMES.get(solver, solver),
+                    "data": chart_series_data[solver]
+                })
+            
+            chart_html = generate_line_chart(
+                chart_id="scaling-line-chart",
+                title="Speedup vs Problem Size",
+                categories=chart_categories,
+                series=chart_series,
+                height="350px",
+                y_axis_name="Speedup (x)",
+                x_axis_name="Mesh Size"
+            )
+            lines.append(chart_html)
+            
             lines.extend([
                 "",
                 "**Observation:** GPU advantage typically increases with problem size due to better utilization of parallel compute units.",
@@ -1200,7 +1285,7 @@ class ReportGenerator:
         return "\n".join(lines)
     
     def _generate_efficiency_metrics(self) -> str:
-        """Generate Efficiency Metrics section."""
+        """Generate Efficiency Metrics section with throughput bar chart."""
         lines = [
             "## Efficiency Metrics",
             "",
@@ -1213,6 +1298,8 @@ class ReportGenerator:
         if self.multi_server:
             lines.append(f"> Throughput computed from mean times; memory averaged across {len(self.server_hashes)} servers.")
             lines.append("")
+        
+        chart_counter = 0
         
         # Generate metrics for each model+size
         for model_name, nodes in self.model_size_keys:
@@ -1235,6 +1322,11 @@ class ReportGenerator:
                 "|----------------|--------------|----------|",
             ])
             
+            # Collect data for chart
+            chart_categories = []
+            els_per_sec_data = []
+            dofs_per_sec_data = []
+            
             for solver in self.solvers:
                 stats = solver_stats.get(solver)
                 if stats:
@@ -1251,6 +1343,28 @@ class ReportGenerator:
                     
                     name = SOLVER_NAMES.get(solver, solver)
                     lines.append(f"| {name} | {els_per_sec:,.0f} | {dofs_per_sec:,.0f} |")
+                    
+                    # Collect for chart
+                    chart_categories.append(name)
+                    els_per_sec_data.append(round(els_per_sec))
+                    dofs_per_sec_data.append(round(dofs_per_sec))
+            
+            # Add throughput bar chart
+            if chart_categories:
+                lines.append("")
+                chart_html = generate_bar_chart(
+                    chart_id=f"efficiency-throughput-{chart_counter}",
+                    title=f"Throughput Comparison - {model_name} ({size_label})",
+                    categories=chart_categories,
+                    series=[
+                        {"name": "Elements/sec", "data": els_per_sec_data},
+                        {"name": "DOFs/sec", "data": dofs_per_sec_data}
+                    ],
+                    height="300px",
+                    y_axis_name="Operations/sec"
+                )
+                chart_counter += 1
+                lines.append(chart_html)
             
             # Memory usage (averaged across runs)
             lines.extend([
