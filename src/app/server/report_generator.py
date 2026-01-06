@@ -152,6 +152,29 @@ def group_records_by_model(records: List[Dict]) -> Dict[str, List[Dict]]:
     return groups
 
 
+def group_records_by_model_and_size(records: List[Dict]) -> Dict[tuple, List[Dict]]:
+    """
+    Group records by (model_name, model_nodes) combination.
+    Returns dict with (model_name, nodes) tuples as keys.
+    """
+    groups = {}
+    for record in records:
+        model = record.get("model_name", "Unknown")
+        nodes = record.get("model_nodes", 0)
+        key = (model, nodes)
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(record)
+    return groups
+
+
+def get_sorted_model_size_keys(groups: Dict[tuple, List[Dict]]) -> List[tuple]:
+    """
+    Sort (model_name, nodes) keys by model name then by node count.
+    """
+    return sorted(groups.keys(), key=lambda x: (x[0], x[1]))
+
+
 def get_model_size_label(nodes: int) -> str:
     """Get size label based on node count."""
     if nodes < 1000:
@@ -196,6 +219,10 @@ class ReportGenerator:
         # Pre-process data
         self.records_by_model = group_records_by_model(records)
         self.models = list(self.records_by_model.keys())
+        
+        # Group by model + mesh size (for detailed reports)
+        self.records_by_model_size = group_records_by_model_and_size(records)
+        self.model_size_keys = get_sorted_model_size_keys(self.records_by_model_size)
         
         # Get unique solvers present in data
         self.solvers_present = set()
@@ -262,27 +289,39 @@ class ReportGenerator:
     # =========================================================================
     
     def _generate_executive_summary(self) -> str:
-        """Generate Executive Summary section."""
+        """Generate Executive Summary (Mesh Performance) section."""
         lines = ["Key results from performance benchmarks comparing FEM solver implementations."]
         
         if not self.records:
-            lines.append("*No benchmark data available.*")
+            lines.append("\n*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Show results for each model in the filtered data
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Show results for each model+size combination
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            # Get node count from first record
-            nodes = model_records[0].get("model_nodes", 0)
+            # Get best record per solver for THIS specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
             
-            best_records = get_best_record_per_solver(model_records)
+            if not best_records:
+                continue
+            
             baseline_time = best_records.get("cpu", {}).get("timings", {}).get("total_program_time")
+            size_label = get_model_size_label(nodes)
             
             lines.append("")
-            lines.append(f"**{model}** ({format_number(nodes)} nodes)")
+            lines.append(f"**{model_name} ({size_label})** ({format_number(nodes)} nodes)")
             lines.append("")
             lines.append("| Implementation | Total Time | Speedup vs Baseline |")
             lines.append("|----------------|------------|---------------------|")
@@ -298,7 +337,7 @@ class ReportGenerator:
                     speedup_str = format_speedup(speedup) if solver != "cpu" else "1.0x"
                     
                     lines.append(f"| {name} | {time_str} | {speedup_str} |")
-            
+        
         return "\n".join(lines)
     
     def _generate_test_configuration(self) -> str:
@@ -329,17 +368,18 @@ class ReportGenerator:
             "",
             "### Test Meshes",
             "",
-            "| Model | Nodes | Elements | Matrix NNZ |",
-            "|-------|-------|----------|------------|",
+            "| Model | Size | Nodes | Elements | Matrix NNZ |",
+            "|-------|------|-------|----------|------------|",
         ])
         
-        for model, recs in self.records_by_model.items():
-            if recs:
-                rec = recs[0]
-                nodes = format_number(rec.get("model_nodes"))
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if size_records:
+                rec = size_records[0]
+                size_label = get_model_size_label(nodes)
                 elements = format_number(rec.get("model_elements"))
                 nnz = format_number(rec.get("matrix_nnz", 0))
-                lines.append(f"| {model} | {nodes} | {elements} | {nnz} |")
+                lines.append(f"| {model_name} | {size_label} | {format_number(nodes)} | {elements} | {nnz} |")
         
         # Solver Configuration
         lines.extend([
@@ -401,7 +441,7 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Summary table per model
+        # Summary table per model+size
         lines.extend([
             "### Summary Table",
             "",
@@ -409,32 +449,32 @@ class ReportGenerator:
             "",
         ])
         
-        # Build header with models
+        # Build header with model+size combinations
         header = "| Implementation |"
         separator = "|----------------|"
-        for model in self.models:
-            nodes = 0
-            for rec in self.records_by_model[model]:
-                nodes = rec.get("model_nodes", 0)
-                break
+        for model_name, nodes in self.model_size_keys:
             size_label = get_model_size_label(nodes)
-            header += f" {size_label} ({format_number(nodes)}) |"
+            # Shorten model name for header
+            short_model = model_name[:8] if len(model_name) > 8 else model_name
+            header += f" {short_model} {size_label} |"
             separator += "------------|"
         
         lines.append(header)
         lines.append(separator)
         
-        # Build rows
+        # Build rows - one per solver
         for solver in self.solvers:
             row = f"| {SOLVER_NAMES.get(solver, solver)} |"
-            for model in self.models:
-                best = get_best_record_per_solver(self.records_by_model[model])
-                rec = best.get(solver)
-                if rec:
-                    time = rec.get("timings", {}).get("total_program_time")
-                    row += f" {format_time(time)} |"
-                else:
-                    row += " - |"
+            for model_name, nodes in self.model_size_keys:
+                size_records = self.records_by_model_size.get((model_name, nodes), [])
+                # Get best time for this solver in this model+size
+                best_time = None
+                for rec in size_records:
+                    if rec.get("solver_type") == solver:
+                        time = rec.get("timings", {}).get("total_program_time")
+                        if time is not None and (best_time is None or time < best_time):
+                            best_time = time
+                row += f" {format_time(best_time)} |"
             lines.append(row)
         
         # Speedup table
@@ -446,8 +486,7 @@ class ReportGenerator:
         
         header = "| Implementation |"
         separator = "|----------------|"
-        for model in self.models:
-            nodes = self.records_by_model[model][0].get("model_nodes", 0) if self.records_by_model[model] else 0
+        for model_name, nodes in self.model_size_keys:
             size_label = get_model_size_label(nodes)
             header += f" {size_label} |"
             separator += "-----|"
@@ -457,13 +496,24 @@ class ReportGenerator:
         
         for solver in self.solvers:
             row = f"| {SOLVER_NAMES.get(solver, solver)} |"
-            for model in self.models:
-                best = get_best_record_per_solver(self.records_by_model[model])
-                baseline = best.get("cpu", {}).get("timings", {}).get("total_program_time")
-                rec = best.get(solver)
-                if rec and baseline:
+            for model_name, nodes in self.model_size_keys:
+                size_records = self.records_by_model_size.get((model_name, nodes), [])
+                # Get best times for baseline and this solver
+                baseline_time = None
+                solver_time = None
+                for rec in size_records:
                     time = rec.get("timings", {}).get("total_program_time")
-                    speedup = calculate_speedup(baseline, time)
+                    if time is None:
+                        continue
+                    if rec.get("solver_type") == "cpu":
+                        if baseline_time is None or time < baseline_time:
+                            baseline_time = time
+                    if rec.get("solver_type") == solver:
+                        if solver_time is None or time < solver_time:
+                            solver_time = time
+                
+                if baseline_time and solver_time:
+                    speedup = calculate_speedup(baseline_time, solver_time)
                     row += f" {format_speedup(speedup)} |"
                 else:
                     row += " - |"
@@ -492,17 +542,31 @@ class ReportGenerator:
             "total_program_time": "**Total**"
         }
         
-        # Generate breakdown for each model
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Generate breakdown for each model+size combination
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            nodes = model_records[0].get("model_nodes", 0)
-            best_records = get_best_record_per_solver(model_records)
+            # Get best record per solver for this specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
+            
+            if not best_records:
+                continue
+            
+            size_label = get_model_size_label(nodes)
             
             lines.extend([
-                f"### {model} ({format_number(nodes)} nodes)",
+                f"### {model_name} ({size_label}) - {format_number(nodes)} nodes",
                 "",
                 "#### Stage Timings (seconds)",
                 "",
@@ -576,20 +640,11 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Sort models by node count
-        model_sizes = []
-        for model, recs in self.records_by_model.items():
-            if recs:
-                nodes = recs[0].get("model_nodes", 0)
-                model_sizes.append((model, nodes, recs))
-        
-        model_sizes.sort(key=lambda x: x[1])
-        
         # Build header with all solvers except cpu (which is baseline)
         non_baseline_solvers = [s for s in self.solvers if s != "cpu"]
         
-        header = "| Model | Nodes |"
-        separator = "|-------|-------|"
+        header = "| Model | Size | Nodes |"
+        separator = "|-------|------|-------|"
         for solver in non_baseline_solvers:
             header += f" {SOLVER_NAMES.get(solver, solver)} |"
             separator += "----------|"
@@ -597,19 +652,33 @@ class ReportGenerator:
         lines.append(header)
         lines.append(separator)
         
-        for model, nodes, recs in model_sizes:
-            best = get_best_record_per_solver(recs)
-            baseline = best.get("cpu", {}).get("timings", {}).get("total_program_time")
+        # Iterate through model+size combinations (already sorted by model then nodes)
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
+                continue
             
-            row = f"| {model} | {format_number(nodes)} |"
+            # Get best time per solver for this model+size
+            best_times = {}
+            for rec in size_records:
+                solver = rec.get("solver_type")
+                time = rec.get("timings", {}).get("total_program_time")
+                if solver and time is not None:
+                    if solver not in best_times or time < best_times[solver]:
+                        best_times[solver] = time
+            
+            baseline = best_times.get("cpu")
+            size_label = get_model_size_label(nodes)
+            
+            row = f"| {model_name} | {size_label} | {format_number(nodes)} |"
             for solver in non_baseline_solvers:
-                solver_time = best.get(solver, {}).get("timings", {}).get("total_program_time")
+                solver_time = best_times.get(solver)
                 speedup = calculate_speedup(baseline, solver_time)
                 row += f" {format_speedup(speedup)} |"
             
             lines.append(row)
         
-        if len(model_sizes) >= 2:
+        if len(self.model_size_keys) >= 2:
             lines.extend([
                 "",
                 "**Observation:** GPU advantage typically increases with problem size due to better utilization of parallel compute units.",
@@ -630,17 +699,31 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Generate convergence info for each model
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Generate convergence info for each model+size
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            nodes = model_records[0].get("model_nodes", 0)
-            best_records = get_best_record_per_solver(model_records)
+            # Get best record per solver for this specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
+            
+            if not best_records:
+                continue
+            
+            size_label = get_model_size_label(nodes)
             
             lines.extend([
-                f"### {model} ({format_number(nodes)} nodes)",
+                f"### {model_name} ({size_label}) - {format_number(nodes)} nodes",
                 "",
                 "#### Solver Convergence",
                 "",
@@ -702,17 +785,31 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Generate metrics for each model
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Generate metrics for each model+size
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            nodes = model_records[0].get("model_nodes", 0)
-            best_records = get_best_record_per_solver(model_records)
+            # Get best record per solver for this specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
+            
+            if not best_records:
+                continue
+            
+            size_label = get_model_size_label(nodes)
             
             lines.extend([
-                f"### {model} ({format_number(nodes)} nodes)",
+                f"### {model_name} ({size_label}) - {format_number(nodes)} nodes",
                 "",
                 "#### Throughput",
                 "",
@@ -776,17 +873,31 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Generate analysis for each model
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Generate analysis for each model+size
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            nodes = model_records[0].get("model_nodes", 0)
-            best_records = get_best_record_per_solver(model_records)
+            # Get best record per solver for this specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
+            
+            if not best_records:
+                continue
+            
+            size_label = get_model_size_label(nodes)
             
             lines.extend([
-                f"#### {model} ({format_number(nodes)} nodes)",
+                f"#### {model_name} ({size_label}) - {format_number(nodes)} nodes",
                 "",
                 "| Implementation | Primary Bottleneck | Secondary Bottleneck |",
                 "|----------------|--------------------|---------------------|",
@@ -844,14 +955,28 @@ class ReportGenerator:
             lines.append("*No benchmark data available.*")
             return "\n".join(lines)
         
-        # Generate findings for each model
-        for model in self.models:
-            model_records = self.records_by_model.get(model, [])
-            if not model_records:
+        # Generate findings for each model+size
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            if not size_records:
                 continue
             
-            nodes = model_records[0].get("model_nodes", 0)
-            best_records = get_best_record_per_solver(model_records)
+            # Get best record per solver for this specific mesh size
+            best_records = {}
+            for record in size_records:
+                solver = record.get("solver_type")
+                if not solver:
+                    continue
+                total_time = record.get("timings", {}).get("total_program_time")
+                if total_time is None:
+                    continue
+                if solver not in best_records or total_time < best_records[solver].get("timings", {}).get("total_program_time", float("inf")):
+                    best_records[solver] = record
+            
+            if not best_records:
+                continue
+            
+            size_label = get_model_size_label(nodes)
             
             baseline_time = best_records.get("cpu", {}).get("timings", {}).get("total_program_time")
             gpu_time = best_records.get("gpu", {}).get("timings", {}).get("total_program_time")
@@ -862,7 +987,7 @@ class ReportGenerator:
             numba_speedup = calculate_speedup(baseline_time, numba_time)
             threaded_speedup = calculate_speedup(baseline_time, threaded_time)
             
-            lines.append(f"#### {model} ({format_number(nodes)} nodes)")
+            lines.append(f"#### {model_name} ({size_label}) - {format_number(nodes)} nodes")
             lines.append("")
             
             finding_num = 1
@@ -935,19 +1060,21 @@ class ReportGenerator:
         lines.append(f"| Report Generated | {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC |")
         lines.append(f"| Server Hostname | {self.server_config.get('hostname', 'Unknown')} |")
         lines.append(f"| Total Records | {len(self.records)} |")
-        lines.append(f"| Models Tested | {len(self.models)} |")
+        lines.append(f"| Model/Size Combinations | {len(self.model_size_keys)} |")
         lines.append(f"| Solvers Tested | {len(self.solvers)} |")
         
         lines.extend([
             "",
             "### Models Included",
             "",
-            "| Model | Records |",
-            "|-------|---------|",
+            "| Model | Size | Nodes | Records |",
+            "|-------|------|-------|---------|",
         ])
         
-        for model, recs in self.records_by_model.items():
-            lines.append(f"| {model} | {len(recs)} |")
+        for model_name, nodes in self.model_size_keys:
+            size_records = self.records_by_model_size.get((model_name, nodes), [])
+            size_label = get_model_size_label(nodes)
+            lines.append(f"| {model_name} | {size_label} | {format_number(nodes)} | {len(size_records)} |")
         
         lines.extend([
             "",

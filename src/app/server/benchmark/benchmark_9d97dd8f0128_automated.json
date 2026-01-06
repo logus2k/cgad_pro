@@ -1,20 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-06T01:18:26.985687+00:00",
-  "automated": true,
-  "server_hash": "9d97dd8f0128",
-  "server_config": {
-    "hostname": "MERCURY",
-    "os": "Ubuntu 24.04.3 LTS",
-    "architecture": "x86_64",
-    "python_version": "3.10.19",
-    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
-    "cpu_cores": 20,
-    "ram_gb": 94.3,
-    "gpu_model": "NVIDIA GeForce RTX 4090",
-    "gpu_memory_gb": 24.0,
-    "cuda_version": "13.0"
-  },
+  "updated_at": "2026-01-06T02:52:57.337370Z",
   "records": [
     {
       "id": "d3b75c79-d98d-4741-bfb4-9c5f3a3636c5",
@@ -46,6 +32,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -71,16 +66,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "a5dd9bb1-d5f0-453e-8f09-ccc9df1b95b1",
@@ -112,6 +98,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -137,16 +132,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "8e4603d7-8587-4384-8a90-ced4f5f60e69",
@@ -178,6 +164,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -203,16 +198,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "cfe5603f-a94b-4ecc-8027-79de5cce1077",
@@ -244,6 +230,15 @@
         "final_residual": 2.5910010431292072e-09,
         "relative_residual": 1.4196230044036618e-08
       },
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 205.16,
         "peak_vram_mb": 0.0,
@@ -269,16 +264,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2338833,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "b8c6bba1-a110-487d-b262-a51216b0921a",
@@ -310,6 +296,15 @@
         "final_residual": 2.5910010431292072e-09,
         "relative_residual": 1.4196230044036618e-08
       },
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 205.58,
         "peak_vram_mb": 0.0,
@@ -335,16 +330,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2338833,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "3a70fa72-8d8f-4beb-8795-f09f8f14634a",
@@ -376,6 +362,15 @@
         "final_residual": 2.5910010431292072e-09,
         "relative_residual": 1.4196230044036618e-08
       },
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 191.79,
         "peak_vram_mb": 0.0,
@@ -401,16 +396,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2338833,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "efa985b0-bbfd-4adb-b29c-3e91dda327a6",
@@ -442,6 +428,15 @@
         "final_residual": 1.8377391936724288e-09,
         "relative_residual": 1.423743968792177e-08
       },
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 967.7,
         "peak_vram_mb": 0.0,
@@ -467,16 +462,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 9242129,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "a5eb0d86-0375-4d5d-9925-20bfc836a84b",
@@ -508,6 +494,15 @@
         "final_residual": 1.8377391936724288e-09,
         "relative_residual": 1.423743968792177e-08
       },
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 958.78,
         "peak_vram_mb": 0.0,
@@ -533,16 +528,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 9242129,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "2059d1f3-c7b3-48a7-8d1e-9f3de8dc26dc",
@@ -574,6 +560,15 @@
         "final_residual": 1.8377391936724288e-09,
         "relative_residual": 1.423743968792177e-08
       },
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 951.96,
         "peak_vram_mb": 0.0,
@@ -599,16 +594,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 9242129,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "aef90b20-1d23-4d60-af24-54d642b6b62b",
@@ -640,6 +626,15 @@
         "final_residual": 1.607428282085906e-09,
         "relative_residual": 1.4379073127290642e-08
       },
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1583.56,
         "peak_vram_mb": 0.0,
@@ -665,16 +660,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 16265217,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "d4abdaf1-2afc-46bd-956a-631666f92fa8",
@@ -706,6 +692,15 @@
         "final_residual": 1.607428282085906e-09,
         "relative_residual": 1.4379073127290642e-08
       },
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1696.7,
         "peak_vram_mb": 0.0,
@@ -731,16 +726,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 16265217,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "27d3d7ac-dfa3-4621-a325-a6d7b8c3dcb0",
@@ -772,6 +758,15 @@
         "final_residual": 1.607428282085906e-09,
         "relative_residual": 1.4379073127290642e-08
       },
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1697.27,
         "peak_vram_mb": 0.0,
@@ -797,16 +792,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 16265217,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "7cf510fc-b9d2-4490-a0ff-fd9821273ce2",
@@ -838,6 +824,15 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -863,16 +858,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "f613c05f-a844-4459-8ca6-c0043f44f1fb",
@@ -904,6 +890,15 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -929,16 +924,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "182045fa-0397-40b0-8af2-cc52af6573bb",
@@ -970,6 +956,15 @@
         "final_residual": 5.969731499332533e-09,
         "relative_residual": 7.91363994329323e-09
       },
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -995,16 +990,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4257,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "e49d87fe-62fa-4b91-af81-819e595b802b",
@@ -1036,6 +1022,15 @@
         "final_residual": 2.037412357133618e-09,
         "relative_residual": 1.3748053126354048e-08
       },
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 218.87,
         "peak_vram_mb": 0.0,
@@ -1061,16 +1056,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "77671c41-dc6a-4f51-8005-2c5fdfad1e23",
@@ -1102,6 +1088,15 @@
         "final_residual": 2.037412357133618e-09,
         "relative_residual": 1.3748053126354048e-08
       },
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 218.95,
         "peak_vram_mb": 0.0,
@@ -1127,16 +1122,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "91da9c08-85c3-4ed8-aaa5-f63b8db401e8",
@@ -1168,6 +1154,15 @@
         "final_residual": 2.037412357133618e-09,
         "relative_residual": 1.3748053126354048e-08
       },
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 214.99,
         "peak_vram_mb": 0.0,
@@ -1193,16 +1188,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3028873,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "e5722c85-1be9-4377-87e3-3a0366f13c0c",
@@ -1234,6 +1220,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1259,16 +1254,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "b6e88cd1-0c3a-402c-8b28-df493aa99ce4",
@@ -1300,6 +1286,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1325,16 +1320,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "b0b0d307-475c-4a43-b6c9-2d2a5e1b4627",
@@ -1366,6 +1352,15 @@
         "final_residual": 1.2238221652243688e-08,
         "relative_residual": 1.1085645852485327e-08
       },
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1391,16 +1386,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 2621,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 15000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "50f08b91-3374-4991-a6af-691b92557bc6",
@@ -1432,6 +1418,15 @@
         "final_residual": 3.3788235516740333e-09,
         "relative_residual": 3.213629066425977e-08
       },
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1157.67,
         "peak_vram_mb": 0.0,
@@ -1457,16 +1452,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11934351,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "2d08841d-d656-4b83-a908-049318f34eb8",
@@ -1498,6 +1484,15 @@
         "final_residual": 3.3788235516740333e-09,
         "relative_residual": 3.213629066425977e-08
       },
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1198.32,
         "peak_vram_mb": 0.0,
@@ -1523,16 +1518,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11934351,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "3646752b-93d4-4a3c-b502-6e8e36ec6a57",
@@ -1564,6 +1550,15 @@
         "final_residual": 3.3788235516740333e-09,
         "relative_residual": 3.213629066425977e-08
       },
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1187.77,
         "peak_vram_mb": 0.0,
@@ -1589,16 +1584,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11934351,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "5804bf36-538c-4ceb-8a5e-9fa4a7cc3e3c",
@@ -1630,6 +1616,15 @@
         "final_residual": 1.6882050232949725e-09,
         "relative_residual": 1.830226092290038e-08
       },
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1945.82,
         "peak_vram_mb": 0.0,
@@ -1655,16 +1650,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 20083132,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "0ca95b4a-a225-4fd1-85e0-e6446d5d8149",
@@ -1696,6 +1682,15 @@
         "final_residual": 1.6882050232949725e-09,
         "relative_residual": 1.830226092290038e-08
       },
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1940.78,
         "peak_vram_mb": 0.0,
@@ -1721,16 +1716,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 20083132,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "5befdd85-deb8-4dfc-9969-823b7c4458f1",
@@ -1762,6 +1748,15 @@
         "final_residual": 1.6882050232949725e-09,
         "relative_residual": 1.830226092290038e-08
       },
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1999.66,
         "peak_vram_mb": 0.0,
@@ -1787,16 +1782,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 20083132,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "fab5fe62-fe26-488c-b71c-bc2c5c8aa02a",
@@ -1828,6 +1814,15 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1853,16 +1848,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "03bf4447-9505-4665-bae3-bc88b9077ec7",
@@ -1894,6 +1880,15 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1919,16 +1914,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "f1b3600c-db6a-4b50-a018-1f7341087a69",
@@ -1960,6 +1946,15 @@
         "final_residual": 5.965146419198298e-09,
         "relative_residual": 1.2968060727874763e-08
       },
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 0.0,
         "peak_vram_mb": 0.0,
@@ -1985,16 +1980,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 4251,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "c4922e0d-aa0b-498e-b2ba-09db00f41a6a",
@@ -2026,6 +2012,15 @@
         "final_residual": 1.4374872333150808e-09,
         "relative_residual": 1.3979837953778654e-08
       },
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 238.73,
         "peak_vram_mb": 0.0,
@@ -2051,16 +2046,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3051622,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "ba319bda-6539-4e19-8f06-dd10b4695c32",
@@ -2092,6 +2078,15 @@
         "final_residual": 1.4374872333150808e-09,
         "relative_residual": 1.3979837953778654e-08
       },
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 219.69,
         "peak_vram_mb": 0.0,
@@ -2117,16 +2112,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3051622,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "3dfab9f4-8cce-4d8b-bfaf-d9a45597927e",
@@ -2158,6 +2144,15 @@
         "final_residual": 1.4374872333150808e-09,
         "relative_residual": 1.3979837953778654e-08
       },
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 237.9,
         "peak_vram_mb": 0.0,
@@ -2183,16 +2178,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 3051622,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "4b0de65c-6951-40c0-a1b9-1606b2526483",
@@ -2224,6 +2210,15 @@
         "final_residual": 1.3691004135486085e-09,
         "relative_residual": 1.8709110125996056e-08
       },
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1145.48,
         "peak_vram_mb": 0.0,
@@ -2249,16 +2244,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11952725,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "a12968d1-c4f0-45cd-80e0-5ffe0825fe8b",
@@ -2290,6 +2276,15 @@
         "final_residual": 1.3691004135486085e-09,
         "relative_residual": 1.8709110125996056e-08
       },
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1133.17,
         "peak_vram_mb": 0.0,
@@ -2315,16 +2310,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11952725,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     },
     {
       "id": "158e8807-a4ef-4473-aa56-6b1361dc2b14",
@@ -2356,6 +2342,15 @@
         "final_residual": 1.3691004135486085e-09,
         "relative_residual": 1.8709110125996056e-08
       },
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      },
       "memory": {
         "peak_ram_mb": 1130.08,
         "peak_vram_mb": 0.0,
@@ -2381,16 +2376,7 @@
       "client_config": {
         "source": "automated_benchmark"
       },
-      "client_hash": "automated",
-      "matrix_nnz": 11952725,
-      "element_type": "quad8",
-      "nodes_per_element": 8,
-      "solver_config": {
-        "linear_solver": "cg",
-        "tolerance": 1e-08,
-        "max_iterations": 30000,
-        "preconditioner": "jacobi"
-      }
+      "client_hash": "automated"
     }
   ]
 }

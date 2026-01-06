@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-05T23:01:32.934568Z",
+  "updated_at": "2026-01-06T02:52:57.296752Z",
   "records": [
     {
       "id": "211a6946",
@@ -2337,6 +2337,65 @@
         "baseline_ram_mb": 800.68,
         "baseline_vram_mb": 0.0,
         "sample_count": 4295,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "462447c4",
+      "timestamp": "2026-01-06T02:52:57.248850Z",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 12732,
+      "timings": {
+        "load_mesh": 0.3254260510439053,
+        "assemble_system": 0.24990641209296882,
+        "apply_bc": 4.88541006995365,
+        "convert_to_cpu": 0.21726523991674185,
+        "solve_system": 31.8126762220636,
+        "compute_derived": 0.021438407944515347,
+        "total_workflow": 37.32572431699373,
+        "total_program_time": 37.41659884399269
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.360037146894946
+        ],
+        "u_mean": 6.355001604320846,
+        "u_std": 3.509981307326183,
+        "final_residual": 1.0099174108423401e-09,
+        "relative_residual": 1.57117722231434e-08
+      },
+      "matrix_nnz": 20090343,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 393.43,
+        "peak_vram_mb": 3325.85,
+        "baseline_ram_mb": 412.33,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 362,
         "interval_ms": 100,
         "gpu_available": true
       },
