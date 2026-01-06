@@ -52,19 +52,9 @@
             "file": "tutorial2/RK_tutorial2_impl_4_5_6_final.md"
         },
         {
-            "id": "PM_impl1",
-            "title": "Tutorial #2 - PM_Implementation1",
-            "file": "tutorial2/PM_impl1.md"
-        },
-        {
-            "id": "PM_impl2",
-            "title": "Tutorial #2 - PM_Implementation2",
-            "file": "tutorial2/PM_impl2.md"
-        },
-        {
-            "id": "PM_impl3",
-            "title": "Tutorial #2 - PM_Implementation3",
-            "file": "tutorial2/PM_impl3.md"
+            "id": "Implementations",
+            "title": "Tutorial #2 - Implementations",
+            "file": "tutorial2_implementations.md"
         },
         {
             "id": "Intro_FEM",
