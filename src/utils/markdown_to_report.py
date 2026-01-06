@@ -50,7 +50,8 @@ ECHARTS_HTML_TEMPLATE = """
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        body {{ margin: 0; padding: 0; background: {background}; }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        html, body {{ width: {width}px; height: {height}px; background: {background}; overflow: hidden; }}
         #chart {{ width: {width}px; height: {height}px; }}
     </style>
 </head>
@@ -58,7 +59,7 @@ ECHARTS_HTML_TEMPLATE = """
     <div id="chart"></div>
     <script>
         const config = {config_json};
-        const chart = echarts.init(document.getElementById('chart'), null, {{ renderer: 'canvas' }});
+        const chart = echarts.init(document.getElementById('chart'), null, {{ renderer: 'svg' }});
         chart.setOption(buildChartOption(config));
         
         function buildChartOption(config) {{
@@ -69,7 +70,7 @@ ECHARTS_HTML_TEMPLATE = """
                 axisLine: '#999',
                 splitLine: '#ddd',
                 background: 'transparent',
-                pieBorder: '#fff4e5'
+                pieBorder: '#ffffff'
             }};
             const colors = ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0', '#00BCD4'];
             
@@ -79,6 +80,7 @@ ECHARTS_HTML_TEMPLATE = """
                 title: {{
                     text: config.title || '',
                     left: 'center',
+                    top: 10,
                     textStyle: {{ color: THEME.title, fontSize: 14, fontWeight: 'bold' }}
                 }},
                 tooltip: {{ trigger: config.type === 'pie' ? 'item' : 'axis' }},
@@ -91,21 +93,26 @@ ECHARTS_HTML_TEMPLATE = """
                     tooltip: {{ trigger: 'item', formatter: '{{b}}: {{c}}% ({{d}}%)' }},
                     legend: {{
                         orient: 'vertical',
-                        right: 20,
-                        top: 'center',
+                        right: 10,
+                        top: 'middle',
                         textStyle: {{ color: THEME.text }}
                     }},
                     series: [{{
                         type: 'pie',
-                        radius: ['40%', '70%'],
-                        center: ['40%', '55%'],
+                        radius: ['30%', '55%'],
+                        center: ['35%', '55%'],
                         avoidLabelOverlap: true,
                         itemStyle: {{ borderRadius: 4, borderColor: THEME.pieBorder, borderWidth: 2 }},
-                        label: {{ show: true, formatter: '{{b}}: {{c}}%', color: THEME.text, fontSize: 12 }},
+                        label: {{ 
+                            show: true, 
+                            formatter: '{{b}}: {{c}}%', 
+                            color: THEME.text, 
+                            fontSize: 11
+                        }},
                         labelLine: {{
                             show: true,
                             lineStyle: {{ color: THEME.textLight, width: 1 }},
-                            smooth: 0.2, length: 10, length2: 15
+                            smooth: 0.2, length: 8, length2: 12
                         }},
                         data: config.data
                     }}]
@@ -330,26 +337,34 @@ def render_chart_to_png(config: dict, output_path: Path, width: int = 600, heigh
             page = browser.new_page(viewport={'width': width, 'height': height})
             page.goto(f'file://{temp_html}')
             
-            # Wait for ECharts to render
-            page.wait_for_timeout(500)
+            # Wait for ECharts to render fully
+            page.wait_for_timeout(1000)
             
-            # Screenshot the chart element
-            chart_element = page.locator('#chart')
-            chart_element.screenshot(path=str(output_path))
+            # Take full page screenshot
+            page.screenshot(path=str(output_path), full_page=False)
             
             browser.close()
     finally:
         temp_html.unlink(missing_ok=True)
 
 
-def render_all_charts(charts: list, assets_dir: Path, width: int = 600) -> dict:
+def render_all_charts(charts: list, assets_dir: Path, assets_rel_path: str = None, width: int = 600) -> dict:
     """
     Render all charts to PNG files.
+    
+    Args:
+        charts: List of chart dicts from extract_charts_from_markdown
+        assets_dir: Directory to save PNG files
+        assets_rel_path: Relative path to use in markdown (default: assets_dir.name)
+        width: Chart width in pixels
     
     Returns dict mapping original match string to image markdown.
     """
     assets_dir.mkdir(parents=True, exist_ok=True)
     replacements = {}
+    
+    # Path to use in markdown image references
+    rel_prefix = str(assets_rel_path) if assets_rel_path else assets_dir.name
     
     for i, chart in enumerate(charts):
         filename = f"chart_{i}.png"
@@ -357,20 +372,30 @@ def render_all_charts(charts: list, assets_dir: Path, width: int = 600) -> dict:
         
         title = chart['config'].get('title', f'Chart {i+1}')
         height = chart.get('height', 300)
+        chart_type = chart['config'].get('type', '')
         
-        print(f"    Rendering: {title}")
+        # Pie charts need extra width for the side legend and height for labels
+        if chart_type == 'pie':
+            chart_width = width + 250
+            chart_height = max(height, 350)
+        else:
+            chart_width = width
+            chart_height = height
+        
+        print(f"    Rendering: {title} ({chart_type}, {chart_width}x{chart_height})")
         render_chart_to_png(
             config=chart['config'],
             output_path=output_path,
-            width=width,
-            height=height,
+            width=chart_width,
+            height=chart_height,
             background='#ffffff'
         )
         
         # Create markdown image reference
-        # Use relative path from markdown file location
-        rel_path = f"{assets_dir.name}/{filename}"
-        img_markdown = f"![{title}]({rel_path})"
+        # Use simple alt text to avoid duplicate title in Word (chart already has title)
+        img_path = f"{rel_prefix}/{filename}"
+        chart_type_label = chart_type.replace('-', ' ').title() if chart_type else 'Chart'
+        img_markdown = f"![{chart_type_label}]({img_path})"
         
         replacements[chart['match']] = img_markdown
     
@@ -549,6 +574,9 @@ def main():
     )
     parser.add_argument('markdown', help='Path to source Markdown file')
     parser.add_argument('--out', help='Base name for outputs (without extension)')
+    parser.add_argument('--out-dir', help='Output directory for generated files (default: same as input)')
+    parser.add_argument('--assets-dir', help='Directory for chart images (default: {out}_assets)')
+    parser.add_argument('--assets-rel', help='Relative path to use in markdown for images (default: assets directory name)')
     parser.add_argument('--pdf', action='store_true', help='Also export to PDF')
     parser.add_argument('--html', action='store_true', help='Also export to HTML')
     parser.add_argument('--keep-md', action='store_true', help='Keep processed Markdown file')
@@ -564,8 +592,27 @@ def main():
     
     # Setup output paths
     base = args.out if args.out else src_md.stem
-    output_dir = src_md.parent
-    assets_dir = output_dir / f"{base}_assets"
+    output_dir = Path(args.out_dir).resolve() if args.out_dir else src_md.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Assets directory - where chart PNGs are saved
+    if args.assets_dir:
+        assets_dir = Path(args.assets_dir).resolve()
+    else:
+        assets_dir = output_dir / f"{base}_assets"
+    
+    # Relative path for image references in markdown
+    # This is what goes in ![title](HERE/chart.png)
+    if args.assets_rel:
+        assets_rel_path = args.assets_rel
+    else:
+        # Try to make it relative to output_dir
+        try:
+            assets_rel_path = assets_dir.relative_to(output_dir)
+        except ValueError:
+            # assets_dir is not under output_dir, use absolute
+            assets_rel_path = assets_dir
+    
     processed_md = output_dir / f"{base}_processed.md"
     out_docx = output_dir / f"{base}.docx"
     out_pdf = output_dir / f"{base}.pdf"
@@ -586,7 +633,9 @@ def main():
     # Render charts to PNG
     if charts:
         print(f"[3/4] Rendering charts to PNG ({args.width}px width)...")
-        replacements = render_all_charts(charts, assets_dir, width=args.width)
+        print(f"    Assets directory: {assets_dir}")
+        print(f"    Image path in markdown: {assets_rel_path}/")
+        replacements = render_all_charts(charts, assets_dir, assets_rel_path=assets_rel_path, width=args.width)
         
         # Process markdown
         processed_content = process_markdown(markdown_content, replacements)
