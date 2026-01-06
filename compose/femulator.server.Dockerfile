@@ -16,8 +16,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip and install dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
-    python-socketio uvicorn fastapi numpy pandas scipy matplotlib h5py \
+    python-socketio uvicorn fastapi numpy pandas scipy matplotlib h5py weasyprint playwright pypandoc \
     psutil cupy-cuda13x numba-cuda cuda-python
+
+RUN playwright install chromium
 
 # STAGE 2: Runtime
 FROM nvidia/cuda:13.1.0-runtime-ubuntu24.04
