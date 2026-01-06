@@ -138,11 +138,11 @@ export class ReportViewerPanel {
                 <div class="report-viewer-content">
                     ${htmlContent}
                 </div>
-                <div class="report-viewer-footer">
-                    <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-copy">Copy</button>
-                    <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-export">Export</button>
-                </div>
             </div>
+            <div class="report-viewer-footer">
+                <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-copy">Copy</button>
+                <button class="benchmark-btn benchmark-btn-secondary" id="report-btn-${this.sectionId}-export">Export</button>
+            </div>            
         `;
         
         // Initialize ECharts using shared utility
