@@ -1617,16 +1617,41 @@ The Numba JIT CPU implementation represents the highest-performing CPU-based sol
 
 ## 7. Summary
 
-The Numba JIT CPU implementation eliminates Python interpreter overhead and enables true shared-memory parallelism for FEM assembly and post-processing.
+The Numba JIT implementation represents a significant advancement in performance through Just-In-Time compilation and true parallel execution:
 
-Key observations include:
+**Achievements:**
 
-- Explicit loop-based kernels outperform vectorized NumPy formulations  
-- True parallel execution is achieved without GIL constraints  
-- Memory efficiency is preserved relative to multiprocessing  
-- Sparse solver performance ultimately limits end-to-end speedup  
+- Eliminated Python interpreter overhead for element computations
+- Achieved genuine multi-threaded parallelism with `prange`
+- Maintained shared memory efficiency (unlike multiprocessing)
+- Demonstrated 10-50× speedup potential for assembly/post-processing
 
-This implementation provides the most efficient CPU-based execution model in the study and forms a natural transition toward GPU-based acceleration.
+**Limitations:**
+
+- First-run compilation overhead (~500ms)
+- Limited NumPy/SciPy feature support
+- Cannot accelerate sparse solver
+- Debugging complexity increased
+
+**Key Insight:** Numba provides the best balance of performance and usability for CPU-based FEM:
+
+- Faster than threading (no GIL)
+- Lower memory overhead than multiprocessing (shared memory)
+- Easier development than C/Fortran (Python syntax)
+- Automatic parallelization with `prange`
+
+**Comparison with CPU Parallel Approaches:**
+
+| Criterion | Threading | Multiprocessing | Numba JIT |
+|-----------|-----------|-----------------|-----------|
+| Element loop speedup | 1.5-3× | 3-8× | 10-50× |
+| Memory efficiency | Best | Worst | Good |
+| Development effort | Low | Medium | Medium |
+| Deployment complexity | Low | Low | Medium (requires Numba) |
+
+The next implementations (Numba CUDA and GPU CuPy) take parallelization further by offloading computation to GPU hardware, where thousands of cores can process elements simultaneously.
+
+---
 
 # Implementation 5: Numba CUDA
 
@@ -1805,16 +1830,37 @@ The Numba CUDA implementation is the first fully GPU-based approach in the study
 
 ## 7. Summary
 
-The Numba CUDA implementation enables GPU acceleration of FEM assembly and post-processing using Python syntax:
+The Numba CUDA implementation demonstrates GPU programming with Python syntax:
 
-Key observations include:
+**Achievements:**
 
-- Thousands of GPU threads execute element computations concurrently  
-- Python-based kernel development significantly reduces development effort  
-- Performance approaches that of hand-written CUDA kernels  
-- Atomic operations and memory transfers limit scalability for smaller problems  
+- GPU kernel development without CUDA C
+- Thousands of parallel threads per kernel launch
+- Integration with CuPy for GPU sparse solver
+- Comparable performance to raw CUDA (90-95%)
 
-This implementation represents a practical and accessible entry point for GPU acceleration, bridging the gap between CPU-based JIT execution and fully optimized raw CUDA implementations.
+**Limitations:**
+
+- More debugging challenges than CPU code
+- Limited NumPy function support
+- Requires explicit memory management
+- Type annotation requirements stricter
+
+**Key Insight:** Numba CUDA provides an accessible path to GPU programming for Python developers. While slightly slower than hand-optimized CUDA C, the development speed advantage makes it practical for research and prototyping.
+
+**When to Use Numba CUDA:**
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Rapid prototyping | Numba CUDA |
+| Maximum performance | CuPy RawKernel |
+| Python team | Numba CUDA |
+| CUDA expertise available | Either |
+| Complex shared memory patterns | CuPy RawKernel |
+
+The final implementation (GPU CuPy with RawKernel) demonstrates the alternative approach: writing CUDA C kernels directly for maximum performance.
+
+---
 
 # Implementation 6: GPU CuPy (RawKernel)
 
@@ -2096,14 +2142,35 @@ Expected time distribution for large problems:
 
 ## 7. Summary
 
-The GPU CuPy implementation with RawKernel represents the most performance-optimized endpoint of this implementation spectrum:
+The GPU CuPy implementation with RawKernel represents the performance-optimized endpoint of this implementation spectrum:
 
-Key observations include:
+**Achievements:**
 
-- Native CUDA C kernels provide maximum GPU performance
-- Full GPU-resident pipeline (assembly, solve, post-processing) minimizes PCIe transfers
-- GPU-based COO index generation avoids CPU bottlenecks present in Numba CUDA
-- Sparse solver dominates runtime once assembly is accelerated
-- Development and debugging complexity is significantly higher than Numba CUDA
+- Maximum GPU performance through native CUDA C kernels
+- Entire computational pipeline on GPU (assembly, solve, post-process)
+- Integration with CuPy sparse solvers for production-quality linear algebra
+- Vectorized COO index generation on GPU
 
-This implementation establishes the upper bound for single-GPU performance in this project and provides a production-quality reference design combining custom CUDA kernels with CuPy’s sparse linear algebra ecosystem.
+**Limitations:**
+
+- Higher development complexity than Numba CUDA
+- Debugging requires GPU-specific tools
+- CUDA C knowledge required for kernel development
+- GPU memory constraints for very large problems
+
+**Key Insight:** For production FEM solvers targeting maximum performance, the combination of RawKernel for custom element operations and CuPy's sparse algebra for the linear solver provides an effective architecture. The GPU's massive parallelism (thousands of threads) and high memory bandwidth (500+ GB/s) enable order-of-magnitude speedups over CPU implementations for sufficiently large problems.
+
+**Implementation Spectrum Summary:**
+
+| Implementation | Development Effort | Performance | Best Use Case |
+|----------------|-------------------|-------------|---------------|
+| CPU Baseline | Low | 1× | Reference, debugging |
+| CPU Threaded | Low | 1.5-3× | Quick improvement |
+| CPU Multiprocess | Medium | 3-8× | CPU parallelism |
+| Numba JIT | Medium | 10-30× | Best CPU performance |
+| Numba CUDA | Medium | 20-50× | GPU prototyping |
+| GPU CuPy | High | 50-100× | Production GPU |
+
+The choice of implementation depends on problem size, available hardware, development resources, and performance requirements.
+
+---
