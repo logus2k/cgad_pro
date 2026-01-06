@@ -699,10 +699,20 @@ With this foundation established, the following sections examine how each implem
 
 # Implementations
 
+## Pre-Implementation Phase
+
+Before the development of the CPU and GPU execution models presented in this section, a dedicated pre-implementation phase was carried out to migrate an existing Finite Element Method (FEM) solver, previously developed in MATLAB by a member of the group, to the Python programming language.
+
+The primary objective of this transition was to ensure that the original numerical formulation was fully preserved. In particular, the following aspects were maintained:
+
+- The element types used (eight-node quadrilateral elements – Quad-8)
+- The assembly procedures for stiffness matrices and load vectors
+- The treatment of boundary conditions (Dirichlet and Robin conditions)
+- The configuration of the linear solver and the corresponding convergence criteria
+
+This phase was exclusively focused on functional and numerical validation of the Python implementation, and no performance optimization was performed. All computational kernels were rewritten using scientific Python libraries appropriate to the project objectives, thereby enabling, in a subsequent phase, the implementation of both CPU- and GPU-based solutions.
+
 ## Execution Models
-
-!!!Nota: Acrescentar nota sobre Transição do MATLAB para o Python; Pre-Implementation
-
 
 This section presents multiple implementations of the same Finite Element Method (FEM) problem using different execution models on CPU and GPU. All implementations share an identical numerical formulation, discretization, boundary conditions, and solver configuration; observed differences arise exclusively from the execution strategy and computational backend.
 
