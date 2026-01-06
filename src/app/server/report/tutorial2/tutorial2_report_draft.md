@@ -1,5 +1,4 @@
-# General Overview
-## 1. Finite Element Method
+# 1. General Overview - Finite Element Method
 
 The Finite Element Method (FEM) is a numerical technique widely used to approximate solutions of partial differential equations arising in engineering and scientific problems. Its main strength lies in its ability to handle complex geometries, heterogeneous materials, and general boundary conditions, which are often intractable using analytical approaches.
 
@@ -9,7 +8,7 @@ IMAGE1
 
 Because of this formulation, FEM naturally maps to linear algebra operations and therefore constitutes an ideal candidate for high-performance computing and parallel execution.
 
-### 1.1. Classes of Problems Addressed by FEM
+## 1.1. Classes of Problems Addressed by FEM
 
 From a mathematical standpoint, FEM can be applied to several classes of partial differential equations, each associated with different physical phenomena and computational characteristics.
 
@@ -47,10 +46,10 @@ This equation captures all the essential computational challenges of FEM and is 
 
 ---
 
-### 1.2. Mathematical Formulation
+## 1.2. Mathematical Formulation
 
 
-#### 1.2.1. Spatial Discretization and Element Choice
+### 1.2.1. Spatial Discretization and Element Choice
 
 
 
@@ -86,7 +85,7 @@ The use of Quad-8 elements also provides a realistic representation of engineeri
 
 
 
-#### 1.2.2. Variational Formulation and Algebraic Representation
+### 1.2.2. Variational Formulation and Algebraic Representation
 
 The FEM formulation begins by expressing the governing differential equation in weak form. For the Laplace equation, this leads to the variational problem,
 
@@ -111,11 +110,11 @@ where $N$ denotes the shape functions and $D$ represents the material or conduct
 IMAGE 4
 
 
-#### 1.2.3. Boundary Conditions
+### 1.2.3. Boundary Conditions
 
 Boundary conditions (BCs) specify the constraints and interactions imposed on the boundaries of a numerical model and are fundamental to obtaining a well-posed and solvable problem. They define how the system responds at its limits and ensure that the mathematical formulation admits a unique and physically consistent solution. In practical applications, boundary conditions are selected to reflect the real physical supports, loads, or environmental interactions acting on the domain. The most commonly identified categories of boundary conditions are essential (Dirichlet), natural (Neumann), and mixed (Robin) boundary conditions, and an appropriate combination of these is required to accurately represent the problem being analyzed.
 
-##### 1.2.3.1. Dirichlet Boundary Conditions
+#### 1.2.3.1. Dirichlet Boundary Conditions
 
 Dirichlet boundary conditions specify fixed potential values at designated boundary nodes:
 
@@ -129,7 +128,7 @@ These are implemented using row/column elimination: for each constrained degree 
 
 In the project context, Dirichlet conditions are applied at outlet boundaries where the potential is fixed.
 
-##### 1.2.3.2. Robin Boundary Conditions
+#### 1.2.3.2. Robin Boundary Conditions
 
 Robin boundary conditions combine flux and potential contributions at inlet boundaries:
 
@@ -139,7 +138,7 @@ where $p$ is a coefficient and $\gamma$ represents the prescribed combination of
 
 
 
-##### 1.2.3.3. Boundary Detection
+#### 1.2.3.3. Boundary Detection
 
 Boundary nodes are identified geometrically based on coordinate tolerance. The implementation detects:
 
@@ -148,9 +147,9 @@ Boundary nodes are identified geometrically based on coordinate tolerance. The i
 
 A tolerance parameter (`bc_tolerance = 1e-9`) handles floating-point precision in coordinate comparisons.
 
-### 1.3. Linear Solver Strategy
+## 1.3. Linear Solver Strategy
 
-#### 1.3.1. Conjugate Gradient Method
+### 1.3.1. Conjugate Gradient Method
 
 All implementations use the Conjugate Gradient (CG) method for solving the linear system $\mathbf{K}\mathbf{u} = \mathbf{f}$. CG is particularly suitable for this application because:
 
@@ -161,7 +160,7 @@ All implementations use the Conjugate Gradient (CG) method for solving the linea
 
 The CG algorithm generates a sequence of iterates $\mathbf{u}^{(k)}$ that minimize the $\mathbf{K}-norm$ Ajuof the error over a Krylov subspace of increasing dimension.
 
-#### 1.3.2. Jacobi Preconditioning
+### 1.3.2. Jacobi Preconditioning
 
 All implementations apply Jacobi (diagonal) preconditioning to accelerate convergence:
 
@@ -182,7 +181,7 @@ The Jacobi preconditioner was chosen deliberately for this performance study:
 
 More sophisticated preconditioners (ILU, AMG) might provide faster convergence but would introduce implementation-dependent performance variations that complicate fair comparison.
 
-#### 1.3.3. Solver Configuration
+### 1.3.3. Solver Configuration
 
 The following parameters are held constant across all implementations:
 
@@ -192,10 +191,10 @@ The following parameters are held constant across all implementations:
 | Preconditioner | Jacobi (diagonal) | Parallelizes uniformly |
 | Relative tolerance | $10^{-8}$ | Engineering accuracy |
 | Absolute tolerance | $0$ | Rely on relative criterion |
-| Maximum iterations | 300,000 | Sufficient for test problems |
+| Maximum iterations | No limit | Sufficient in order to simulate all test problems |
 | Progress reporting | Every 50 iterations | Balance monitoring vs. overhead |
 
- #### 1.3.4. Convergence Monitoring
+ ### 1.3.4. Convergence Monitoring
 
 The solver monitors convergence using the relative residual norm:
 
@@ -205,9 +204,9 @@ Convergence is declared when $\text{rel\_res} < 10^{-8}$ or the iteration count 
 
 ---
 
-### 1.4. Post-Processing: Derived Fields
+## 1.4. Post-Processing: Derived Fields
 
-#### 1.4.1. Velocity Field Computation
+### 1.4.1. Velocity Field Computation
 
 The velocity field is computed as the negative gradient of the potential:
 
@@ -219,13 +218,13 @@ $$\mathbf{v}_e = \frac{1}{4} \sum_{p=1}^{4} \left( -\mathbf{B}_p^T \mathbf{u}_e 
 
 where $\mathbf{u}_e$ is the vector of nodal solution values for element $e$.
 
-#### 1.4.2. Velocity Magnitude
+### 1.4.2. Velocity Magnitude
 
 The velocity magnitude per element:
 
 $$|\mathbf{v}|_e = \frac{1}{4} \sum_{p=1}^{4} \sqrt{v_{x,p}^2 + v_{y,p}^2}$$
 
-#### 1.4.3. Pressure Field
+### 1.4.3. Pressure Field
 
 Pressure is computed from Bernoulli's equation for incompressible flow:
 
@@ -239,7 +238,7 @@ These constants are configurable parameters in the solver constructor.
 
 ---
 
-### 1.5. Computational Pipeline of the Finite Element Method
+## 1.5. Computational Pipeline of the Finite Element Method
 
 From a computational perspective, the FEM workflow can be decomposed into a sequence of well-defined stages, each exhibiting distinct performance characteristics.
 
@@ -335,7 +334,7 @@ end for
 
 Finally, post-processing is performed to reconstruct the solution field, compute derived quantities, and generate visualizations. While less computationally demanding, this step is essential for validating results and analyzing physical behavior.
 
-#### 1.5.1. Parallelization Targets
+### 1.5.1. Parallelization Targets
 
 The assembly stage exhibits the highest parallelization potential because each element's stiffness matrix can be computed independently. The solve stage benefits from parallel SpMV but faces memory bandwidth constraints characteristic of sparse computations. Post-processing mirrors assembly in its parallel structure.
 
@@ -354,9 +353,9 @@ The assembly stage exhibits the highest parallelization potential because each e
 ---
 
 
-## 2. Software Architecture
+# 2. Software Architecture
 
-### 2.1 Solver Interface Contract
+## 2.1 Solver Interface Contract
 
 All solver classes implement a consistent interface, enabling the unified `SolverWrapper` to instantiate any implementation interchangeably:
 
@@ -391,7 +390,7 @@ class Quad8FEMSolver:
 
 This interface contract ensures that switching between CPU, GPU, Numba, and CUDA implementations requires only changing the solver type parameter, with no modifications to calling code.
 
-### 2.2 SolverWrapper: Unified Factory
+## 2.2 SolverWrapper: Unified Factory
 
 The `SolverWrapper` class provides a unified factory interface for solver instantiation:
 
@@ -425,7 +424,7 @@ class SolverWrapper:
 
 The `auto` mode detects the best available solver by checking for GPU availability (CuPy import success).
 
-### 2.3 Progress Callback System
+## 2.3 Progress Callback System
 
 Real-time monitoring is provided through a callback interface that all solvers invoke at consistent pipeline points:
 
@@ -469,7 +468,7 @@ class ProgressCallback:
 
 This callback system enables the web interface to display live progress, convergence curves, and intermediate solution fields regardless of which solver implementation is executing.
 
-### 2.4 Timing Instrumentation
+## 2.4 Timing Instrumentation
 
 Each solver records per-stage wall-clock time using high-resolution timers (`time.perf_counter()`). The timing dictionary structure is consistent across all implementations:
 
@@ -489,7 +488,7 @@ This granular timing enables identification of which stages benefit most from ea
 
 ---
 
-### 2.5 Result Format
+## 2.5 Result Format
 
 All solvers return a standardized dictionary structure containing solution fields, convergence status, timing metrics, and metadata:
 
@@ -697,8 +696,9 @@ With this foundation established, the following sections examine how each implem
 
 ---
 
-# Implementations
+# 3. Implementations
 
+<<<<<<< HEAD
 ## Pre-Implementation Phase
 
 Before the development of the CPU and GPU execution models presented in this section, a dedicated pre-implementation phase was carried out to migrate an existing Finite Element Method (FEM) solver, previously developed in MATLAB by a member of the group, to the Python programming language.
@@ -715,6 +715,14 @@ This phase was exclusively focused on functional and numerical validation of the
 ## Execution Models
 
 This section presents multiple implementations of the same Finite Element Method (FEM) problem using different execution models on CPU and GPU. All implementations share an identical numerical formulation, discretization, boundary conditions, and solver configuration; observed differences arise exclusively from the execution strategy and computational backend.
+=======
+## 3.1. Execution Models
+
+!!!Nota: Acrescentar nota sobre Transição do MATLAB para o Python; Pre-Implementation
+
+
+This section presents multiple implementations of the same FEM problem using different execution models on CPU and GPU. All implementations share an identical numerical formulation, discretization, boundary conditions, and solver configuration; observed differences arise exclusively from the execution strategy and computational backend.
+>>>>>>> cf55293 (Document update)
 
 The implementations cover sequential CPU execution, shared-memory and process-based CPU parallelism, just-in-time compiled CPU execution using Numba, and GPU-based execution using Numba CUDA and CuPy with custom raw kernels. Together, these approaches span execution models ranging from interpreter-driven execution to compiled and accelerator-based computation.
 
@@ -722,9 +730,10 @@ Numerical equivalence is preserved across all implementations, enabling direct a
 
 ---
 
-# Implementation 1: CPU Baseline
+## 3.2. Implementation 1: CPU Baseline
 
-## 1. Overview
+###  3.2.1. Overview
+
 The CPU baseline implementation serves as the reference against which all other CPU and GPU implementations are evaluated. It prioritizes correctness, algorithmic clarity, and reproducibility over performance, establishing both the functional specification and the performance floor for the project.
 
 | Attribute | Description |
@@ -736,9 +745,9 @@ The CPU baseline implementation serves as the reference against which all other 
 
 ---
 
-## 2. Technology Background
+### 3.2.2. Technology Background
 
-### 2.1 NumPy and SciPy Ecosystem
+#### 3.2.2.1. NumPy and SciPy Ecosystem
 The baseline implementation is built on Python’s scientific computing ecosystem:
 
 - **NumPy** provides N-dimensional arrays and vectorized operations backed by optimized BLAS/LAPACK libraries.  
@@ -1605,41 +1614,16 @@ The Numba JIT CPU implementation represents the highest-performing CPU-based sol
 
 ## 7. Summary
 
-The Numba JIT implementation represents a significant advancement in performance through Just-In-Time compilation and true parallel execution:
+The Numba JIT CPU implementation eliminates Python interpreter overhead and enables true shared-memory parallelism for FEM assembly and post-processing.
 
-**Achievements:**
+Key observations include:
 
-- Eliminated Python interpreter overhead for element computations
-- Achieved genuine multi-threaded parallelism with `prange`
-- Maintained shared memory efficiency (unlike multiprocessing)
-- Demonstrated 10-50× speedup potential for assembly/post-processing
+- Explicit loop-based kernels outperform vectorized NumPy formulations  
+- True parallel execution is achieved without GIL constraints  
+- Memory efficiency is preserved relative to multiprocessing  
+- Sparse solver performance ultimately limits end-to-end speedup  
 
-**Limitations:**
-
-- First-run compilation overhead (~500ms)
-- Limited NumPy/SciPy feature support
-- Cannot accelerate sparse solver
-- Debugging complexity increased
-
-**Key Insight:** Numba provides the best balance of performance and usability for CPU-based FEM:
-
-- Faster than threading (no GIL)
-- Lower memory overhead than multiprocessing (shared memory)
-- Easier development than C/Fortran (Python syntax)
-- Automatic parallelization with `prange`
-
-**Comparison with CPU Parallel Approaches:**
-
-| Criterion | Threading | Multiprocessing | Numba JIT |
-|-----------|-----------|-----------------|-----------|
-| Element loop speedup | 1.5-3× | 3-8× | 10-50× |
-| Memory efficiency | Best | Worst | Good |
-| Development effort | Low | Medium | Medium |
-| Deployment complexity | Low | Low | Medium (requires Numba) |
-
-The next implementations (Numba CUDA and GPU CuPy) take parallelization further by offloading computation to GPU hardware, where thousands of cores can process elements simultaneously.
-
----
+This implementation provides the most efficient CPU-based execution model in the study and forms a natural transition toward GPU-based acceleration.
 
 # Implementation 5: Numba CUDA
 
@@ -1818,37 +1802,16 @@ The Numba CUDA implementation is the first fully GPU-based approach in the study
 
 ## 7. Summary
 
-The Numba CUDA implementation demonstrates GPU programming with Python syntax:
+The Numba CUDA implementation enables GPU acceleration of FEM assembly and post-processing using Python syntax:
 
-**Achievements:**
+Key observations include:
 
-- GPU kernel development without CUDA C
-- Thousands of parallel threads per kernel launch
-- Integration with CuPy for GPU sparse solver
-- Comparable performance to raw CUDA (90-95%)
+- Thousands of GPU threads execute element computations concurrently  
+- Python-based kernel development significantly reduces development effort  
+- Performance approaches that of hand-written CUDA kernels  
+- Atomic operations and memory transfers limit scalability for smaller problems  
 
-**Limitations:**
-
-- More debugging challenges than CPU code
-- Limited NumPy function support
-- Requires explicit memory management
-- Type annotation requirements stricter
-
-**Key Insight:** Numba CUDA provides an accessible path to GPU programming for Python developers. While slightly slower than hand-optimized CUDA C, the development speed advantage makes it practical for research and prototyping.
-
-**When to Use Numba CUDA:**
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Rapid prototyping | Numba CUDA |
-| Maximum performance | CuPy RawKernel |
-| Python team | Numba CUDA |
-| CUDA expertise available | Either |
-| Complex shared memory patterns | CuPy RawKernel |
-
-The final implementation (GPU CuPy with RawKernel) demonstrates the alternative approach: writing CUDA C kernels directly for maximum performance.
-
----
+This implementation represents a practical and accessible entry point for GPU acceleration, bridging the gap between CPU-based JIT execution and fully optimized raw CUDA implementations.
 
 # Implementation 6: GPU CuPy (RawKernel)
 
@@ -2130,35 +2093,14 @@ Expected time distribution for large problems:
 
 ## 7. Summary
 
-The GPU CuPy implementation with RawKernel represents the performance-optimized endpoint of this implementation spectrum:
+The GPU CuPy implementation with RawKernel represents the most performance-optimized endpoint of this implementation spectrum:
 
-**Achievements:**
+Key observations include:
 
-- Maximum GPU performance through native CUDA C kernels
-- Entire computational pipeline on GPU (assembly, solve, post-process)
-- Integration with CuPy sparse solvers for production-quality linear algebra
-- Vectorized COO index generation on GPU
+- Native CUDA C kernels provide maximum GPU performance
+- Full GPU-resident pipeline (assembly, solve, post-processing) minimizes PCIe transfers
+- GPU-based COO index generation avoids CPU bottlenecks present in Numba CUDA
+- Sparse solver dominates runtime once assembly is accelerated
+- Development and debugging complexity is significantly higher than Numba CUDA
 
-**Limitations:**
-
-- Higher development complexity than Numba CUDA
-- Debugging requires GPU-specific tools
-- CUDA C knowledge required for kernel development
-- GPU memory constraints for very large problems
-
-**Key Insight:** For production FEM solvers targeting maximum performance, the combination of RawKernel for custom element operations and CuPy's sparse algebra for the linear solver provides an effective architecture. The GPU's massive parallelism (thousands of threads) and high memory bandwidth (500+ GB/s) enable order-of-magnitude speedups over CPU implementations for sufficiently large problems.
-
-**Implementation Spectrum Summary:**
-
-| Implementation | Development Effort | Performance | Best Use Case |
-|----------------|-------------------|-------------|---------------|
-| CPU Baseline | Low | 1× | Reference, debugging |
-| CPU Threaded | Low | 1.5-3× | Quick improvement |
-| CPU Multiprocess | Medium | 3-8× | CPU parallelism |
-| Numba JIT | Medium | 10-30× | Best CPU performance |
-| Numba CUDA | Medium | 20-50× | GPU prototyping |
-| GPU CuPy | High | 50-100× | Production GPU |
-
-The choice of implementation depends on problem size, available hardware, development resources, and performance requirements.
-
----
+This implementation establishes the upper bound for single-GPU performance in this project and provides a production-quality reference design combining custom CUDA kernels with CuPy’s sparse linear algebra ecosystem.
