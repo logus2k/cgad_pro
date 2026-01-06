@@ -1,0 +1,5357 @@
+{
+  "version": "1.1",
+  "updated_at": "2026-01-06T14:37:42.959692+00:00",
+  "automated": true,
+  "server_hash": "41a0c4c3f215",
+  "server_config": {
+    "hostname": "KRATOS",
+    "os": "Windows 10 (10.0.26200)",
+    "architecture": "AMD64",
+    "python_version": "3.10.9",
+    "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "cpu_cores": 28,
+    "ram_gb": 0,
+    "gpu_model": "NVIDIA GeForce RTX 4070",
+    "gpu_memory_gb": 12.0,
+    "cuda_version": "13.1"
+  },
+  "records": [
+    {
+      "id": "c740cb71-787c-4487-9783-9b0b2c76f3a4",
+      "timestamp": "2026-01-05T21:56:24.021218+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.0007643999997526407,
+        "assemble_system": 0.012525799999821174,
+        "apply_bc": 0.00024370000028284267,
+        "solve_system": 0.0019099999999525608,
+        "compute_derived": 0.0035962000001745764,
+        "print_stats": 2.999995558639057e-07,
+        "total_workflow": 0.019046800000069197,
+        "total_program_time": 0.019414899999901536
+      },
+      "solution_stats": {
+        "u_range": [
+          2.7665334748379196e-13,
+          11.501239432612588
+        ],
+        "u_mean": 7.158144659458317,
+        "u_std": 2.626034752553494,
+        "final_residual": 1.015273697819725e-08,
+        "relative_residual": 9.196568731298679e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.03,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 332.51,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "c5270abf-e357-4e18-857d-441f56a4c14d",
+      "timestamp": "2026-01-05T21:56:24.022218+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.0007145999998101615,
+        "assemble_system": 0.012367100000119535,
+        "apply_bc": 0.0002441000006001559,
+        "solve_system": 0.0017128999998021754,
+        "compute_derived": 0.0034848000004785717,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 0.018530199999986507,
+        "total_program_time": 0.018899599999713246
+      },
+      "solution_stats": {
+        "u_range": [
+          2.7665334748379196e-13,
+          11.501239432612588
+        ],
+        "u_mean": 7.158144659458317,
+        "u_std": 2.626034752553494,
+        "final_residual": 1.015273697819725e-08,
+        "relative_residual": 9.196568731298679e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 333.09,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "e49ccd52-9501-476e-9b80-2b68b089f987",
+      "timestamp": "2026-01-05T21:56:24.023218+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.0008131999993565842,
+        "assemble_system": 0.012986699999601115,
+        "apply_bc": 0.00025039999945875024,
+        "solve_system": 0.001914299999953073,
+        "compute_derived": 0.003523000000313914,
+        "print_stats": 4.000003173132427e-07,
+        "total_workflow": 0.019494500000291737,
+        "total_program_time": 0.019737200000236044
+      },
+      "solution_stats": {
+        "u_range": [
+          2.7665334748379196e-13,
+          11.501239432612588
+        ],
+        "u_mean": 7.158144659458317,
+        "u_std": 2.626034752553494,
+        "final_residual": 1.015273697819725e-08,
+        "relative_residual": 9.196568731298679e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 333.11,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "cccd03b4-5f2a-4c03-9b19-e4556554a580",
+      "timestamp": "2026-01-05T21:58:16.204981+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.01702370000020892,
+        "assemble_system": 11.880303499999172,
+        "apply_bc": 0.1469054999997752,
+        "solve_system": 12.751512899999398,
+        "compute_derived": 3.2083487999998397,
+        "print_stats": 6.999998731771484e-07,
+        "total_workflow": 28.004105699999855,
+        "total_program_time": 28.004414999999426
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806310162
+        ],
+        "u_mean": 5.739263771817725,
+        "u_std": 4.383973066678167,
+        "final_residual": 2.5893987473357768e-09,
+        "relative_residual": 1.4187450981696041e-08
+      },
+      "memory": {
+        "peak_ram_mb": 220.92,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 350.11,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 243,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "eee49f30-c65a-492c-b686-18a9f7c8d810",
+      "timestamp": "2026-01-05T21:58:16.206482+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.01700669999991078,
+        "assemble_system": 11.974545699999908,
+        "apply_bc": 0.1514417999997022,
+        "solve_system": 12.710425499999474,
+        "compute_derived": 3.240746499999659,
+        "print_stats": 6.000000212225132e-07,
+        "total_workflow": 28.09417880000001,
+        "total_program_time": 28.09450629999992
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806310162
+        ],
+        "u_mean": 5.739263771817725,
+        "u_std": 4.383973066678167,
+        "final_residual": 2.5893987473357768e-09,
+        "relative_residual": 1.4187450981696041e-08
+      },
+      "memory": {
+        "peak_ram_mb": 215.2,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 356.1,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 219,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "913421e4-f9fa-42a5-a560-587d2f3e11d9",
+      "timestamp": "2026-01-05T21:58:16.207981+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.0170696000004682,
+        "assemble_system": 11.880060000000412,
+        "apply_bc": 0.14664279999942664,
+        "solve_system": 12.624904100000094,
+        "compute_derived": 3.290324500000679,
+        "print_stats": 6.000000212225132e-07,
+        "total_workflow": 27.95901319999939,
+        "total_program_time": 27.959400300000198
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806310162
+        ],
+        "u_mean": 5.739263771817725,
+        "u_std": 4.383973066678167,
+        "final_residual": 2.5893987473357768e-09,
+        "relative_residual": 1.4187450981696041e-08
+      },
+      "memory": {
+        "peak_ram_mb": 201.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 366.72,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 221,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "f3498399-651f-41e8-b73d-56b01d268fb6",
+      "timestamp": "2026-01-05T22:10:36.873668+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.06549919999997655,
+        "assemble_system": 48.01025329999993,
+        "apply_bc": 0.5989509999999427,
+        "solve_system": 121.80791700000009,
+        "compute_derived": 12.94057359999988,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 183.42320949999976,
+        "total_program_time": 183.42373399999997
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857496192
+        ],
+        "u_mean": 5.735933633234725,
+        "u_std": 4.386229136771693,
+        "final_residual": 1.8377062940225347e-09,
+        "relative_residual": 1.423718480584561e-08
+      },
+      "memory": {
+        "peak_ram_mb": 964.04,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 391.95,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1533,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "d897e72f-3197-4123-8147-90eb5945b8b8",
+      "timestamp": "2026-01-05T22:10:36.875669+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.07199130000026344,
+        "assemble_system": 47.13306769999963,
+        "apply_bc": 0.5872749000000113,
+        "solve_system": 123.83720850000009,
+        "compute_derived": 12.973823999999695,
+        "print_stats": 4.999992597731762e-07,
+        "total_workflow": 184.60338189999948,
+        "total_program_time": 184.60378020000007
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857496192
+        ],
+        "u_mean": 5.735933633234725,
+        "u_std": 4.386229136771693,
+        "final_residual": 1.8377062940225347e-09,
+        "relative_residual": 1.423718480584561e-08
+      },
+      "memory": {
+        "peak_ram_mb": 954.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 403.3,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1655,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "5553f235-7444-4e63-b088-8a1b4de1f23e",
+      "timestamp": "2026-01-05T22:10:36.877669+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.0657085000002553,
+        "assemble_system": 47.103050200000325,
+        "apply_bc": 0.5885411999997814,
+        "solve_system": 119.30351999999948,
+        "compute_derived": 12.987603100000342,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 180.04843820000042,
+        "total_program_time": 180.04882780000025
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857496192
+        ],
+        "u_mean": 5.735933633234725,
+        "u_std": 4.386229136771693,
+        "final_residual": 1.8377062940225347e-09,
+        "relative_residual": 1.423718480584561e-08
+      },
+      "memory": {
+        "peak_ram_mb": 946.95,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 408.3,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1614,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "1dc9f0be-9730-46f3-99d9-f84865b714df",
+      "timestamp": "2026-01-05T22:37:29.234936+00:00",
+      "model_file": "y_tube_1_3m.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 1357953,
+      "model_elements": 338544,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 9871,
+      "timings": {
+        "load_mesh": 0.11061229999995703,
+        "assemble_system": 82.85281489999943,
+        "apply_bc": 1.051481700000295,
+        "solve_system": 295.37462759999926,
+        "compute_derived": 22.679936000000453,
+        "print_stats": 5.999991117278114e-07,
+        "total_workflow": 402.0694889999995,
+        "total_program_time": 402.0699135999994
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326862074512
+        ],
+        "u_mean": 5.755062507237888,
+        "u_std": 4.39080055238435,
+        "final_residual": 1.6079166193573173e-09,
+        "relative_residual": 1.438344149470999e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1705.69,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 417.98,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3580,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "05d9faae-e981-453b-a41e-f001c3cbfed3",
+      "timestamp": "2026-01-05T22:37:29.237938+00:00",
+      "model_file": "y_tube_1_3m.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 1357953,
+      "model_elements": 338544,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 9871,
+      "timings": {
+        "load_mesh": 0.10993210000015097,
+        "assemble_system": 83.62598120000075,
+        "apply_bc": 1.0524168000010832,
+        "solve_system": 296.6074091999999,
+        "compute_derived": 22.543887199999517,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 403.9397176000002,
+        "total_program_time": 403.94012079999993
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326862074512
+        ],
+        "u_mean": 5.755062507237888,
+        "u_std": 4.39080055238435,
+        "final_residual": 1.6079166193573173e-09,
+        "relative_residual": 1.438344149470999e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1701.69,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 422.99,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3649,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "2d02822c-1624-4ee3-8d64-12f22a4a62f9",
+      "timestamp": "2026-01-05T22:37:29.240437+00:00",
+      "model_file": "y_tube_1_3m.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 1357953,
+      "model_elements": 338544,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 9871,
+      "timings": {
+        "load_mesh": 0.1096983999996155,
+        "assemble_system": 82.97147810000024,
+        "apply_bc": 1.0422226999999111,
+        "solve_system": 295.4702931000011,
+        "compute_derived": 22.91059210000094,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 402.504299799999,
+        "total_program_time": 402.5048014999993
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326862074512
+        ],
+        "u_mean": 5.755062507237888,
+        "u_std": 4.39080055238435,
+        "final_residual": 1.6079166193573173e-09,
+        "relative_residual": 1.438344149470999e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1696.69,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 426.98,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3629,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16265217,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "95a1eed7-1e68-4f9b-91cb-0ac7e8777f82",
+      "timestamp": "2026-01-05T22:37:29.710052+00:00",
+      "model_file": "venturi_341.h5",
+      "model_name": "Venturi",
+      "model_nodes": 341,
+      "model_elements": 86,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 133,
+      "timings": {
+        "load_mesh": 0.0007137000011425698,
+        "assemble_system": 0.021601899999950547,
+        "apply_bc": 0.00043430000005173497,
+        "solve_system": 0.0023297999996430008,
+        "compute_derived": 0.0062225999990914715,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 0.03130970000165689,
+        "total_program_time": 0.03163410000161093
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.06285601438028
+        ],
+        "u_mean": 5.34583172956471,
+        "u_std": 4.366229011294691,
+        "final_residual": 6.245584078260187e-09,
+        "relative_residual": 8.279317694010563e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 416.0,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "b9b2af07-62e4-480c-a474-ed0fae933aad",
+      "timestamp": "2026-01-05T22:37:29.713055+00:00",
+      "model_file": "venturi_341.h5",
+      "model_name": "Venturi",
+      "model_nodes": 341,
+      "model_elements": 86,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 133,
+      "timings": {
+        "load_mesh": 0.0014305999993666774,
+        "assemble_system": 0.021023499999500928,
+        "apply_bc": 0.0004189000010228483,
+        "solve_system": 0.0023354999993898673,
+        "compute_derived": 0.006472300001405529,
+        "print_stats": 3.0000046535860747e-07,
+        "total_workflow": 0.031687000000601984,
+        "total_program_time": 0.032054100000095787
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.06285601438028
+        ],
+        "u_mean": 5.34583172956471,
+        "u_std": 4.366229011294691,
+        "final_residual": 6.245584078260187e-09,
+        "relative_residual": 8.279317694010563e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 411.0,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "2b351367-8f9a-42bf-97df-b19fe72a234e",
+      "timestamp": "2026-01-05T22:37:29.715551+00:00",
+      "model_file": "venturi_341.h5",
+      "model_name": "Venturi",
+      "model_nodes": 341,
+      "model_elements": 86,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 133,
+      "timings": {
+        "load_mesh": 0.0006052999997336883,
+        "assemble_system": 0.02261750000070606,
+        "apply_bc": 0.0005292999994708225,
+        "solve_system": 0.0023118999997677747,
+        "compute_derived": 0.006227500000022701,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 0.03229939999982889,
+        "total_program_time": 0.032654299999194336
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.06285601438028
+        ],
+        "u_mean": 5.34583172956471,
+        "u_std": 4.366229011294691,
+        "final_residual": 6.245584078260187e-09,
+        "relative_residual": 8.279317694010563e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 410.0,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4257,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "8e8535a8-ecdb-42d2-982a-95e21ded9371",
+      "timestamp": "2026-01-05T22:39:54.061908+00:00",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4358,
+      "timings": {
+        "load_mesh": 0.002109500001097331,
+        "assemble_system": 15.576282699999865,
+        "apply_bc": 0.10789180000028864,
+        "solve_system": 15.981468500000119,
+        "compute_derived": 4.333214599999337,
+        "print_stats": 6.999998731771484e-07,
+        "total_workflow": 36.00098049999906,
+        "total_program_time": 36.00143769999886
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065877012586348
+        ],
+        "u_mean": 6.017828133024895,
+        "u_std": 4.36454219381874,
+        "final_residual": 2.0252341102621012e-09,
+        "relative_residual": 1.3665876740022998e-08
+      },
+      "memory": {
+        "peak_ram_mb": 210.62,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 404.26,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 312,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "621fd30d-024f-4588-8eeb-7c468c890c58",
+      "timestamp": "2026-01-05T22:39:54.065410+00:00",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4358,
+      "timings": {
+        "load_mesh": 0.0021938999998383224,
+        "assemble_system": 15.645627899999454,
+        "apply_bc": 0.10972489999949175,
+        "solve_system": 15.87468059999992,
+        "compute_derived": 4.234751699999833,
+        "print_stats": 5.999991117278114e-07,
+        "total_workflow": 35.86699079999926,
+        "total_program_time": 35.86742149999918
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065877012586348
+        ],
+        "u_mean": 6.017828133024895,
+        "u_std": 4.36454219381874,
+        "final_residual": 2.0252341102621012e-09,
+        "relative_residual": 1.3665876740022998e-08
+      },
+      "memory": {
+        "peak_ram_mb": 202.57,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 412.23,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 316,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "0fb0874f-8844-4c6a-90c6-bf67af720dc7",
+      "timestamp": "2026-01-05T22:39:54.068909+00:00",
+      "model_file": "venturi_194k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 194325,
+      "model_elements": 64334,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4358,
+      "timings": {
+        "load_mesh": 0.002346499999475782,
+        "assemble_system": 15.707092299999204,
+        "apply_bc": 0.10650249999889638,
+        "solve_system": 15.768535600000178,
+        "compute_derived": 4.357664099999965,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 35.94215230000009,
+        "total_program_time": 35.94256310000128
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065877012586348
+        ],
+        "u_mean": 6.017828133024895,
+        "u_std": 4.36454219381874,
+        "final_residual": 2.0252341102621012e-09,
+        "relative_residual": 1.3665876740022998e-08
+      },
+      "memory": {
+        "peak_ram_mb": 238.82,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 412.23,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 291,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3028873,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "ced459d0-64b7-454f-8967-be51230e70ea",
+      "timestamp": "2026-01-05T23:46:43.065935+00:00",
+      "model_file": "venturi_763k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 763707,
+      "model_elements": 253704,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 16093,
+      "timings": {
+        "load_mesh": 0.00638509999953385,
+        "assemble_system": 61.20635149999907,
+        "apply_bc": 0.44299599999976635,
+        "solve_system": 258.05847639999956,
+        "compute_derived": 16.939432099999976,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 336.65365740000016,
+        "total_program_time": 336.6540298
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065879431047179
+        ],
+        "u_mean": 6.013436530151734,
+        "u_std": 4.360102985947044,
+        "final_residual": 4.296533603793651e-09,
+        "relative_residual": 4.086471241502487e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1212.33,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 676.77,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3040,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "93c64f4f-2f58-4add-b077-c103a41f1038",
+      "timestamp": "2026-01-05T23:46:43.069934+00:00",
+      "model_file": "venturi_763k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 763707,
+      "model_elements": 253704,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 16093,
+      "timings": {
+        "load_mesh": 0.006265200001507765,
+        "assemble_system": 61.6210286000005,
+        "apply_bc": 0.43047139999907813,
+        "solve_system": 257.6567816000006,
+        "compute_derived": 16.86182960000042,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 336.57639160000144,
+        "total_program_time": 336.5767534000006
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065879431047179
+        ],
+        "u_mean": 6.013436530151734,
+        "u_std": 4.360102985947044,
+        "final_residual": 4.296533603793651e-09,
+        "relative_residual": 4.086471241502487e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1207.32,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 680.79,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3017,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "27ec9035-f99b-46cb-9357-c1ff518f7913",
+      "timestamp": "2026-01-05T23:46:43.073435+00:00",
+      "model_file": "venturi_763k.h5",
+      "model_name": "Venturi",
+      "model_nodes": 763707,
+      "model_elements": 253704,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 16093,
+      "timings": {
+        "load_mesh": 0.00631249999969441,
+        "assemble_system": 61.615688099998806,
+        "apply_bc": 0.42809089999900607,
+        "solve_system": 257.3725248999999,
+        "compute_derived": 17.269376700000066,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 336.6920068999989,
+        "total_program_time": 336.6926943999988
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.065879431047179
+        ],
+        "u_mean": 6.013436530151734,
+        "u_std": 4.360102985947044,
+        "final_residual": 4.296533603793651e-09,
+        "relative_residual": 4.086471241502487e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1197.31,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 691.79,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 2914,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11934351,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "939e29fa-9ccd-4346-9714-def37d5693ac",
+      "timestamp": "2026-01-06T00:45:50.713509+00:00",
+      "model_file": "venturi_1_2m.h5",
+      "model_name": "Venturi",
+      "model_nodes": 1284412,
+      "model_elements": 427017,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 26333,
+      "timings": {
+        "load_mesh": 0.009935899999618414,
+        "assemble_system": 103.88263720000032,
+        "apply_bc": 0.7509229000006599,
+        "solve_system": 756.0981759000006,
+        "compute_derived": 28.80977139999959,
+        "print_stats": 6.999998731771484e-07,
+        "total_workflow": 889.5514586999998,
+        "total_program_time": 889.5517851999994
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066121431716295
+        ],
+        "u_mean": 6.0177803800942815,
+        "u_std": 4.359805625994921,
+        "final_residual": 1.909529428928788e-09,
+        "relative_residual": 2.0701695212350522e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2015.7,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 710.83,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 7886,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "2dbe48e3-1e59-4a5e-bc6e-62287b605e3a",
+      "timestamp": "2026-01-06T00:45:50.718009+00:00",
+      "model_file": "venturi_1_2m.h5",
+      "model_name": "Venturi",
+      "model_nodes": 1284412,
+      "model_elements": 427017,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 26333,
+      "timings": {
+        "load_mesh": 0.009571099999448052,
+        "assemble_system": 103.84436249999999,
+        "apply_bc": 0.7376227999993716,
+        "solve_system": 751.4115041999994,
+        "compute_derived": 29.143253500000355,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 885.1463306000005,
+        "total_program_time": 885.1467978000001
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066121431716295
+        ],
+        "u_mean": 6.0177803800942815,
+        "u_std": 4.359805625994921,
+        "final_residual": 1.909529428928788e-09,
+        "relative_residual": 2.0701695212350522e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2011.71,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 714.83,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 7851,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "30dbed90-fb70-4284-8cd3-6918412bbe4d",
+      "timestamp": "2026-01-06T00:45:50.722009+00:00",
+      "model_file": "venturi_1_2m.h5",
+      "model_name": "Venturi",
+      "model_nodes": 1284412,
+      "model_elements": 427017,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 26333,
+      "timings": {
+        "load_mesh": 0.009788199999093194,
+        "assemble_system": 103.75000379999983,
+        "apply_bc": 0.7401167999996687,
+        "solve_system": 751.9821961999987,
+        "compute_derived": 28.906797599996935,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 885.388916599999,
+        "total_program_time": 885.3893727999985
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          12.066121431716295
+        ],
+        "u_mean": 6.0177803800942815,
+        "u_std": 4.359805625994921,
+        "final_residual": 1.909529428928788e-09,
+        "relative_residual": 2.0701695212350522e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2010.7,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 715.84,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 7832,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20083132,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "36785697-ac6b-4fa5-a45b-ebccb694428d",
+      "timestamp": "2026-01-06T00:45:51.234841+00:00",
+      "model_file": "s_bend_387.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 387,
+      "model_elements": 222,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 156,
+      "timings": {
+        "load_mesh": 0.0006966999972064514,
+        "assemble_system": 0.020939699999871664,
+        "apply_bc": 0.0004043000008095987,
+        "solve_system": 0.002583499997854233,
+        "compute_derived": 0.005761500000517117,
+        "print_stats": 6.999980541877449e-07,
+        "total_workflow": 0.030392699998628814,
+        "total_program_time": 0.030716199999005767
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.34771321028955
+        ],
+        "u_mean": 5.067841366434187,
+        "u_std": 4.289291844981689,
+        "final_residual": 5.852438398943297e-09,
+        "relative_residual": 1.272303665830937e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 719.83,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "be2f11cd-d5b2-414d-bcbb-fa04d8503f39",
+      "timestamp": "2026-01-06T00:45:51.239342+00:00",
+      "model_file": "s_bend_387.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 387,
+      "model_elements": 222,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 156,
+      "timings": {
+        "load_mesh": 0.0006309000018518418,
+        "assemble_system": 0.019870500000251923,
+        "apply_bc": 0.0004129999979340937,
+        "solve_system": 0.0026427999982843176,
+        "compute_derived": 0.0060790999996243045,
+        "print_stats": 3.00002284348011e-07,
+        "total_workflow": 0.02964360000260058,
+        "total_program_time": 0.03001570000196807
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.34771321028955
+        ],
+        "u_mean": 5.067841366434187,
+        "u_std": 4.289291844981689,
+        "final_residual": 5.852438398943297e-09,
+        "relative_residual": 1.272303665830937e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 718.83,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "33f444f7-ce99-4e9d-9f5e-34b83fc695a7",
+      "timestamp": "2026-01-06T00:45:51.243842+00:00",
+      "model_file": "s_bend_387.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 387,
+      "model_elements": 222,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 156,
+      "timings": {
+        "load_mesh": 0.0006385000015143305,
+        "assemble_system": 0.02126200000202516,
+        "apply_bc": 0.0004063000014866702,
+        "solve_system": 0.0024979000008897856,
+        "compute_derived": 0.005917000002227724,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 0.030728999998245854,
+        "total_program_time": 0.031128099999477854
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.34771321028955
+        ],
+        "u_mean": 5.067841366434187,
+        "u_std": 4.289291844981689,
+        "final_residual": 5.852438398943297e-09,
+        "relative_residual": 1.272303665830937e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 715.83,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4251,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "e1a034d5-8186-407f-8a38-2320716e5aea",
+      "timestamp": "2026-01-06T00:48:26.383907+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 5061,
+      "timings": {
+        "load_mesh": 0.002140299999155104,
+        "assemble_system": 15.696501200000057,
+        "apply_bc": 0.10533810000197263,
+        "solve_system": 18.513977800001157,
+        "compute_derived": 4.347367800000939,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 38.6653409999999,
+        "total_program_time": 38.66565300000002
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359541873980476
+        ],
+        "u_mean": 6.347138941751837,
+        "u_std": 3.5160846036215,
+        "final_residual": 1.32320875752229e-09,
+        "relative_residual": 1.2868457945551576e-08
+      },
+      "memory": {
+        "peak_ram_mb": 225.28,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 712.35,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 335,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "e3df1ea8-854e-4e5c-bf6c-357fab469a3f",
+      "timestamp": "2026-01-06T00:48:26.388907+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 5061,
+      "timings": {
+        "load_mesh": 0.002303799999936018,
+        "assemble_system": 15.719877099996665,
+        "apply_bc": 0.11010990000067977,
+        "solve_system": 18.5693330000031,
+        "compute_derived": 4.361584700000094,
+        "print_stats": 5.000001692678779e-07,
+        "total_workflow": 38.763221899997006,
+        "total_program_time": 38.763510199998564
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359541873980476
+        ],
+        "u_mean": 6.347138941751837,
+        "u_std": 3.5160846036215,
+        "final_residual": 1.32320875752229e-09,
+        "relative_residual": 1.2868457945551576e-08
+      },
+      "memory": {
+        "peak_ram_mb": 221.39,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 715.84,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 335,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "a11423d3-dfbb-4ef6-a823-a393c9f278ae",
+      "timestamp": "2026-01-06T00:48:26.393405+00:00",
+      "model_file": "s_bend_196k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 196078,
+      "model_elements": 64787,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 5061,
+      "timings": {
+        "load_mesh": 0.0024040999996941537,
+        "assemble_system": 15.802917799999705,
+        "apply_bc": 0.10505310000007739,
+        "solve_system": 18.589663899998413,
+        "compute_derived": 4.396454199999425,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 38.89650609999808,
+        "total_program_time": 38.89691909999965
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359541873980476
+        ],
+        "u_mean": 6.347138941751837,
+        "u_std": 3.5160846036215,
+        "final_residual": 1.32320875752229e-09,
+        "relative_residual": 1.2868457945551576e-08
+      },
+      "memory": {
+        "peak_ram_mb": 220.45,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 717.36,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 291,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3051622,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "16910e0b-b8ef-4afd-b95d-13473248143b",
+      "timestamp": "2026-01-06T01:13:41.358374+00:00",
+      "model_file": "s_bend_765k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 765441,
+      "model_elements": 254034,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 18874,
+      "timings": {
+        "load_mesh": 0.006331000000500353,
+        "assemble_system": 61.811366299996735,
+        "apply_bc": 0.4305512999999337,
+        "solve_system": 299.09090020000076,
+        "compute_derived": 17.323772100000497,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 378.6629372999996,
+        "total_program_time": 378.66338449999967
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359515492841718
+        ],
+        "u_mean": 6.353565057392251,
+        "u_std": 3.5135546163149063,
+        "final_residual": 2.1854230500733736e-09,
+        "relative_residual": 2.986436941446536e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1163.63,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 730.36,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3300,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "1d5cf470-c1fd-4541-a8e1-d19f4141edc0",
+      "timestamp": "2026-01-06T01:13:41.363873+00:00",
+      "model_file": "s_bend_765k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 765441,
+      "model_elements": 254034,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 18874,
+      "timings": {
+        "load_mesh": 0.005839999997988343,
+        "assemble_system": 61.847032099998614,
+        "apply_bc": 0.4257462999994459,
+        "solve_system": 299.1703535000015,
+        "compute_derived": 17.184087900001032,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 378.63307390000045,
+        "total_program_time": 378.6334100999993
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359515492841718
+        ],
+        "u_mean": 6.353565057392251,
+        "u_std": 3.5135546163149063,
+        "final_residual": 2.1854230500733736e-09,
+        "relative_residual": 2.986436941446536e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1155.63,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 738.37,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3301,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "90883fbe-c5fa-4bd1-b606-2b555e994477",
+      "timestamp": "2026-01-06T01:13:41.369374+00:00",
+      "model_file": "s_bend_765k.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 765441,
+      "model_elements": 254034,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 18874,
+      "timings": {
+        "load_mesh": 0.0062347000020963605,
+        "assemble_system": 62.02238569999827,
+        "apply_bc": 0.4269357000011951,
+        "solve_system": 299.1320407000021,
+        "compute_derived": 17.205905200000416,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 378.79351710000265,
+        "total_program_time": 378.79394460000185
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359515492841718
+        ],
+        "u_mean": 6.353565057392251,
+        "u_std": 3.5135546163149063,
+        "final_residual": 2.1854230500733736e-09,
+        "relative_residual": 2.986436941446536e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1150.63,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 743.37,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 3291,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11952725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 30000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "889fb35d-2b3b-42cc-a8a5-f87b85a782fe",
+      "timestamp": "2026-01-06T05:10:08.019740+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 91758,
+      "timings": {
+        "load_mesh": 0.009648499999457272,
+        "assemble_system": 103.35845060000065,
+        "apply_bc": 0.7312884999992093,
+        "solve_system": 2579.9592255999996,
+        "compute_derived": 29.023319100000663,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 2713.0819502999984,
+        "total_program_time": 2713.082652699999
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359355028487252
+        ],
+        "u_mean": 6.354623975868085,
+        "u_std": 3.5097408369816017,
+        "final_residual": 3.0595138714960058e-09,
+        "relative_residual": 4.759833284030511e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2054.94,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 899.09,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 24774,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20097467,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "0b7adcc7-916e-4ae0-8360-01421c0b4350",
+      "timestamp": "2026-01-06T05:10:08.026241+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 91758,
+      "timings": {
+        "load_mesh": 0.00984959999914281,
+        "assemble_system": 102.78370720000021,
+        "apply_bc": 0.7293629999985569,
+        "solve_system": 2576.2968027999996,
+        "compute_derived": 28.307813100000203,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 2708.1275513,
+        "total_program_time": 2708.127968599998
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359355028487252
+        ],
+        "u_mean": 6.354623975868085,
+        "u_std": 3.5097408369816017,
+        "final_residual": 3.0595138714960058e-09,
+        "relative_residual": 4.759833284030511e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2043.94,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 909.1,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 24872,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20097467,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "94650261-59c7-4593-bf19-bec8c470e9f5",
+      "timestamp": "2026-01-06T05:10:08.031740+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 91758,
+      "timings": {
+        "load_mesh": 0.009740400000737282,
+        "assemble_system": 103.51189149999846,
+        "apply_bc": 0.7194688999989012,
+        "solve_system": 2576.462015000001,
+        "compute_derived": 28.731389799999306,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 2709.434520900002,
+        "total_program_time": 2709.4349777000025
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359355028487252
+        ],
+        "u_mean": 6.354623975868085,
+        "u_std": 3.5097408369816017,
+        "final_residual": 3.0595138714960058e-09,
+        "relative_residual": 4.759833284030511e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2032.92,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 920.11,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 24718,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20097467,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "fcbc0061-166f-4aa2-9457-37146edefa22",
+      "timestamp": "2026-01-06T05:10:08.492180+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.0006008999989717267,
+        "assemble_system": 0.02684169999702135,
+        "apply_bc": 0.00033939999775611795,
+        "solve_system": 0.0028323000005912036,
+        "compute_derived": 0.007494100002077175,
+        "print_stats": 2.999986463692039e-07,
+        "total_workflow": 0.03811479999785661,
+        "total_program_time": 0.03848400000060792
+      },
+      "solution_stats": {
+        "u_range": [
+          5.20740632255315e-14,
+          7.298818325447273
+        ],
+        "u_mean": 3.6752002857181,
+        "u_std": 1.842663433237843,
+        "final_residual": 5.141693892615312e-09,
+        "relative_residual": 1.1177898069522907e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 914.12,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "6314a603-cd84-40d8-88a4-f1b666a9e21b",
+      "timestamp": "2026-01-06T05:10:08.498179+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.0006211999971128535,
+        "assemble_system": 0.02714639999976498,
+        "apply_bc": 0.00034579999919515103,
+        "solve_system": 0.0027217999995627906,
+        "compute_derived": 0.007639100000233157,
+        "print_stats": 3.00002284348011e-07,
+        "total_workflow": 0.03848090000246884,
+        "total_program_time": 0.03880160000335309
+      },
+      "solution_stats": {
+        "u_range": [
+          5.20740632255315e-14,
+          7.298818325447273
+        ],
+        "u_mean": 3.6752002857181,
+        "u_std": 1.842663433237843,
+        "final_residual": 5.141693892615312e-09,
+        "relative_residual": 1.1177898069522907e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 911.12,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "449ba5a5-33af-4e74-83e4-2751907b2d84",
+      "timestamp": "2026-01-06T05:10:08.504178+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 168,
+      "timings": {
+        "load_mesh": 0.0005823999999847729,
+        "assemble_system": 0.026925300000584684,
+        "apply_bc": 0.0003386000025784597,
+        "solve_system": 0.0027437999997346196,
+        "compute_derived": 0.00738660000206437,
+        "print_stats": 3.9999940781854093e-07,
+        "total_workflow": 0.03798420000020997,
+        "total_program_time": 0.03855649999968591
+      },
+      "solution_stats": {
+        "u_range": [
+          5.20740632255315e-14,
+          7.298818325447273
+        ],
+        "u_mean": 3.6752002857181,
+        "u_std": 1.842663433237843,
+        "final_residual": 5.141693892615312e-09,
+        "relative_residual": 1.1177898069522907e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 908.12,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5489,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "ab1e6139-70d2-496f-9336-68709ecfdcb2",
+      "timestamp": "2026-01-06T05:12:33.004591+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4319,
+      "timings": {
+        "load_mesh": 0.0019706000020960346,
+        "assemble_system": 15.665080900002067,
+        "apply_bc": 0.10643349999736529,
+        "solve_system": 15.796378600000025,
+        "compute_derived": 4.35282240000015,
+        "print_stats": 6.000009307172149e-07,
+        "total_workflow": 35.922700000002806,
+        "total_program_time": 35.92308310000226
+      },
+      "solution_stats": {
+        "u_range": [
+          2.5403894450865045e-15,
+          7.3085309685407145
+        ],
+        "u_mean": 3.6492450940215297,
+        "u_std": 1.8092365868445193,
+        "final_residual": 1.3883609127683122e-09,
+        "relative_residual": 1.3502075101634641e-08
+      },
+      "memory": {
+        "peak_ram_mb": 246.52,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 915.02,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 300,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3060222,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "fdacb8fa-003c-48c6-a0f5-426d00d73939",
+      "timestamp": "2026-01-06T05:12:33.011592+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4319,
+      "timings": {
+        "load_mesh": 0.0018535000017436687,
+        "assemble_system": 15.689613999998983,
+        "apply_bc": 0.10756720000063069,
+        "solve_system": 15.86209300000337,
+        "compute_derived": 4.316073499998311,
+        "print_stats": 2.9999500839039683e-07,
+        "total_workflow": 35.977213900001516,
+        "total_program_time": 35.977477100001124
+      },
+      "solution_stats": {
+        "u_range": [
+          2.5403894450865045e-15,
+          7.3085309685407145
+        ],
+        "u_mean": 3.6492450940215297,
+        "u_std": 1.8092365868445193,
+        "final_residual": 1.3883609127683122e-09,
+        "relative_residual": 1.3502075101634641e-08
+      },
+      "memory": {
+        "peak_ram_mb": 256.17,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 916.79,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 305,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3060222,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "4f5e7c70-1387-4200-bdfc-fe98a96b6a6e",
+      "timestamp": "2026-01-06T05:12:33.018091+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4319,
+      "timings": {
+        "load_mesh": 0.0020988000032957643,
+        "assemble_system": 15.786975899995014,
+        "apply_bc": 0.10803070000110893,
+        "solve_system": 15.822452300002624,
+        "compute_derived": 4.542791399995622,
+        "print_stats": 3.00002284348011e-07,
+        "total_workflow": 36.26236349999817,
+        "total_program_time": 36.262666399998125
+      },
+      "solution_stats": {
+        "u_range": [
+          2.5403894450865045e-15,
+          7.3085309685407145
+        ],
+        "u_mean": 3.6492450940215297,
+        "u_std": 1.8092365868445193,
+        "final_residual": 1.3883609127683122e-09,
+        "relative_residual": 1.3502075101634641e-08
+      },
+      "memory": {
+        "peak_ram_mb": 272.77,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 923.3,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 270,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3060222,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "d4944939-b579-42c5-afc3-ad633c17a3af",
+      "timestamp": "2026-01-06T06:39:19.938411+00:00",
+      "model_file": "t_junction_768k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 768898,
+      "model_elements": 255333,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 76139,
+      "timings": {
+        "load_mesh": 0.006106399996497203,
+        "assemble_system": 61.451558199994906,
+        "apply_bc": 0.43329259999882197,
+        "solve_system": 1223.3809727999978,
+        "compute_derived": 16.934832399994775,
+        "print_stats": 3.9999576983973384e-07,
+        "total_workflow": 1302.2067771999937,
+        "total_program_time": 1302.2072314999969
+      },
+      "solution_stats": {
+        "u_range": [
+          1.285876236097047e-15,
+          7.308563548220931
+        ],
+        "u_mean": 3.647834498235294,
+        "u_std": 1.8095086194273895,
+        "final_residual": 7.866942552962696e-09,
+        "relative_residual": 1.0750379820335804e-07
+      },
+      "memory": {
+        "peak_ram_mb": 1187.48,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 935.05,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 11952,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 12012244,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "a1e2fc88-6161-4618-bed7-929740884962",
+      "timestamp": "2026-01-06T06:39:19.945912+00:00",
+      "model_file": "t_junction_768k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 768898,
+      "model_elements": 255333,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 76139,
+      "timings": {
+        "load_mesh": 0.006344999994325917,
+        "assemble_system": 61.83431149999524,
+        "apply_bc": 0.43352040000172565,
+        "solve_system": 1221.7735229000027,
+        "compute_derived": 17.104735699998855,
+        "print_stats": 3.9999576983973384e-07,
+        "total_workflow": 1301.1524515000056,
+        "total_program_time": 1301.152949000003
+      },
+      "solution_stats": {
+        "u_range": [
+          1.285876236097047e-15,
+          7.308563548220931
+        ],
+        "u_mean": 3.647834498235294,
+        "u_std": 1.8095086194273895,
+        "final_residual": 7.866942552962696e-09,
+        "relative_residual": 1.0750379820335804e-07
+      },
+      "memory": {
+        "peak_ram_mb": 1179.5,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 943.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 11819,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 12012244,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "783ebbea-1660-4b22-ab00-3492fb201256",
+      "timestamp": "2026-01-06T06:39:19.952411+00:00",
+      "model_file": "t_junction_768k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 768898,
+      "model_elements": 255333,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 76139,
+      "timings": {
+        "load_mesh": 0.0062300999998115,
+        "assemble_system": 61.933779400002095,
+        "apply_bc": 0.43129429999680724,
+        "solve_system": 1220.4163778000002,
+        "compute_derived": 17.04610419999517,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 1299.8337998999996,
+        "total_program_time": 1299.8342244000014
+      },
+      "solution_stats": {
+        "u_range": [
+          1.285876236097047e-15,
+          7.308563548220931
+        ],
+        "u_mean": 3.647834498235294,
+        "u_std": 1.8095086194273895,
+        "final_residual": 7.866942552962696e-09,
+        "relative_residual": 1.0750379820335804e-07
+      },
+      "memory": {
+        "peak_ram_mb": 1165.49,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 957.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 11810,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 12012244,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 1000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "700b6055-4aea-47b5-991c-2fe3b4d9a4a5",
+      "timestamp": "2026-01-06T12:03:01.466869+00:00",
+      "model_file": "t_junction_1_2m.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 1291289,
+      "model_elements": 429176,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 27001,
+      "timings": {
+        "load_mesh": 0.00849039999593515,
+        "assemble_system": 108.10285200000362,
+        "apply_bc": 0.7450704000002588,
+        "solve_system": 870.9734777000049,
+        "compute_derived": 30.387547799997265,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 1010.2174591000003,
+        "total_program_time": 1010.2178048999995
+      },
+      "solution_stats": {
+        "u_range": [
+          9.919616503303954e-16,
+          7.308606304189624
+        ],
+        "u_mean": 3.6557521603676726,
+        "u_std": 1.807039651784977,
+        "final_residual": 3.4120189828073137e-09,
+        "relative_residual": 5.308242486303557e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2059.28,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 904.52,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 8895,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20186313,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "1af9cfcd-cd2b-4680-9c1a-c4fa7eb3858b",
+      "timestamp": "2026-01-06T12:03:01.474369+00:00",
+      "model_file": "t_junction_1_2m.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 1291289,
+      "model_elements": 429176,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 27001,
+      "timings": {
+        "load_mesh": 0.008608199997979682,
+        "assemble_system": 110.32770699999674,
+        "apply_bc": 0.755505399996764,
+        "solve_system": 860.7263313000003,
+        "compute_derived": 30.606990699998278,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 1002.4251590999993,
+        "total_program_time": 1002.4255321000019
+      },
+      "solution_stats": {
+        "u_range": [
+          9.919616503303954e-16,
+          7.308606304189624
+        ],
+        "u_mean": 3.6557521603676726,
+        "u_std": 1.807039651784977,
+        "final_residual": 3.4120189828073137e-09,
+        "relative_residual": 5.308242486303557e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2051.29,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 913.5,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 8842,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20186313,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "be737c04-6ba7-4d7d-b160-58144a33bb55",
+      "timestamp": "2026-01-06T12:03:01.481870+00:00",
+      "model_file": "t_junction_1_2m.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 1291289,
+      "model_elements": 429176,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 27001,
+      "timings": {
+        "load_mesh": 0.008610299999418203,
+        "assemble_system": 110.57541829999536,
+        "apply_bc": 0.7949071999973967,
+        "solve_system": 860.3554348000034,
+        "compute_derived": 30.74067140000261,
+        "print_stats": 6.00004568696022e-07,
+        "total_workflow": 1002.4750624000008,
+        "total_program_time": 1002.4754291000063
+      },
+      "solution_stats": {
+        "u_range": [
+          9.919616503303954e-16,
+          7.308606304189624
+        ],
+        "u_mean": 3.6557521603676726,
+        "u_std": 1.807039651784977,
+        "final_residual": 3.4120189828073137e-09,
+        "relative_residual": 5.308242486303557e-08
+      },
+      "memory": {
+        "peak_ram_mb": 2039.28,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 925.52,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 8806,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20186313,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "13d72940-03f9-451f-9b4a-959b45fa46ce",
+      "timestamp": "2026-01-06T12:03:01.933492+00:00",
+      "model_file": "backward_step_287.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 287,
+      "model_elements": 82,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 137,
+      "timings": {
+        "load_mesh": 0.0006209999992279336,
+        "assemble_system": 0.020970700003090315,
+        "apply_bc": 0.00025299999833805487,
+        "solve_system": 0.002492699997674208,
+        "compute_derived": 0.0059302000008756295,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 0.030275200006144587,
+        "total_program_time": 0.03064200000517303
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207364872032192e-14,
+          6.541705470462201
+        ],
+        "u_mean": 2.679008603256867,
+        "u_std": 1.7847766911256748,
+        "final_residual": 5.655832237202905e-09,
+        "relative_residual": 8.80797257468386e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 925.57,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "7087575c-8634-4728-83d0-67b66766dcbd",
+      "timestamp": "2026-01-06T12:03:01.941994+00:00",
+      "model_file": "backward_step_287.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 287,
+      "model_elements": 82,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 137,
+      "timings": {
+        "load_mesh": 0.000702800003637094,
+        "assemble_system": 0.02107310000428697,
+        "apply_bc": 0.0002505000011296943,
+        "solve_system": 0.002178700000513345,
+        "compute_derived": 0.005721200002881233,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 0.029934900005173404,
+        "total_program_time": 0.030287599998700898
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207364872032192e-14,
+          6.541705470462201
+        ],
+        "u_mean": 2.679008603256867,
+        "u_std": 1.7847766911256748,
+        "final_residual": 5.655832237202905e-09,
+        "relative_residual": 8.80797257468386e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 918.55,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "63380d62-1316-4c68-9d67-185dec32e0c6",
+      "timestamp": "2026-01-06T12:03:01.949492+00:00",
+      "model_file": "backward_step_287.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 287,
+      "model_elements": 82,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 137,
+      "timings": {
+        "load_mesh": 0.0007489999989047647,
+        "assemble_system": 0.01955889999953797,
+        "apply_bc": 0.00025120000645983964,
+        "solve_system": 0.002130699998815544,
+        "compute_derived": 0.005992600003082771,
+        "print_stats": 3.00002284348011e-07,
+        "total_workflow": 0.028689599996141624,
+        "total_program_time": 0.029048999997030478
+      },
+      "solution_stats": {
+        "u_range": [
+          5.207364872032192e-14,
+          6.541705470462201
+        ],
+        "u_mean": 2.679008603256867,
+        "u_std": 1.7847766911256748,
+        "final_residual": 5.655832237202905e-09,
+        "relative_residual": 8.80797257468386e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 917.55,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 4015,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "6135d343-6fa1-46f6-886f-6332fd223e97",
+      "timestamp": "2026-01-06T12:05:34.407296+00:00",
+      "model_file": "backward_step_195k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 195362,
+      "model_elements": 64713,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4226,
+      "timings": {
+        "load_mesh": 0.0019439000025158748,
+        "assemble_system": 16.531745099993714,
+        "apply_bc": 0.10743709999951534,
+        "solve_system": 16.793358399998397,
+        "compute_derived": 4.497397900006035,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 37.931896300004155,
+        "total_program_time": 37.932251799997175
+      },
+      "solution_stats": {
+        "u_range": [
+          1.7073321654232902e-15,
+          6.562340587219134
+        ],
+        "u_mean": 2.3728153129479,
+        "u_std": 1.602827599257793,
+        "final_residual": 1.6569851911357795e-09,
+        "relative_residual": 1.4014939637109848e-08
+      },
+      "memory": {
+        "peak_ram_mb": 241.75,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 919.05,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 331,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3046400,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "ca26e87a-fb91-4677-9aad-3a02118e086d",
+      "timestamp": "2026-01-06T12:05:34.416297+00:00",
+      "model_file": "backward_step_195k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 195362,
+      "model_elements": 64713,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4226,
+      "timings": {
+        "load_mesh": 0.002457700000377372,
+        "assemble_system": 16.49119320000318,
+        "apply_bc": 0.10790419999830192,
+        "solve_system": 17.018185100001574,
+        "compute_derived": 4.5597678999984055,
+        "print_stats": 1.0000003385357559e-06,
+        "total_workflow": 38.179524899998796,
+        "total_program_time": 38.17986359999486
+      },
+      "solution_stats": {
+        "u_range": [
+          1.7073321654232902e-15,
+          6.562340587219134
+        ],
+        "u_mean": 2.3728153129479,
+        "u_std": 1.602827599257793,
+        "final_residual": 1.6569851911357795e-09,
+        "relative_residual": 1.4014939637109848e-08
+      },
+      "memory": {
+        "peak_ram_mb": 233.46,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 926.09,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 314,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3046400,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "7379f5cf-e09c-4f41-936a-135774d8c7e7",
+      "timestamp": "2026-01-06T12:05:34.424297+00:00",
+      "model_file": "backward_step_195k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 195362,
+      "model_elements": 64713,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4226,
+      "timings": {
+        "load_mesh": 0.0019885000001522712,
+        "assemble_system": 16.408226799998374,
+        "apply_bc": 0.10679950000485405,
+        "solve_system": 16.96746770000027,
+        "compute_derived": 4.4973965999961365,
+        "print_stats": 6.999980541877449e-07,
+        "total_workflow": 37.98189289999573,
+        "total_program_time": 37.98228789999848
+      },
+      "solution_stats": {
+        "u_range": [
+          1.7073321654232902e-15,
+          6.562340587219134
+        ],
+        "u_mean": 2.3728153129479,
+        "u_std": 1.602827599257793,
+        "final_residual": 1.6569851911357795e-09,
+        "relative_residual": 1.4014939637109848e-08
+      },
+      "memory": {
+        "peak_ram_mb": 265.08,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 931.59,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 306,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3046400,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "bc504ccd-6a30-48f7-9488-b97ce2d6c7af",
+      "timestamp": "2026-01-06T12:38:24.999895+00:00",
+      "model_file": "backward_step_766k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 766088,
+      "model_elements": 254551,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 23700,
+      "timings": {
+        "load_mesh": 0.005371899998863228,
+        "assemble_system": 65.2829442000002,
+        "apply_bc": 0.4533988000039244,
+        "solve_system": 408.61554530000285,
+        "compute_derived": 17.991248699996504,
+        "print_stats": 5.00003807246685e-07,
+        "total_workflow": 492.34852509999473,
+        "total_program_time": 492.3488823999942
+      },
+      "solution_stats": {
+        "u_range": [
+          8.53666043707705e-16,
+          6.562578308323969
+        ],
+        "u_mean": 2.368610105609766,
+        "u_std": 1.594847944923187,
+        "final_residual": 6.9549372164638935e-09,
+        "relative_residual": 8.248546581269186e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1165.92,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 953.03,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4468,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11973636,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "ee55d29d-1fbe-40e2-816d-2041eec8cc65",
+      "timestamp": "2026-01-06T12:38:25.008395+00:00",
+      "model_file": "backward_step_766k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 766088,
+      "model_elements": 254551,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 23700,
+      "timings": {
+        "load_mesh": 0.005537400000321213,
+        "assemble_system": 65.085298900005,
+        "apply_bc": 0.4475677000009455,
+        "solve_system": 409.0872939999972,
+        "compute_derived": 17.91899689999991,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 492.5447114999988,
+        "total_program_time": 492.54506269999547
+      },
+      "solution_stats": {
+        "u_range": [
+          8.53666043707705e-16,
+          6.562578308323969
+        ],
+        "u_mean": 2.368610105609766,
+        "u_std": 1.594847944923187,
+        "final_residual": 6.9549372164638935e-09,
+        "relative_residual": 8.248546581269186e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1160.94,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 958.02,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4365,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11973636,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "850c9c26-1559-4d3b-9da1-9a52b8fac480",
+      "timestamp": "2026-01-06T12:38:25.016395+00:00",
+      "model_file": "backward_step_766k.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 766088,
+      "model_elements": 254551,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 23700,
+      "timings": {
+        "load_mesh": 0.005496000005223323,
+        "assemble_system": 64.98028360000171,
+        "apply_bc": 0.4477063000013004,
+        "solve_system": 408.08469770000374,
+        "compute_derived": 17.921175999996194,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 491.43937559999904,
+        "total_program_time": 491.439718499998
+      },
+      "solution_stats": {
+        "u_range": [
+          8.53666043707705e-16,
+          6.562578308323969
+        ],
+        "u_mean": 2.368610105609766,
+        "u_std": 1.594847944923187,
+        "final_residual": 6.9549372164638935e-09,
+        "relative_residual": 8.248546581269186e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1161.92,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 957.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4343,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 11973636,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "8a622d24-69a6-43fd-b0ee-6dc77e2fb1f9",
+      "timestamp": "2026-01-06T13:20:01.390324+00:00",
+      "model_file": "backward_step_1_2m.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 1283215,
+      "model_elements": 426686,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 15321,
+      "timings": {
+        "load_mesh": 0.008519000002706889,
+        "assemble_system": 109.11989239999821,
+        "apply_bc": 0.7436476000002585,
+        "solve_system": 481.6355640000038,
+        "compute_derived": 30.19479510000383,
+        "print_stats": 5.999972927384079e-07,
+        "total_workflow": 621.702435500003,
+        "total_program_time": 621.7028245999973
+      },
+      "solution_stats": {
+        "u_range": [
+          6.591598393985177e-16,
+          6.563510762875426
+        ],
+        "u_mean": 2.370483409659958,
+        "u_std": 1.5943257161040714,
+        "final_residual": 1.2993781746879465e-09,
+        "relative_residual": 1.753589067454867e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1988.46,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 965.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5425,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20066869,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "9ba82744-e26e-4e2c-a9d0-342cbf579986",
+      "timestamp": "2026-01-06T13:20:01.399324+00:00",
+      "model_file": "backward_step_1_2m.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 1283215,
+      "model_elements": 426686,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 15321,
+      "timings": {
+        "load_mesh": 0.008893199999874923,
+        "assemble_system": 108.87579949999781,
+        "apply_bc": 0.7428694999980507,
+        "solve_system": 482.60900160000165,
+        "compute_derived": 30.443556700003683,
+        "print_stats": 5.999972927384079e-07,
+        "total_workflow": 622.6801373999988,
+        "total_program_time": 622.6805303000001
+      },
+      "solution_stats": {
+        "u_range": [
+          6.591598393985177e-16,
+          6.563510762875426
+        ],
+        "u_mean": 2.370483409659958,
+        "u_std": 1.5943257161040714,
+        "final_residual": 1.2993781746879465e-09,
+        "relative_residual": 1.753589067454867e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1981.44,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 972.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5450,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20066869,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "3a5bd909-bdc3-4cfd-9816-711a92aba1ec",
+      "timestamp": "2026-01-06T13:20:01.408324+00:00",
+      "model_file": "backward_step_1_2m.h5",
+      "model_name": "Backward-Facing Step",
+      "model_nodes": 1283215,
+      "model_elements": 426686,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 15321,
+      "timings": {
+        "load_mesh": 0.008464799997454975,
+        "assemble_system": 108.81205620000401,
+        "apply_bc": 0.7461315999971703,
+        "solve_system": 487.1233906999987,
+        "compute_derived": 29.607109200005652,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 626.297170400001,
+        "total_program_time": 626.2975474999985
+      },
+      "solution_stats": {
+        "u_range": [
+          6.591598393985177e-16,
+          6.563510762875426
+        ],
+        "u_mean": 2.370483409659958,
+        "u_std": 1.5943257161040714,
+        "final_residual": 1.2993781746879465e-09,
+        "relative_residual": 1.753589067454867e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1975.46,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 978.04,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5684,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20066869,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "4bf8bd73-f113-44dc-8272-2865d958651d",
+      "timestamp": "2026-01-06T13:20:01.857325+00:00",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0006518000009236857,
+        "assemble_system": 0.0268590999985463,
+        "apply_bc": 0.0004228000034345314,
+        "solve_system": 0.002734900001087226,
+        "compute_derived": 0.007506100002501626,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 0.038182999996934086,
+        "total_program_time": 0.03851379999832716
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398356109
+        ],
+        "u_mean": 0.468676525627523,
+        "u_std": 0.502772981798331,
+        "final_residual": 6.743158042662759e-09,
+        "relative_residual": 1.4659436139483778e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 976.06,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "7675959a-620f-4a67-bddc-7427ef069632",
+      "timestamp": "2026-01-06T13:20:01.866824+00:00",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0006453000023611821,
+        "assemble_system": 0.026913100002275314,
+        "apply_bc": 0.0004298999992897734,
+        "solve_system": 0.0027259999988018535,
+        "compute_derived": 0.007524000000557862,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 0.03824689999601105,
+        "total_program_time": 0.03865280000172788
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398356109
+        ],
+        "u_mean": 0.468676525627523,
+        "u_std": 0.502772981798331,
+        "final_residual": 6.743158042662759e-09,
+        "relative_residual": 1.4659436139483778e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 971.08,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "864f32d9-a32d-44d9-8269-78d412fc3494",
+      "timestamp": "2026-01-06T13:20:01.876324+00:00",
+      "model_file": "elbow_90_411.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 411,
+      "model_elements": 111,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 141,
+      "timings": {
+        "load_mesh": 0.0006566999945789576,
+        "assemble_system": 0.02677209999819752,
+        "apply_bc": 0.0004398000019136816,
+        "solve_system": 0.0024043000012170523,
+        "compute_derived": 0.007845000000088476,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 0.03812649999599671,
+        "total_program_time": 0.03846070000145119
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9641869398356109
+        ],
+        "u_mean": 0.468676525627523,
+        "u_std": 0.502772981798331,
+        "final_residual": 6.743158042662759e-09,
+        "relative_residual": 1.4659436139483778e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 970.06,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5421,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "2b329c9d-2890-4bcc-8499-e93810b0e673",
+      "timestamp": "2026-01-06T13:22:13.593397+00:00",
+      "model_file": "elbow_90_161k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 161984,
+      "model_elements": 53344,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4721,
+      "timings": {
+        "load_mesh": 0.0016907000026549213,
+        "assemble_system": 13.584577900001022,
+        "apply_bc": 0.09234530000685481,
+        "solve_system": 15.626779099999112,
+        "compute_derived": 3.6906979999985197,
+        "print_stats": 3.9999576983973384e-07,
+        "total_workflow": 32.996103800003766,
+        "total_program_time": 32.99645489999966
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681057476321724
+        ],
+        "u_mean": 0.4619205703872945,
+        "u_std": 0.5130083577768171,
+        "final_residual": 2.1291463150423612e-09,
+        "relative_residual": 2.193117086076414e-08
+      },
+      "memory": {
+        "peak_ram_mb": 150.29,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 962.19,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 294,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2512384,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "4a550f37-1cca-412c-ac94-ad8e82cc3dab",
+      "timestamp": "2026-01-06T13:22:13.603897+00:00",
+      "model_file": "elbow_90_161k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 161984,
+      "model_elements": 53344,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4721,
+      "timings": {
+        "load_mesh": 0.001720000000204891,
+        "assemble_system": 13.440814900000987,
+        "apply_bc": 0.09141599999566097,
+        "solve_system": 15.490950300001714,
+        "compute_derived": 3.707232300002943,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 32.732147300004726,
+        "total_program_time": 32.73247210000409
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681057476321724
+        ],
+        "u_mean": 0.4619205703872945,
+        "u_std": 0.5130083577768171,
+        "final_residual": 2.1291463150423612e-09,
+        "relative_residual": 2.193117086076414e-08
+      },
+      "memory": {
+        "peak_ram_mb": 152.27,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 960.59,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 292,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2512384,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "9fbec67c-531e-4e1b-909e-482b1908b9fa",
+      "timestamp": "2026-01-06T13:22:13.613397+00:00",
+      "model_file": "elbow_90_161k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 161984,
+      "model_elements": 53344,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 4721,
+      "timings": {
+        "load_mesh": 0.0018264000027556904,
+        "assemble_system": 13.432003100002476,
+        "apply_bc": 0.09159119999821996,
+        "solve_system": 15.444522199999483,
+        "compute_derived": 3.7112942000021576,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 32.681251399997564,
+        "total_program_time": 32.68161500000133
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681057476321724
+        ],
+        "u_mean": 0.4619205703872945,
+        "u_std": 0.5130083577768171,
+        "final_residual": 2.1291463150423612e-09,
+        "relative_residual": 2.193117086076414e-08
+      },
+      "memory": {
+        "peak_ram_mb": 182.56,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 959.23,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 289,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2512384,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "8b011c8e-ffe8-428b-955e-8e3da6ea49fd",
+      "timestamp": "2026-01-06T13:37:52.515030+00:00",
+      "model_file": "elbow_90_623k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 623153,
+      "model_elements": 206435,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 12237,
+      "timings": {
+        "load_mesh": 0.00466739999683341,
+        "assemble_system": 53.08835299999919,
+        "apply_bc": 0.3517941000027349,
+        "solve_system": 166.1899734000035,
+        "compute_derived": 14.626960099994903,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 234.26176390000182,
+        "total_program_time": 234.26215020000382
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.96819279817059
+        ],
+        "u_mean": 0.4594641899300246,
+        "u_std": 0.5100847760644428,
+        "final_residual": 2.299354302584491e-09,
+        "relative_residual": 3.311990320845923e-08
+      },
+      "memory": {
+        "peak_ram_mb": 911.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 975.31,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1991,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9712725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "5dec11df-902f-4d67-aab9-f521bab875dc",
+      "timestamp": "2026-01-06T13:37:52.525530+00:00",
+      "model_file": "elbow_90_623k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 623153,
+      "model_elements": 206435,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 12237,
+      "timings": {
+        "load_mesh": 0.004860999993979931,
+        "assemble_system": 52.866048600000795,
+        "apply_bc": 0.3521106999978656,
+        "solve_system": 167.1553692000016,
+        "compute_derived": 14.572717800001556,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 234.95112299999892,
+        "total_program_time": 234.95147590000124
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.96819279817059
+        ],
+        "u_mean": 0.4594641899300246,
+        "u_std": 0.5100847760644428,
+        "final_residual": 2.299354302584491e-09,
+        "relative_residual": 3.311990320845923e-08
+      },
+      "memory": {
+        "peak_ram_mb": 910.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 976.32,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1994,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9712725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "29692324-5e71-4701-81f9-728749b11df5",
+      "timestamp": "2026-01-06T13:37:52.535530+00:00",
+      "model_file": "elbow_90_623k.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 623153,
+      "model_elements": 206435,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 12237,
+      "timings": {
+        "load_mesh": 0.004390000001876615,
+        "assemble_system": 52.68364219999785,
+        "apply_bc": 0.3494693000029656,
+        "solve_system": 167.55948560000252,
+        "compute_derived": 14.63302079999994,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 235.23002290000295,
+        "total_program_time": 235.23040760000004
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.96819279817059
+        ],
+        "u_mean": 0.4594641899300246,
+        "u_std": 0.5100847760644428,
+        "final_residual": 2.299354302584491e-09,
+        "relative_residual": 3.311990320845923e-08
+      },
+      "memory": {
+        "peak_ram_mb": 899.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 987.32,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1994,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9712725,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "53deb62a-36cc-4e7a-be5f-10b2e2a02dea",
+      "timestamp": "2026-01-06T14:26:05.363011+00:00",
+      "model_file": "elbow_90_1m.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 1044857,
+      "model_elements": 346621,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 24724,
+      "timings": {
+        "load_mesh": 0.006881199995405041,
+        "assemble_system": 88.10224520000338,
+        "apply_bc": 0.6177243999991333,
+        "solve_system": 606.7471923999983,
+        "compute_derived": 24.33623460000672,
+        "print_stats": 4.00003045797348e-07,
+        "total_workflow": 719.810295700001,
+        "total_program_time": 719.8106823999988
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681717510609782
+        ],
+        "u_mean": 0.461817076559811,
+        "u_std": 0.5113327414806897,
+        "final_residual": 2.6379901928534626e-09,
+        "relative_residual": 4.332116853854925e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1574.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 991.38,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 6366,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16304541,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "79e7aabd-ab3f-493b-adfc-1e37d1626db0",
+      "timestamp": "2026-01-06T14:26:05.374013+00:00",
+      "model_file": "elbow_90_1m.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 1044857,
+      "model_elements": 346621,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 24724,
+      "timings": {
+        "load_mesh": 0.006979899997531902,
+        "assemble_system": 88.51656209999783,
+        "apply_bc": 0.5975803999972413,
+        "solve_system": 617.1539798999947,
+        "compute_derived": 24.038797300003353,
+        "print_stats": 4.999965312890708e-07,
+        "total_workflow": 730.313917200001,
+        "total_program_time": 730.3142701999968
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681717510609782
+        ],
+        "u_mean": 0.461817076559811,
+        "u_std": 0.5113327414806897,
+        "final_residual": 2.6379901928534626e-09,
+        "relative_residual": 4.332116853854925e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1560.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1005.38,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 6546,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16304541,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "a4fa95a5-cd1d-43d2-942a-fc5698eb1eb3",
+      "timestamp": "2026-01-06T14:26:05.384010+00:00",
+      "model_file": "elbow_90_1m.h5",
+      "model_name": "Elbow 90\u00b0",
+      "model_nodes": 1044857,
+      "model_elements": 346621,
+      "solver_type": "cpu",
+      "converged": true,
+      "iterations": 24724,
+      "timings": {
+        "load_mesh": 0.017467999998189043,
+        "assemble_system": 87.11036869999953,
+        "apply_bc": 0.6188077999977395,
+        "solve_system": 611.2691760999951,
+        "compute_derived": 24.270836800002144,
+        "print_stats": 3.9998849388211966e-07,
+        "total_workflow": 723.2866747000007,
+        "total_program_time": 723.2871066000007
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          1.9681717510609782
+        ],
+        "u_mean": 0.461817076559811,
+        "u_std": 0.5113327414806897,
+        "final_residual": 2.6379901928534626e-09,
+        "relative_residual": 4.332116853854925e-08
+      },
+      "memory": {
+        "peak_ram_mb": 1560.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1005.38,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 6513,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 16304541,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "914f1405-93e9-4914-93bb-1ffb2c2ce04d",
+      "timestamp": "2026-01-06T14:26:05.831510+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.0007744000031379983,
+        "assemble_system": 0.00492929999018088,
+        "apply_bc": 0.0006971999973757192,
+        "solve_system": 0.001723699999274686,
+        "compute_derived": 0.002204299991717562,
+        "total_workflow": 0.010336300008930266,
+        "total_program_time": 0.010676999998395331
+      },
+      "solution_stats": {
+        "u_range": [
+          2.766533473300303e-13,
+          11.501239432274685
+        ],
+        "u_mean": 7.158144659452484,
+        "u_std": 2.626034752556149,
+        "final_residual": 1.0546651293208589e-08,
+        "relative_residual": 9.55338483714519e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1010.62,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "7836323d-46e5-4105-a63d-16a590f5e247",
+      "timestamp": "2026-01-06T14:26:05.843013+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.0009821999992709607,
+        "assemble_system": 0.005318299998180009,
+        "apply_bc": 0.0005405999982031062,
+        "solve_system": 0.0017682000034255907,
+        "compute_derived": 0.002199300011852756,
+        "total_workflow": 0.01081569999223575,
+        "total_program_time": 0.011111999992863275
+      },
+      "solution_stats": {
+        "u_range": [
+          2.766533473300303e-13,
+          11.501239432274685
+        ],
+        "u_mean": 7.158144659452484,
+        "u_std": 2.626034752556149,
+        "final_residual": 1.0546651293208589e-08,
+        "relative_residual": 9.55338483714519e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1009.64,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "d3be4f62-a513-4c5a-b55b-96c735fe7b1e",
+      "timestamp": "2026-01-06T14:26:05.853510+00:00",
+      "model_file": "y_tube_201.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 201,
+      "model_elements": 52,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 115,
+      "timings": {
+        "load_mesh": 0.000715299989678897,
+        "assemble_system": 0.005024300000513904,
+        "apply_bc": 0.0005176999984541908,
+        "solve_system": 0.0019043999927816913,
+        "compute_derived": 0.0021994999988237396,
+        "total_workflow": 0.01036829999065958,
+        "total_program_time": 0.010717999990447424
+      },
+      "solution_stats": {
+        "u_range": [
+          2.766533473300303e-13,
+          11.501239432274685
+        ],
+        "u_mean": 7.158144659452484,
+        "u_std": 2.626034752556149,
+        "final_residual": 1.0546651293208589e-08,
+        "relative_residual": 9.55338483714519e-09
+      },
+      "memory": {
+        "peak_ram_mb": 0.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1009.64,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2621,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "8542591e-cd53-4579-9dd8-51a869571c7b",
+      "timestamp": "2026-01-06T14:27:27.921061+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.017439500006730668,
+        "assemble_system": 4.663094500006991,
+        "apply_bc": 0.45717660000082105,
+        "solve_system": 13.278791700009606,
+        "compute_derived": 2.1202562999969814,
+        "total_workflow": 20.53677570000582,
+        "total_program_time": 20.537124700000277
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806316902
+        ],
+        "u_mean": 5.739263771821296,
+        "u_std": 4.383973066680851,
+        "final_residual": 2.58864969761692e-09,
+        "relative_residual": 1.4183346899163342e-08
+      },
+      "memory": {
+        "peak_ram_mb": 146.61,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1012.58,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 182,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "23de14a3-5ef6-4fb3-9113-064c0937c37b",
+      "timestamp": "2026-01-06T14:27:27.932557+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.018158200007746927,
+        "assemble_system": 4.808312299996032,
+        "apply_bc": 0.4694759999983944,
+        "solve_system": 13.316184700001031,
+        "compute_derived": 2.0184005000046454,
+        "total_workflow": 20.630546800006414,
+        "total_program_time": 20.630845799998497
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326806315884
+        ],
+        "u_mean": 5.739263771820551,
+        "u_std": 4.383973066680368,
+        "final_residual": 2.589239634479789e-09,
+        "relative_residual": 1.4186579194047575e-08
+      },
+      "memory": {
+        "peak_ram_mb": 146.12,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1015.56,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 183,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "06990648-7ff2-4898-b08e-87677652c7cc",
+      "timestamp": "2026-01-06T14:27:27.943557+00:00",
+      "model_file": "y_tube_195k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 195853,
+      "model_elements": 48607,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 3741,
+      "timings": {
+        "load_mesh": 0.01724669999384787,
+        "assemble_system": 4.604181099988637,
+        "apply_bc": 0.42837280000094324,
+        "solve_system": 13.307634000011603,
+        "compute_derived": 2.0266171999974176,
+        "total_workflow": 20.384067699997104,
+        "total_program_time": 20.38444160000654
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.82532680631912
+        ],
+        "u_mean": 5.739263771822396,
+        "u_std": 4.383973066681679,
+        "final_residual": 2.5892431869325703e-09,
+        "relative_residual": 1.4186598658121908e-08
+      },
+      "memory": {
+        "peak_ram_mb": 146.5,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1016.29,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 179,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 2338833,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "946d3021-033b-404a-8058-120fde58abb8",
+      "timestamp": "2026-01-06T14:37:42.935191+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.06670589999703225,
+        "assemble_system": 18.414064199998393,
+        "apply_bc": 1.908271499996772,
+        "solve_system": 125.08587249999982,
+        "compute_derived": 8.14376840001205,
+        "total_workflow": 153.6186996000033,
+        "total_program_time": 153.6191470000049
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857491643
+        ],
+        "u_mean": 5.735933633231652,
+        "u_std": 4.386229136769608,
+        "final_residual": 1.8375506848728044e-09,
+        "relative_residual": 1.423597926161398e-08
+      },
+      "memory": {
+        "peak_ram_mb": 902.69,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1022.25,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1376,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "06c3a4bd-08fc-4211-8708-4c940e321c1b",
+      "timestamp": "2026-01-06T14:37:42.947191+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.06942289999278728,
+        "assemble_system": 18.29357059999893,
+        "apply_bc": 1.8926492000027793,
+        "solve_system": 125.29935119999573,
+        "compute_derived": 8.19346919999225,
+        "total_workflow": 153.74847890000092,
+        "total_program_time": 153.74902969998948
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857495357
+        ],
+        "u_mean": 5.735933633233672,
+        "u_std": 4.386229136771067,
+        "final_residual": 1.837575701476277e-09,
+        "relative_residual": 1.4236173071695608e-08
+      },
+      "memory": {
+        "peak_ram_mb": 902.84,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1025.21,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1376,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "b59cc1dc-594f-4289-96e2-5a5e0ef8fc0f",
+      "timestamp": "2026-01-06T14:37:42.959692+00:00",
+      "model_file": "y_tube_772k.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 772069,
+      "model_elements": 192308,
+      "solver_type": "cpu_threaded",
+      "converged": true,
+      "iterations": 7508,
+      "timings": {
+        "load_mesh": 0.06849200000579003,
+        "assemble_system": 18.363613800000167,
+        "apply_bc": 1.8389374999969732,
+        "solve_system": 125.01504410000052,
+        "compute_derived": 8.09449719999975,
+        "total_workflow": 153.38060060000862,
+        "total_program_time": 153.3809595000057
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326857490372
+        ],
+        "u_mean": 5.735933633231025,
+        "u_std": 4.3862291367690736,
+        "final_residual": 1.8367756649523149e-09,
+        "relative_residual": 1.4229974982327289e-08
+      },
+      "memory": {
+        "peak_ram_mb": 898.61,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1029.23,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 1369,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "KRATOS",
+        "os": "Windows 10 (10.0.26200)",
+        "architecture": "AMD64",
+        "python_version": "3.10.9",
+        "cpu_model": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "cpu_cores": 28,
+        "ram_gb": 0,
+        "gpu_model": "NVIDIA GeForce RTX 4070",
+        "gpu_memory_gb": 12.0,
+        "cuda_version": "13.1"
+      },
+      "server_hash": "41a0c4c3f215",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 9242129,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 2000000,
+        "preconditioner": "jacobi"
+      }
+    }
+  ]
+}
