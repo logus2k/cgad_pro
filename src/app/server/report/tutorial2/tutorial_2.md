@@ -1,3 +1,7 @@
+# High-Performance GPU-Accelerated Finite Element Analysis
+
+**Project Tutorial #2 Report**
+
 # 1. General Overview - Finite Element Method
 
 The Finite Element Method (FEM) is a numerical technique widely used to approximate solutions of partial differential equations arising in engineering and scientific problems. Its main strength lies in its ability to handle complex geometries, heterogeneous materials, and general boundary conditions, which are often intractable using analytical approaches.
