@@ -3,7 +3,6 @@
 **Project Proposal – Phase 1**
 
 ---
-![](images/documents/tutorial2/multiprocessing.png)
 ## 1. Introduction
 
 The continuous increase in model complexity and fidelity in engineering and scientific simulations has made computational efficiency a central concern in modern numerical analysis. As simulation models grow in size and resolution, the computational cost associated with their numerical solution becomes a limiting factor, particularly when large parametric studies or high-resolution meshes are required.
