@@ -16,5 +16,11 @@
             "title": "Docker User Manual",
             "file": "docker/docker_user_manual.md"
         }
+        ,
+        {
+            "id": "docker_hub",
+            "title": "Dockerhub User Manual",
+            "file": "docker/DOCKERHUB.md"
+        }
     ]
 }
