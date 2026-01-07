@@ -91,9 +91,9 @@
 }
 
 .metric-actions .btn-warning {
-    background: #ff9f43;
-    color: #333333;
-    border: 1px solid #e88a2d;
+    background: #e63946;
+    color: #ffffff;
+    border: 1px solid #e63946;
 }
 
 .metric-actions .btn-warning:hover:not(:disabled) {
@@ -140,6 +140,7 @@
     width: 14px;
     height: 14px;
     cursor: pointer;
+    accent-color: #ffa537e2;
 }
 
 /* ============================================
@@ -189,11 +190,11 @@
 
 .metrics-settings-container .slider-control input[type="range"] {
     flex: 1;
-    height: 4px;
+    height: 1px;
     -webkit-appearance: none;
     appearance: none;
-    background: #ddd;
-    border-radius: 2px;
+    background: #ff8800;
+    border-radius: 4px;
     outline: none;
     cursor: pointer;
 }
@@ -201,25 +202,22 @@
 .metrics-settings-container .slider-control input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 14px;
-    height: 14px;
-    background: #0f9ce2;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
+    background: #ff9e4f;
+    box-shadow: inset;
     cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.metrics-settings-container .slider-control input[type="range"]::-webkit-slider-thumb:hover {
-    background: #0d8ac9;
+    border: none;
 }
 
 .metrics-settings-container .slider-control input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    background: #0f9ce2;
-    border: none;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
+    background: #ffa537e2;
     cursor: pointer;
+    border: none;
 }
 
 .metrics-settings-container .slider-value {
