@@ -83,7 +83,7 @@ export class MetricsDisplay {
             </div>
             
             <div class="metric-actions">
-                <button class="btn btn-warning" id="btn-clear-scene">Remove</button>
+                <button class="btn btn-warning" id="btn-clear-scene">Clear Scene</button>
                 <button class="btn btn-primary" id="btn-close-metrics">Close</button>
             </div>
         `;

@@ -33,6 +33,7 @@ export class MenuManager {
         this.moveables = new Map();
         this.positions = new WeakMap();
         this.svgCache = new Map();
+        this.menuButtons = new Map();
 
         this.tx = 0;
         this.ty = 0;
@@ -89,7 +90,7 @@ export class MenuManager {
             { id: 'metrics', icon: 'deployed_code', label: 'Simulation' },
             { id: 'benchmark', icon: 'finance', label: 'Benchmark' },
             { id: 'report', icon: 'assignment', label: 'Reporting' },
-            { id: 'settings', icon: 'settings', label: 'Settings' },
+            // { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
 
@@ -107,6 +108,7 @@ export class MenuManager {
                 b.classList.toggle('active', !isVisible);
             });
             wrap.appendChild(b);
+            this.menuButtons.set(id, b);  // Add this line
         });
 
         target.appendChild(wrap);
@@ -404,10 +406,7 @@ export class MenuManager {
     }
 
     #syncMenuBtn(id, active) {
-        if (!this.menuEl) return;
-        const btns = Array.from(this.menuEl.querySelectorAll('button'));
-        const idx = this.cfg.panelIds.indexOf(id);
-        const b = btns[idx];
+        const b = this.menuButtons.get(id);
         if (b) b.classList.toggle('active', !!active);
     }
 

@@ -97,9 +97,9 @@
 }
 
 .metric-actions .btn-warning:hover:not(:disabled) {
-    background: #ffbe76;
-    border-color: #e88a2d;
-    color: #333333;
+    background: #ffffff;
+    border-color: #e63946;
+    color: #e63946;
 }
 
 /* Metrics Settings Tab */
