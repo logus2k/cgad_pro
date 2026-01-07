@@ -2,7 +2,7 @@
     "version": "1.0",
     "description": "FEMulator Pro Automated Benchmark Suite",
     
-    "gallery_file": "../../client/config/gallery_files_small.json",
+    "gallery_file": "../../client/config/gallery_files.json",
     
     "execution": {
         "runs_per_test": 3,

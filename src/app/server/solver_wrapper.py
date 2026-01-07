@@ -26,6 +26,7 @@ from quad8_gpu_v3 import Quad8FEMSolverGPU as GPUSolver
 from quad8_numba import Quad8FEMSolverNumba as NumbaSolver
 from quad8_numba_cuda import Quad8FEMSolverNumbaCUDA as NumbaCUDASolver
 from quad8_cpu_threaded import Quad8FEMSolverThreaded as ThreadedSolver
+from quad8_cpu_multiprocess_v2 import Quad8FEMSolverMultiprocess as MultiprocessSolver
 
 # Import memory tracking
 from memory_tracker import MemoryTracker
@@ -81,7 +82,6 @@ class SolverWrapper:
                 progress_callback=progress_callback
             )
         elif self.solver_type == "cpu_multiprocess":
-            from quad8_cpu_multiprocess import Quad8FEMSolverMultiprocess as MultiprocessSolver
             self.solver = MultiprocessSolver(
                 mesh_file=params['mesh_file'],
                 maxiter=params.get('max_iterations', 15000),
