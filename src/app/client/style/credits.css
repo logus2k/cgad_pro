@@ -1,0 +1,316 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;900&display=swap');
+
+*,
+*::after,
+*::before {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-size: 1.6rem;
+    background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #0a0a12 100%);
+    color: #d4d4c8;
+    font-family: 'Crimson Pro', Georgia, serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Subtle mesh grid background */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(100, 140, 200, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100, 140, 200, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.application-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    font-weight: 300;
+    font-size: 4.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.3rem;
+}
+
+h1 b {
+    font-weight: 900;
+    color: #e8e8e0;
+}
+
+h1 em {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 0.7em;
+    color: #fb4c56;
+}
+
+h2 {
+    text-align: center;
+    font-weight: 600;
+    font-size: 2.2rem;
+    margin-top: 4rem;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+    color: #a8a89c;
+}
+
+h3 {
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    color: #888;
+}
+
+h4 {
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.6rem;
+}
+
+p {
+    font-size: 1.5rem;
+    text-align: center;
+    font-style: italic;
+    color: #999;
+    margin: 2rem 0;
+}
+
+.equation {
+    font-family: 'Times New Roman', serif;
+    font-size: 2.4rem;
+    text-align: center;
+    margin: 1rem 0;
+    color: #c0c0b0;
+}
+
+.credits {
+    position: absolute;
+    top: 100vh;
+    width: 100%;
+    padding: 2rem;
+}
+
+.credits-content {
+    position: relative;
+    animation: scrollUp 80s linear infinite;
+}
+
+.credits-content:hover {
+    animation-play-state: paused;
+}
+
+.credits__single {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    text-align: center;
+}
+
+.credits__single dt {
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    font-size: 1.4rem;
+    color: #888;
+    margin-top: 2rem;
+}
+
+.credits__single dd {
+    font-size: 2rem;
+    margin-top: 0.4rem;
+}
+
+.credits__double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.credits__double dt {
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 1.3rem;
+    color: #888;
+    margin-top: 1.5rem;
+}
+
+.credits__double dd {
+    text-align: left;
+    font-size: 1.7rem;
+    margin-top: 1.5rem;
+}
+
+.credits__double dd.role {
+    font-style: italic;
+    font-size: 1.3rem;
+    color: #aaa;
+    margin-top: 0.2rem;
+}
+
+.credits__inline {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.credits__inline li {
+    padding: 0.4rem 1rem;
+    font-size: 1.5rem;
+}
+
+.credits__music {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.credits__music dl {
+    text-align: center;
+    padding: 1rem 2rem;
+    flex-basis: 28rem;
+}
+
+.credits__music dt {
+    font-style: italic;
+    font-size: 1.6rem;
+    margin-bottom: 0.3rem;
+    color: #c8c8bc;
+}
+
+.credits__music dd {
+    font-size: 1.3rem;
+    color: #999;
+}
+
+.tech-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 3rem;
+    max-width: 500px;
+    margin: 1.5rem auto;
+    text-align: center;
+}
+
+.tech-stack span {
+    font-size: 1.5rem;
+}
+
+.tech-stack .lib {
+    text-align: right;
+    color: #b8b8ac;
+}
+
+.tech-stack .desc {
+    text-align: left;
+    font-style: italic;
+    color: #888;
+    font-size: 1.3rem;
+}
+
+footer {
+    margin: 5rem 2rem;
+    text-align: center;
+}
+
+footer p {
+    font-size: 1.3rem;
+    margin: 1rem 0;
+}
+
+.disclaimer {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 500px;
+    margin: 3rem auto;
+    line-height: 1.6;
+}
+
+.institution {
+    margin-top: 4rem;
+    font-size: 1.4rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    color: #777;
+}
+
+.year {
+    font-size: 1.8rem;
+    margin-top: 1rem;
+    color: #999;
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
+
+.title {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    z-index: 10;
+    animation: fadeOut 8s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+.title .tagline {
+    font-size: 1.6rem;
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    color: #888;
+    margin-top: 1rem;
+}

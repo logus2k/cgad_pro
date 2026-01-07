@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEMulator Pro - Credits</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap');
+        
+        *,
+        *::after,
+        *::before {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        body {
+            font-size: 1.6rem;
+            background: linear-gradient(180deg, 
+                #fff4e5 0%, 
+                #fff8f0 20%,
+                #fffaf5 50%,
+                #fff8f0 80%,
+                #fff4e5 100%
+            );
+            color: #4a4540;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle vignette for cinematic depth */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, 
+                transparent 0%, 
+                transparent 60%,
+                rgba(180, 150, 100, 0.08) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Film grain texture overlay */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .application-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.6rem;
+            margin-top: 3.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+            color: #b8860b;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+            font-style: italic;
+            color: #8b7355;
+        }
+
+        p {
+            font-size: 1.3rem;
+            text-align: center;
+            font-style: italic;
+            color: #8b7355;
+            margin: 1.5rem 0;
+        }
+
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 2rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            color: #5a4a3a;
+        }
+
+        .credits {
+            position: absolute;
+            top: 100vh;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .credits-content {
+            position: relative;
+            animation: scrollUp 75s linear infinite;
+        }
+
+        .credits-content:hover {
+            animation-play-state: paused;
+        }
+
+        .credits__single {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            text-align: center;
+        }
+
+        .credits__single dt {
+            text-transform: uppercase;
+            letter-spacing: 0.15rem;
+            font-size: 1.1rem;
+            color: #a08060;
+            margin-top: 1.8rem;
+            font-weight: 500;
+        }
+
+        .credits__single dd {
+            font-size: 1.6rem;
+            margin-top: 0.3rem;
+            color: #4a4540;
+        }
+
+        .credits__double {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 1.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .credits__double dt {
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            font-size: 1.1rem;
+            color: #a08060;
+            margin-top: 1.3rem;
+            font-weight: 500;
+        }
+
+        .credits__double dd {
+            text-align: left;
+            font-size: 1.4rem;
+            margin-top: 1.3rem;
+            color: #4a4540;
+        }
+
+        .credits__double dd.role {
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #8b7355;
+            margin-top: 0.1rem;
+        }
+
+        .credits__inline {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .credits__inline li {
+            padding: 0.3rem 0.8rem;
+            font-size: 1.3rem;
+            color: #5a4a3a;
+        }
+
+        .credits__music {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.2rem;
+        }
+
+        .credits__music dl {
+            text-align: center;
+            padding: 0.8rem 1.5rem;
+            flex-basis: 24rem;
+        }
+
+        .credits__music dt {
+            font-style: italic;
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+            color: #5a4a3a;
+        }
+
+        .credits__music dd {
+            font-size: 1.1rem;
+            color: #8b7355;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem 2rem;
+            max-width: 420px;
+            margin: 1.2rem auto;
+            text-align: center;
+        }
+
+        .tech-stack span {
+            font-size: 1.3rem;
+        }
+
+        .tech-stack .lib {
+            text-align: right;
+            color: #5a4a3a;
+            font-weight: 500;
+        }
+
+        .tech-stack .desc {
+            text-align: left;
+            font-style: italic;
+            color: #8b7355;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            margin: 4rem 2rem;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 1.1rem;
+            margin: 0.8rem 0;
+        }
+
+        .disclaimer {
+            font-size: 1.1rem;
+            color: #8b7355;
+            max-width: 450px;
+            margin: 2.5rem auto;
+            line-height: 1.7;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .institution {
+            margin-top: 3rem;
+            font-size: 1.2rem;
+            letter-spacing: 0.25rem;
+            text-transform: uppercase;
+            color: #a08060;
+            font-weight: 500;
+        }
+
+        .year {
+            font-size: 1.6rem;
+            margin-top: 0.8rem;
+            color: #b8860b;
+            font-weight: 700;
+        }
+
+        .license {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            color: #8b7355;
+        }
+
+        .license-note {
+            font-size: 1rem;
+            color: #a08060;
+            font-style: italic;
+        }
+
+        /* Decorative film strip borders */
+        .film-border {
+            height: 8px;
+            background: repeating-linear-gradient(
+                90deg,
+                #d4a860 0px,
+                #d4a860 12px,
+                transparent 12px,
+                transparent 18px
+            );
+            margin: 3rem 0;
+            opacity: 0.4;
+        }
+
+        @keyframes scrollUp {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+
+        .title {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            animation: fadeOut 7s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            65% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        .title .tagline {
+            font-size: 1.4rem;
+            letter-spacing: 0.3rem;
+            text-transform: uppercase;
+            color: #a08060;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        /* Sepia-toned separator */
+        .sep {
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4a860, transparent);
+            margin: 2rem auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <div class="application-logo">
+                <svg width="330" height="80" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="softShadowTitle" x="-20%" y="-20%" width="150%" height="150%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur>
+                            <feOffset dx="2" dy="2" result="offsetblur"></feOffset>
+                            <feComponentTransfer>
+                                <feFuncA type="linear" slope="0.3"></feFuncA>
+                            </feComponentTransfer>
+                            <feMerge>
+                                <feMergeNode></feMergeNode>
+                                <feMergeNode in="SourceGraphic"></feMergeNode>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <text x="30" y="50" font-family="'Roboto', -apple-system, sans-serif" font-size="30" fill="currentColor" filter="url(#softShadowTitle)">
+                        <tspan font-weight="900" fill="#404040">FEM</tspan><tspan font-weight="400" fill="#5a5a5a">ULATOR</tspan>
+                        <tspan dx="5" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+                    </text>
+                </svg>
+            </div>
+            <div class="tagline">High Performance Graphical Computing</div>
+        </div>
+        
+        <section class="credits">
+            <div class="credits-content">
+                
+                <header style="text-align: center; margin-bottom: 2.5rem;">
+                    <div class="application-logo">
+                        <svg width="280" height="65" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <filter id="softShadow" x="-20%" y="-20%" width="150%" height="150%">
+                                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur>
+                                    <feOffset dx="2" dy="2" result="offsetblur"></feOffset>
+                                    <feComponentTransfer>
+                                        <feFuncA type="linear" slope="0.3"></feFuncA>
+                                    </feComponentTransfer>
+                                    <feMerge>
+                                        <feMergeNode></feMergeNode>
+                                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <text x="30" y="50" font-family="'Roboto', -apple-system, sans-serif" font-size="30" fill="currentColor" filter="url(#softShadow)">
+                                <tspan font-weight="900" fill="#404040">FEM</tspan><tspan font-weight="400" fill="#5a5a5a">ULATOR</tspan>
+                                <tspan dx="5" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+                            </text>
+                        </svg>
+                    </div>
+                    <p style="margin-top: 0.5rem;">A GPU-Accelerated Finite Element Analysis Platform</p>
+                </header>
+
+                <div class="film-border"></div>
+
+                <dl class="credits__single">
+                    <dt>Governed by</dt>
+                    <dd>The Laplace Equation</dd>
+                    <dd class="equation">&#8711;&sup2;u = 0</dd>
+                    
+                    <dt>Solved using</dt>
+                    <dd>Conjugate Gradient Method</dd>
+                    <dd class="role" style="font-size: 1.2rem; color: #8b7355;">with Jacobi Preconditioning</dd>
+                    
+                    <dt>Discretized by</dt>
+                    <dd>Quad-8 Isoparametric Elements</dd>
+                    <dd class="role" style="font-size: 1.2rem; color: #8b7355;">8 nodes &bull; 3&times;3 Gauss-Legendre</dd>
+                </dl>
+
+                <div class="sep"></div>
+
+                <h2>The Development Team</h2>
+                <h3>ISCTE-IUL &bull; Sintra Campus</h3>
+
+                <dl class="credits__double">
+                    <dt>Lead Architect</dt>
+                    <dd>Ant&oacute;nio Cruz</dd>
+                    <dd class="role">Chief Quadrilateral Officer</dd>
+                    
+                    <dt>GPU Whisperer</dt>
+                    <dd>Bruno Santos</dd>
+                    <dd class="role">CUDA Kernel Choreographer</dd>
+                    
+                    <dt>Mesh Wrangler</dt>
+                    <dd>Pedro Miranda</dd>
+                    <dd class="role">Geometry Acquisition Specialist</dd>
+                    
+                    <dt>Convergence Guru</dt>
+                    <dd>Ricardo Kayseller</dd>
+                    <dd class="role">Residual Reduction Consultant</dd>
+                </dl>
+
+                <div class="sep"></div>
+
+                <h2>Starring</h2>
+                <h3>The Solver Implementations</h3>
+
+                <dl class="credits__double">
+                    <dt>The Reliable One</dt>
+                    <dd>CPU Baseline</dd>
+                    <dd class="role">NumPy / SciPy</dd>
+                    
+                    <dt>The Speed Demon</dt>
+                    <dd>GPU CuPy</dd>
+                    <dd class="role">20-30&times; speedup</dd>
+                    
+                    <dt>The Compiler</dt>
+                    <dd>Numba JIT</dd>
+                    <dd class="role">Production without GPU</dd>
+                    
+                    <dt>The Kernel Master</dt>
+                    <dd>Numba CUDA</dd>
+                    <dd class="role">Fine-grained control</dd>
+                    
+                    <dt>The Multitasker</dt>
+                    <dd>CPU Threaded</dd>
+                    <dd class="role">ThreadPoolExecutor</dd>
+                    
+                    <dt>The Core Collector</dt>
+                    <dd>CPU Multiprocess</dd>
+                    <dd class="role">Pool initializer pattern</dd>
+                </dl>
+
+                <div class="sep"></div>
+
+                <h2>Visual Effects</h2>
+
+                <div class="tech-stack">
+                    <span class="lib">Three.js</span>
+                    <span class="desc">Reality Renderer</span>
+                    <span class="lib">WebGL</span>
+                    <span class="desc">Pixel Pusher</span>
+                    <span class="lib">Socket.IO</span>
+                    <span class="desc">Progress Streamer</span>
+                    <span class="lib">ECharts</span>
+                    <span class="desc">Chart Conjurer</span>
+                </div>
+
+                <div class="sep"></div>
+
+                <h2>Mesh Catering</h2>
+                <h3>Serving Fine Geometries Since 2025</h3>
+
+                <ul class="credits__inline">
+                    <li>Backward-Facing Step</li>
+                    <li>Elbow 90&deg;</li>
+                    <li>S-Bend</li>
+                    <li>T-Junction</li>
+                    <li>Venturi</li>
+                    <li>Y-Shaped</li>
+                </ul>
+
+                <p>All meshes humanely stored in HDF5 format</p>
+
+                <div class="sep"></div>
+
+                <h2>Backend Services</h2>
+
+                <div class="tech-stack">
+                    <span class="lib">FastAPI</span>
+                    <span class="desc">Request Handler</span>
+                    <span class="lib">Uvicorn</span>
+                    <span class="desc">ASGI Conductor</span>
+                    <span class="lib">Docker</span>
+                    <span class="desc">Container Warden</span>
+                    <span class="lib">NVIDIA CUDA</span>
+                    <span class="desc">Parallel Universe</span>
+                </div>
+
+                <div class="film-border"></div>
+
+                <h2>Soundtrack</h2>
+                <h3>Songs to Iterate By</h3>
+
+                <div class="credits__music">
+                    <dl>
+                        <dt>"Conjugate My Heart"</dt>
+                        <dd>The Gradient Descenders</dd>
+                    </dl>
+                    <dl>
+                        <dt>"Still Iterating"</dt>
+                        <dd>15,000 Iterations &amp; The Residuals</dd>
+                    </dl>
+                    <dl>
+                        <dt>"Laplace Your Bets"</dt>
+                        <dd>Elliptic PDE Anthem</dd>
+                    </dl>
+                    <dl>
+                        <dt>"Sparse but Not Forgotten"</dt>
+                        <dd>A Ballad for Large Matrices</dd>
+                    </dl>
+                </div>
+
+                <div class="sep"></div>
+
+                <h2>Special Thanks</h2>
+
+                <div class="tech-stack" style="max-width: 480px;">
+                    <span class="lib">SciPy</span>
+                    <span class="desc">Sparse matrix therapist</span>
+                    <span class="lib">CuPy</span>
+                    <span class="desc">Making GPUs useful since 2015</span>
+                    <span class="lib">NumPy</span>
+                    <span class="desc">The foundation of everything</span>
+                    <span class="lib">Numba</span>
+                    <span class="desc">JIT happens</span>
+                </div>
+
+                <p class="disclaimer">
+                    No nodes were displaced beyond their elastic limits during this simulation.
+                    <br><br>
+                    All boundary conditions were applied humanely and in accordance 
+                    with the Dirichlet-Robin Convention of 1850.
+                    <br><br>
+                    The Conjugate Gradient method converged on the first try.
+                    <br>Just kidding. It took 12,847 iterations.
+                </p>
+
+                <div class="film-border"></div>
+
+                <footer>
+                    <p>Benchmarked on systems that ran surprisingly hot</p>
+                    
+                    <div class="institution">
+                        ISCTE-IUL &bull; Instituto Universit&aacute;rio de Lisboa
+                    </div>
+                    <div class="institution" style="margin-top: 0.3rem; font-size: 1rem; letter-spacing: 0.15rem;">
+                        High Performance Graphical Computing
+                    </div>
+                    
+                    <div class="year">MMXXV</div>
+                    
+                    <div class="license">
+                        Licensed under Apache 2.0
+                    </div>
+                    <div class="license-note">
+                        (Boundary conditions may vary)
+                    </div>
+                </footer>
+
+            </div>
+        </section>
+    </div>
+</body>
+</html>
