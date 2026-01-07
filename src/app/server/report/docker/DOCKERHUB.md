@@ -2,8 +2,6 @@
 
 A containerized deployment of the Femulator Pro application. This setup allows you to run the Femulator environment with all dependencies pre-configured.
 
----
-
 ## Quick Start
 
 The easiest way to run Femulator is using **Docker Compose**. 
@@ -17,10 +15,17 @@ Create a folder on your computer and save the following content into a file name
 ```yaml
 services:
   femulator:
-    image: logus2k/femulator:1.0
+    image: logus2k/femulator:latest
     container_name: femulator
     hostname: femulator
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: "all"
+              capabilities: [ gpu ]    
     logging:
       options:
         max-size: "10m"
@@ -33,7 +38,6 @@ services:
 networks:
   femulator_network:
     driver: bridge
-
 ```
 
 ### 3. Launch the Application

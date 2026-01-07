@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head>
-      <title>DOCKERHUB</title>
+      <title>quad8_cpu_multiprocess_v2</title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
@@ -24,59 +24,98 @@
     
       <div class="crossnote markdown-preview  ">
       
-<h1 id="femulator-pro-v10">FEMulator Pro v1.0 </h1>
-<p>A containerized deployment of the Femulator Pro application. This setup allows you to run the Femulator environment with all dependencies pre-configured.</p>
-<h2 id="quick-start">Quick Start </h2>
-<p>The easiest way to run Femulator is using <strong>Docker Compose</strong>.</p>
-<h3 id="1-prerequisites">1. Prerequisites </h3>
+<h1 id="cpu-multiprocess-solver-v2">CPU Multiprocess Solver v2 </h1>
+<h2 id="overview">Overview </h2>
+<p>Version 2 of <code>quad8_cpu_multiprocess.py</code> fixes a critical issue that caused the solver to fail on Windows when processing large meshes (500K+ nodes).</p>
+<h2 id="the-problem">The Problem </h2>
+<p>When running benchmarks with large meshes (e.g., Y-Shaped with 772,069 nodes), the original implementation failed with:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>OSError: [WinError 1450] Insufficient system resources exist to complete the requested service
+</code></pre><h3 id="root-cause">Root Cause </h3>
+<p>The original code passed the entire mesh arrays with every batch sent to worker processes:</p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># Original (v1) - each batch included full mesh data</span>
+batches<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> end<span class="token punctuation">,</span> self<span class="token punctuation">.</span>x<span class="token punctuation">,</span> self<span class="token punctuation">.</span>y<span class="token punctuation">,</span> self<span class="token punctuation">.</span>quad8<span class="token punctuation">,</span> xp<span class="token punctuation">,</span> wp<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre><p>For a 772K node mesh:</p>
 <ul>
-<li>Install <strong>Docker Desktop</strong> (Windows/Mac) or <strong>Docker Engine</strong> (Linux). <a href="https://docs.docker.com/get-docker/">Get Docker here</a>.</li>
+<li><code>self.x</code> and <code>self.y</code>: ~6 MB each</li>
+<li><code>self.quad8</code>: ~25 MB</li>
+<li><strong>Total per batch: ~37 MB</strong></li>
 </ul>
-<h3 id="2-create-the-configuration">2. Create the Configuration </h3>
-<p>Create a folder on your computer and save the following content into a file named <code>docker-compose.yml</code>:</p>
-<pre data-role="codeBlock" data-info="yaml" class="language-yaml yaml"><code><span class="token key atrule">services</span><span class="token punctuation">:</span>
-  <span class="token key atrule">femulator</span><span class="token punctuation">:</span>
-    <span class="token key atrule">image</span><span class="token punctuation">:</span> logus2k/femulator<span class="token punctuation">:</span>latest
-    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> femulator
-    <span class="token key atrule">hostname</span><span class="token punctuation">:</span> femulator
-    <span class="token key atrule">restart</span><span class="token punctuation">:</span> unless<span class="token punctuation">-</span>stopped
-    <span class="token key atrule">deploy</span><span class="token punctuation">:</span>
-      <span class="token key atrule">resources</span><span class="token punctuation">:</span>
-        <span class="token key atrule">reservations</span><span class="token punctuation">:</span>
-          <span class="token key atrule">devices</span><span class="token punctuation">:</span>
-            <span class="token punctuation">-</span> <span class="token key atrule">driver</span><span class="token punctuation">:</span> nvidia
-              <span class="token key atrule">count</span><span class="token punctuation">:</span> <span class="token string">"all"</span>
-              <span class="token key atrule">capabilities</span><span class="token punctuation">:</span> <span class="token punctuation">[</span> gpu <span class="token punctuation">]</span>    
-    <span class="token key atrule">logging</span><span class="token punctuation">:</span>
-      <span class="token key atrule">options</span><span class="token punctuation">:</span>
-        <span class="token key atrule">max-size</span><span class="token punctuation">:</span> <span class="token string">"10m"</span>
-        <span class="token key atrule">max-file</span><span class="token punctuation">:</span> <span class="token string">"3"</span>
-    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
-      <span class="token punctuation">-</span> <span class="token string">"5868:5868"</span>
-    <span class="token key atrule">networks</span><span class="token punctuation">:</span>
-      <span class="token punctuation">-</span> femulator_network
+<p>With <code>batch_size=1000</code> and ~250K elements, this created ~250 batches, each attempting to serialize ~37 MB through Windows IPC pipes. Windows <code>multiprocessing</code> uses <code>spawn</code> (not <code>fork</code>), requiring all data to be pickled and sent through pipes, which exhausted system resources.</p>
+<h2 id="the-solution">The Solution </h2>
+<p>Version 2 uses the <strong>Pool initializer pattern</strong> to broadcast large arrays to workers once at pool creation:</p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># v2 - data sent once via initializer, batches only contain indices</span>
+_WORKER_STATE <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
 
-<span class="token key atrule">networks</span><span class="token punctuation">:</span>
-  <span class="token key atrule">femulator_network</span><span class="token punctuation">:</span>
-    <span class="token key atrule">driver</span><span class="token punctuation">:</span> bridge
-</code></pre><h3 id="3-launch-the-application">3. Launch the Application </h3>
-<p>Open your terminal or command prompt in that folder and run:</p>
-<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token function">docker-compose</span> up <span class="token parameter variable">-d</span>
+<span class="token keyword keyword-def">def</span> <span class="token function">_init_assembly_worker</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> y<span class="token punctuation">,</span> quad8<span class="token punctuation">,</span> xp<span class="token punctuation">,</span> wp<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    _WORKER_STATE<span class="token punctuation">[</span><span class="token string">'x'</span><span class="token punctuation">]</span> <span class="token operator">=</span> x
+    _WORKER_STATE<span class="token punctuation">[</span><span class="token string">'y'</span><span class="token punctuation">]</span> <span class="token operator">=</span> y
+    _WORKER_STATE<span class="token punctuation">[</span><span class="token string">'quad8'</span><span class="token punctuation">]</span> <span class="token operator">=</span> quad8
+    _WORKER_STATE<span class="token punctuation">[</span><span class="token string">'xp'</span><span class="token punctuation">]</span> <span class="token operator">=</span> xp
+    _WORKER_STATE<span class="token punctuation">[</span><span class="token string">'wp'</span><span class="token punctuation">]</span> <span class="token operator">=</span> wp
 
-</code></pre><p>The application will download the necessary images and start. You can now access the service via <code>localhost:5868</code>.</p>
-<hr>
-<h2 id="management-commands">Management Commands </h2>
-<p><strong>View Application Logs</strong> If you need to check the status or troubleshoot:</p>
-<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token function">docker</span> logs <span class="token parameter variable">-f</span> femulator
+<span class="token comment"># Pool creation with initializer</span>
+<span class="token keyword keyword-with">with</span> Pool<span class="token punctuation">(</span>
+    processes<span class="token operator">=</span>self<span class="token punctuation">.</span>num_workers<span class="token punctuation">,</span>
+    initializer<span class="token operator">=</span>_init_assembly_worker<span class="token punctuation">,</span>
+    initargs<span class="token operator">=</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>x<span class="token punctuation">,</span> self<span class="token punctuation">.</span>y<span class="token punctuation">,</span> self<span class="token punctuation">.</span>quad8<span class="token punctuation">,</span> xp<span class="token punctuation">,</span> wp<span class="token punctuation">)</span>
+<span class="token punctuation">)</span> <span class="token keyword keyword-as">as</span> pool<span class="token punctuation">:</span>
+    batches <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> end<span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> start <span class="token keyword keyword-in">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>Nels<span class="token punctuation">,</span> self<span class="token punctuation">.</span>batch_size<span class="token punctuation">)</span><span class="token punctuation">]</span>
+    results <span class="token operator">=</span> pool<span class="token punctuation">.</span><span class="token builtin">map</span><span class="token punctuation">(</span>_process_assembly_batch<span class="token punctuation">,</span> batches<span class="token punctuation">)</span>
+</code></pre><h3 id="data-transfer-comparison">Data Transfer Comparison </h3>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Data per batch</th>
+<th>Total for 250 batches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v1</td>
+<td>~37 MB</td>
+<td>~9.25 GB through IPC</td>
+</tr>
+<tr>
+<td>v2</td>
+<td>~16 bytes (two integers)</td>
+<td>~4 KB through IPC</td>
+</tr>
+</tbody>
+</table>
+<h2 id="changes-summary">Changes Summary </h2>
+<ol>
+<li>Added <code>_WORKER_STATE</code> module-level dict for worker process state</li>
+<li>Added <code>_init_assembly_worker()</code> and <code>_init_velocity_worker()</code> initializer functions</li>
+<li>Modified <code>assemble_system()</code> to use Pool with <code>initializer=</code> argument</li>
+<li>Modified <code>compute_derived_fields()</code> to use Pool with <code>initializer=</code> argument</li>
+<li>Batch tuples now contain only <code>(start_idx, end_idx)</code> instead of full arrays</li>
+<li>Legacy batch functions preserved for backward compatibility</li>
+</ol>
+<h2 id="api-compatibility">API Compatibility </h2>
+<p>The public API is <strong>100% unchanged</strong>:</p>
+<ul>
+<li>Same class name: <code>Quad8FEMSolverMultiprocess</code></li>
+<li>Same constructor parameters</li>
+<li>Same <code>run()</code> method signature</li>
+<li>Same return dictionary structure</li>
+<li>Same progress callback interface</li>
+<li>Same timing metrics</li>
+</ul>
+<h2 id="usage">Usage </h2>
+<p>Update the import in <code>solver_wrapper.py</code>:</p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># Before</span>
+<span class="token keyword keyword-from">from</span> quad8_cpu_multiprocess <span class="token keyword keyword-import">import</span> Quad8FEMSolverMultiprocess <span class="token keyword keyword-as">as</span> MultiprocessSolver
 
-</code></pre><p><strong>Stop the Application</strong> To stop and remove the containers (your data inside the container may be lost if not volume-mapped):</p>
-<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token function">docker-compose</span> down
-
-</code></pre><p><strong>Update to the Latest Version</strong> To ensure you are running the most recent version of the image:</p>
-<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token function">docker-compose</span> pull
-<span class="token function">docker-compose</span> up <span class="token parameter variable">-d</span>
-
-</code></pre><hr>
+<span class="token comment"># After</span>
+<span class="token keyword keyword-from">from</span> quad8_cpu_multiprocess_v2 <span class="token keyword keyword-import">import</span> Quad8FEMSolverMultiprocess <span class="token keyword keyword-as">as</span> MultiprocessSolver
+</code></pre><h2 id="testing">Testing </h2>
+<p>Verified working on:</p>
+<ul>
+<li>Windows 10/11 with Python 3.10</li>
+<li>Mesh sizes up to 772K+ nodes</li>
+<li>28-core CPU with full worker utilization</li>
+</ul>
 
       </div>
       
