@@ -1,32 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;900&display=swap');
+/* ==========================================================================
+   Credits Animation for About Panel
+   Dark cinema theme with seamless loop and wheel scroll
+   ========================================================================== */
 
-*,
-*::after,
-*::before {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&display=swap');
+
+
+/* Override About panel for dark cinema theme */
+.hud.about {
+    background: linear-gradient(180deg, #151515 0%, #1d1d1d 50%, #151515 100%) !important;
+    width: 420px !important;
+    height: 520px !important;
 }
 
-html {
-    font-size: 62.5%;
+.hud.about h1 {
+    background-color: #2a2a2a;
+    color: #d4a860;
 }
 
-body {
-    font-size: 1.6rem;
-    background: linear-gradient(180deg, #0a0a12 0%, #1a1a2e 50%, #0a0a12 100%);
-    color: #d4d4c8;
-    font-family: 'Crimson Pro', Georgia, serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
+.hud.about > .pm-close {
+    background-color: #333333;
+    color: #ffcc00;
+}
+
+.hud.about > .pm-close:hover {
+    border: 0.5px solid #ffb247;
+    background-color: #ff6e4a;
+    color: #1d1d1d;
+}
+
+.hud.about .sep {
+    background: #3a3a3a;
+}
+
+/* Credits container */
+.about-container.credits-mode {
     position: relative;
+    height: calc(100% - 35px);
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(180deg, #151515 0%, #1d1d1d 50%, #151515 100%);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 14px;
+}
+
+/* Subtle vignette overlay */
+.about-container.credits-mode::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, 
+        transparent 0%, 
+        transparent 60%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
 }
 
 /* Subtle mesh grid background */
-body::before {
+.about-container.credits-mode::after {
     content: "";
     position: absolute;
     top: 0;
@@ -34,283 +71,304 @@ body::before {
     right: 0;
     bottom: 0;
     background-image: 
-        linear-gradient(rgba(100, 140, 200, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(100, 140, 200, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 30px 30px;
     pointer-events: none;
+    z-index: 1;
 }
 
-.container {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.application-logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-h1 {
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
-    font-weight: 300;
-    font-size: 4.5rem;
-    margin-bottom: 1rem;
-    letter-spacing: 0.3rem;
-}
-
-h1 b {
-    font-weight: 900;
-    color: #e8e8e0;
-}
-
-h1 em {
-    font-family: 'Crimson Pro', serif;
-    font-style: italic;
-    font-size: 0.7em;
-    color: #fb4c56;
-}
-
-h2 {
-    text-align: center;
-    font-weight: 600;
-    font-size: 2.2rem;
-    margin-top: 4rem;
-    margin-bottom: 0.8rem;
-    letter-spacing: 0.15rem;
-    text-transform: uppercase;
-    color: #a8a89c;
-}
-
-h3 {
-    text-align: center;
-    font-weight: 400;
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    font-style: italic;
-    color: #888;
-}
-
-h4 {
-    text-align: center;
-    font-weight: 400;
-    font-size: 1.6rem;
-}
-
-p {
-    font-size: 1.5rem;
-    text-align: center;
-    font-style: italic;
-    color: #999;
-    margin: 2rem 0;
-}
-
-.equation {
-    font-family: 'Times New Roman', serif;
-    font-size: 2.4rem;
-    text-align: center;
-    margin: 1rem 0;
-    color: #c0c0b0;
-}
-
-.credits {
+/* Scrolling content wrapper */
+.credits-scroll {
     position: absolute;
-    top: 100vh;
+    top: 100%;
     width: 100%;
-    padding: 2rem;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    animation: creditsScroll 60s linear infinite;
+    z-index: 1;
 }
 
-.credits-content {
-    position: relative;
-    animation: scrollUp 80s linear infinite;
+/* Each loop - duplicated for seamless loop */
+.credits-loop {
+    /* No extra spacing */
 }
 
-.credits-content:hover {
-    animation-play-state: paused;
-}
-
-.credits__single {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-    text-align: center;
-}
-
-.credits__single dt {
-    text-transform: uppercase;
-    letter-spacing: 0.1rem;
-    font-size: 1.4rem;
-    color: #888;
-    margin-top: 2rem;
-}
-
-.credits__single dd {
-    font-size: 2rem;
-    margin-top: 0.4rem;
-}
-
-.credits__double {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 2rem;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.credits__double dt {
-    text-align: right;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-    font-size: 1.3rem;
-    color: #888;
-    margin-top: 1.5rem;
-}
-
-.credits__double dd {
-    text-align: left;
-    font-size: 1.7rem;
-    margin-top: 1.5rem;
-}
-
-.credits__double dd.role {
-    font-style: italic;
-    font-size: 1.3rem;
-    color: #aaa;
-    margin-top: 0.2rem;
-}
-
-.credits__inline {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1.5rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.credits__inline li {
-    padding: 0.4rem 1rem;
-    font-size: 1.5rem;
-}
-
-.credits__music {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1.5rem;
-}
-
-.credits__music dl {
-    text-align: center;
-    padding: 1rem 2rem;
-    flex-basis: 28rem;
-}
-
-.credits__music dt {
-    font-style: italic;
-    font-size: 1.6rem;
-    margin-bottom: 0.3rem;
-    color: #c8c8bc;
-}
-
-.credits__music dd {
-    font-size: 1.3rem;
-    color: #999;
-}
-
-.tech-stack {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 3rem;
-    max-width: 500px;
-    margin: 1.5rem auto;
-    text-align: center;
-}
-
-.tech-stack span {
-    font-size: 1.5rem;
-}
-
-.tech-stack .lib {
-    text-align: right;
-    color: #b8b8ac;
-}
-
-.tech-stack .desc {
-    text-align: left;
-    font-style: italic;
-    color: #888;
-    font-size: 1.3rem;
-}
-
-footer {
-    margin: 5rem 2rem;
-    text-align: center;
-}
-
-footer p {
-    font-size: 1.3rem;
-    margin: 1rem 0;
-}
-
-.disclaimer {
-    font-size: 1.2rem;
-    color: #666;
-    max-width: 500px;
-    margin: 3rem auto;
-    line-height: 1.6;
-}
-
-.institution {
-    margin-top: 4rem;
-    font-size: 1.4rem;
-    letter-spacing: 0.2rem;
-    text-transform: uppercase;
-    color: #777;
-}
-
-.year {
-    font-size: 1.8rem;
-    margin-top: 1rem;
-    color: #999;
-}
-
-@keyframes scrollUp {
+@keyframes creditsScroll {
     0% {
         transform: translateY(0);
     }
     100% {
-        transform: translateY(-100%);
+        transform: translateY(-50%);
     }
 }
 
-.title {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translateX(-50%);
+/* Logo and tagline */
+.credits-logo {
     text-align: center;
-    width: 100%;
-    z-index: 10;
-    animation: fadeOut 8s forwards;
 }
 
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    70% { opacity: 1; }
-    100% { opacity: 0; visibility: hidden; }
+.credits-logo svg text tspan:first-child {
+    fill: #e8e8e0;
 }
 
-.title .tagline {
-    font-size: 1.6rem;
-    letter-spacing: 0.3rem;
+.credits-logo svg text tspan:nth-child(2) {
+    fill: #d4d4c8;
+}
+
+.credits-tagline {
+    text-align: center;
+    font-size: 12px;
+    font-style: italic;
+    color: #b0a090;
+    margin-bottom: 1.5rem;
+}
+
+/* Section headers */
+.credits-section {
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1rem;
     text-transform: uppercase;
-    color: #888;
+    color: #e8c060;
+}
+
+.credits-subsection {
+    text-align: center;
+    font-weight: 400;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: #b0a090;
+}
+
+/* Single column credits (equations, etc) */
+.credits-single {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.credits-single dt {
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    font-size: 11px;
+    color: #c0a878;
     margin-top: 1rem;
+}
+
+.credits-single dd {
+    font-size: 15px;
+    margin: 0.3rem 0 0 0;
+    color: #e8e8e0;
+}
+
+.credits-single dd.equation {
+    font-family: 'Times New Roman', serif;
+    font-size: 18px;
+    color: #d0c8b8;
+    margin-top: 0.2rem;
+}
+
+.credits-single dd.note {
+    font-style: italic;
+    font-size: 11px;
+    color: #b0a090;
+    margin-top: 0.2rem;
+}
+
+/* Double column credits (team, cast) */
+.credits-double {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.credits-double .credits-entry {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.8rem;
+}
+
+.credits-double .credits-entry .credits-title {
+    width: 45%;
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.03rem;
+    font-size: 10px;
+    color: #c0a878;
+    padding-top: 0.2rem;
+}
+
+.credits-double .credits-entry .credits-info {
+    width: 45%;
+    text-align: left;
+}
+
+.credits-double .credits-entry .credits-name {
+    font-size: 13px;
+    color: #e8e8e0;
+}
+
+.credits-double .credits-entry .credits-role {
+    font-style: italic;
+    font-size: 10px;
+    color: #b0a090;
+    margin-top: 0.1rem;
+}
+
+/* Tech stack grid */
+.credits-tech {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 1.5rem;
+    max-width: 300px;
+    margin: 1rem auto;
+    text-align: center;
+}
+
+.credits-tech .lib {
+    text-align: right;
+    font-size: 12px;
+    color: #d0c8b8;
+}
+
+.credits-tech .desc {
+    text-align: left;
+    font-style: italic;
+    font-size: 10px;
+    color: #b0a090;
+}
+
+/* Inline list */
+.credits-inline {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1rem auto;
+    padding: 0;
+    max-width: 350px;
+}
+
+.credits-inline li {
+    padding: 0.2rem 0.6rem;
+    font-size: 12px;
+    color: #d0c8b8;
+}
+
+/* Music section */
+.credits-music {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.credits-music dl {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    flex-basis: 180px;
+    margin: 0;
+}
+
+.credits-music dt {
+    font-style: italic;
+    font-size: 12px;
+    margin-bottom: 0.2rem;
+    color: #d0c8b8;
+}
+
+.credits-music dd {
+    font-size: 10px;
+    color: #b0a090;
+    margin: 0;
+}
+
+/* Curvy separator */
+.credits-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.credits-sep::before,
+.credits-sep::after {
+    content: "";
+    flex: 1;
+    max-width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #8a7a5a, transparent);
+}
+
+.credits-sep span {
+    font-family: 'Dancing Script', cursive;
+    font-size: 20px;
+    color: #8a7a5a;
+    line-height: 1;
+}
+
+/* Disclaimer */
+.credits-disclaimer {
+    font-size: 10px;
+    color: #908070;
+    text-align: center;
+    max-width: 300px;
+    margin: 1.5rem auto;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+/* Footer */
+.credits-footer {
+    margin: 2rem 1rem 1rem 1rem;
+    text-align: center;
+}
+
+.credits-footer p {
+    font-size: 10px;
+    color: #b0a090;
+    font-style: italic;
+    margin: 0.5rem 0;
+}
+
+.credits-institution {
+    margin-top: 1.5rem;
+    font-size: 11px;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    color: #c0a878;
+}
+
+.credits-institution.sub {
+    margin-top: 0.3rem;
+    font-size: 9px;
+}
+
+.credits-year {
+    font-size: 14px;
+    margin-top: 0.8rem;
+    color: #e8c060;
+}
+
+.credits-license {
+    margin-top: 1rem;
+    font-size: 11px;
+    color: #b0a090;
+}
+
+.credits-license span {
+    font-size: 9px;
+    color: #908070;
 }

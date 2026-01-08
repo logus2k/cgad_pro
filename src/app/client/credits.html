@@ -4,7 +4,365 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEMulator Pro - Credits</title>
-    <link rel="stylesheet" href="style/credits.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;900&display=swap');
+        
+        *,
+        *::after,
+        *::before {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        body {
+            font-size: 1.6rem;
+            background: linear-gradient(180deg, #151515 0%, #1d1d1d 50%, #151515 100%);
+            color: #e8e8e0;
+            font-family: 'Crimson Pro', Georgia, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle mesh grid background */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .application-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            font-weight: 300;
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.3rem;
+        }
+
+        h1 b {
+            font-weight: 900;
+            color: #e8e8e0;
+        }
+
+        h1 em {
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+            font-size: 0.7em;
+            color: #fb4c56;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+            font-size: 2.2rem;
+            margin-top: 4rem;
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.15rem;
+            text-transform: uppercase;
+            color: #e8c060;
+        }
+
+        h3 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: #b0a090;
+        }
+
+        h4 {
+            text-align: center;
+            font-weight: 400;
+            font-size: 1.6rem;
+        }
+
+        p {
+            font-size: 1.5rem;
+            text-align: center;
+            font-style: italic;
+            color: #b0a090;
+            margin: 2rem 0;
+        }
+
+        .equation {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.4rem;
+            text-align: center;
+            margin: 1rem 0;
+            color: #d0c8b8;
+        }
+
+        .credits {
+            position: absolute;
+            top: 100vh;
+            width: 100%;
+            padding: 0 2rem;
+        }
+
+        .credits-content {
+            position: relative;
+            animation: scrollUp 80s linear infinite;
+        }
+
+        /* Each loop item - will be duplicated for seamless loop */
+        .credits-loop {
+            /* No padding - seamless connection between copies */
+        }
+
+        @keyframes scrollUp {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-50%);
+            }
+        }
+
+        .credits__single {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            text-align: center;
+        }
+
+        .credits__single dt {
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            font-size: 1.4rem;
+            color: #c0a878;
+            margin-top: 2rem;
+        }
+
+        .credits__single dd {
+            font-size: 2rem;
+            margin-top: 0.4rem;
+            color: #e8e8e0;
+        }
+
+        .credits__double {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .credits__double .credits-entry {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .credits__double .credits-entry .credits-title {
+            width: 45%;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            font-size: 1.3rem;
+            color: #c0a878;
+            padding-top: 0.3rem;
+        }
+
+        .credits__double .credits-entry .credits-info {
+            width: 45%;
+            text-align: left;
+        }
+
+        .credits__double .credits-entry .credits-name {
+            font-size: 1.7rem;
+            color: #e8e8e0;
+        }
+
+        .credits__double .credits-entry .credits-role {
+            font-style: italic;
+            font-size: 1.3rem;
+            color: #b0a090;
+            margin-top: 0.2rem;
+        }
+
+        .credits__inline {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .credits__inline li {
+            padding: 0.4rem 1rem;
+            font-size: 1.5rem;
+            color: #d0c8b8;
+        }
+
+        .credits__music {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .credits__music dl {
+            text-align: center;
+            padding: 1rem 2rem;
+            flex-basis: 28rem;
+        }
+
+        .credits__music dt {
+            font-style: italic;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+            color: #d0c8b8;
+        }
+
+        .credits__music dd {
+            font-size: 1.3rem;
+            color: #b0a090;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 3rem;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .tech-stack span {
+            font-size: 1.5rem;
+        }
+
+        .tech-stack .lib {
+            text-align: right;
+            color: #d0c8b8;
+        }
+
+        .tech-stack .desc {
+            text-align: left;
+            font-style: italic;
+            color: #b0a090;
+            font-size: 1.3rem;
+        }
+
+        footer {
+            margin: 3rem 2rem 2rem 2rem;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 1.3rem;
+            margin: 1rem 0;
+        }
+
+        .disclaimer {
+            font-size: 1.2rem;
+            color: #908070;
+            max-width: 500px;
+            margin: 2rem auto;
+            line-height: 1.6;
+        }
+
+        .institution {
+            margin-top: 2rem;
+            font-size: 1.4rem;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+            color: #c0a878;
+        }
+
+        .year {
+            font-size: 1.8rem;
+            margin-top: 1rem;
+            color: #e8c060;
+        }
+
+        /* Curvy separator */
+        .credits-sep {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .credits-sep::before,
+        .credits-sep::after {
+            content: "";
+            flex: 1;
+            max-width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #8a7a5a, transparent);
+        }
+
+        .credits-sep span {
+            font-family: 'Dancing Script', cursive;
+            font-size: 28px;
+            color: #8a7a5a;
+            line-height: 1;
+        }
+
+        .title {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 100%;
+            z-index: 10;
+            animation: fadeOut 8s forwards;
+            transition: visibility 0s, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        .title .tagline {
+            font-size: 1.6rem;
+            letter-spacing: 0.3rem;
+            text-transform: uppercase;
+            color: #c0a878;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -35,6 +393,7 @@
         
         <section class="credits">
             <div class="credits-content">
+                <div class="credits-loop">
                 
                 <header style="text-align: center; margin-bottom: 3rem;">
                     <div class="application-logo">
@@ -68,62 +427,100 @@
                     
                     <dt>Solved using</dt>
                     <dd>Conjugate Gradient Method</dd>
-                    <dd class="role" style="font-size: 1.4rem; color: #888;">with Jacobi Preconditioning</dd>
+                    <dd class="role" style="font-size: 1.4rem; color: #b0a090;">with Jacobi Preconditioning</dd>
                     
                     <dt>Discretized by</dt>
                     <dd>Quad-8 Isoparametric Elements</dd>
-                    <dd class="role" style="font-size: 1.4rem; color: #888;">8 nodes per element &bull; 3×3 Gauss-Legendre integration</dd>
+                    <dd class="role" style="font-size: 1.4rem; color: #b0a090;">8 nodes per element &bull; 3×3 Gauss-Legendre integration</dd>
                 </dl>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <h2>The Development Team</h2>
                 <h3>ISCTE-IUL &bull; Sintra Campus</h3>
 
-                <dl class="credits__double">
-                    <dt>Lead Architect</dt>
-                    <dd>António Cruz</dd>
-                    <dd class="role">Chief Quadrilateral Officer</dd>
-                    
-                    <dt>GPU Whisperer</dt>
-                    <dd>Bruno Santos</dd>
-                    <dd class="role">CUDA Kernel Choreographer</dd>
-                    
-                    <dt>Mesh Wrangler</dt>
-                    <dd>Pedro Miranda</dd>
-                    <dd class="role">Geometry Acquisition Specialist</dd>
-                    
-                    <dt>Convergence Guru</dt>
-                    <dd>Ricardo Kayseller</dd>
-                    <dd class="role">Residual Reduction Consultant</dd>
-                </dl>
+                <div class="credits__double">
+                    <div class="credits-entry">
+                        <div class="credits-title">Lead Architect</div>
+                        <div class="credits-info">
+                            <div class="credits-name">António Cruz</div>
+                            <div class="credits-role">Chief Quadrilateral Officer</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">GPU Whisperer</div>
+                        <div class="credits-info">
+                            <div class="credits-name">Bruno Santos</div>
+                            <div class="credits-role">CUDA Kernel Choreographer</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">Mesh Wrangler</div>
+                        <div class="credits-info">
+                            <div class="credits-name">Pedro Miranda</div>
+                            <div class="credits-role">Geometry Acquisition Specialist</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">Convergence Guru</div>
+                        <div class="credits-info">
+                            <div class="credits-name">Ricardo Kayseller</div>
+                            <div class="credits-role">Residual Reduction Consultant</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <h2>The Cast</h2>
                 <h3>Solver Implementations</h3>
 
-                <dl class="credits__double">
-                    <dt>The Reliable One</dt>
-                    <dd>CPU Baseline</dd>
-                    <dd class="role">NumPy / SciPy</dd>
-                    
-                    <dt>The Speed Demon</dt>
-                    <dd>GPU CuPy</dd>
-                    <dd class="role">20-30× speedup on large meshes</dd>
-                    
-                    <dt>The Compiler Whisperer</dt>
-                    <dd>Numba JIT</dd>
-                    <dd class="role">Best for production without GPU</dd>
-                    
-                    <dt>The Kernel Commander</dt>
-                    <dd>Numba CUDA</dd>
-                    <dd class="role">Fine-grained GPU control</dd>
-                    
-                    <dt>The Multitasker</dt>
-                    <dd>CPU Threaded</dd>
-                    <dd class="role">ThreadPoolExecutor</dd>
-                    
-                    <dt>The Core Collector</dt>
-                    <dd>CPU Multiprocess</dd>
-                    <dd class="role">Pool initializer pattern</dd>
-                </dl>
+                <div class="credits__double">
+                    <div class="credits-entry">
+                        <div class="credits-title">The Reliable One</div>
+                        <div class="credits-info">
+                            <div class="credits-name">CPU Baseline</div>
+                            <div class="credits-role">NumPy / SciPy</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">The Speed Demon</div>
+                        <div class="credits-info">
+                            <div class="credits-name">GPU CuPy</div>
+                            <div class="credits-role">20-30× speedup on large meshes</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">The Compiler Whisperer</div>
+                        <div class="credits-info">
+                            <div class="credits-name">Numba JIT</div>
+                            <div class="credits-role">Best for production without GPU</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">The Kernel Commander</div>
+                        <div class="credits-info">
+                            <div class="credits-name">Numba CUDA</div>
+                            <div class="credits-role">Fine-grained GPU control</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">The Multitasker</div>
+                        <div class="credits-info">
+                            <div class="credits-name">CPU Threaded</div>
+                            <div class="credits-role">ThreadPoolExecutor</div>
+                        </div>
+                    </div>
+                    <div class="credits-entry">
+                        <div class="credits-title">The Core Collector</div>
+                        <div class="credits-info">
+                            <div class="credits-name">CPU Multiprocess</div>
+                            <div class="credits-role">Pool initializer pattern</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <h2>Visual Effects</h2>
 
@@ -137,6 +534,8 @@
                     <span class="lib">ECharts</span>
                     <span class="desc">Chart Wizard</span>
                 </div>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <h2>Mesh Catering</h2>
                 <h3>Serving Fine Geometries</h3>
@@ -152,6 +551,8 @@
 
                 <p>All meshes humanely stored in HDF5 format</p>
 
+                <div class="credits-sep"><span>~</span></div>
+
                 <h2>Backend Services</h2>
 
                 <div class="tech-stack">
@@ -164,6 +565,8 @@
                     <span class="lib">NVIDIA CUDA</span>
                     <span class="desc">Parallel Universe</span>
                 </div>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <h2>Soundtrack</h2>
                 <h3>Songs to Iterate By</h3>
@@ -187,6 +590,8 @@
                     </dl>
                 </div>
 
+                <div class="credits-sep"><span>~</span></div>
+
                 <h2>Special Thanks</h2>
 
                 <div class="tech-stack" style="max-width: 550px;">
@@ -199,6 +604,8 @@
                     <span class="lib">Numba</span>
                     <span class="desc">JIT happens</span>
                 </div>
+
+                <div class="credits-sep"><span>~</span></div>
 
                 <p class="disclaimer">
                     No nodes were displaced beyond their elastic limits during this simulation.
@@ -222,17 +629,139 @@
                     
                     <div class="year">MMXXV</div>
                     
-                    <p style="margin-top: 2rem; font-size: 1.4rem;">
+                    <p style="margin-top: 2rem; font-size: 1.4rem; color: #b0a090;">
                         Licensed under Apache 2.0
                         <br>
-                        <span style="font-size: 1.2rem; color: #666;">
+                        <span style="font-size: 1.2rem; color: #908070;">
                             (Boundary conditions may vary)
                         </span>
                     </p>
                 </footer>
 
+                <div class="credits-sep"><span>~</span></div>
+
+                </div><!-- .credits-loop -->
             </div>
         </section>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            const creditsContent = document.querySelector('.credits-content');
+            const titleOverlay = document.querySelector('.title');
+            
+            // Clone credits content for seamless loop
+            const loop = document.querySelector('.credits-loop');
+            if (loop) {
+                const clone = loop.cloneNode(true);
+                loop.parentNode.appendChild(clone);
+            }
+
+            let isHovering = false;
+            let currentY = 0;
+            let loopHeight = 0;
+
+            // Get the current translateY from computed style matrix
+            const getComputedTranslateY = () => {
+                const style = window.getComputedStyle(creditsContent);
+                const matrix = style.transform;
+                if (matrix === 'none') return 0;
+                
+                // matrix(a, b, c, d, tx, ty) - ty is index 5
+                const match = matrix.match(/matrix.*\((.+)\)/);
+                if (match) {
+                    const values = match[1].split(', ');
+                    // For matrix3d, ty is at index 13; for matrix, it's at index 5
+                    const ty = values.length === 6 ? parseFloat(values[5]) : parseFloat(values[13]);
+                    return ty || 0;
+                }
+                return 0;
+            };
+
+            // Apply transform with seamless wrapping
+            const setTranslateY = (y) => {
+                // Ensure loopHeight is calculated
+                if (loopHeight <= 0) {
+                    loopHeight = creditsContent.scrollHeight / 2;
+                }
+                
+                if (loopHeight > 0) {
+                    // Wrap to range (-loopHeight, 0]
+                    while (y <= -loopHeight) y += loopHeight;
+                    while (y > 0) y -= loopHeight;
+                }
+                currentY = y;
+                creditsContent.style.transform = `translateY(${y}px)`;
+            };
+
+            container.addEventListener('mouseenter', () => {
+                isHovering = true;
+                
+                // FIRST: Pause animation to freeze position
+                creditsContent.style.animationPlayState = 'paused';
+                
+                // Force browser to apply the pause
+                void creditsContent.offsetHeight;
+                
+                // NOW get the frozen computed position
+                const computedY = getComputedTranslateY();
+                
+                // Recalculate loop height
+                loopHeight = creditsContent.scrollHeight / 2;
+                
+                // Stop animation completely and apply exact position
+                creditsContent.style.animation = 'none';
+                currentY = computedY;
+                creditsContent.style.transform = `translateY(${currentY}px)`;
+                
+                // Hide title
+                if (titleOverlay) {
+                    titleOverlay.style.visibility = 'hidden';
+                    titleOverlay.style.opacity = '0';
+                }
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isHovering = false;
+                
+                // Show title
+                if (titleOverlay) {
+                    titleOverlay.style.visibility = '';
+                    titleOverlay.style.opacity = '';
+                }
+                
+                // Recalculate loop height
+                loopHeight = creditsContent.scrollHeight / 2;
+                
+                // Normalize currentY to valid range
+                let normalizedY = currentY;
+                if (loopHeight > 0) {
+                    while (normalizedY <= -loopHeight) normalizedY += loopHeight;
+                    while (normalizedY > 0) normalizedY -= loopHeight;
+                }
+                
+                // Calculate progress (0 to 1) from position
+                let progress = loopHeight > 0 ? -normalizedY / loopHeight : 0;
+                
+                // Clear transform and restart animation
+                creditsContent.style.transform = '';
+                creditsContent.style.animationPlayState = '';
+                creditsContent.style.animation = 'none';
+                void creditsContent.offsetHeight; // Force reflow
+                
+                const delay = -(progress * 80); // 80s duration
+                creditsContent.style.animation = `scrollUp 80s linear infinite`;
+                creditsContent.style.animationDelay = `${delay}s`;
+            });
+
+            // Handle wheel scroll when hovering
+            container.addEventListener('wheel', (e) => {
+                if (!isHovering) return;
+                
+                e.preventDefault();
+                setTranslateY(currentY - e.deltaY);
+            }, { passive: false });
+        });
+    </script>
 </body>
 </html>

@@ -28,6 +28,7 @@
 	<link rel="stylesheet" href="style/bird-flock.css">
 	<link rel="stylesheet" href="style/boat.css">
 	<link rel="stylesheet" href="style/clouds.css">
+	<link rel="stylesheet" href="style/credits.css">
 
 	<script type="text/javascript" src="./library/socket.io.min.js"></script>
 	<script type="text/javascript" src="./library/moveable.min.js"></script>
@@ -290,22 +291,274 @@
 				</div>
 
 				<div class="hud about" id="hud-about" style="z-index: 15;">
-
 					<h1>ABOUT</h1>
 					<div class="sep"></div>
+					<div class="about-container credits-mode">
 
-					<div class="about-container">
-						<b>FEMulator Pro</b>
-						<hr>
-						High Performance Graphical Computing<br>
-						<ul>
-							<li>António Cruz (140129)</li>
-							<li>Bruno Santos (140586)</li>
-							<li>Pedro Miranda (129268)</li>
-							<li>Ricardo Kayseller (95813)</li>
-						</ul>
+
+
+		<!-- About Panel Content - Replace lines 296-516 in index.html -->
+		<div class="about-container credits-mode">
+			<div class="credits-scroll">
+				<div class="credits-loop">
+				
+					<!-- Header with logo -->
+					<div class="credits-logo">
+						<svg width="200" height="50" viewBox="0 0 350 70" xmlns="http://www.w3.org/2000/svg">
+							<defs>
+								<filter id="creditsShadow" x="-20%" y="-20%" width="150%" height="150%">
+									<feGaussianBlur in="SourceAlpha" stdDeviation="2"></feGaussianBlur>
+									<feOffset dx="2" dy="2" result="offsetblur"></feOffset>
+									<feComponentTransfer>
+										<feFuncA type="linear" slope="0.3"></feFuncA>
+									</feComponentTransfer>
+									<feMerge>
+										<feMergeNode></feMergeNode>
+										<feMergeNode in="SourceGraphic"></feMergeNode>
+									</feMerge>
+								</filter>
+							</defs>
+							<text x="30" y="50" font-family="'Roboto', sans-serif" font-size="30" filter="url(#creditsShadow)">
+								<tspan font-weight="900" fill="#e8e8e0">FEM</tspan><tspan font-weight="400" fill="#d4d4c8">ULATOR</tspan>
+								<tspan dx="5" dy="3" font-family="'Dancing Script', cursive" font-size="42" fill="#FB2C36">Pro</tspan>
+							</text>
+						</svg>
+					</div>
+					<div class="credits-tagline">A GPU-Accelerated Finite Element Analysis Platform</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Mathematical Foundation -->
+					<dl class="credits-single">
+						<dt>Governed by</dt>
+						<dd>The Laplace Equation</dd>
+						<dd class="equation">&nabla;&sup2;u = 0</dd>
+						
+						<dt>Solved using</dt>
+						<dd>Conjugate Gradient Method</dd>
+						<dd class="note">with Jacobi Preconditioning</dd>
+						
+						<dt>Discretized by</dt>
+						<dd>Quad-8 Isoparametric Elements</dd>
+						<dd class="note">8 nodes &bull; 3&times;3 Gauss-Legendre</dd>
+					</dl>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Development Team -->
+					<div class="credits-section">The Development Team</div>
+					<div class="credits-subsection">ISCTE-IUL &bull; Sintra Campus</div>
+
+					<div class="credits-double">
+						<div class="credits-entry">
+							<div class="credits-title">Lead Architect</div>
+							<div class="credits-info">
+								<div class="credits-name">Ant&oacute;nio Cruz</div>
+								<div class="credits-role">Chief Quadrilateral Officer</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">GPU Whisperer</div>
+							<div class="credits-info">
+								<div class="credits-name">Bruno Santos</div>
+								<div class="credits-role">CUDA Kernel Choreographer</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">Mesh Wrangler</div>
+							<div class="credits-info">
+								<div class="credits-name">Pedro Miranda</div>
+								<div class="credits-role">Geometry Acquisition Specialist</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">Convergence Guru</div>
+							<div class="credits-info">
+								<div class="credits-name">Ricardo Kayseller</div>
+								<div class="credits-role">Residual Reduction Consultant</div>
+							</div>
+						</div>
 					</div>
 
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Solvers -->
+					<div class="credits-section">Starring</div>
+					<div class="credits-subsection">The Solver Implementations</div>
+
+					<div class="credits-double">
+						<div class="credits-entry">
+							<div class="credits-title">The Reliable One</div>
+							<div class="credits-info">
+								<div class="credits-name">CPU Baseline</div>
+								<div class="credits-role">NumPy / SciPy</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">The Speed Demon</div>
+							<div class="credits-info">
+								<div class="credits-name">GPU CuPy</div>
+								<div class="credits-role">20-30&times; speedup</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">The Compiler</div>
+							<div class="credits-info">
+								<div class="credits-name">Numba JIT</div>
+								<div class="credits-role">Production without GPU</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">The Kernel Master</div>
+							<div class="credits-info">
+								<div class="credits-name">Numba CUDA</div>
+								<div class="credits-role">Fine-grained control</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">The Multitasker</div>
+							<div class="credits-info">
+								<div class="credits-name">CPU Threaded</div>
+								<div class="credits-role">ThreadPoolExecutor</div>
+							</div>
+						</div>
+						<div class="credits-entry">
+							<div class="credits-title">The Core Collector</div>
+							<div class="credits-info">
+								<div class="credits-name">CPU Multiprocess</div>
+								<div class="credits-role">Pool initializer pattern</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Visual Effects -->
+					<div class="credits-section">Visual Effects</div>
+
+					<div class="credits-tech">
+						<span class="lib">Three.js</span>
+						<span class="desc">Reality Renderer</span>
+						<span class="lib">WebGL</span>
+						<span class="desc">Pixel Pusher</span>
+						<span class="lib">Socket.IO</span>
+						<span class="desc">Progress Streamer</span>
+						<span class="lib">ECharts</span>
+						<span class="desc">Chart Conjurer</span>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Meshes -->
+					<div class="credits-section">Mesh Catering</div>
+					<div class="credits-subsection">Serving Fine Geometries Since 2025</div>
+
+					<ul class="credits-inline">
+						<li>Backward-Facing Step</li>
+						<li>Elbow 90&deg;</li>
+						<li>S-Bend</li>
+						<li>T-Junction</li>
+						<li>Venturi</li>
+						<li>Y-Shaped</li>
+					</ul>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Backend -->
+					<div class="credits-section">Backend Services</div>
+
+					<div class="credits-tech">
+						<span class="lib">FastAPI</span>
+						<span class="desc">Request Handler</span>
+						<span class="lib">Uvicorn</span>
+						<span class="desc">ASGI Conductor</span>
+						<span class="lib">Docker</span>
+						<span class="desc">Container Warden</span>
+						<span class="lib">NVIDIA CUDA</span>
+						<span class="desc">Parallel Universe</span>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Soundtrack -->
+					<div class="credits-section">Soundtrack</div>
+					<div class="credits-subsection">Songs to Iterate By</div>
+
+					<div class="credits-music">
+						<dl>
+							<dt>"Conjugate My Heart"</dt>
+							<dd>The Gradient Descenders</dd>
+						</dl>
+						<dl>
+							<dt>"Still Iterating"</dt>
+							<dd>15,000 Iterations &amp; The Residuals</dd>
+						</dl>
+						<dl>
+							<dt>"Laplace Your Bets"</dt>
+							<dd>Elliptic PDE Anthem</dd>
+						</dl>
+						<dl>
+							<dt>"Sparse but Not Forgotten"</dt>
+							<dd>A Ballad for Large Matrices</dd>
+						</dl>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Special Thanks -->
+					<div class="credits-section">Special Thanks</div>
+
+					<div class="credits-tech" style="max-width: 280px;">
+						<span class="lib">SciPy</span>
+						<span class="desc">Sparse matrix therapist</span>
+						<span class="lib">CuPy</span>
+						<span class="desc">Making GPUs useful since 2015</span>
+						<span class="lib">NumPy</span>
+						<span class="desc">The foundation of everything</span>
+						<span class="lib">Numba</span>
+						<span class="desc">JIT happens</span>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+					<!-- Disclaimer -->
+					<p class="credits-disclaimer">
+						No nodes were displaced beyond their elastic limits during this simulation.
+						<br><br>
+						All boundary conditions were applied humanely and in accordance 
+						with the Dirichlet-Robin Convention of 1850.
+						<br><br>
+						The Conjugate Gradient method converged on the first try.
+						<br>Just kidding. It took 12,847 iterations.
+					</p>
+
+					<!-- Footer -->
+					<div class="credits-footer">
+						<p>Benchmarked on systems that ran surprisingly hot</p>
+						
+						<div class="credits-institution">ISCTE-IUL</div>
+						<div class="credits-institution sub">High Performance Graphical Computing</div>
+						
+						<div class="credits-year">MMXXV</div>
+						
+						<div class="credits-license">
+							Licensed under Apache 2.0
+							<br><span>(Boundary conditions may vary)</span>
+						</div>
+					</div>
+
+					<div class="credits-sep"><span>~</span></div>
+
+				</div><!-- .credits-loop -->
+			</div><!-- .credits-scroll -->
+		</div><!-- .about-container -->
+
+
+
+
+
+
+					</div>
 				</div>
 
 				<div id="application-menu-container"></div>
@@ -327,5 +580,8 @@
 	<script type="module" src="./script/report_viewer.js"></script>
 	<script type="module" src="./script/moveable.init.js"></script>
 	<script type="module" src="./script/report_workspace.js"></script>
+	<script type="module" src="./script/credits.init.js"></script>
+
+
 </body>
 </html>
