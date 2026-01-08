@@ -144,7 +144,7 @@ export class ReportWorkspace {
         
         this.initTree(treeData);
         
-        // Auto-select first document
+        // Auto-select and load first document (but don't auto-expand)
         if (this.documents.length > 0) {
             const firstDoc = this.documents[0];
             const firstNode = this.treeInstance?.findKey(firstDoc.id);
@@ -173,17 +173,16 @@ export class ReportWorkspace {
             },
             header: false,
             connectLines: true,
-            enhance: (e) => {
-                // Force folder icon if node has children
-                if (e.node.children && e.node.children.length > 0) {
-                    e.node.folder = true;
-                }
-            },
             click: (e) => this.onTreeClick(e)
         });
     }
     
     async onTreeClick(e) {
+        // Ignore clicks on the expander - let Wunderbaum handle expand/collapse
+        if (e.targetType === 'expander') {
+            return;
+        }
+        
         const node = e.node;
         const key = node.key;
         
@@ -272,6 +271,11 @@ export class ReportWorkspace {
     updateNodeHeaders(node) {
         if (!node) return;
         
+        // Skip if headers already loaded for this node
+        if (node.children && node.children.length > 0) {
+            return;
+        }
+        
         const tempDiv = document.createElement('div');
         if (window.marked) {
             tempDiv.innerHTML = window.marked.parse(this.content);
@@ -282,14 +286,13 @@ export class ReportWorkspace {
         // Build hierarchical tree structure based on header levels
         const headerNodes = this.buildHeaderTree(headers);
         
-        node.removeChildren();
         if (headerNodes.length > 0) {
             node.addChildren(headerNodes);
-            node.setExpanded(true);
         }
     }
     
-    buildHeaderTree(headers) {
+    buildHeaderTree(headers, docId = null) {
+        const documentId = docId || this.currentDocument;
         const root = [];
         const stack = [{ level: 0, children: root }];
         
@@ -297,8 +300,8 @@ export class ReportWorkspace {
             const level = parseInt(h.tagName.substring(1));
             const node = {
                 title: h.innerText,
-                key: `header:${this.currentDocument}:${i}`,
-                expanded: true,
+                key: `header:${documentId}:${i}`,
+                expanded: false,
                 children: []
             };
             
@@ -309,6 +312,17 @@ export class ReportWorkspace {
             stack[stack.length - 1].children.push(node);
             stack.push({ level, children: node.children });
         });
+        
+        // Mark nodes with children as folders so they show expanders
+        const markFolders = (nodes) => {
+            for (const node of nodes) {
+                if (node.children && node.children.length > 0) {
+                    node.folder = true;
+                    markFolders(node.children);
+                }
+            }
+        };
+        markFolders(root);
         
         return root;
     }
