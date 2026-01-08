@@ -36,6 +36,9 @@ export class ReportWorkspace {
         this.editorInstance = null;
         this.undockedPanel = null;
         
+        // Cache for document content (avoids re-fetching)
+        this.contentCache = new Map();
+        
         // Initialize
         this.init();
     }
@@ -163,6 +166,7 @@ export class ReportWorkspace {
     
     /**
      * Fetch headers for a document without loading into preview.
+     * Also caches the content for later use.
      * @param {string} docId - Document ID
      * @returns {Promise<Array>} Array of header elements
      */
@@ -172,6 +176,9 @@ export class ReportWorkspace {
             const response = await fetch(url);
             const data = await response.json();
             const content = data.content || '';
+            
+            // Cache content for later
+            this.contentCache.set(docId, content);
             
             const tempDiv = document.createElement('div');
             if (window.marked) {
@@ -240,19 +247,18 @@ export class ReportWorkspace {
             await this.loadDocument(key, node);
         }
         
-        // Scroll to top
-        this.scrollToHeader(0);
+        // Scroll to top (document root uses larger padding)
+        this.scrollToHeader(0, 40);
     }
     
-    scrollToHeader(index) {
+    scrollToHeader(index, padding = 15) {
         const mainArea = this.container.querySelector('.report-main-area');
         const target = document.getElementById(`report-heading-${index}`);
         
         if (mainArea && target) {
             const containerRect = mainArea.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
-            const scrollPadding = 30; // Offset so heading doesn't touch top edge
-            const offset = targetRect.top - containerRect.top + mainArea.scrollTop - scrollPadding;
+            const offset = targetRect.top - containerRect.top + mainArea.scrollTop - padding;
             mainArea.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
         }
     }
@@ -260,14 +266,21 @@ export class ReportWorkspace {
     async loadDocument(documentId, node) {
         this.currentDocument = documentId;
         
-        try {
-            const url = `${this.options.apiBase}/api/report/content?document=${documentId}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            this.content = data.content || '';
-        } catch (error) {
-            console.error('[ReportWorkspace] Failed to load document:', error);
-            this.content = `*Error loading: ${error.message}*`;
+        // Use cached content if available
+        if (this.contentCache.has(documentId)) {
+            this.content = this.contentCache.get(documentId);
+        } else {
+            try {
+                const url = `${this.options.apiBase}/api/report/content?document=${documentId}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                this.content = data.content || '';
+                // Cache for future use
+                this.contentCache.set(documentId, this.content);
+            } catch (error) {
+                console.error('[ReportWorkspace] Failed to load document:', error);
+                this.content = `*Error loading: ${error.message}*`;
+            }
         }
         
         this.renderPreview();
@@ -452,6 +465,8 @@ export class ReportWorkspace {
             
             if (result.success) {
                 this.content = content;
+                // Update cache
+                this.contentCache.set(this.currentDocument, content);
                 this.isDirty = false;
                 this.btnSave.textContent = 'Saved!';
                 setTimeout(() => {
@@ -507,6 +522,8 @@ export class ReportWorkspace {
     
     refresh() {
         if (this.currentDocument) {
+            // Invalidate cache to get fresh data
+            this.contentCache.delete(this.currentDocument);
             const activeNode = this.treeInstance?.getActiveNode();
             this.loadDocument(this.currentDocument, activeNode);
         }
