@@ -46,8 +46,8 @@
 }
 
 .metrics-category-toggle {
-    font-size: 8px;
-    color: #f38428;
+    font-size: 9px;
+    color: #333;
 }
 
 .metrics-category.collapsed .metrics-category-items {
