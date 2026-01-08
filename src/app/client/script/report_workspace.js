@@ -51,7 +51,7 @@ export class ReportWorkspace {
         this.render();
         this.bindEvents();
         await this.loadDocuments();
-        this.buildDocumentTree();
+        await this.buildDocumentTree();
     }
     
     render() {
@@ -133,18 +133,24 @@ export class ReportWorkspace {
         }
     }
     
-    buildDocumentTree() {
-        const treeData = this.documents.map(doc => ({
-            title: doc.title,
-            key: doc.id,
-            expanded: false,
-            folder: true,
-            children: []
+    async buildDocumentTree() {
+        // Load headers for all documents upfront
+        const treeData = await Promise.all(this.documents.map(async (doc) => {
+            const headers = await this.fetchDocumentHeaders(doc.id);
+            const headerNodes = this.buildHeaderTree(headers, doc.id);
+            
+            return {
+                title: doc.title,
+                key: doc.id,
+                expanded: false,
+                folder: headerNodes.length > 0,
+                children: headerNodes
+            };
         }));
         
         this.initTree(treeData);
         
-        // Auto-select and load first document (but don't auto-expand)
+        // Auto-select and load first document
         if (this.documents.length > 0) {
             const firstDoc = this.documents[0];
             const firstNode = this.treeInstance?.findKey(firstDoc.id);
@@ -152,6 +158,30 @@ export class ReportWorkspace {
                 firstNode.setActive(true);
                 this.loadDocument(firstDoc.id, firstNode);
             }
+        }
+    }
+    
+    /**
+     * Fetch headers for a document without loading into preview.
+     * @param {string} docId - Document ID
+     * @returns {Promise<Array>} Array of header elements
+     */
+    async fetchDocumentHeaders(docId) {
+        try {
+            const url = `${this.options.apiBase}/api/report/content?document=${docId}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            const content = data.content || '';
+            
+            const tempDiv = document.createElement('div');
+            if (window.marked) {
+                tempDiv.innerHTML = window.marked.parse(content);
+            }
+            
+            return Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+        } catch (error) {
+            console.error(`[ReportWorkspace] Failed to fetch headers for ${docId}:`, error);
+            return [];
         }
     }
     
@@ -221,8 +251,9 @@ export class ReportWorkspace {
         if (mainArea && target) {
             const containerRect = mainArea.getBoundingClientRect();
             const targetRect = target.getBoundingClientRect();
-            const offset = targetRect.top - containerRect.top + mainArea.scrollTop;
-            mainArea.scrollTo({ top: offset, behavior: 'smooth' });
+            const scrollPadding = 30; // Offset so heading doesn't touch top edge
+            const offset = targetRect.top - containerRect.top + mainArea.scrollTop - scrollPadding;
+            mainArea.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
         }
     }
     
@@ -269,26 +300,9 @@ export class ReportWorkspace {
     }
     
     updateNodeHeaders(node) {
+        // Headers are loaded upfront in buildDocumentTree
+        // This method is kept for potential future use (e.g., after editing)
         if (!node) return;
-        
-        // Skip if headers already loaded for this node
-        if (node.children && node.children.length > 0) {
-            return;
-        }
-        
-        const tempDiv = document.createElement('div');
-        if (window.marked) {
-            tempDiv.innerHTML = window.marked.parse(this.content);
-        }
-        
-        const headers = Array.from(tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-        
-        // Build hierarchical tree structure based on header levels
-        const headerNodes = this.buildHeaderTree(headers);
-        
-        if (headerNodes.length > 0) {
-            node.addChildren(headerNodes);
-        }
     }
     
     buildHeaderTree(headers, docId = null) {
