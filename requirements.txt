@@ -1,0 +1,15 @@
+python-socketio
+uvicorn
+fastapi
+numpy
+pandas
+scipy
+matplotlib
+h5py
+weasyprint
+playwright
+pypandoc
+psutil
+cupy-cuda13x
+numba-cuda
+cuda-python
