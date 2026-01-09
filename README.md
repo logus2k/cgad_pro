@@ -1,253 +1,427 @@
-# FEMulator Pro
+# FEMulator Pro User Manual
 
-**High-Performance GPU-Accelerated Finite Element Analysis**
+## 1. Overview
 
-*Project for High Performance Graphical Computing*
+**FEMulator Pro** is distributed as a containerized application using **Docker**.
+To simplify usage, all Docker operations are wrapped in **platform-specific helper scripts**.
 
-A platform for benchmarking and comparing different computational strategies for Finite Element Method (FEM) solvers, featuring real-time 3D visualization and comprehensive performance analysis tools.
+> **Users never need to type Docker commands manually.**
 
-## About
+There are **two sets of scripts**:
 
-FEMulator Pro solves the 2D Laplace equation using the Finite Element Method with 8-node quadrilateral (Quad-8) elements. The platform implements multiple solver backends to demonstrate and compare different parallelization strategies on modern hardware.
+* **Windows users** → use `.bat` files
+* **Linux users** → use `.sh` files
 
-The Laplace equation governs a wide range of physical phenomena:
+The scripts are **functionally equivalent**, differing only by operating system.
 
-| Application | Physical Interpretation |
-|-------------|------------------------|
-| Incompressible irrotational flow | Velocity potential |
-| Steady-state heat conduction | Temperature field |
-| Electrostatics | Electric potential |
-| Diffusion (steady-state) | Concentration field |
-
-## Features
-
-- **Multiple Solver Implementations**: CPU, GPU (CuPy), Numba JIT, Numba CUDA, Threaded, and Multiprocess
-- **Real-time 3D Visualization**: Interactive mesh and solution field rendering with Three.js
-- **Live Progress Streaming**: Monitor solver convergence in real-time via WebSocket
-- **Automated Benchmarking**: Statistical analysis across solver/mesh combinations
-- **Report Generation**: Performance reports with interactive charts, exportable to DOCX/PDF
-- **Mesh Gallery**: Pre-built test geometries (Backward-Facing Step, Elbow, S-Bend, T-Junction, Venturi, Y-Shaped)
-
-## Solver Implementations
-
-| Implementation | Technology | Best For |
-|----------------|------------|----------|
-| **CPU Baseline** | NumPy / SciPy | Reference, debugging |
-| **CPU Threaded** | ThreadPoolExecutor | Light parallelism |
-| **CPU Multiprocess** | multiprocessing.Pool | Multi-core CPU utilization |
-| **Numba CPU** | Numba JIT | Production without GPU |
-| **Numba CUDA** | Numba CUDA kernels | Custom GPU control |
-| **GPU (CuPy)** | CuPy + cuSPARSE | Maximum performance |
-
-### Performance Characteristics
-
-Based on benchmark results across multiple hardware configurations:
-
-- **Small meshes (<10K nodes)**: Numba CPU recommended (GPU transfer overhead dominates)
-- **Large meshes (>100K nodes)**: GPU achieves **20-30x speedup** over CPU baseline
-- **GPU bottleneck**: Iterative solver (CG) consumes 80-90% of total time on large meshes
-
-## Installation
-
-### Prerequisites
-
-| Platform | Requirements |
-|----------|-------------|
-| **Windows** | Windows 10+, Docker Desktop |
-| **Linux** | Docker Engine, Docker Compose plugin |
-| **GPU Support** | NVIDIA GPU + drivers (optional) |
+For users who prefer not to use Docker, a **manual installation** option is also available (see Section 10).
 
 ---
 
-### Option 1: DockerHub (Quickest)
+## 2. File Naming Convention (IMPORTANT)
 
-Pull and run the pre-built image directly:
+Throughout this document:
 
-```yaml
-# docker-compose.yml
-services:
-  femulator:
-    image: logus2k/femulator:latest
-    container_name: femulator
-    hostname: femulator
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: "all"
-              capabilities: [ gpu ]    
-    ports:
-      - "5868:5868"
-    networks:
-      - femulator_network
+* **Windows users** must use files ending in **`.bat`**
+* **Linux users** must use files ending in **`.sh`**
 
-networks:
-  femulator_network:
-    driver: bridge
-```
+| Purpose            | Windows           | Linux            |
+| ------------------ | ----------------- | ---------------- |
+| Start application  | `start.bat`       | `start.sh`       |
+| Stop application   | `stop.bat`        | `stop.sh`        |
+| Update application | `update.bat`      | `update.sh`      |
+| Full rebuild       | `rebuild_all.bat` | `rebuild_all.sh` |
+| Full removal       | `remove_all.bat`  | `remove_all.sh`  |
 
-```bash
-docker-compose up -d
-```
-
-Access the application at `http://localhost:5868`
+**Do not mix file types** (e.g. `.bat` files do not work on Linux).
 
 ---
 
-### Option 2: Helper Scripts (Recommended for Development)
+## 3. Directory Structure (High Level)
+```
+project-root/
+│
+├── docker-compose-cpu.yml        # CPU-only container definition (all OS)
+├── docker-compose-gpu.yml        # GPU-enabled container definition (all OS)
+│
+├── femulator.Dockerfile          # Main application image (all OS)
+├── femulator.server.Dockerfile   # Base/server image (all OS)
+│
+├── requirements.txt              # Python dependencies (manual install)
+│
+├── start.bat                     # Windows start script
+├── stop.bat                      # Windows stop script
+├── update.bat                    # Windows update script
+├── rebuild_all.bat               # Windows full rebuild
+├── remove_all.bat                # Windows full cleanup
+│
+├── start.sh                      # Linux start script
+├── stop.sh                       # Linux stop script
+├── update.sh                     # Linux update script
+├── rebuild_all.sh                # Linux full rebuild
+├── remove_all.sh                 # Linux full cleanup
+│
+└── README.md
+```
 
-The repository includes platform-specific scripts that wrap all Docker operations:
+Dockerfiles and compose files are **shared across platforms**.
+Only the scripts are OS-specific.
 
-| Purpose | Windows | Linux |
-|---------|---------|-------|
-| Start application | `start.bat` | `./start.sh` |
-| Stop application | `stop.bat` | `./stop.sh` |
-| Update application | `update.bat` | `./update.sh` |
-| Full rebuild | `rebuild_all.bat` | `./rebuild_all.sh` |
-| Full removal | `remove_all.bat` | `./remove_all.sh` |
+---
 
-**First-time setup (Linux only):**
+## 4. Prerequisites
+
+### 4.1 Windows Users
+
+* Windows 10 or newer
+* **Docker Desktop** installed and running
+* (Optional) NVIDIA GPU with WSL2 GPU support enabled
+
+> **Windows users only use `.bat` files.**
+
+---
+
+### 4.2 Linux Users
+
+* Linux system with Docker installed
+* Docker Compose plugin available
+* (Optional) NVIDIA GPU with `nvidia-container-toolkit`
+
+> **Linux users only use `.sh` files.**
+
+Before first use, Linux users must run once:
 ```bash
 chmod +x *.sh
 ```
 
-**Start the application:**
-```bash
-# Windows
-start.bat
+---
 
-# Linux
-./start.sh
-```
+## 5. Core Concepts (No Docker Knowledge Required)
 
-The scripts automatically detect GPU availability and select CPU or GPU mode accordingly.
+* **Image**: Packaged version of the application
+* **Container**: A running instance of the application
+* **CPU mode**: Works on all systems
+* **GPU mode**: Used only when NVIDIA hardware is available
+
+You do **not** need to understand Docker to use the scripts.
 
 ---
 
-### Option 3: Manual Installation (Without Docker)
+## 6. Script Reference (User-Level)
 
+Each section below clearly states **which file Windows users run and which file Linux users run**.
+
+---
+
+### 6.1 Start the Application
+
+**Purpose:**
+Starts FEMulator Pro.
+
+**Windows users:**
+```bat
+start.bat
+```
+
+**Linux users:**
 ```bash
-# Create virtual environment
+./start.sh
+```
+
+**What it does:**
+
+* Creates a Docker network (first run only)
+* Starts the application container
+* Uses CPU mode by default
+* Uses GPU mode only when explicitly supported
+
+**When to use:**
+
+* Normal daily usage
+* After a system reboot
+* After stopping the application
+
+---
+
+### 6.2 Stop the Application
+
+**Purpose:**
+Stops the running container without deleting anything.
+
+**Windows users:**
+```bat
+stop.bat
+```
+
+**Linux users:**
+```bash
+./stop.sh
+```
+
+**What it does:**
+
+* Gracefully stops the application
+* Keeps images intact
+* Allows fast restart later
+
+---
+
+### 6.3 Update the Application (Soft Rebuild)
+
+**Purpose:**
+Rebuilds the main application image while keeping the base image.
+
+**Windows users:**
+```bat
+update.bat
+```
+
+**Linux users:**
+```bash
+./update.sh
+```
+
+**What it does:**
+
+* Stops the container
+* Rebuilds the application image
+* Uses cached layers when possible
+* Faster than a full rebuild
+
+**When to use:**
+
+* Application code changes
+* Minor updates
+
+---
+
+### 6.4 Full Clean Rebuild (Hard Reset)
+
+**Purpose:**
+Rebuilds **everything from scratch**.
+
+**Windows users:**
+```bat
+rebuild_all.bat
+```
+
+**Linux users:**
+```bash
+./rebuild_all.sh
+```
+
+**What it does:**
+
+* Stops containers
+* Removes containers
+* Removes all FEMulator images
+* Rebuilds everything with no cache
+
+**When to use:**
+
+* Dependency changes
+
+---
+
+### 6.5 Remove Everything (Uninstall)
+
+**Purpose:**
+Completely removes FEMulator Pro from Docker.
+
+**Windows users:**
+```bat
+remove_all.bat
+```
+
+**Linux users:**
+```bash
+./remove_all.sh
+```
+
+**What it does:**
+
+* Stops containers
+* Deletes containers
+* Deletes images
+* Leaves no FEMulator artifacts behind
+
+---
+
+## 7. CPU vs GPU Behavior
+
+This behavior is identical on Windows and Linux.
+
+### CPU Mode
+
+* Always available
+* Requires no special hardware
+* Safe default on all systems
+
+### GPU Mode
+
+* Requires NVIDIA hardware
+* Requires Docker GPU support
+* Never forced on unsupported systems
+
+Users do **not** need to choose manually.
+
+---
+
+## 8. Typical Usage Scenarios
+
+### First-Time User
+
+* **Windows:** `start.bat`
+* **Linux:** `./start.sh`
+
+---
+
+### Daily Use
+
+* Start → Use → Stop
+
+---
+
+### Update Application
+
+* Stop → Update → Start
+
+---
+
+### Something Went Wrong
+
+* Stop → Rebuild All → Start
+
+---
+
+### Remove Everything
+
+* Run Remove All script for your OS
+
+---
+
+## 9. Summary
+
+* **Windows users:** use `.bat` files only
+* **Linux users:** use `.sh` files only
+* Dockerfiles and compose files are shared
+* Scripts provide a safe, reproducible workflow
+
+This design allows **non-technical reviewers** to operate the system confidently on either platform.
+
+---
+
+## 10. Manual Installation (Without Docker)
+
+For users who prefer to run FEMulator Pro directly on their system without Docker.
+
+---
+
+### 10.1 Prerequisites
+
+#### All Systems
+
+* Python 3.12 or newer
+* pip package manager
+
+#### For GPU Support (Optional)
+
+* NVIDIA GPU with CUDA 13.x drivers installed
+* CUDA Toolkit 13.x
+
+#### Additional System Dependencies
+
+* **WeasyPrint** requires system libraries: GTK, Pango, Cairo
+* **Playwright** requires Chromium browser
+
+---
+
+### 10.2 Installation Steps
+
+#### Step 1: Create a Virtual Environment
+
+**Windows:**
+```bat
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux:**
+```bash
 python3 -m venv venv
-source venv/bin/activate  # Linux/macOS
-# or: venv\Scripts\activate  # Windows
+source venv/bin/activate
+```
 
-# Install dependencies
+---
+
+#### Step 2: Install Python Dependencies
+```bash
 pip install --upgrade pip
-pip install \
-    python-socketio uvicorn fastapi \
-    numpy pandas scipy matplotlib h5py \
-    psutil weasyprint playwright pypandoc
+pip install -r requirements.txt
+```
 
-# Install Playwright browser
+---
+
+#### Step 3: Install Playwright Browser
+```bash
 playwright install chromium
-
-# GPU support (requires CUDA 13.x)
-pip install cupy-cuda13x numba-cuda cuda-python
-
-# Start the server
-cd src/app/server
-python main.py
 ```
 
-Access the application at `http://localhost:5867`
+---
 
-## Usage
+#### Step 4: Install System Dependencies for WeasyPrint
 
-### Web Interface
+**Windows:**
 
-1. Select a mesh from the gallery
-2. Choose a solver implementation
-3. Click **Run Simulation**
-4. View real-time solver progress and 3D visualization
-5. Explore solution fields (potential, velocity, pressure)
+Install GTK3 runtime from https://github.com/nickvidal/gvsbuild/releases or use MSYS2.
 
-### Running Benchmarks
-
+**Linux (Ubuntu/Debian):**
 ```bash
-cd src/app/server/automated_benchmark
-
-# Full benchmark suite
-python run_benchmark.py
-
-# Resume interrupted run
-python run_benchmark.py --resume
-
-# Specific solver or model
-python run_benchmark.py --solver gpu --model "Y-Shaped"
+sudo apt-get install libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 ```
 
-### Generating Reports
-
+**Linux (Fedora/RHEL):**
 ```bash
-# Generate markdown report from benchmark results
-python -m report_generator benchmark_results.json
-
-# Export to Word/PDF
-python markdown_to_report.py report.md --pdf
+sudo dnf install pango gdk-pixbuf2
 ```
 
-## Technical Background
+---
 
-### Finite Element Formulation
+### 10.3 Running the Application
 
-The solver uses Quad-8 isoparametric elements with:
-- 8 nodes per element (4 corner + 4 mid-edge)
-- Quadratic shape functions
-- 3×3 Gauss-Legendre integration
-
-### Linear Solver
-
-All implementations use the **Conjugate Gradient (CG)** method with Jacobi preconditioning:
-- Symmetric positive-definite system from elliptic PDE
-- Memory-efficient (no explicit factorization)
-- Predictable convergence behavior
-- Data-parallel operations suitable for GPU
-
-### Boundary Conditions
-
-- **Robin BC** (inlet): Prescribed flux-potential combination
-- **Dirichlet BC** (outlet): Fixed potential values
-
-## Mesh Format
-
-Meshes are stored in HDF5 format:
-
-```
-mesh.h5
-├── x        # Node X coordinates (float64)
-├── y        # Node Y coordinates (float64)
-└── quad8    # Element connectivity (int32, N×8)
+After installation, start the server from the project root:
+```bash
+uvicorn main:app --host 0.0.0.0 --port 5867
 ```
 
-Also supports `.npz` (NumPy) and `.xlsx` (Excel) formats.
+Then open your browser to `http://localhost:5867`.
 
-## Project Structure
+---
 
+### 10.4 CPU-Only Installation
+
+If you do not have an NVIDIA GPU, replace the GPU packages in `requirements.txt`:
 ```
-src/
-├── app/
-│   ├── client/           # Web frontend (HTML/JS/CSS)
-│   └── server/           # FastAPI backend
-│       └── automated_benchmark/
-├── cpu/                  # CPU solver
-├── gpu/                  # CuPy GPU solver
-├── numba/                # Numba JIT solver
-├── numba_cuda/           # Numba CUDA solver
-├── cpu_threaded/         # Threaded solver
-├── cpu_multiprocess/     # Multiprocess solver
-└── shared/               # Common utilities
+# Remove these lines:
+cupy-cuda13x
+numba-cuda
+cuda-python
+
+# Add this line instead:
+cupy
 ```
 
-## License
+Or simply install without GPU packages and the application will fall back to CPU mode.
 
-Apache 2.0 License
+---
 
-## Acknowledgments
+### 10.5 Troubleshooting Manual Installation
 
-- [SciPy](https://scipy.org/) for sparse matrix operations and conjugate gradient solver
-- [CuPy](https://cupy.dev/) for GPU-accelerated computing
-- [Three.js](https://threejs.org/) for 3D visualization
-- [ECharts](https://echarts.apache.org/) for benchmark visualizations
+| Issue | Solution |
+| ----- | -------- |
+| `cupy` fails to install | Ensure CUDA Toolkit matches the `cupy-cuda13x` version |
+| WeasyPrint errors | Install system GTK/Pango libraries |
+| Playwright errors | Run `playwright install chromium` |
+| Import errors | Verify virtual environment is activated |
+
+---
