@@ -68,9 +68,9 @@
     appearance: none;
     
     /* Add custom arrow */
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333333' viewBox='0 0 20 20'%3e%3cpolygon fill='%23333333' points='10,14 4,6 16,6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 8px center; /* Controls arrow position */
+    background-position: right 6px center; /* Controls arrow position */
     background-size: 12px;
     padding-right: 30px; /* Make room for the arrow */
     cursor: pointer;
