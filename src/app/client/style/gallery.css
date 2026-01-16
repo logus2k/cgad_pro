@@ -369,6 +369,18 @@
     background: #fff;
     cursor: pointer;
     max-width: 175px;
+    
+    /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* Add custom arrow */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center; /* Controls arrow position */
+    background-size: 10px; /* Slightly smaller for the smaller font size */
+    padding-right: 25px; /* Make room for the arrow */
 }
 
 .mesh-row select:hover,
