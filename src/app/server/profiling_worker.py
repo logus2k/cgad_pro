@@ -1,371 +1,122 @@
 """
-Profiling Worker - Background worker for async Nsight profiling.
+Profiling Worker - Connects ProfilingService to Socket.IO for real-time updates.
 
-Runs nsys-wrapped solver executions in a background thread and emits
-Socket.IO events for real-time progress updates.
+This worker:
+- Sets up event callbacks on ProfilingService
+- Emits Socket.IO events when profiling status changes
+- Allows clients to track profiling progress in real-time
 
 Location: /src/app/server/profiling_worker.py
-
-Usage:
-    from profiling_worker import ProfilingWorker
-    
-    worker = ProfilingWorker(profiling_service, sio)
-    worker.start()
-    
-    # After GPU solve completes:
-    worker.enqueue(solver='gpu', mesh_file='mesh.h5', job_id='abc123')
 """
 
-import queue
-import threading
 import asyncio
-import time
-from pathlib import Path
-from typing import Optional, Dict, Any
-from dataclasses import dataclass
-
-from profiling_service import ProfilingService, ProfileMode, SessionStatus
-
-
-@dataclass
-class ProfilingJob:
-    """Profiling job data."""
-    solver: str
-    mesh_file: str
-    job_id: str
-    session_id: Optional[str] = None
-    enqueued_at: float = 0.0
+from typing import Optional, Any
 
 
 class ProfilingWorker:
     """
-    Background worker for async Nsight profiling.
+    Worker that bridges ProfilingService events to Socket.IO.
     
-    Processes profiling jobs in a queue, running nsys-wrapped solver
-    executions and emitting Socket.IO events for progress updates.
+    Emits the following Socket.IO events:
+    - profiling_started: Session created, profiling beginning
+    - profiling_progress: Status update (running, extracting, etc.)
+    - profiling_complete: Session finished successfully
+    - profiling_error: Session failed with error
     """
-    
-    # GPU solver types that support profiling
-    GPU_SOLVERS = {'gpu', 'numba_cuda'}
     
     def __init__(
         self,
-        profiling_service: ProfilingService,
+        profiling_service,
         socketio,
-        event_loop=None
+        event_loop: Optional[asyncio.AbstractEventLoop] = None
     ):
         """
         Initialize profiling worker.
         
         Args:
             profiling_service: ProfilingService instance
-            socketio: AsyncServer instance for emitting events
+            socketio: Socket.IO AsyncServer instance
             event_loop: Event loop for async operations
         """
         self.service = profiling_service
         self.sio = socketio
         self.loop = event_loop
         
-        self._queue = queue.Queue()
-        self._thread: Optional[threading.Thread] = None
-        self._running = False
-        self._current_job: Optional[ProfilingJob] = None
+        # Register callback with profiling service
+        self.service.set_event_callback(self._on_profiling_event)
         
-        print("[ProfilingWorker] Initialized")
+        print("[ProfilingWorker] Initialized with event callback")
     
-    def start(self):
-        """Start the worker thread."""
-        if self._running:
-            print("[ProfilingWorker] Already running")
+    def _on_profiling_event(self, event_type: str, session_id: str, data: dict):
+        """
+        Handle profiling events from service.
+        
+        Called from background thread, so we need to schedule
+        the async emit on the event loop.
+        """
+        if self.loop is None:
+            print(f"[ProfilingWorker] No event loop, skipping emit: {event_type}")
             return
         
-        self._running = True
-        self._thread = threading.Thread(target=self._run, daemon=True, name="ProfilingWorker")
-        self._thread.start()
+        # Schedule async emit on the event loop
+        asyncio.run_coroutine_threadsafe(
+            self._emit_event(event_type, session_id, data),
+            self.loop
+        )
+    
+    async def _emit_event(self, event_type: str, session_id: str, data: dict):
+        """Emit Socket.IO event to all clients in the profiling room."""
+        event_name = f"profiling_{event_type}"
+        
+        payload = {
+            "session_id": session_id,
+            **data
+        }
+        
+        # Emit to profiling room (clients join when they open profiling panel)
+        # Also emit to specific session room for targeted updates
+        try:
+            await self.sio.emit(event_name, payload, room=f"profiling_{session_id}")
+            await self.sio.emit(event_name, payload, room="profiling")
+            print(f"[ProfilingWorker] Emitted {event_name}: {session_id}")
+        except Exception as e:
+            print(f"[ProfilingWorker] Failed to emit {event_name}: {e}")
+    
+    def start(self):
+        """Start the worker (currently no-op, events are callback-driven)."""
         print("[ProfilingWorker] Started")
     
     def stop(self):
-        """Stop the worker thread."""
-        self._running = False
-        # Put sentinel to unblock queue
-        self._queue.put(None)
-        if self._thread:
-            self._thread.join(timeout=5.0)
+        """Stop the worker."""
+        self.service.set_event_callback(None)
         print("[ProfilingWorker] Stopped")
-    
-    def enqueue(
-        self,
-        solver: str,
-        mesh_file: str,
-        job_id: str
-    ) -> Optional[str]:
-        """
-        Enqueue a profiling job.
-        
-        Args:
-            solver: Solver type (gpu, numba_cuda)
-            mesh_file: Path to mesh file
-            job_id: Original solve job ID (for linking)
-            
-        Returns:
-            Session ID if queued, None if solver not supported
-        """
-        # Only profile GPU solvers
-        if solver not in self.GPU_SOLVERS:
-            print(f"[ProfilingWorker] Skipping non-GPU solver: {solver}")
-            return None
-        
-        # Check if nsys is available
-        if not self.service.nsys_available:
-            print("[ProfilingWorker] nsys not available, skipping profiling")
-            return None
-        
-        job = ProfilingJob(
-            solver=solver,
-            mesh_file=mesh_file,
-            job_id=job_id,
-            enqueued_at=time.time()
-        )
-        
-        self._queue.put(job)
-        print(f"[ProfilingWorker] Enqueued job for {solver} / {Path(mesh_file).stem}")
-        
-        return job_id
-    
-    @property
-    def queue_size(self) -> int:
-        """Get current queue size."""
-        return self._queue.qsize()
-    
-    @property
-    def is_busy(self) -> bool:
-        """Check if worker is processing a job."""
-        return self._current_job is not None
-    
-    def _run(self):
-        """Worker loop - processes queue."""
-        print("[ProfilingWorker] Worker loop started")
-        
-        while self._running:
-            try:
-                # Wait for job with timeout to allow graceful shutdown
-                try:
-                    job = self._queue.get(timeout=1.0)
-                except queue.Empty:
-                    continue
-                
-                # Check for sentinel
-                if job is None:
-                    continue
-                
-                self._current_job = job
-                self._process_job(job)
-                self._current_job = None
-                
-            except Exception as e:
-                print(f"[ProfilingWorker] Error in worker loop: {e}")
-                import traceback
-                traceback.print_exc()
-                self._current_job = None
-        
-        print("[ProfilingWorker] Worker loop ended")
-    
-    def _process_job(self, job: ProfilingJob):
-        """Process a single profiling job."""
-        mesh_name = Path(job.mesh_file).stem
-        print(f"[ProfilingWorker] Processing: {job.solver} / {mesh_name}")
-        
-        # Emit queued event
-        self._emit('profiling_queued', {
-            'session_id': None,  # Will be set after service creates session
-            'solver': job.solver,
-            'mesh': mesh_name,
-            'linked_job_id': job.job_id
-        })
-        
-        try:
-            # Start profiled run via service
-            # This creates a session and runs nsys in the service's thread
-            result = self.service.start_profiled_run(
-                solver=job.solver,
-                mesh_file=job.mesh_file,
-                mode=ProfileMode.TIMELINE.value,
-                benchmark_args={
-                    'linked_job_id': job.job_id
-                }
-            )
-            
-            if 'error' in result:
-                self._emit('profiling_failed', {
-                    'session_id': None,
-                    'solver': job.solver,
-                    'mesh': mesh_name,
-                    'error': result['error']
-                })
-                return
-            
-            session_id = result.get('session_id')
-            job.session_id = session_id
-            
-            # Emit running event
-            self._emit('profiling_running', {
-                'session_id': session_id,
-                'solver': job.solver,
-                'mesh': mesh_name,
-                'message': 'Executing profiled run...'
-            })
-            
-            # Poll for completion
-            self._wait_for_completion(job)
-            
-        except Exception as e:
-            print(f"[ProfilingWorker] Job failed: {e}")
-            import traceback
-            traceback.print_exc()
-            
-            self._emit('profiling_failed', {
-                'session_id': job.session_id,
-                'solver': job.solver,
-                'mesh': mesh_name,
-                'error': str(e)
-            })
-    
-    def _wait_for_completion(self, job: ProfilingJob):
-        """Poll session status until complete."""
-        session_id = job.session_id
-        mesh_name = Path(job.mesh_file).stem
-        max_wait = 600  # 10 minutes max
-        poll_interval = 0.5
-        elapsed = 0
-        last_status = None
-        
-        while elapsed < max_wait:
-            session = self.service.get_session(session_id)
-            
-            if not session:
-                self._emit('profiling_failed', {
-                    'session_id': session_id,
-                    'error': 'Session not found'
-                })
-                return
-            
-            status = session.get('status')
-            
-            # Emit status change events
-            if status != last_status:
-                last_status = status
-                
-                if status == SessionStatus.RUNNING.value:
-                    self._emit('profiling_running', {
-                        'session_id': session_id,
-                        'solver': job.solver,
-                        'mesh': mesh_name,
-                        'message': 'Executing profiled solver run...'
-                    })
-                
-                elif status == SessionStatus.EXTRACTING.value:
-                    self._emit('profiling_extracting', {
-                        'session_id': session_id,
-                        'solver': job.solver,
-                        'mesh': mesh_name,
-                        'message': 'Parsing profiling report...'
-                    })
-                
-                elif status == SessionStatus.COMPLETED.value:
-                    # Get timeline summary for the complete event
-                    timeline_summary = session.get('timeline_summary', {})
-                    
-                    self._emit('profiling_complete', {
-                        'session_id': session_id,
-                        'solver': job.solver,
-                        'mesh': mesh_name,
-                        'linked_job_id': job.job_id,
-                        'summary': {
-                            'total_events': timeline_summary.get('total_events', 0),
-                            'total_duration_ms': timeline_summary.get('total_duration_ms', 0),
-                            'categories': timeline_summary.get('categories', {})
-                        }
-                    })
-                    print(f"[ProfilingWorker] Completed: {session_id}")
-                    return
-                
-                elif status == SessionStatus.FAILED.value:
-                    self._emit('profiling_failed', {
-                        'session_id': session_id,
-                        'solver': job.solver,
-                        'mesh': mesh_name,
-                        'error': session.get('error', 'Unknown error')
-                    })
-                    return
-            
-            time.sleep(poll_interval)
-            elapsed += poll_interval
-        
-        # Timeout
-        self._emit('profiling_failed', {
-            'session_id': session_id,
-            'solver': job.solver,
-            'mesh': mesh_name,
-            'error': 'Profiling timeout'
-        })
-    
-    def _emit(self, event: str, data: dict):
-        """Emit Socket.IO event."""
-        if not self.sio or not self.loop:
-            print(f"[ProfilingWorker] Would emit {event}: {data}")
-            return
-        
-        try:
-            future = asyncio.run_coroutine_threadsafe(
-                self.sio.emit(event, data),
-                self.loop
-            )
-            # Don't wait for result - fire and forget
-        except Exception as e:
-            print(f"[ProfilingWorker] Failed to emit {event}: {e}")
 
-
-# =============================================================================
-# Factory function for easy initialization
-# =============================================================================
 
 def create_profiling_worker(
-    profiling_service: ProfilingService,
+    profiling_service,
     socketio,
-    event_loop=None,
+    event_loop: Optional[asyncio.AbstractEventLoop] = None,
     auto_start: bool = True
 ) -> ProfilingWorker:
     """
-    Create and optionally start a profiling worker.
+    Factory function to create and optionally start a ProfilingWorker.
     
     Args:
         profiling_service: ProfilingService instance
-        socketio: AsyncServer instance
-        event_loop: Event loop (auto-detected if None)
-        auto_start: Start worker immediately
+        socketio: Socket.IO AsyncServer instance
+        event_loop: Event loop for async operations
+        auto_start: Whether to start the worker immediately
         
     Returns:
         ProfilingWorker instance
     """
-    if event_loop is None:
-        try:
-            event_loop = asyncio.get_event_loop()
-        except RuntimeError:
-            event_loop = asyncio.new_event_loop()
-    
-    worker = ProfilingWorker(profiling_service, socketio, event_loop)
+    worker = ProfilingWorker(
+        profiling_service=profiling_service,
+        socketio=socketio,
+        event_loop=event_loop
+    )
     
     if auto_start:
         worker.start()
     
     return worker
-
-
-# =============================================================================
-# Test
-# =============================================================================
-
-if __name__ == "__main__":
-    print("=== Profiling Worker Test ===")
-    print("This module should be imported and used with ProfilingService")
-    print("See fem_api_server.py for integration example")

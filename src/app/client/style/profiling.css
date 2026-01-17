@@ -635,3 +635,220 @@
 .hud.profiling .profiling-session-list {
     max-height: 120px;
 }
+
+
+
+
+/**
+ * CSS Additions for Profiling Active Run Indicator
+ * 
+ * Add these styles to your profiling panel CSS file.
+ * Location: /src/app/client/style/profiling.css (or similar)
+ */
+
+/* ============================================================================
+   Active Run Indicator - Shows when profiling is in progress
+   ============================================================================ */
+
+.profiling-active-run {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.profiling-active-run-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: profiling-spin 1s linear infinite;
+}
+
+@keyframes profiling-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.profiling-active-run-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profiling-active-run-title {
+    font-weight: 600;
+    color: #3b82f6;
+    font-size: 14px;
+}
+
+.profiling-active-run-details {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profiling-active-run-stage {
+    font-size: 12px;
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* ============================================================================
+   Gallery Button Styles - For "Run Profiling" button
+   ============================================================================ */
+
+.gallery-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gallery-buttons-left {
+    /* Cancel button container */
+}
+
+.gallery-buttons-right {
+    display: flex;
+    gap: 10px;
+}
+
+.gallery-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gallery-btn.cancel-btn {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #334155;
+}
+
+.gallery-btn.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+}
+
+.gallery-btn.profiling-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+
+.gallery-btn.profiling-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    transform: translateY(-1px);
+}
+
+.gallery-btn.profiling-btn:disabled {
+    background: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.gallery-btn.select-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.gallery-btn.select-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .profiling-active-run {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+    }
+    
+    .profiling-active-run-title {
+        color: #60a5fa;
+    }
+    
+    .profiling-active-run-details {
+        color: #94a3b8;
+    }
+}
+
+/**
+ * Active Run Indicator Styles
+ * 
+ * Append these styles to profiling.css
+ */
+
+/* =============================================================================
+   Active Profiling Run Indicator
+   ============================================================================= */
+
+.profiling-active-run {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    background: linear-gradient(135deg, #e8f4fd 0%, #d1e8fa 100%);
+    border: 1px solid #90caf9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.profiling-active-run-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #90caf9;
+    border-top-color: #1976d2;
+    border-radius: 50%;
+    animation: profiling-active-spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes profiling-active-spin {
+    to { transform: rotate(360deg); }
+}
+
+.profiling-active-run-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profiling-active-run-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1565c0;
+    margin-bottom: 2px;
+}
+
+.profiling-active-run-details {
+    font-size: 11px;
+    color: #546e7a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profiling-active-run-stage {
+    font-size: 11px;
+    color: #1976d2;
+    background: rgba(25, 118, 210, 0.1);
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}

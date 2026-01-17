@@ -7,6 +7,7 @@ This service:
 - Provides timeline data suitable for Gantt visualization
 - Manages profile session storage and cleanup
 - Generates HDF5 binary format for optimized client loading
+- Emits events via callback for real-time Socket.IO updates
 
 Location: /src/app/server/profiling_service.py
 Data directory: /data/profiles/
@@ -27,12 +28,19 @@ import uuid
 import threading
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass, asdict
 from enum import Enum
 
 # HDF5 writer for optimized binary format
-from profiling_hdf5_writer import ProfilingHDF5Writer
+try:
+    from profiling_hdf5_writer import ProfilingHDF5Writer
+except ImportError:
+    try:
+        from .profiling_hdf5_writer import ProfilingHDF5Writer
+    except ImportError:
+        ProfilingHDF5Writer = None
+        print("[Profiling] Warning: profiling_hdf5_writer not found, HDF5 export disabled")
 
 
 # =============================================================================
@@ -193,11 +201,39 @@ class ProfilingService:
         self._running: Dict[str, subprocess.Popen] = {}
         self._lock = threading.Lock()
         
+        # Event callback for Socket.IO notifications
+        self._event_callback: Optional[Callable[[str, str, dict], None]] = None
+        
         # Check tool availability
         self.nsys_available = self._check_tool("nsys", "--version")
         self.ncu_available = self._check_tool("ncu", "--version")
         
         print(f"[Profiling] Initialized - nsys: {self.nsys_available}, ncu: {self.ncu_available}")
+    
+    def set_event_callback(self, callback: Optional[Callable[[str, str, dict], None]]):
+        """
+        Set callback for profiling events.
+        
+        Args:
+            callback: Function(event_type, session_id, data) called on events.
+                     event_type: 'started', 'progress', 'complete', 'error'
+        """
+        self._event_callback = callback
+    
+    def _emit_event(self, event_type: str, session_id: str, **data):
+        """
+        Emit a profiling event via callback.
+        
+        Args:
+            event_type: Type of event ('started', 'progress', 'complete', 'error')
+            session_id: Session identifier
+            **data: Additional event data
+        """
+        if self._event_callback:
+            try:
+                self._event_callback(event_type, session_id, data)
+            except Exception as e:
+                print(f"[Profiling] Event callback error: {e}")
     
     def _check_tool(self, tool: str, arg: str) -> bool:
         """Check if a profiling tool is available."""
@@ -238,24 +274,21 @@ class ProfilingService:
             "modes": [
                 {
                     "id": ProfileMode.TIMELINE.value,
-                    "name": "Timeline (nsys)",
-                    "description": "System-wide timeline - low overhead, shows kernel launches, memory transfers, NVTX ranges",
-                    "available": self.nsys_available,
-                    "overhead": "low"
+                    "name": "Timeline",
+                    "description": "GPU activity timeline (fast)",
+                    "available": self.nsys_available
                 },
                 {
                     "id": ProfileMode.KERNELS.value,
-                    "name": "Kernel Analysis (ncu)",
-                    "description": "Deep kernel metrics - high overhead, shows occupancy, throughput, stalls",
-                    "available": self.ncu_available,
-                    "overhead": "high"
+                    "name": "Kernel Metrics",
+                    "description": "Detailed kernel analysis (slow)",
+                    "available": self.ncu_available
                 },
                 {
                     "id": ProfileMode.FULL.value,
                     "name": "Full Analysis",
-                    "description": "Both timeline and kernel analysis sequentially",
-                    "available": self.nsys_available and self.ncu_available,
-                    "overhead": "high"
+                    "description": "Timeline + kernel metrics",
+                    "available": self.nsys_available and self.ncu_available
                 }
             ],
             "nsys_available": self.nsys_available,
@@ -314,6 +347,14 @@ class ProfilingService:
             self.sessions[session_id] = session
             self._save_sessions()
         
+        # Emit started event
+        self._emit_event('started', session_id,
+            status=SessionStatus.PENDING.value,
+            solver=solver,
+            mesh=mesh_name,
+            mode=mode
+        )
+        
         # Start profiling in background thread
         thread = threading.Thread(
             target=self._run_profiling,
@@ -342,8 +383,16 @@ class ProfilingService:
             return
         
         try:
+            # Update status to running
             session.status = SessionStatus.RUNNING.value
             self._save_sessions()
+            
+            # Emit progress event
+            self._emit_event('progress', session_id,
+                status=SessionStatus.RUNNING.value,
+                stage='starting',
+                message='Starting profiler...'
+            )
             
             # Build base benchmark command
             if self.benchmark_script and self.benchmark_script.exists():
@@ -360,6 +409,12 @@ class ProfilingService:
             
             # Run nsys if needed
             if mode in (ProfileMode.TIMELINE.value, ProfileMode.FULL.value):
+                self._emit_event('progress', session_id,
+                    status=SessionStatus.RUNNING.value,
+                    stage='nsys',
+                    message='Running Nsight Systems profiler...'
+                )
+                
                 nsys_output = self.nsys_dir / f"{session_id}"
                 nsys_cmd = [
                     "nsys", "profile",
@@ -379,6 +434,12 @@ class ProfilingService:
             
             # Run ncu if needed
             if mode in (ProfileMode.KERNELS.value, ProfileMode.FULL.value):
+                self._emit_event('progress', session_id,
+                    status=SessionStatus.RUNNING.value,
+                    stage='ncu',
+                    message='Running Nsight Compute profiler...'
+                )
+                
                 ncu_output = self.ncu_dir / f"{session_id}.ncu-rep"
                 ncu_csv = self.ncu_dir / f"{session_id}.csv"
                 
@@ -406,27 +467,44 @@ class ProfilingService:
             session.status = SessionStatus.EXTRACTING.value
             self._save_sessions()
             
+            self._emit_event('progress', session_id,
+                status=SessionStatus.EXTRACTING.value,
+                stage='extracting',
+                message='Extracting profiling data...'
+            )
+            
             # Extraction happens on-demand via get_timeline/get_kernels
             
             session.status = SessionStatus.COMPLETED.value
             session.completed_at = datetime.now().isoformat()
+            self._save_sessions()
+            
+            # Emit complete event
+            self._emit_event('complete', session_id,
+                status=SessionStatus.COMPLETED.value,
+                message='Profiling complete'
+            )
             
         except Exception as e:
             print(f"[Profiling] Error in session {session_id}: {e}")
             session.status = SessionStatus.FAILED.value
             session.error = str(e)
-        
-        finally:
             self._save_sessions()
+            
+            # Emit error event
+            self._emit_event('error', session_id,
+                status=SessionStatus.FAILED.value,
+                error=str(e),
+                message=f'Profiling failed: {e}'
+            )
     
     def get_sessions(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Get list of profile sessions."""
+        """Get list of profile sessions (most recent first)."""
         sessions = sorted(
             self.sessions.values(),
             key=lambda s: s.created_at,
             reverse=True
         )[:limit]
-        
         return [s.to_dict() for s in sessions]
     
     def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
@@ -437,54 +515,34 @@ class ProfilingService:
         
         result = session.to_dict()
         
-        # Add summary stats if completed
-        if session.status == SessionStatus.COMPLETED.value:
-            if session.nsys_file:
-                timeline = self.get_timeline(session_id)
-                if timeline:
-                    result["timeline_summary"] = {
-                        "total_events": len(timeline.get("events", [])),
-                        "categories": self._count_categories(timeline.get("events", [])),
-                        "total_duration_ms": timeline.get("total_duration_ns", 0) / 1e6
-                    }
-            
-            if session.ncu_file:
-                kernels = self.get_kernels(session_id)
-                if kernels:
-                    result["kernel_summary"] = {
-                        "total_kernels": len(kernels.get("kernels", [])),
-                        "kernel_names": [k["kernel_name"] for k in kernels.get("kernels", [])]
-                    }
+        # Add file availability flags
+        if session.nsys_file:
+            result["timeline_available"] = (self.nsys_dir / f"{session_id}.sqlite").exists()
+        if session.ncu_file:
+            result["kernels_available"] = (self.ncu_dir / f"{session_id}.csv").exists()
         
         return result
     
-    def get_session_by_job_id(self, job_id: str) -> Optional[Dict[str, Any]]:
-        """Get session linked to a specific solve job."""
-        for session in self.sessions.values():
-            if session.linked_job_id == job_id:
-                return self.get_session(session.id)
-        return None    
-    
-    def _count_categories(self, events: List[Dict]) -> Dict[str, int]:
-        """Count events by category."""
-        counts = {}
-        for event in events:
-            cat = event.get("category", "unknown")
-            counts[cat] = counts.get(cat, 0) + 1
-        return counts
-    
-    def write_timeline_hdf5(self, session_id: str, events: list, total_duration_ns: int) -> Path:
+    def write_timeline_hdf5(
+        self,
+        session_id: str,
+        events: List[Dict[str, Any]],
+        total_duration_ns: int
+    ) -> Path:
         """
         Write timeline events to HDF5 format for optimized client loading.
         
         Args:
             session_id: Session identifier
-            events: List of event dicts (output from get_timeline)
-            total_duration_ns: Total timeline duration
+            events: List of timeline event dicts
+            total_duration_ns: Total profiling duration in nanoseconds
             
         Returns:
             Path to created HDF5 file
         """
+        if ProfilingHDF5Writer is None:
+            raise RuntimeError("HDF5 writer not available")
+        
         h5_path = self.nsys_dir / f"{session_id}.h5"
         
         writer = ProfilingHDF5Writer()
@@ -492,11 +550,10 @@ class ProfilingService:
             events=events,
             output_path=h5_path,
             session_id=session_id,
-            total_duration_ns=total_duration_ns
+            total_duration_ns=int(total_duration_ns)
         )
         
-        print(f"[Profiling] Wrote HDF5: {h5_path.name} ({stats['file_size_bytes'] / 1024:.1f} KB, {stats['total_events']} events)")
-        
+        print(f"[Profiling] HDF5 written: {h5_path} ({stats['file_size_bytes'] / 1024:.1f} KB)")
         return h5_path
     
     def get_timeline(self, session_id: str) -> Optional[Dict[str, Any]]:
@@ -621,24 +678,25 @@ class ProfilingService:
                         correlation_id=row['correlationId'],
                         metadata={
                             "bytes": row['bytes'],
-                            "throughput_gbps": row['bytes'] / (end - start) if end > start else 0
+                            "copy_kind": copy_kind
                         }
                     )
                     events.append(asdict(event))
             except sqlite3.OperationalError as e:
                 print(f"[Profiling] Memcpy query failed: {e}")
             
-            # Extract NVTX ranges (pipeline stages)
+            # Extract NVTX ranges
             try:
                 cursor.execute("""
                     SELECT 
+                        r.eventType,
                         r.start,
                         r.end,
                         s.value as text,
-                        r.category
+                        r.globalTid
                     FROM NVTX_EVENTS r
-                    LEFT JOIN StringIds s ON r.text = s.id
-                    WHERE r.start IS NOT NULL AND r.end IS NOT NULL
+                    LEFT JOIN StringIds s ON r.textId = s.id
+                    WHERE r.eventType IN (59, 60)
                     ORDER BY r.start
                 """)
                 
@@ -646,11 +704,11 @@ class ProfilingService:
                 for row in cursor.fetchall():
                     start = row['start']
                     end = row['end']
-                    if start and end:
+                    if start and end and end > start:
                         min_start = min(min_start, start)
                         max_end = max(max_end, end)
                         
-                        name = row['text'] or "nvtx_range"
+                        name = row['text'] or 'nvtx_range'
                         color = NVTX_COLORS.get(name, "#9b59b6")
                         
                         event = TimelineEvent(
@@ -660,9 +718,10 @@ class ProfilingService:
                             start_ns=start,
                             duration_ns=end - start,
                             end_ns=end,
+                            stream=0,
                             color=color,
                             metadata={
-                                "category_id": row['category']
+                                "thread_id": row['globalTid']
                             }
                         )
                         events.append(asdict(event))
@@ -676,7 +735,7 @@ class ProfilingService:
             print(f"[Profiling] Error extracting timeline: {e}")
             return {"error": str(e)}
         
-        # Sort by start time
+        # Sort all events by start time
         events.sort(key=lambda e: e['start_ns'])
         
         # Normalize timestamps to start from 0
@@ -691,7 +750,7 @@ class ProfilingService:
         h5_path = self.nsys_dir / f"{session_id}.h5"
         if not h5_path.exists() and events:
             try:
-                self.write_timeline_hdf5(session_id, events, total_duration_ns)
+                self.write_timeline_hdf5(session_id, events, int(total_duration_ns))
             except Exception as e:
                 print(f"[Profiling] HDF5 generation failed (non-fatal): {e}")
         
@@ -717,6 +776,14 @@ class ProfilingService:
         except Exception as e:
             print(f"[Profiling] SQLite export failed: {e}")
     
+    def _count_categories(self, events: List[Dict]) -> Dict[str, int]:
+        """Count events by category."""
+        counts = {}
+        for event in events:
+            cat = event.get('category', 'unknown')
+            counts[cat] = counts.get(cat, 0) + 1
+        return counts
+    
     def get_kernels(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
         Extract kernel metrics from Nsight Compute CSV output.
@@ -733,42 +800,32 @@ class ProfilingService:
         
         try:
             with open(csv_file, 'r') as f:
-                # Skip header lines that start with ==
-                lines = [l for l in f.readlines() if not l.startswith('==')]
+                reader = csv.DictReader(f)
                 
-            if not lines:
-                return {"kernels": []}
-            
-            reader = csv.DictReader(lines)
-            
-            for row in reader:
-                kernel = KernelMetrics(
-                    kernel_name=row.get('Kernel Name', 'unknown'),
-                    invocation=int(row.get('Invocation', 1) or 1),
-                    duration_ns=int(float(row.get('Duration', 0) or 0) * 1e9),
-                    registers_per_thread=int(row.get('Registers Per Thread', 0) or 0),
-                    occupancy_achieved=float(row.get('Achieved Occupancy', 0) or 0),
-                    occupancy_theoretical=float(row.get('Theoretical Occupancy', 0) or 0),
-                    sm_throughput_pct=float(row.get('SM [%]', 0) or 0),
-                    dram_throughput_pct=float(row.get('DRAM [%]', 0) or 0),
-                )
-                
-                # Parse grid/block if available
-                if 'Grid Size' in row:
-                    try:
-                        grid_str = row['Grid Size'].strip('()').split(',')
-                        kernel.grid = [int(x.strip()) for x in grid_str]
-                    except:
-                        pass
-                
-                if 'Block Size' in row:
-                    try:
-                        block_str = row['Block Size'].strip('()').split(',')
-                        kernel.block = [int(x.strip()) for x in block_str]
-                    except:
-                        pass
-                
-                kernels.append(asdict(kernel))
+                for row in reader:
+                    kernel = KernelMetrics(
+                        kernel_name=row.get('Kernel Name', 'unknown'),
+                        invocation=int(row.get('Invocations', 1)),
+                        duration_ns=int(float(row.get('Duration', 0)) * 1e9),
+                        grid=[
+                            int(row.get('Grid Size X', 1)),
+                            int(row.get('Grid Size Y', 1)),
+                            int(row.get('Grid Size Z', 1))
+                        ],
+                        block=[
+                            int(row.get('Block Size X', 1)),
+                            int(row.get('Block Size Y', 1)),
+                            int(row.get('Block Size Z', 1))
+                        ],
+                        registers_per_thread=int(row.get('Registers Per Thread', 0)),
+                        shared_memory_static=int(row.get('Static SMem Per Block', 0)),
+                        shared_memory_dynamic=int(row.get('Dynamic SMem Per Block', 0)),
+                        occupancy_achieved=float(row.get('Achieved Occupancy', 0)),
+                        occupancy_theoretical=float(row.get('Theoretical Occupancy', 0)),
+                        sm_throughput_pct=float(row.get('SM [%]', 0)),
+                        dram_throughput_pct=float(row.get('DRAM [%]', 0))
+                    )
+                    kernels.append(asdict(kernel))
         
         except Exception as e:
             print(f"[Profiling] Error parsing kernel CSV: {e}")
@@ -894,11 +951,15 @@ def create_profiling_router(service: ProfilingService):
     async def get_timeline_hdf5(session_id: str, request: Request):
         """
         Get timeline data in HDF5 format (optimized binary).
+        
+        Returns the pre-generated HDF5 file for fast client loading.
+        Falls back to generating on-demand if not present.
         """
         h5_path = service.nsys_dir / f"{session_id}.h5"
         
         # Generate if not exists
         if not h5_path.exists():
+            # Trigger JSON generation which also creates HDF5
             result = service.get_timeline(session_id)
             if not result or "error" in result:
                 raise HTTPException(status_code=404, detail="Timeline not available")
@@ -914,7 +975,7 @@ def create_profiling_router(service: ProfilingService):
                 "Cache-Control": "public, max-age=31536000",
             }
         )
-        
+    
     @router.get("/timeline/{session_id}")
     async def get_timeline(session_id: str, response: Response):
         """Get timeline data for Gantt visualization (JSON format)."""

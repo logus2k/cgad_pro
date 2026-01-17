@@ -4,9 +4,16 @@
  * 
  * Now includes mesh preloading - starts loading mesh data when user
  * selects an item (before confirming), so geometry is ready faster.
+ * 
+ * Supports two run modes:
+ * - Run Simulation: Normal solver execution with visualization
+ * - Run Profiling: nsys-wrapped execution for GPU profiling (CUDA solvers only)
  */
 
 import { meshLoader } from './mesh-loader.js';
+
+// CUDA-capable solvers that support profiling
+const CUDA_SOLVERS = ['gpu', 'numba_cuda'];
 
 class MeshGallery {
     constructor(options = {}) {
@@ -27,6 +34,7 @@ class MeshGallery {
         this.prevBtn = document.getElementById('prevBtn');
         this.nextBtn = document.getElementById('nextBtn');
         this.selectBtn = document.getElementById('selectBtn');
+        this.profilingBtn = document.getElementById('profilingBtn');
         this.cancelBtn = document.getElementById('cancelBtn');
         this.gallery = document.getElementById('hud-gallery');
 
@@ -175,7 +183,10 @@ class MeshGallery {
             
             if (solverSelect) {
                 solverSelect.addEventListener('click', (e) => e.stopPropagation());
-                solverSelect.addEventListener('change', () => this.selectItem(index));
+                solverSelect.addEventListener('change', () => {
+                    this.selectItem(index);
+                    this.updateProfilingButtonState();
+                });
             }
 
             if (extrusionSelect) {
@@ -267,6 +278,10 @@ class MeshGallery {
             this.selectBtn.addEventListener('click', () => this.confirmSelection());
         }
         
+        if (this.profilingBtn) {
+            this.profilingBtn.addEventListener('click', () => this.confirmProfiling());
+        }
+        
         if (this.cancelBtn) {
             this.cancelBtn.addEventListener('click', () => this.close());
         }
@@ -345,6 +360,30 @@ class MeshGallery {
     }
     
     /**
+     * Check if the currently selected solver supports CUDA profiling
+     */
+    isProfilingSupported() {
+        const solverType = this.getSolverForItem(this.selectedIndex);
+        return CUDA_SOLVERS.includes(solverType);
+    }
+    
+    /**
+     * Update the profiling button enabled/disabled state
+     */
+    updateProfilingButtonState() {
+        if (!this.profilingBtn) return;
+        
+        const supported = this.isProfilingSupported();
+        this.profilingBtn.disabled = !supported;
+        
+        if (supported) {
+            this.profilingBtn.title = 'Run with NVIDIA Nsight profiling';
+        } else {
+            this.profilingBtn.title = 'Profiling only available for CUDA solvers (gpu, numba_cuda)';
+        }
+    }
+    
+    /**
      * Handle mesh load progress updates
      */
     onMeshLoadProgress(stage, progress) {
@@ -414,6 +453,9 @@ class MeshGallery {
         
         // Start preloading mesh data immediately
         this.preloadMesh(model, selectedMesh);
+        
+        // Update profiling button state based on selected solver
+        this.updateProfilingButtonState();
     }
     
     /**
@@ -465,6 +507,7 @@ class MeshGallery {
     
     /**
      * Confirm selection and dispatch event with preloaded mesh data
+     * This starts a normal simulation run
      */
     confirmSelection() {
         const model = this.models[this.selectedIndex];
@@ -546,11 +589,99 @@ class MeshGallery {
         }
     }
     
+    /**
+     * Confirm profiling run - starts nsys-wrapped solver execution
+     * Opens PROFILING panel instead of SIMULATION panel
+     */
+    async confirmProfiling() {
+        const model = this.models[this.selectedIndex];
+        if (!model) {
+            console.warn('No model selected');
+            return;
+        }
+        
+        // Get selected mesh from dropdown
+        const selectedMesh = this.getSelectedMeshForItem(this.selectedIndex);
+        if (!selectedMesh) {
+            console.warn('No mesh selected');
+            return;
+        }
+        
+        // Get solver from the selected item's dropdown
+        const selectedItem = this.track.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
+        const solverDropdown = selectedItem?.querySelector('.solver-select');
+        const solverType = solverDropdown?.value || model.solver_type || 'gpu';
+        
+        // Verify CUDA solver
+        if (!CUDA_SOLVERS.includes(solverType)) {
+            console.warn('Profiling only supported for CUDA solvers');
+            return;
+        }
+        
+        // Close gallery
+        this.close();
+        
+        // Auto-open PROFILING panel (not metrics/simulation)
+        if (window.menuManager) {
+            window.menuManager.showPanel('profiling');
+        }
+        
+        console.log('=== PROFILING RUN STARTED ===');
+        console.log('Model:', model.name);
+        console.log('Mesh:', selectedMesh.label);
+        console.log('File:', selectedMesh.file);
+        console.log('Solver:', solverType);
+        console.log('=============================');
+        
+        // Start profiling run via API
+        try {
+            const response = await fetch('/api/profiling/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    solver: solverType,
+                    mesh_file: selectedMesh.file,
+                    mode: 'timeline'
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to start profiling');
+            }
+            
+            const result = await response.json();
+            console.log('Profiling session started:', result.session_id);
+            
+            // Dispatch event for profiling panel to track progress
+            const event = new CustomEvent('profilingStarted', {
+                detail: {
+                    sessionId: result.session_id,
+                    model: model,
+                    mesh: selectedMesh,
+                    solver: solverType
+                }
+            });
+            document.dispatchEvent(event);
+            
+        } catch (error) {
+            console.error('Failed to start profiling:', error);
+            
+            // Dispatch error event
+            const event = new CustomEvent('profilingError', {
+                detail: { error: error.message }
+            });
+            document.dispatchEvent(event);
+        }
+    }
+    
     // Public methods for external control
     
     open() {
         if (this.gallery) {
             this.gallery.classList.add('visible');
+            // Update profiling button state when opening
+            this.updateProfilingButtonState();
         }
     }
     
@@ -629,6 +760,7 @@ class MeshGallery {
         const dropdown = item?.querySelector('.solver-select');
         if (dropdown && this.solvers.some(s => s.id === solverId)) {
             dropdown.value = solverId;
+            this.updateProfilingButtonState();
         }
     }
     

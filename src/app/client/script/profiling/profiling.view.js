@@ -1,10 +1,12 @@
 /**
- * ProfilingView - Optimized main controller for the profiling panel.
+ * ProfilingView - Main controller for the profiling panel.
  * 
- * Changes from original:
+ * Features:
  * - Loading progress indicator during timeline render
  * - Non-blocking session loading
  * - Debounced filter changes
+ * - Real-time Socket.IO updates for profiling progress
+ * - Integration with Gallery "Run Profiling" button
  * 
  * Location: /src/app/client/script/profiling/profiling.view.js
  */
@@ -33,11 +35,15 @@ export class ProfilingView {
         categoryFilters: null,
         deleteSelectedBtn: null,
         loadingOverlay: null,
-        progressBar: null
+        progressBar: null,
+        activeRunIndicator: null
     };
 
-    // Pending profiling indicator
+    // Pending profiling sessions (running in background)
     #pendingSessions = new Map();
+    
+    // Currently active profiling run (triggered from gallery)
+    #activeProfilingSession = null;
     
     // Debounce timer for filter changes
     #filterDebounceTimer = null;
@@ -56,6 +62,7 @@ export class ProfilingView {
         this.#buildUI();
         this.#bindSocketEvents();
         this.#bindUIEvents();
+        this.#bindGalleryEvents();
 
         // Initial load (non-blocking)
         this.loadSessions();
@@ -151,6 +158,30 @@ export class ProfilingView {
             this.#showStatus('Failed to delete sessions', 'error');
         }
     }
+    
+    /**
+     * Start tracking a profiling session (called when gallery triggers profiling)
+     * @param {string} sessionId 
+     * @param {object} metadata - solver, mesh, etc.
+     */
+    startTracking(sessionId, metadata = {}) {
+        console.log('[ProfilingView] Start tracking session:', sessionId);
+        
+        this.#activeProfilingSession = {
+            sessionId,
+            ...metadata,
+            startTime: Date.now()
+        };
+        
+        // Join Socket.IO room for this session
+        if (this.#socket) {
+            this.#socket.emit('join_profiling', { session_id: sessionId });
+        }
+        
+        // Show active run indicator
+        this.#showActiveRunIndicator(true, metadata);
+        this.#showStatus('Profiling started...', 'loading');
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // UI Building
@@ -168,6 +199,16 @@ export class ProfilingView {
                             <div class="profiling-loading-progress-bar"></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Active Run Indicator (shown when profiling is in progress) -->
+                <div class="profiling-active-run" style="display: none;">
+                    <div class="profiling-active-run-spinner"></div>
+                    <div class="profiling-active-run-info">
+                        <div class="profiling-active-run-title">Profiling in progress...</div>
+                        <div class="profiling-active-run-details"></div>
+                    </div>
+                    <div class="profiling-active-run-stage"></div>
                 </div>
 
                 <!-- Toolbar -->
@@ -231,12 +272,12 @@ export class ProfilingView {
                         <label class="profiling-filter-checkbox">
                             <input type="checkbox" data-category="cuda_memcpy_h2d" checked>
                             <span class="profiling-filter-color" style="background: rgba(52, 152, 219, 0.9);"></span>
-                            H→D
+                            H2D
                         </label>
                         <label class="profiling-filter-checkbox">
                             <input type="checkbox" data-category="cuda_memcpy_d2h" checked>
                             <span class="profiling-filter-color" style="background: rgba(46, 204, 113, 0.9);"></span>
-                            D→H
+                            D2H
                         </label>
                         <label class="profiling-filter-checkbox">
                             <input type="checkbox" data-category="nvtx_range" checked>
@@ -277,6 +318,7 @@ export class ProfilingView {
         this.#elements.deleteSelectedBtn = this.#container.querySelector('.profiling-btn-delete');
         this.#elements.loadingOverlay = this.#container.querySelector('.profiling-loading-overlay');
         this.#elements.progressBar = this.#container.querySelector('.profiling-loading-progress-bar');
+        this.#elements.activeRunIndicator = this.#container.querySelector('.profiling-active-run');
 
         // Initialize timeline
         this.#timeline = new ProfilingTimeline('profiling-timeline-container');
@@ -347,6 +389,31 @@ export class ProfilingView {
             }
         });
     }
+    
+    /**
+     * Listen for events from Gallery "Run Profiling" button
+     */
+    #bindGalleryEvents() {
+        // Listen for profilingStarted event from gallery
+        document.addEventListener('profilingStarted', (e) => {
+            const { sessionId, model, mesh, solver } = e.detail;
+            console.log('[ProfilingView] Received profilingStarted event:', e.detail);
+            
+            this.startTracking(sessionId, {
+                model: model?.name,
+                mesh: mesh?.label,
+                solver: solver
+            });
+        });
+        
+        // Listen for profilingError event from gallery
+        document.addEventListener('profilingError', (e) => {
+            const { error } = e.detail;
+            console.error('[ProfilingView] Received profilingError event:', error);
+            this.#showStatus(`Failed to start profiling: ${error}`, 'error');
+            this.#showActiveRunIndicator(false);
+        });
+    }
 
     #debounceFilterChange(callback, delay = 150) {
         if (this.#filterDebounceTimer) {
@@ -356,7 +423,7 @@ export class ProfilingView {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Loading Indicator
+    // Loading & Progress Indicators
     // ─────────────────────────────────────────────────────────────────────────
 
     #showLoading(show, message = 'Loading...') {
@@ -376,6 +443,40 @@ export class ProfilingView {
             this.#elements.progressBar.style.width = `${percent}%`;
         }
     }
+    
+    /**
+     * Show/hide the active profiling run indicator
+     */
+    #showActiveRunIndicator(show, metadata = {}) {
+        if (!this.#elements.activeRunIndicator) return;
+        
+        if (show) {
+            this.#elements.activeRunIndicator.style.display = 'flex';
+            
+            const details = this.#elements.activeRunIndicator.querySelector('.profiling-active-run-details');
+            if (details) {
+                const parts = [];
+                if (metadata.solver) parts.push(`Solver: ${metadata.solver}`);
+                if (metadata.mesh) parts.push(`Mesh: ${metadata.mesh}`);
+                details.textContent = parts.join(' | ') || '';
+            }
+            
+            this.#updateActiveRunStage('starting', 'Starting profiler...');
+        } else {
+            this.#elements.activeRunIndicator.style.display = 'none';
+            this.#activeProfilingSession = null;
+        }
+    }
+    
+    /**
+     * Update the stage display in the active run indicator
+     */
+    #updateActiveRunStage(stage, message) {
+        const stageEl = this.#elements.activeRunIndicator?.querySelector('.profiling-active-run-stage');
+        if (stageEl) {
+            stageEl.textContent = message || stage;
+        }
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Socket.IO Events
@@ -387,10 +488,36 @@ export class ProfilingView {
             return;
         }
 
+        // Join general profiling room on connect
+        this.#socket.on('connect', () => {
+            this.#socket.emit('join_profiling', {});
+        });
+        
+        // If already connected, join now
+        if (this.#socket.connected) {
+            this.#socket.emit('join_profiling', {});
+        }
+
+        // Session started
+        this.#socket.on('profiling_started', (data) => {
+            console.log('[ProfilingView] Profiling started:', data);
+            this.#pendingSessions.set(data.session_id, { ...data, status: 'pending' });
+            
+            // If this is our active session, update UI
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#updateActiveRunStage('pending', 'Profiling session created...');
+            }
+        });
+        
+        // Legacy event names (for backward compatibility)
         this.#socket.on('profiling_queued', (data) => {
             console.log('[ProfilingView] Profiling queued:', data);
             this.#pendingSessions.set(data.session_id, { ...data, status: 'queued' });
             this.#showStatus(`Profiling queued: ${data.mesh}`, 'loading');
+            
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#updateActiveRunStage('queued', 'Queued...');
+            }
         });
 
         this.#socket.on('profiling_running', (data) => {
@@ -401,6 +528,10 @@ export class ProfilingView {
                 pending.message = data.message;
             }
             this.#showStatus(data.message || 'Profiling in progress...', 'loading');
+            
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#updateActiveRunStage('running', data.message || 'Running solver...');
+            }
         });
 
         this.#socket.on('profiling_extracting', (data) => {
@@ -411,32 +542,89 @@ export class ProfilingView {
                 pending.message = data.message;
             }
             this.#showStatus(data.message || 'Parsing profiling data...', 'loading');
+            
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#updateActiveRunStage('extracting', data.message || 'Extracting timeline...');
+            }
         });
 
+        // Progress updates
+        this.#socket.on('profiling_progress', (data) => {
+            console.log('[ProfilingView] Profiling progress:', data);
+            
+            const pending = this.#pendingSessions.get(data.session_id);
+            if (pending) {
+                pending.status = data.status;
+                pending.stage = data.stage;
+                pending.message = data.message;
+            }
+            
+            // Update status bar
+            this.#showStatus(data.message || `Profiling: ${data.stage}`, 'loading');
+            
+            // If this is our active session, update the indicator
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#updateActiveRunStage(data.stage, data.message);
+            }
+        });
+
+        // Profiling complete
         this.#socket.on('profiling_complete', (data) => {
             console.log('[ProfilingView] Profiling complete:', data);
             this.#pendingSessions.delete(data.session_id);
+            
+            // Refresh session list
             this.loadSessions();
             
-            if (!this.#currentSessionId) {
+            // If this was our active session, auto-load it
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#showActiveRunIndicator(false);
                 this.loadSession(data.session_id);
+                this.#showStatus('Profiling complete', 'success');
+            } else if (!this.#currentSessionId) {
+                // If no session is loaded, load the completed one
+                this.loadSession(data.session_id);
+                this.#showStatus('Profiling complete', 'success');
+            } else {
+                this.#showStatus('Profiling complete', 'success');
             }
-            
-            this.#showStatus('Profiling complete', 'success');
         });
 
+        // Profiling failed/error
         this.#socket.on('profiling_failed', (data) => {
             console.error('[ProfilingView] Profiling failed:', data);
             this.#pendingSessions.delete(data.session_id);
-            this.#showStatus(`Profiling failed: ${data.error}`, 'error');
+            
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#showActiveRunIndicator(false);
+            }
+            
+            this.#showStatus(`Profiling failed: ${data.error || 'Unknown error'}`, 'error');
+        });
+        
+        this.#socket.on('profiling_error', (data) => {
+            console.error('[ProfilingView] Profiling error:', data);
+            this.#pendingSessions.delete(data.session_id);
+            
+            if (this.#activeProfilingSession?.sessionId === data.session_id) {
+                this.#showActiveRunIndicator(false);
+            }
+            
+            this.#showStatus(`Profiling failed: ${data.error || 'Unknown error'}`, 'error');
         });
 
+        // Session deleted
         this.#socket.on('profiling_deleted', (data) => {
             console.log('[ProfilingView] Sessions deleted:', data);
             if (data.session_ids) {
                 this.#sessions = this.#sessions.filter(s => !data.session_ids.includes(s.id));
                 this.#renderSessionList();
             }
+        });
+        
+        // Joined profiling room confirmation
+        this.#socket.on('joined_profiling', (data) => {
+            console.log('[ProfilingView] Joined profiling room:', data);
         });
     }
 
@@ -643,12 +831,17 @@ export class ProfilingView {
         }
         
         if (this.#socket) {
+            this.#socket.emit('leave_profiling', {});
+            this.#socket.off('profiling_started');
             this.#socket.off('profiling_queued');
             this.#socket.off('profiling_running');
             this.#socket.off('profiling_extracting');
+            this.#socket.off('profiling_progress');
             this.#socket.off('profiling_complete');
             this.#socket.off('profiling_failed');
+            this.#socket.off('profiling_error');
             this.#socket.off('profiling_deleted');
+            this.#socket.off('joined_profiling');
         }
     }
 }

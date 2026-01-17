@@ -186,6 +186,51 @@ async def join_room(sid, data):
                 print(f"Replaying solve_complete for {job_id}")
                 await sio.emit('solve_complete', job['solve_complete_data'], room=sid)
 
+@sio.event
+async def join_profiling(sid, data):
+    """Client joins profiling room to receive profiling updates"""
+    session_id = data.get('session_id')
+    
+    # Join general profiling room
+    await sio.enter_room(sid, 'profiling')
+    print(f"Client {sid} joined profiling room")
+    
+    # Join specific session room if provided
+    if session_id:
+        await sio.enter_room(sid, f'profiling_{session_id}')
+        await sio.emit('joined_profiling', {'session_id': session_id}, room=sid)
+        print(f"Client {sid} joined profiling session room: {session_id}")
+        
+        # Check if session already completed and replay status
+        session = profiling_service.get_session(session_id)
+        if session:
+            if session['status'] == 'completed':
+                await sio.emit('profiling_complete', {
+                    'session_id': session_id,
+                    'status': 'completed',
+                    'message': 'Profiling complete'
+                }, room=sid)
+            elif session['status'] == 'failed':
+                await sio.emit('profiling_error', {
+                    'session_id': session_id,
+                    'status': 'failed',
+                    'error': session.get('error', 'Unknown error'),
+                    'message': f"Profiling failed: {session.get('error', 'Unknown error')}"
+                }, room=sid)
+
+
+@sio.event
+async def leave_profiling(sid, data):
+    """Client leaves profiling room"""
+    session_id = data.get('session_id')
+    
+    await sio.leave_room(sid, 'profiling')
+    
+    if session_id:
+        await sio.leave_room(sid, f'profiling_{session_id}')
+    
+    print(f"Client {sid} left profiling room")
+
 
 # ============================================================================
 # Background Solver Task

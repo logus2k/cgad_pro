@@ -24,8 +24,14 @@ RUN playwright install chromium
 # STAGE 2: Runtime
 FROM nvidia/cuda:13.1.0-runtime-ubuntu24.04
 
+# Add NVIDIA's apt repository for profiling tools and install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 libgomp1 \
+    gnupg curl \
+    && curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub | gpg --dearmor -o /usr/share/keyrings/nvidia-cuda.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/nvidia-cuda.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /" > /etc/apt/sources.list.d/nvidia-cuda.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nsight-systems nsight-compute \
     && rm -rf /var/lib/apt/lists/*
 
 # 1. FIX FOR CUPY: Copy CUDA headers for JIT compilation
