@@ -34,6 +34,17 @@ from kernels_numba_cuda import (
 )
 
 
+# NVTX profiling support (optional)
+try:
+    from nvtx_helper import nvtx_range
+except ImportError:
+    from contextlib import contextmanager
+    @contextmanager
+    def nvtx_range(*args, **kwargs):
+        yield
+
+
+
 # =============================================================================
 # Progress Callback Monitor
 # =============================================================================
@@ -264,11 +275,13 @@ class Quad8FEMSolverNumbaCUDA:
         self.progress_callback = progress_callback
 
     def _time_step(self, step_name: str, func: Callable[..., Any]) -> Any:
-        """Utility to time a function call and store the result."""
-        t0 = time.perf_counter()
-        result = func()
-        t1 = time.perf_counter()
-        self.timing_metrics[step_name] = t1 - t0
+        """Utility to time a function call with NVTX annotation."""
+        with nvtx_range(step_name):
+            t0 = time.perf_counter()
+            result = func()
+            cuda.synchronize()
+            t1 = time.perf_counter()
+            self.timing_metrics[step_name] = t1 - t0
         
         if self.verbose:
             print(f"  > Step '{step_name}' completed in {self.timing_metrics[step_name]:.4f} seconds.")

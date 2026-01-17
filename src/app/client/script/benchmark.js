@@ -111,7 +111,15 @@ export class BenchmarkPanel {
                         Refresh
                     </button>
                 </div>
-                <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
+                <div class="benchmark-footer-right">
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-copy-table-btn">
+                        Copy Table
+                    </button>
+                    <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-export-table-btn">
+                        Export Table
+                    </button>
+                    <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
+                </div>
             </div>
         `;
         
@@ -136,6 +144,18 @@ export class BenchmarkPanel {
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.closePanel());
         }
+
+        // Copy table button
+        const copyTableBtn = this.container.querySelector('#benchmark-copy-table-btn');
+        if (copyTableBtn) {
+            copyTableBtn.addEventListener('click', () => this.copyTableAsMarkdown());
+        }
+
+        // Export table button
+        const exportTableBtn = this.container.querySelector('#benchmark-export-table-btn');
+        if (exportTableBtn) {
+            exportTableBtn.addEventListener('click', () => this.exportTableAsMarkdown());
+        }        
 
         // Report section dropdown
         const reportSection = this.container.querySelector('#benchmark-report-section');
@@ -1026,6 +1046,124 @@ export class BenchmarkPanel {
             console.error('[Benchmark] ReportViewerPanel not available');
         }
     }  
+
+    /**
+     * Generate Markdown table from current filtered/sorted records
+     */
+    generateTableMarkdown() {
+        // Get currently displayed records (respecting filters)
+        let filteredRecords = this.records;
+        
+        if (this.filterTesting === 'manual') {
+            filteredRecords = filteredRecords.filter(r => r.client_hash !== 'automated');
+        } else if (this.filterTesting === 'automated') {
+            filteredRecords = filteredRecords.filter(r => r.client_hash === 'automated');
+        }
+        
+        if (this.filterSolver) {
+            filteredRecords = filteredRecords.filter(r => r.solver_type === this.filterSolver);
+        }
+        if (this.filterModel) {
+            filteredRecords = filteredRecords.filter(r => r.model_name === this.filterModel);
+        }
+        if (this.filterServer) {
+            filteredRecords = filteredRecords.filter(r => {
+                const isAutomated = r.client_hash === 'automated';
+                const compositeKey = `${r.server_hash}${isAutomated ? '_automated' : ''}`;
+                return compositeKey === this.filterServer;
+            });
+        }
+        
+        // Sort records
+        filteredRecords = this.sortRecords(filteredRecords);
+        
+        if (filteredRecords.length === 0) {
+            return '*No records to export*';
+        }
+        
+        // Build Markdown table
+        let md = '# Benchmark Results\n\n';
+        
+        // Add filter info
+        const filters = [];
+        if (this.filterSolver) filters.push(`Solver: ${this.formatSolverName(this.filterSolver)}`);
+        if (this.filterModel) filters.push(`Model: ${this.filterModel}`);
+        if (this.filterTesting) filters.push(`Testing: ${this.filterTesting}`);
+        if (filters.length > 0) {
+            md += `**Filters:** ${filters.join(', ')}\n\n`;
+        }
+        
+        md += `**Total Records:** ${filteredRecords.length}\n\n`;
+        
+        // Table header
+        md += '| Model | Solver | Nodes | Elements | Total Time | Assembly | Solve | Iterations | Peak RAM | Peak VRAM | Status | Date |\n';
+        md += '|-------|--------|------:|--------:|-----------:|---------:|------:|-----------:|---------:|----------:|:------:|------|\n';
+        
+        // Table rows
+        filteredRecords.forEach(record => {
+            const totalTime = record.timings?.total_program_time || 0;
+            const assemblyTime = record.timings?.assemble_system || 0;
+            const solveTime = record.timings?.solve_system || 0;
+            const peakRam = record.memory?.peak_ram_mb;
+            const peakVram = record.memory?.peak_vram_mb;
+            
+            md += `| ${record.model_name} `;
+            md += `| ${this.formatSolverName(record.solver_type)} `;
+            md += `| ${this.formatNumber(record.model_nodes)} `;
+            md += `| ${this.formatNumber(record.model_elements)} `;
+            md += `| ${this.formatTime(totalTime)} `;
+            md += `| ${this.formatTime(assemblyTime)} `;
+            md += `| ${this.formatTime(solveTime)} `;
+            md += `| ${this.formatNumber(record.iterations)} `;
+            md += `| ${this.formatMemory(peakRam)} `;
+            md += `| ${this.formatMemory(peakVram)} `;
+            md += `| ${record.converged ? '✓' : '✗'} `;
+            md += `| ${this.formatTimestamp(record.timestamp)} |\n`;
+        });
+        
+        return md;
+    }
+
+    /**
+     * Copy current table to clipboard as Markdown
+     */
+    copyTableAsMarkdown() {
+        const markdown = this.generateTableMarkdown();
+        
+        navigator.clipboard.writeText(markdown).then(() => {
+            // Brief visual feedback
+            const btn = this.container.querySelector('#benchmark-copy-table-btn');
+            if (btn) {
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = original, 1500);
+            }
+        }).catch(err => {
+            console.error('[Benchmark] Failed to copy:', err);
+        });
+    }
+
+    /**
+     * Export current table as Markdown file
+     */
+    exportTableAsMarkdown() {
+        const markdown = this.generateTableMarkdown();
+        
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const filename = `benchmark_table_${timestamp}.md`;
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+    }    
     
     // Polling
     startPolling() {

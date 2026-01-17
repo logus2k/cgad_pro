@@ -42,9 +42,8 @@ try:
     from nvtx_helper import nvtx_range
 except ImportError:
     from contextlib import contextmanager
-    from typing import Optional
     @contextmanager
-    def nvtx_range(name: str, color: Optional[int] = None, domain: str = "FEMulator"):
+    def nvtx_range(*args, **kwargs):
         yield
 
 
@@ -448,12 +447,12 @@ class Quad8FEMSolverGPU:
 		"""Execute a pipeline stage with timing and NVTX annotation."""
 		with nvtx_range(name):
 			t0 = time.perf_counter()
-			result = fn()
+			out = fn()
 			cp.cuda.Stream.null.synchronize()
 			self.timing_metrics[name] = time.perf_counter() - t0
 		if self.verbose:
-			print(f"  {name}: {self.timing_metrics[name]:.3f}s")
-		return result
+			print(f"  > Step '{name}' completed in {self.timing_metrics[name]:.4f}s")
+		return out
 
 	# -------------
 	# Mesh loading
