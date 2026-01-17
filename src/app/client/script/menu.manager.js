@@ -23,7 +23,8 @@ export class MenuManager {
             menuPosition: config.menuPosition || 'bottom-center',
             iconSize: config.menuIconSize || 36,
             margin: config.menuMargin || 20,
-            panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'settings', 'about'],
+            // panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'report', 'settings', 'about'],
+            panelIds: config.panelIds || ['gallery', 'metrics', 'benchmark', 'profiling', 'report', 'settings', 'about'],
             initialVisibility: config.initialVisibility || {},
             nonResizable: config.nonResizable || ['settings', 'about'],
         };
@@ -85,6 +86,7 @@ export class MenuManager {
         wrap.style.setProperty('--pm-icon', `${this.cfg.iconSize}px`);
         wrap.style.setProperty('--pm-m', `${this.cfg.margin}px`);
 
+        /*
         const items = [
             { id: 'gallery', icon: 'filter', label: 'Gallery' },
             { id: 'metrics', icon: 'deployed_code', label: 'Simulation' },
@@ -93,6 +95,17 @@ export class MenuManager {
             // { id: 'settings', icon: 'settings', label: 'Settings' },
             { id: 'about', icon: 'info', label: 'About' },
         ];
+        */
+
+        const items = [
+            { id: 'gallery', icon: 'filter', label: 'Gallery' },
+            { id: 'metrics', icon: 'deployed_code', label: 'Simulation' },
+            { id: 'benchmark', icon: 'finance', label: 'Benchmark' },
+            { id: 'profiling', icon: 'search_insights', label: 'Profiling' },
+            { id: 'report', icon: 'assignment', label: 'Reporting' },
+            // { id: 'settings', icon: 'settings', label: 'Settings' },
+            { id: 'about', icon: 'info', label: 'About' },
+        ];        
 
         items.forEach(({ id, icon, label }) => {
             if (!this.cfg.panelIds.includes(id)) return;

@@ -10,6 +10,7 @@ const menuManager = new MenuManager({
 		gallery: false,
 		metrics: false,
 		benchmark: false,
+		profiling: false,
 		report: false,
 		//settings: false,
 		about: false,

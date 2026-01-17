@@ -1,0 +1,640 @@
+/**
+ * Profiling Panel Styles
+ * 
+ * Includes:
+ * - Panel layout
+ * - Toolbar and controls
+ * - Summary cards
+ * - Session list table
+ * - vis.js Timeline customization for profiling events
+ * - Event details panel
+ * 
+ * Location: /src/app/client/style/profiling.css
+ */
+
+/* =============================================================================
+   Layout
+   ============================================================================= */
+
+.profiling-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 8px;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+}
+
+/* =============================================================================
+   Toolbar
+   ============================================================================= */
+
+.profiling-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 3px 3px 0 0;
+    min-height: 36px;
+}
+
+.profiling-toolbar-left,
+.profiling-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profiling-toolbar-center {
+    flex: 1;
+    text-align: center;
+}
+
+.profiling-session-select {
+    padding: 4px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 11px;
+    min-width: 200px;
+    background: #fff;
+}
+
+.profiling-session-select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+.profiling-btn {
+    padding: 4px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+}
+
+.profiling-btn:hover:not(:disabled) {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.profiling-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.profiling-btn-refresh {
+    padding: 4px 6px;
+}
+
+.profiling-btn-delete {
+    background: #fff5f5;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.profiling-btn-delete:hover:not(:disabled) {
+    background: #f8d7da;
+}
+
+/* =============================================================================
+   Status Indicator
+   ============================================================================= */
+
+.profiling-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.profiling-status-loading {
+    color: #856404;
+    background: #fff3cd;
+}
+
+.profiling-status-success {
+    color: #155724;
+    background: #d4edda;
+}
+
+.profiling-status-error {
+    color: #721c24;
+    background: #f8d7da;
+}
+
+/* =============================================================================
+   Summary Cards
+   ============================================================================= */
+
+.profiling-summary {
+    display: flex;
+    gap: 10px;
+    padding: 0 4px;
+}
+
+.profiling-card {
+    flex: 1;
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.profiling-card-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.2;
+}
+
+.profiling-card-label {
+    font-size: 10px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* =============================================================================
+   Filters
+   ============================================================================= */
+
+.profiling-filters {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 8px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+}
+
+.profiling-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profiling-filter-group > label:first-child {
+    font-weight: 500;
+    color: #495057;
+    font-size: 11px;
+}
+
+.profiling-groupby-select {
+    padding: 3px 6px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 11px;
+    background: #fff;
+}
+
+.profiling-category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.profiling-filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    user-select: none;
+}
+
+.profiling-filter-checkbox input {
+    margin: 0;
+}
+
+.profiling-filter-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* =============================================================================
+   Timeline Wrapper
+   ============================================================================= */
+
+.profiling-timeline-wrapper {
+    flex: 1;
+    min-height: 200px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.profiling-timeline {
+    width: 100%;
+    height: 100%;
+}
+
+/* =============================================================================
+   vis.js Timeline Customization
+   ============================================================================= */
+
+#profiling-timeline-container .vis-timeline {
+    border: none !important;
+    font-family: 'Roboto', sans-serif;
+}
+
+#profiling-timeline-container .vis-panel {
+    border-color: #dee2e6 !important;
+}
+
+#profiling-timeline-container .vis-panel.vis-left {
+    background-color: rgba(248, 249, 250, 0.95) !important;
+    border-right: 1px solid #dee2e6 !important;
+    min-width: 100px;
+    max-width: 120px;
+}
+
+#profiling-timeline-container .vis-labelset .vis-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: #495057;
+    padding: 4px 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#profiling-timeline-container .vis-time-axis .vis-text {
+    font-size: 10px;
+    color: #6c757d;
+}
+
+#profiling-timeline-container .vis-time-axis .vis-grid.vis-major {
+    border-color: #adb5bd !important;
+}
+
+#profiling-timeline-container .vis-time-axis .vis-grid.vis-minor {
+    border-color: #dee2e6 !important;
+}
+
+/* Timeline items base */
+#profiling-timeline-container .vis-item {
+    border-radius: 2px !important;
+    border-width: 1px !important;
+    font-size: 9px;
+    line-height: 1.2;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+#profiling-timeline-container .vis-item .vis-item-content {
+    padding: 2px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Category-specific colors */
+#profiling-timeline-container .vis-item.profiling-item-cuda_kernel {
+    background-color: rgba(231, 76, 60, 0.85) !important;
+    border-color: rgba(192, 57, 43, 1) !important;
+    color: #fff !important;
+}
+
+#profiling-timeline-container .vis-item.profiling-item-cuda_memcpy_h2d {
+    background-color: rgba(52, 152, 219, 0.85) !important;
+    border-color: rgba(41, 128, 185, 1) !important;
+    color: #fff !important;
+}
+
+#profiling-timeline-container .vis-item.profiling-item-cuda_memcpy_d2h {
+    background-color: rgba(46, 204, 113, 0.85) !important;
+    border-color: rgba(39, 174, 96, 1) !important;
+    color: #fff !important;
+}
+
+#profiling-timeline-container .vis-item.profiling-item-cuda_memcpy_d2d {
+    background-color: rgba(243, 156, 18, 0.85) !important;
+    border-color: rgba(211, 84, 0, 1) !important;
+    color: #fff !important;
+}
+
+#profiling-timeline-container .vis-item.profiling-item-cuda_sync {
+    background-color: rgba(149, 165, 166, 0.85) !important;
+    border-color: rgba(127, 140, 141, 1) !important;
+    color: #fff !important;
+}
+
+#profiling-timeline-container .vis-item.profiling-item-nvtx_range {
+    background-color: rgba(155, 89, 182, 0.85) !important;
+    border-color: rgba(142, 68, 173, 1) !important;
+    color: #fff !important;
+}
+
+/* Hover state */
+#profiling-timeline-container .vis-item:hover {
+    box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    z-index: 10 !important;
+}
+
+/* Selected state */
+#profiling-timeline-container .vis-item.vis-selected {
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.9), 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    z-index: 11 !important;
+}
+
+/* Group row backgrounds */
+#profiling-timeline-container .vis-group.profiling-group-cuda_kernel {
+    background: rgba(231, 76, 60, 0.05);
+}
+
+#profiling-timeline-container .vis-group.profiling-group-cuda_memcpy_h2d {
+    background: rgba(52, 152, 219, 0.05);
+}
+
+#profiling-timeline-container .vis-group.profiling-group-cuda_memcpy_d2h {
+    background: rgba(46, 204, 113, 0.05);
+}
+
+#profiling-timeline-container .vis-group.profiling-group-nvtx_range {
+    background: rgba(155, 89, 182, 0.05);
+}
+
+/* Tooltip styling */
+#profiling-timeline-container .vis-tooltip {
+    background: rgba(33, 37, 41, 0.95) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    max-width: 300px;
+}
+
+#profiling-timeline-container .vis-tooltip strong {
+    color: #ffc107;
+}
+
+/* =============================================================================
+   Session List
+   ============================================================================= */
+
+.profiling-sessions-details {
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    background: #fff;
+}
+
+.profiling-sessions-details summary {
+    padding: 6px 10px;
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 11px;
+    color: #495057;
+    user-select: none;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.profiling-sessions-details[open] summary {
+    border-radius: 3px 3px 0 0;
+}
+
+.profiling-session-list {
+    max-height: 180px;
+    overflow-y: auto;
+    font-size: 11px;
+}
+
+.profiling-session-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: #e3f2fd;
+    font-weight: 500;
+    color: #1565c0;
+    border-bottom: 1px solid #90caf9;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.profiling-session-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.profiling-session-row:hover {
+    background: #f8f9fa;
+}
+
+.profiling-session-row.selected {
+    background: #e8f5e9;
+}
+
+.profiling-session-col-checkbox {
+    width: 30px;
+    flex-shrink: 0;
+}
+
+.profiling-session-col-date {
+    width: 130px;
+    flex-shrink: 0;
+}
+
+.profiling-session-col-solver {
+    width: 90px;
+    flex-shrink: 0;
+    font-weight: 500;
+}
+
+.profiling-session-col-mesh {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profiling-session-col-status {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.profiling-session-col-duration {
+    width: 70px;
+    flex-shrink: 0;
+    text-align: right;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.profiling-status-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.profiling-status-badge.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.profiling-status-badge.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.profiling-status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.profiling-session-empty {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Scrollbar styling */
+.profiling-session-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.profiling-session-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.profiling-session-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.profiling-session-list::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* =============================================================================
+   Event Details Panel
+   ============================================================================= */
+
+.profiling-details-panel {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 280px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+}
+
+.profiling-details-header {
+    padding: 6px 10px;
+    color: #333;
+    font-weight: 500;
+    font-size: 11px;
+    border-radius: 3px 3px 0 0;
+}
+
+.profiling-details-content {
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.profiling-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.profiling-details-table th {
+    text-align: left;
+    padding: 3px 8px 3px 0;
+    color: #6c757d;
+    font-weight: 500;
+    width: 100px;
+    vertical-align: top;
+}
+
+.profiling-details-table td {
+    padding: 3px 0;
+    color: #212529;
+    word-break: break-all;
+}
+
+/* =============================================================================
+   Responsive Adjustments
+   ============================================================================= */
+
+@media (max-width: 800px) {
+    .profiling-summary {
+        flex-wrap: wrap;
+    }
+    
+    .profiling-card {
+        flex: 1 1 45%;
+        min-width: 100px;
+    }
+    
+    .profiling-filters {
+        flex-wrap: wrap;
+    }
+    
+    .profiling-category-filters {
+        width: 100%;
+        margin-top: 6px;
+    }
+}
+
+.hud.profiling {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 1100px;
+	min-width: 600px;
+	height: 550px;
+	min-height: 350px;
+    background-color: #fff4e5c5;
+}
+
+.hud.profiling:hover {
+    background-color: #fff4e5;
+}
+
+.hud.profiling .profiling-container {
+    height: calc(100% - 48px);
+    overflow: hidden;
+    margin: 10px;
+}
+
+/* Ensure timeline has enough height */
+.hud.profiling .profiling-timeline-wrapper {
+    min-height: 180px;
+}
+
+/* Adjust session list height based on panel size */
+.hud.profiling .profiling-sessions-details {
+    max-height: 150px;
+}
+
+.hud.profiling .profiling-session-list {
+    max-height: 120px;
+}

@@ -149,6 +149,7 @@ class ProfileSession:
     nsys_file: Optional[str] = None
     ncu_file: Optional[str] = None
     benchmark_results: Optional[Dict[str, Any]] = None
+    linked_job_id: Optional[str] = None  # Link to original solve job
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -288,6 +289,11 @@ class ProfilingService:
         timestamp = datetime.now().isoformat()
         mesh_name = Path(mesh_file).stem
         
+        # Extract linked_job_id if provided
+        linked_job_id = None
+        if benchmark_args:
+            linked_job_id = benchmark_args.pop('linked_job_id', None)
+        
         session = ProfileSession(
             id=session_id,
             solver=solver,
@@ -295,7 +301,8 @@ class ProfilingService:
             mesh_file=mesh_file,
             mode=mode,
             status=SessionStatus.PENDING.value,
-            created_at=timestamp
+            created_at=timestamp,
+            linked_job_id=linked_job_id
         )
         
         with self._lock:
@@ -337,10 +344,10 @@ class ProfilingService:
             if self.benchmark_script and self.benchmark_script.exists():
                 base_cmd = ["python", str(self.benchmark_script)]
             else:
-                # Fallback: assume run_benchmark.py in current dir
-                base_cmd = ["python", "run_benchmark.py"]
+                # Fallback: assume run_single_benchmark.py in current dir
+                base_cmd = ["python", "run_single_benchmark.py"]
             
-            base_cmd.extend(["--solver", solver, "--mesh", mesh_file])
+            base_cmd.extend(["--solver", solver, "--mesh", mesh_file, "--quiet"])
             
             if benchmark_args:
                 for key, value in benchmark_args.items():
@@ -445,6 +452,13 @@ class ProfilingService:
                     }
         
         return result
+    
+    def get_session_by_job_id(self, job_id: str) -> Optional[Dict[str, Any]]:
+        """Get session linked to a specific solve job."""
+        for session in self.sessions.values():
+            if session.linked_job_id == job_id:
+                return self.get_session(session.id)
+        return None    
     
     def _count_categories(self, events: List[Dict]) -> Dict[str, int]:
         """Count events by category."""

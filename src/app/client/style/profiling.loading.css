@@ -1,0 +1,98 @@
+/**
+ * Loading Overlay Styles
+ * 
+ * Add these styles to profiling.css
+ * 
+ * Location: /src/app/client/style/profiling.css (append)
+ */
+
+/* =============================================================================
+   Loading Overlay
+   ============================================================================= */
+
+.profiling-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.profiling-loading-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.profiling-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e9ecef;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: profiling-spin 0.8s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes profiling-spin {
+    to { transform: rotate(360deg); }
+}
+
+.profiling-loading-text {
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.profiling-loading-progress {
+    width: 200px;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.profiling-loading-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.15s ease-out;
+}
+
+/* =============================================================================
+   Additional Performance-Related Styles
+   ============================================================================= */
+
+/* Simplify item rendering for better performance */
+#profiling-timeline-container .vis-item .vis-item-content {
+    /* Prevent text wrapping and complex layouts */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* Reduce box-shadow complexity during interactions */
+#profiling-timeline-container .vis-item {
+    will-change: transform;
+    contain: layout style;
+}
+
+/* Optimize group labels */
+#profiling-timeline-container .vis-labelset .vis-label {
+    contain: layout style;
+}
+
+/* Hardware acceleration for timeline container */
+.profiling-timeline-wrapper {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}

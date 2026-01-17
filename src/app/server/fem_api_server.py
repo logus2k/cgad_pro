@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 
 from profiling_service import init_profiling_service, create_profiling_router
+from profiling_worker import create_profiling_worker
 from report_service import init_report_service, create_report_router
 
 
@@ -39,6 +40,9 @@ GALLERY_FILE = CLIENT_DIR / "config" / "gallery_files.json"
 PROFILES_DIR = PROJECT_ROOT / "data" / "profiles"
 BENCHMARK_SCRIPT = PROJECT_ROOT / "app" / "server" / "automated_benchmark" / "run_single_benchmark.py"
 profiling_service = init_profiling_service(PROFILES_DIR, BENCHMARK_SCRIPT)
+
+# Initialize profiling worker (will be started after event loop is available)
+profiling_worker = None
 
 
 import asyncio
@@ -101,6 +105,25 @@ app.include_router(report_router)
 # ============================================================================
 profiling_router = create_profiling_router(profiling_service)
 app.include_router(profiling_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize components that need the event loop."""
+    global profiling_worker
+    
+    import asyncio
+    loop = asyncio.get_event_loop()
+    
+    # Start profiling worker with access to Socket.IO and event loop
+    profiling_worker = create_profiling_worker(
+        profiling_service=profiling_service,
+        socketio=sio,
+        event_loop=loop,
+        auto_start=True
+    )
+    
+    print("[Server] Profiling worker started")
 
 
 # ============================================================================
@@ -258,6 +281,18 @@ async def run_solver_task(job_id: str, params: dict):
             )
         except Exception as bench_err:
             print(f"Warning: Benchmark recording failed: {bench_err}")
+
+        # Enqueue profiling for GPU solvers
+        try:
+            if profiling_worker and solver_type in ('gpu', 'numba_cuda'):
+                profiling_worker.enqueue(
+                    solver=solver_type,
+                    mesh_file=params['mesh_file'],
+                    job_id=job_id
+                )
+                print(f"[Server] Profiling enqueued for job {job_id}")
+        except Exception as prof_err:
+            print(f"Warning: Profiling enqueue failed: {prof_err}")            
         
         print(f"Job {job_id} completed and stored successfully\n")
         
@@ -323,7 +358,13 @@ async def health():
         "status": "healthy",
         "gpu_available": gpu_available,
         "active_jobs": len([j for j in jobs.values() if j['status'] == 'running']),
-        "benchmark_records": len(benchmark_service._records)
+        "benchmark_records": len(benchmark_service._records),
+        "profiling": {
+            "nsys_available": profiling_service.nsys_available,
+            "ncu_available": profiling_service.ncu_available,
+            "worker_running": profiling_worker is not None and profiling_worker._running if profiling_worker else False,
+            "queue_size": profiling_worker.queue_size if profiling_worker else 0
+        }
     }
 
 
@@ -620,6 +661,7 @@ if __name__ == "__main__":
     print(f"  Socket.IO endpoint: ws://localhost:5867/socket.io")
     print(f"  API docs: http://localhost:5867/docs")
     print(f"  Benchmark API: http://localhost:5867/api/benchmark")
+    print(f"  Profiling API: http://localhost:5867/api/profiling")
     print("="*70 + "\n")
     
     uvicorn.run(
