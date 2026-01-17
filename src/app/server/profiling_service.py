@@ -6,6 +6,7 @@ This service:
 - Extracts metrics from Nsight SQLite exports and CSV outputs
 - Provides timeline data suitable for Gantt visualization
 - Manages profile session storage and cleanup
+- Generates HDF5 binary format for optimized client loading
 
 Location: /src/app/server/profiling_service.py
 Data directory: /data/profiles/
@@ -14,6 +15,7 @@ Dependencies:
 - NVIDIA Nsight Systems (nsys) in PATH
 - NVIDIA Nsight Compute (ncu) in PATH
 - sqlite3 (standard library)
+- h5py (for HDF5 export)
 """
 
 import json
@@ -28,6 +30,9 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
+
+# HDF5 writer for optimized binary format
+from profiling_hdf5_writer import ProfilingHDF5Writer
 
 
 # =============================================================================
@@ -468,9 +473,37 @@ class ProfilingService:
             counts[cat] = counts.get(cat, 0) + 1
         return counts
     
+    def write_timeline_hdf5(self, session_id: str, events: list, total_duration_ns: int) -> Path:
+        """
+        Write timeline events to HDF5 format for optimized client loading.
+        
+        Args:
+            session_id: Session identifier
+            events: List of event dicts (output from get_timeline)
+            total_duration_ns: Total timeline duration
+            
+        Returns:
+            Path to created HDF5 file
+        """
+        h5_path = self.nsys_dir / f"{session_id}.h5"
+        
+        writer = ProfilingHDF5Writer()
+        stats = writer.write(
+            events=events,
+            output_path=h5_path,
+            session_id=session_id,
+            total_duration_ns=total_duration_ns
+        )
+        
+        print(f"[Profiling] Wrote HDF5: {h5_path.name} ({stats['file_size_bytes'] / 1024:.1f} KB, {stats['total_events']} events)")
+        
+        return h5_path
+    
     def get_timeline(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
         Extract timeline data from Nsight Systems SQLite export.
+        
+        Also generates HDF5 file on first access for optimized client loading.
         
         Returns Gantt-ready timeline events.
         """
@@ -652,10 +685,20 @@ class ProfilingService:
                 event['start_ns'] -= min_start
                 event['end_ns'] -= min_start
         
+        total_duration_ns = max_end - min_start if max_end > min_start else 0
+        
+        # Generate HDF5 file if it doesn't exist (for optimized client loading)
+        h5_path = self.nsys_dir / f"{session_id}.h5"
+        if not h5_path.exists() and events:
+            try:
+                self.write_timeline_hdf5(session_id, events, total_duration_ns)
+            except Exception as e:
+                print(f"[Profiling] HDF5 generation failed (non-fatal): {e}")
+        
         return {
             "session_id": session_id,
             "events": events,
-            "total_duration_ns": max_end - min_start if max_end > min_start else 0,
+            "total_duration_ns": total_duration_ns,
             "event_count": len(events),
             "categories": self._count_categories(events)
         }
@@ -747,7 +790,8 @@ class ProfilingService:
         files_deleted = []
         
         if session.nsys_file:
-            for ext in ['.nsys-rep', '.sqlite']:
+            # Include .h5 in cleanup
+            for ext in ['.nsys-rep', '.sqlite', '.h5']:
                 f = self.nsys_dir / f"{session_id}{ext}"
                 if f.exists():
                     f.unlink()
@@ -797,7 +841,8 @@ class ProfilingService:
 
 def create_profiling_router(service: ProfilingService):
     """Create FastAPI router for profiling API endpoints."""
-    from fastapi import APIRouter, HTTPException, Response
+    from fastapi import APIRouter, HTTPException, Response, Request
+    from fastapi.responses import FileResponse
     from pydantic import BaseModel
     from typing import Optional
     
@@ -845,9 +890,34 @@ def create_profiling_router(service: ProfilingService):
             raise HTTPException(status_code=404, detail="Session not found")
         return result
     
+    @router.api_route("/timeline/{session_id}.h5", methods=["GET", "HEAD"])
+    async def get_timeline_hdf5(session_id: str, request: Request):
+        """
+        Get timeline data in HDF5 format (optimized binary).
+        """
+        h5_path = service.nsys_dir / f"{session_id}.h5"
+        
+        # Generate if not exists
+        if not h5_path.exists():
+            result = service.get_timeline(session_id)
+            if not result or "error" in result:
+                raise HTTPException(status_code=404, detail="Timeline not available")
+        
+        if not h5_path.exists():
+            raise HTTPException(status_code=404, detail="HDF5 file not available")
+        
+        return FileResponse(
+            path=h5_path,
+            media_type="application/x-hdf5",
+            filename=f"{session_id}.h5",
+            headers={
+                "Cache-Control": "public, max-age=31536000",
+            }
+        )
+        
     @router.get("/timeline/{session_id}")
     async def get_timeline(session_id: str, response: Response):
-        """Get timeline data for Gantt visualization."""
+        """Get timeline data for Gantt visualization (JSON format)."""
         response.headers["Cache-Control"] = "no-store"
         result = service.get_timeline(session_id)
         if not result:
