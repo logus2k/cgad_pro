@@ -635,7 +635,12 @@ class MeshGallery {
         
         // Start profiling run via API
         try {
-            const response = await fetch('/api/profiling/run', {
+            // Dynamic base path (same logic as FEMClient/ProfilingAPI)
+            const hostname = window.location.hostname;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+            const basePath = isLocal ? '' : '/fem';
+            
+            const response = await fetch(`${basePath}/api/profiling/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

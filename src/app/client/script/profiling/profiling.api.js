@@ -15,11 +15,18 @@ export class ProfilingAPI {
     #preferHDF5;
 
     /**
-     * @param {string} baseUrl - API base URL
+     * @param {string} baseUrl - API base URL (auto-detected if null)
      * @param {Object} options
      * @param {boolean} options.preferHDF5 - Use HDF5 format when available (default: true)
      */
-    constructor(baseUrl = '', options = {}) {
+    constructor(baseUrl = null, options = {}) {
+        // Dynamic URL resolution (same logic as FEMClient)
+        if (baseUrl === null) {
+            const hostname = window.location.hostname;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+            baseUrl = isLocal ? '' : '/fem';
+        }
+        
         this.#baseUrl = baseUrl;
         this.#preferHDF5 = options.preferHDF5 !== false;
         
