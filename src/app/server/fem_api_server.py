@@ -12,7 +12,9 @@ import io
 import time
 from pathlib import Path
 
+from profiling_service import init_profiling_service, create_profiling_router
 from report_service import init_report_service, create_report_router
+
 
 # Add parent directories to Python path
 PROJECT_ROOT = Path(__file__).parent.parent.parent  # Points to src/
@@ -23,7 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "gpu"))
 # Add static files path for Web client 
 CLIENT_DIR = PROJECT_ROOT / "app" / "client"
 
-# Benchmark data directory
+# Benchmark directory
 BENCHMARK_DIR = PROJECT_ROOT / "app" / "server" / "benchmark"
 
 # Initialize Report Service
@@ -32,6 +34,12 @@ report_service = init_report_service(REPORT_DIR)
 
 # Gallery file for model name lookup
 GALLERY_FILE = CLIENT_DIR / "config" / "gallery_files.json"
+
+# Profiling data directory
+PROFILES_DIR = PROJECT_ROOT / "data" / "profiles"
+BENCHMARK_SCRIPT = PROJECT_ROOT / "app" / "server" / "automated_benchmark" / "run_single_benchmark.py"
+profiling_service = init_profiling_service(PROFILES_DIR, BENCHMARK_SCRIPT)
+
 
 import asyncio
 import uuid
@@ -86,6 +94,13 @@ app.include_router(benchmark_router)
 # Register Report API routes
 report_router = create_report_router(report_service)
 app.include_router(report_router)
+
+
+# ============================================================================
+# Profiling Router Initialization
+# ============================================================================
+profiling_router = create_profiling_router(profiling_service)
+app.include_router(profiling_router)
 
 
 # ============================================================================

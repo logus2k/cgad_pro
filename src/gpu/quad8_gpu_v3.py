@@ -37,6 +37,17 @@ from shape_n_der8_gpu import Shape_N_Der8
 from progress_callback import ProgressCallback
 
 
+# NVTX profiling support (optional)
+try:
+    from nvtx_helper import nvtx_range
+except ImportError:
+    from contextlib import contextmanager
+    from typing import Optional
+    @contextmanager
+    def nvtx_range(name: str, color: Optional[int] = None, domain: str = "FEMulator"):
+        yield
+
+
 # =========================================================================
 # 1. RAW KERNEL SOURCE: Mass Assembly (Ke and fe for ALL elements)
 # =========================================================================
@@ -434,12 +445,15 @@ class Quad8FEMSolverGPU:
 	# Timing utility 
 	# ---------------
 	def _time_step(self, name: str, fn: Callable) -> Any:
-		t0 = time.perf_counter()
-		out = fn()
-		self.timing_metrics[name] = time.perf_counter() - t0
+		"""Execute a pipeline stage with timing and NVTX annotation."""
+		with nvtx_range(name):
+			t0 = time.perf_counter()
+			result = fn()
+			cp.cuda.Stream.null.synchronize()
+			self.timing_metrics[name] = time.perf_counter() - t0
 		if self.verbose:
-			print(f"  > Step '{name}' completed in {self.timing_metrics[name]:.4f}s")
-		return out
+			print(f"  {name}: {self.timing_metrics[name]:.3f}s")
+		return result
 
 	# -------------
 	# Mesh loading
