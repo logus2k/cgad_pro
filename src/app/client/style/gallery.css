@@ -287,9 +287,9 @@
 }
 
 .carousel-controls .btn-secondary {
-    background: var(--hud-accent, #0f9ce2);
+    background: #0f9ce2;
     color: white;
-    border-color: var(--hud-accent, #0f9ce2);
+    border-color: #0f9ce2;
 }
 
 .carousel-controls .btn-secondary:hover:not(:disabled) {

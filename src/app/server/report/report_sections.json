@@ -21,6 +21,11 @@
             "id": "docker_hub",
             "title": "Dockerhub User Manual",
             "file": "docker/DOCKERHUB.md"
+        },
+        {
+            "id": "gpu_profiling",
+            "title": "GPU Profiling Service",
+            "file": "profiling/gpu_profiling_service.md"
         }
     ]
 }
