@@ -1,0 +1,434 @@
+| Model | Solver | Nodes | Elements | Total Time | Assembly | Solve | Iterations | Peak RAM | Peak VRAM | Status | Date |
+|-------|--------|------:|--------:|-----------:|---------:|------:|-----------:|---------:|----------:|:------:|------|
+| Elbow 90° | GPU | 1 044 857 | 346 621 | 9.26s | 17ms | 8.25s | 8113 | 27 MB | 2.23 GB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 1 044 857 | 346 621 | 9.24s | 17ms | 8.24s | 8110 | 27 MB | 2.22 GB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 1 044 857 | 346 621 | 9.12s | 17ms | 8.12s | 8110 | 27 MB | 2.23 GB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 623 153 | 206 435 | 4.73s | 10ms | 4.06s | 6228 | 16 MB | 548 MB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 623 153 | 206 435 | 4.71s | 10ms | 4.05s | 6226 | 16 MB | 549 MB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 623 153 | 206 435 | 4.71s | 10ms | 4.05s | 6226 | 16 MB | 549 MB | ✓ | Jan 15, 04:39 PM |
+| Elbow 90° | GPU | 161 984 | 53 344 | 1.30s | <0.01s | 1.07s | 3132 | 4 MB | 376 MB | ✓ | Jan 15, 04:38 PM |
+| Elbow 90° | GPU | 161 984 | 53 344 | 1.31s | <0.01s | 1.08s | 3132 | 4 MB | 376 MB | ✓ | Jan 15, 04:38 PM |
+| Elbow 90° | GPU | 161 984 | 53 344 | 1.30s | <0.01s | 1.07s | 3132 | 4 MB | 376 MB | ✓ | Jan 15, 04:38 PM |
+| Elbow 90° | GPU | 411 | 111 | 66ms | <0.01s | 45ms | 141 | 0 MB | - | ✓ | Jan 15, 04:38 PM |
+| Elbow 90° | GPU | 411 | 111 | 65ms | <0.01s | 44ms | 141 | - | - | ✓ | Jan 15, 04:38 PM |
+| Elbow 90° | GPU | 411 | 111 | 66ms | <0.01s | 44ms | 141 | 0 MB | - | ✓ | Jan 15, 04:38 PM |
+| Backward-Facing Step | GPU | 1 283 215 | 426 686 | 14.28s | 21ms | 13.27s | 10 845 | 33 MB | 1.92 GB | ✓ | Jan 15, 04:38 PM |
+| Backward-Facing Step | GPU | 1 283 215 | 426 686 | 14.33s | 21ms | 13.32s | 10 847 | 33 MB | 1.92 GB | ✓ | Jan 15, 04:38 PM |
+| Backward-Facing Step | GPU | 1 283 215 | 426 686 | 14.32s | 21ms | 13.31s | 10 848 | 33 MB | 1.92 GB | ✓ | Jan 15, 04:38 PM |
+| Backward-Facing Step | GPU | 766 088 | 254 551 | 6.78s | 12ms | 6.13s | 8104 | 19 MB | 1.15 GB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 766 088 | 254 551 | 6.79s | 12ms | 6.14s | 8098 | 19 MB | 1.15 GB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 766 088 | 254 551 | 6.79s | 13ms | 6.14s | 8100 | 19 MB | 1.15 GB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 195 362 | 64 713 | 1.65s | <0.01s | 1.45s | 3990 | 5 MB | 160 MB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 195 362 | 64 713 | 1.64s | <0.01s | 1.44s | 3991 | 5 MB | 161 MB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 195 362 | 64 713 | 1.65s | <0.01s | 1.44s | 3991 | 5 MB | 161 MB | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 287 | 82 | 60ms | <0.01s | 42ms | 137 | 0 MB | - | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 287 | 82 | 59ms | <0.01s | 42ms | 137 | 0 MB | - | ✓ | Jan 15, 04:37 PM |
+| Backward-Facing Step | GPU | 287 | 82 | 59ms | <0.01s | 42ms | 137 | 0 MB | - | ✓ | Jan 15, 04:37 PM |
+| T-Junction | GPU | 1 291 289 | 429 176 | 15.14s | 21ms | 14.04s | 11 221 | 33 MB | 1.93 GB | ✓ | Jan 15, 04:37 PM |
+| T-Junction | GPU | 1 291 289 | 429 176 | 15.12s | 21ms | 14.01s | 11 227 | 33 MB | 1.93 GB | ✓ | Jan 15, 04:37 PM |
+| T-Junction | GPU | 1 291 289 | 429 176 | 15.16s | 21ms | 14.06s | 11 217 | 33 MB | 1.93 GB | ✓ | Jan 15, 04:37 PM |
+| T-Junction | GPU | 768 898 | 255 333 | 7.24s | 13ms | 6.53s | 8634 | 20 MB | 1.16 GB | ✓ | Jan 15, 04:36 PM |
+| T-Junction | GPU | 768 898 | 255 333 | 7.23s | 13ms | 6.53s | 8638 | 20 MB | 1.16 GB | ✓ | Jan 15, 04:36 PM |
+| T-Junction | GPU | 768 898 | 255 333 | 7.24s | 12ms | 6.52s | 8631 | 20 MB | 1.16 GB | ✓ | Jan 15, 04:36 PM |
+| T-Junction | GPU | 196 420 | 64 987 | 1.79s | <0.01s | 1.55s | 4319 | 5 MB | 331 MB | ✓ | Jan 15, 04:35 PM |
+| T-Junction | GPU | 196 420 | 64 987 | 1.78s | <0.01s | 1.54s | 4319 | 5 MB | 331 MB | ✓ | Jan 15, 04:35 PM |
+| T-Junction | GPU | 196 420 | 64 987 | 1.78s | <0.01s | 1.55s | 4319 | 5 MB | 331 MB | ✓ | Jan 15, 04:35 PM |
+| T-Junction | GPU | 393 | 102 | 73ms | <0.01s | 51ms | 167 | 0 MB | - | ✓ | Jan 15, 04:35 PM |
+| T-Junction | GPU | 393 | 102 | 74ms | <0.01s | 52ms | 167 | 0 MB | - | ✓ | Jan 15, 04:35 PM |
+| T-Junction | GPU | 393 | 102 | 79ms | <0.01s | 52ms | 167 | 0 MB | - | ✓ | Jan 15, 04:35 PM |
+| S-Bend | GPU | 1 286 039 | 427 244 | 17.15s | 21ms | 16.04s | 12 726 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:35 PM |
+| S-Bend | GPU | 1 286 039 | 427 244 | 17.16s | 21ms | 16.05s | 12 732 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:35 PM |
+| S-Bend | GPU | 1 286 039 | 427 244 | 17.17s | 21ms | 16.06s | 12 731 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:35 PM |
+| S-Bend | GPU | 765 441 | 254 034 | 7.93s | 13ms | 7.23s | 9485 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:34 PM |
+| S-Bend | GPU | 765 441 | 254 034 | 7.92s | 13ms | 7.21s | 9481 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:34 PM |
+| S-Bend | GPU | 765 441 | 254 034 | 8.05s | 12ms | 7.21s | 9481 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:34 PM |
+| S-Bend | GPU | 196 078 | 64 787 | 1.92s | <0.01s | 1.68s | 4651 | 5 MB | 161 MB | ✓ | Jan 15, 04:33 PM |
+| S-Bend | GPU | 196 078 | 64 787 | 1.92s | <0.01s | 1.68s | 4653 | 5 MB | 160 MB | ✓ | Jan 15, 04:33 PM |
+| S-Bend | GPU | 196 078 | 64 787 | 1.90s | <0.01s | 1.67s | 4650 | 5 MB | 162 MB | ✓ | Jan 15, 04:33 PM |
+| S-Bend | GPU | 387 | 222 | 69ms | <0.01s | 49ms | 157 | 0 MB | - | ✓ | Jan 15, 04:33 PM |
+| S-Bend | GPU | 387 | 222 | 76ms | <0.01s | 48ms | 157 | 0 MB | - | ✓ | Jan 15, 04:33 PM |
+| S-Bend | GPU | 387 | 222 | 71ms | <0.01s | 49ms | 157 | 0 MB | - | ✓ | Jan 15, 04:33 PM |
+| Venturi | GPU | 1 284 412 | 427 017 | 13.93s | 21ms | 12.49s | 10 147 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:33 PM |
+| Venturi | GPU | 1 284 412 | 427 017 | 13.89s | 21ms | 12.45s | 10 146 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:33 PM |
+| Venturi | GPU | 1 284 412 | 427 017 | 13.91s | 21ms | 12.47s | 10 144 | 33 MB | 2.74 GB | ✓ | Jan 15, 04:33 PM |
+| Venturi | GPU | 763 707 | 253 704 | 6.85s | 12ms | 5.90s | 7778 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 763 707 | 253 704 | 6.84s | 13ms | 5.87s | 7777 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 763 707 | 253 704 | 6.86s | 12ms | 5.89s | 7781 | 19 MB | 1.63 GB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 194 325 | 64 334 | 1.81s | <0.01s | 1.45s | 4034 | 5 MB | 291 MB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 194 325 | 64 334 | 1.82s | <0.01s | 1.46s | 4040 | 5 MB | 400 MB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 194 325 | 64 334 | 1.81s | <0.01s | 1.44s | 4037 | 5 MB | 291 MB | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 341 | 86 | 71ms | <0.01s | 41ms | 132 | 0 MB | - | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 341 | 86 | 64ms | <0.01s | 40ms | 132 | 0 MB | - | ✓ | Jan 15, 04:32 PM |
+| Venturi | GPU | 341 | 86 | 68ms | <0.01s | 41ms | 132 | 0 MB | - | ✓ | Jan 15, 04:32 PM |
+| Y-Shaped | GPU | 1 357 953 | 338 544 | 13.61s | 17ms | 12.20s | 9871 | 31 MB | 2.22 GB | ✓ | Jan 15, 04:32 PM |
+| Y-Shaped | GPU | 1 357 953 | 338 544 | 13.56s | 17ms | 12.14s | 9871 | 31 MB | 2.61 GB | ✓ | Jan 15, 04:32 PM |
+| Y-Shaped | GPU | 1 357 953 | 338 544 | 13.58s | 17ms | 12.17s | 9871 | 31 MB | 2.22 GB | ✓ | Jan 15, 04:32 PM |
+| Y-Shaped | GPU | 772 069 | 192 308 | 6.32s | <0.01s | 5.40s | 7508 | 18 MB | 785 MB | ✓ | Jan 15, 04:31 PM |
+| Y-Shaped | GPU | 772 069 | 192 308 | 6.32s | <0.01s | 5.41s | 7508 | 18 MB | 1.35 GB | ✓ | Jan 15, 04:31 PM |
+| Y-Shaped | GPU | 772 069 | 192 308 | 6.33s | <0.01s | 5.41s | 7508 | 18 MB | 1.35 GB | ✓ | Jan 15, 04:31 PM |
+| Y-Shaped | GPU | 195 853 | 48 607 | 1.63s | <0.01s | 1.28s | 3741 | 5 MB | 228 MB | ✓ | Jan 15, 04:30 PM |
+| Y-Shaped | GPU | 195 853 | 48 607 | 1.62s | <0.01s | 1.28s | 3741 | 5 MB | 348 MB | ✓ | Jan 15, 04:30 PM |
+| Y-Shaped | GPU | 195 853 | 48 607 | 1.63s | <0.01s | 1.29s | 3741 | 4 MB | 348 MB | ✓ | Jan 15, 04:30 PM |
+| Y-Shaped | GPU | 201 | 52 | 61ms | <0.01s | 34ms | 116 | 0 MB | - | ✓ | Jan 15, 04:30 PM |
+| Y-Shaped | GPU | 201 | 52 | 55ms | <0.01s | 35ms | 116 | 0 MB | - | ✓ | Jan 15, 04:30 PM |
+| Y-Shaped | GPU | 201 | 52 | 55ms | <0.01s | 35ms | 116 | 0 MB | - | ✓ | Jan 15, 04:30 PM |
+| Elbow 90° | Numba CUDA | 1 044 857 | 346 621 | 16.21s | 4.34s | 8.59s | 8368 | 1.30 GB | 517 MB | ✓ | Jan 15, 04:30 PM |
+| Elbow 90° | Numba CUDA | 1 044 857 | 346 621 | 16.10s | 4.31s | 8.61s | 8368 | 1.42 GB | 517 MB | ✓ | Jan 15, 04:30 PM |
+| Elbow 90° | Numba CUDA | 1 044 857 | 346 621 | 16.18s | 4.30s | 8.56s | 8368 | 1.42 GB | 517 MB | ✓ | Jan 15, 04:30 PM |
+| Elbow 90° | Numba CUDA | 623 153 | 206 435 | 8.61s | 2.56s | 4.08s | 6330 | 613 MB | 308 MB | ✓ | Jan 15, 04:29 PM |
+| Elbow 90° | Numba CUDA | 623 153 | 206 435 | 8.92s | 2.65s | 4.14s | 6330 | 499 MB | 303 MB | ✓ | Jan 15, 04:29 PM |
+| Elbow 90° | Numba CUDA | 623 153 | 206 435 | 8.60s | 2.56s | 4.11s | 6330 | 617 MB | 308 MB | ✓ | Jan 15, 04:29 PM |
+| Elbow 90° | Numba CUDA | 161 984 | 53 344 | 2.26s | 661ms | 1.10s | 3200 | 66 MB | 80 MB | ✓ | Jan 15, 04:28 PM |
+| Elbow 90° | Numba CUDA | 161 984 | 53 344 | 2.33s | 658ms | 1.08s | 3200 | 93 MB | 80 MB | ✓ | Jan 15, 04:28 PM |
+| Elbow 90° | Numba CUDA | 161 984 | 53 344 | 2.31s | 658ms | 1.08s | 3200 | 66 MB | 77 MB | ✓ | Jan 15, 04:28 PM |
+| Elbow 90° | Numba CUDA | 411 | 111 | 50ms | <0.01s | 44ms | 142 | 0 MB | - | ✓ | Jan 15, 04:28 PM |
+| Elbow 90° | Numba CUDA | 411 | 111 | 50ms | <0.01s | 44ms | 142 | 0 MB | - | ✓ | Jan 15, 04:28 PM |
+| Elbow 90° | Numba CUDA | 411 | 111 | 51ms | <0.01s | 45ms | 142 | 0 MB | - | ✓ | Jan 15, 04:28 PM |
+| Backward-Facing Step | Numba CUDA | 1 283 215 | 426 686 | 22.96s | 5.50s | 13.45s | 10 882 | 1.81 GB | 636 MB | ✓ | Jan 15, 04:28 PM |
+| Backward-Facing Step | Numba CUDA | 1 283 215 | 426 686 | 22.70s | 5.47s | 13.36s | 10 882 | 1.81 GB | 636 MB | ✓ | Jan 15, 04:28 PM |
+| Backward-Facing Step | Numba CUDA | 1 283 215 | 426 686 | 22.99s | 5.52s | 13.58s | 10 882 | 1.81 GB | 636 MB | ✓ | Jan 15, 04:28 PM |
+| Backward-Facing Step | Numba CUDA | 766 088 | 254 551 | 12.61s | 3.19s | 6.70s | 8541 | 945 MB | 379 MB | ✓ | Jan 15, 04:27 PM |
+| Backward-Facing Step | Numba CUDA | 766 088 | 254 551 | 12.42s | 3.16s | 6.64s | 8541 | 947 MB | 379 MB | ✓ | Jan 15, 04:27 PM |
+| Backward-Facing Step | Numba CUDA | 766 088 | 254 551 | 12.50s | 3.17s | 6.55s | 8541 | 949 MB | 379 MB | ✓ | Jan 15, 04:27 PM |
+| Backward-Facing Step | Numba CUDA | 195 362 | 64 713 | 2.91s | 801ms | 1.42s | 3993 | 78 MB | 97 MB | ✓ | Jan 15, 04:26 PM |
+| Backward-Facing Step | Numba CUDA | 195 362 | 64 713 | 2.87s | 800ms | 1.41s | 3993 | 78 MB | 97 MB | ✓ | Jan 15, 04:26 PM |
+| Backward-Facing Step | Numba CUDA | 195 362 | 64 713 | 2.77s | 806ms | 1.42s | 3993 | 77 MB | 97 MB | ✓ | Jan 15, 04:26 PM |
+| Backward-Facing Step | Numba CUDA | 287 | 82 | 47ms | <0.01s | 42ms | 137 | 0 MB | - | ✓ | Jan 15, 04:26 PM |
+| Backward-Facing Step | Numba CUDA | 287 | 82 | 48ms | <0.01s | 43ms | 137 | 0 MB | - | ✓ | Jan 15, 04:26 PM |
+| Backward-Facing Step | Numba CUDA | 287 | 82 | 52ms | <0.01s | 47ms | 137 | 0 MB | - | ✓ | Jan 15, 04:26 PM |
+| T-Junction | Numba CUDA | 1 291 289 | 429 176 | 24.17s | 5.37s | 14.55s | 11 758 | 1.84 GB | 639 MB | ✓ | Jan 15, 04:26 PM |
+| T-Junction | Numba CUDA | 1 291 289 | 429 176 | 23.84s | 5.34s | 14.57s | 11 758 | 1.84 GB | 639 MB | ✓ | Jan 15, 04:26 PM |
+| T-Junction | Numba CUDA | 1 291 289 | 429 176 | 24.07s | 5.40s | 14.61s | 11 758 | 1.84 GB | 639 MB | ✓ | Jan 15, 04:26 PM |
+| T-Junction | Numba CUDA | 768 898 | 255 333 | 13.11s | 3.19s | 6.98s | 9203 | 970 MB | 381 MB | ✓ | Jan 15, 04:24 PM |
+| T-Junction | Numba CUDA | 768 898 | 255 333 | 12.92s | 3.20s | 7.11s | 9203 | 972 MB | 381 MB | ✓ | Jan 15, 04:24 PM |
+| T-Junction | Numba CUDA | 768 898 | 255 333 | 12.87s | 3.17s | 7.03s | 9203 | 974 MB | 381 MB | ✓ | Jan 15, 04:24 PM |
+| T-Junction | Numba CUDA | 196 420 | 64 987 | 3.09s | 812ms | 1.56s | 4319 | 78 MB | 96 MB | ✓ | Jan 15, 04:23 PM |
+| T-Junction | Numba CUDA | 196 420 | 64 987 | 3.01s | 803ms | 1.54s | 4319 | 78 MB | 97 MB | ✓ | Jan 15, 04:23 PM |
+| T-Junction | Numba CUDA | 196 420 | 64 987 | 2.99s | 809ms | 1.54s | 4319 | 78 MB | 97 MB | ✓ | Jan 15, 04:23 PM |
+| T-Junction | Numba CUDA | 393 | 102 | 58ms | <0.01s | 52ms | 168 | 0 MB | - | ✓ | Jan 15, 04:23 PM |
+| T-Junction | Numba CUDA | 393 | 102 | 58ms | <0.01s | 52ms | 168 | 0 MB | - | ✓ | Jan 15, 04:23 PM |
+| T-Junction | Numba CUDA | 393 | 102 | 59ms | <0.01s | 52ms | 168 | 0 MB | - | ✓ | Jan 15, 04:23 PM |
+| S-Bend | Numba CUDA | 1 286 039 | 427 244 | 26.17s | 5.33s | 16.45s | 13 255 | 1.85 GB | 637 MB | ✓ | Jan 15, 04:23 PM |
+| S-Bend | Numba CUDA | 1 286 039 | 427 244 | 25.64s | 5.33s | 16.55s | 13 255 | 1.85 GB | 637 MB | ✓ | Jan 15, 04:23 PM |
+| S-Bend | Numba CUDA | 1 286 039 | 427 244 | 25.88s | 5.31s | 16.46s | 13 255 | 1.85 GB | 637 MB | ✓ | Jan 15, 04:23 PM |
+| S-Bend | Numba CUDA | 765 441 | 254 034 | 13.36s | 3.22s | 7.39s | 9589 | 893 MB | 379 MB | ✓ | Jan 15, 04:21 PM |
+| S-Bend | Numba CUDA | 765 441 | 254 034 | 13.06s | 3.17s | 7.37s | 9589 | 986 MB | 379 MB | ✓ | Jan 15, 04:21 PM |
+| S-Bend | Numba CUDA | 765 441 | 254 034 | 12.86s | 3.16s | 7.40s | 9589 | 988 MB | 379 MB | ✓ | Jan 15, 04:21 PM |
+| S-Bend | Numba CUDA | 196 078 | 64 787 | 3.12s | 804ms | 1.67s | 4651 | 78 MB | 97 MB | ✓ | Jan 15, 04:20 PM |
+| S-Bend | Numba CUDA | 196 078 | 64 787 | 3.12s | 805ms | 1.67s | 4651 | 78 MB | 95 MB | ✓ | Jan 15, 04:20 PM |
+| S-Bend | Numba CUDA | 196 078 | 64 787 | 3.18s | 800ms | 1.67s | 4651 | 78 MB | 95 MB | ✓ | Jan 15, 04:20 PM |
+| S-Bend | Numba CUDA | 387 | 222 | 56ms | <0.01s | 51ms | 157 | 0 MB | - | ✓ | Jan 15, 04:20 PM |
+| S-Bend | Numba CUDA | 387 | 222 | 60ms | <0.01s | 55ms | 157 | 0 MB | - | ✓ | Jan 15, 04:20 PM |
+| S-Bend | Numba CUDA | 387 | 222 | 56ms | <0.01s | 50ms | 157 | 0 MB | - | ✓ | Jan 15, 04:20 PM |
+| Venturi | Numba CUDA | 1 284 412 | 427 017 | 22.49s | 5.31s | 12.86s | 10 450 | 1.87 GB | 636 MB | ✓ | Jan 15, 04:20 PM |
+| Venturi | Numba CUDA | 1 284 412 | 427 017 | 22.39s | 5.30s | 12.86s | 10 450 | 1.87 GB | 636 MB | ✓ | Jan 15, 04:20 PM |
+| Venturi | Numba CUDA | 1 284 412 | 427 017 | 22.51s | 5.37s | 12.95s | 10 450 | 1.87 GB | 636 MB | ✓ | Jan 15, 04:20 PM |
+| Venturi | Numba CUDA | 763 707 | 253 704 | 11.74s | 3.16s | 6.17s | 7899 | 999 MB | 378 MB | ✓ | Jan 15, 04:19 PM |
+| Venturi | Numba CUDA | 763 707 | 253 704 | 11.82s | 3.20s | 6.16s | 7899 | 1001 MB | 378 MB | ✓ | Jan 15, 04:19 PM |
+| Venturi | Numba CUDA | 763 707 | 253 704 | 11.59s | 3.15s | 6.12s | 7899 | 1003 MB | 378 MB | ✓ | Jan 15, 04:19 PM |
+| Venturi | Numba CUDA | 194 325 | 64 334 | 2.92s | 799ms | 1.44s | 4043 | 77 MB | 96 MB | ✓ | Jan 15, 04:18 PM |
+| Venturi | Numba CUDA | 194 325 | 64 334 | 2.88s | 797ms | 1.45s | 4043 | 77 MB | 96 MB | ✓ | Jan 15, 04:18 PM |
+| Venturi | Numba CUDA | 194 325 | 64 334 | 2.89s | 798ms | 1.45s | 4043 | 77 MB | 96 MB | ✓ | Jan 15, 04:18 PM |
+| Venturi | Numba CUDA | 341 | 86 | 47ms | <0.01s | 41ms | 132 | 0 MB | - | ✓ | Jan 15, 04:18 PM |
+| Venturi | Numba CUDA | 341 | 86 | 47ms | <0.01s | 41ms | 132 | 0 MB | - | ✓ | Jan 15, 04:18 PM |
+| Venturi | Numba CUDA | 341 | 86 | 53ms | <0.01s | 46ms | 132 | 0 MB | - | ✓ | Jan 15, 04:18 PM |
+| Y-Shaped | Numba CUDA | 1 357 953 | 338 544 | 21.57s | 4.34s | 12.69s | 9871 | 1.53 GB | 559 MB | ✓ | Jan 15, 04:17 PM |
+| Y-Shaped | Numba CUDA | 1 357 953 | 338 544 | 21.78s | 4.33s | 12.60s | 9871 | 1.41 GB | 548 MB | ✓ | Jan 15, 04:17 PM |
+| Y-Shaped | Numba CUDA | 1 357 953 | 338 544 | 21.67s | 4.37s | 12.56s | 9871 | 1.41 GB | 559 MB | ✓ | Jan 15, 04:17 PM |
+| Y-Shaped | Numba CUDA | 772 069 | 192 308 | 10.74s | 2.47s | 5.51s | 7508 | 664 MB | 318 MB | ✓ | Jan 15, 04:16 PM |
+| Y-Shaped | Numba CUDA | 772 069 | 192 308 | 10.72s | 2.51s | 5.45s | 7508 | 665 MB | 318 MB | ✓ | Jan 15, 04:16 PM |
+| Y-Shaped | Numba CUDA | 772 069 | 192 308 | 10.28s | 2.46s | 5.44s | 7508 | 597 MB | 318 MB | ✓ | Jan 15, 04:16 PM |
+| Y-Shaped | Numba CUDA | 195 853 | 48 607 | 2.64s | 629ms | 1.27s | 3741 | 81 MB | 80 MB | ✓ | Jan 15, 04:15 PM |
+| Y-Shaped | Numba CUDA | 195 853 | 48 607 | 2.61s | 626ms | 1.27s | 3741 | 81 MB | 80 MB | ✓ | Jan 15, 04:15 PM |
+| Y-Shaped | Numba CUDA | 195 853 | 48 607 | 2.56s | 625ms | 1.27s | 3741 | 59 MB | 80 MB | ✓ | Jan 15, 04:15 PM |
+| Y-Shaped | Numba CUDA | 201 | 52 | 42ms | <0.01s | 37ms | 115 | 0 MB | - | ✓ | Jan 15, 04:15 PM |
+| Y-Shaped | Numba CUDA | 201 | 52 | 42ms | <0.01s | 36ms | 115 | 0 MB | - | ✓ | Jan 15, 04:15 PM |
+| Y-Shaped | Numba CUDA | 201 | 52 | 42ms | <0.01s | 36ms | 115 | 0 MB | - | ✓ | Jan 15, 04:15 PM |
+| Elbow 90° | Numba | 1 044 857 | 346 621 | 16m 38.5s | 968ms | 16m 34.5s | 50 829 | 1.32 GB | - | ✓ | Jan 15, 04:15 PM |
+| Elbow 90° | Numba | 1 044 857 | 346 621 | 16m 58.9s | 961ms | 16m 55.2s | 50 829 | 1.32 GB | - | ✓ | Jan 15, 04:15 PM |
+| Elbow 90° | Numba | 1 044 857 | 346 621 | 16m 42.6s | 965ms | 16m 38.6s | 50 829 | 1.32 GB | - | ✓ | Jan 15, 04:15 PM |
+| Elbow 90° | Numba | 623 153 | 206 435 | 1m 57.4s | 587ms | 1m 54.8s | 11 705 | 589 MB | - | ✓ | Jan 15, 03:08 PM |
+| Elbow 90° | Numba | 623 153 | 206 435 | 1m 57.3s | 591ms | 1m 54.9s | 11 705 | 591 MB | - | ✓ | Jan 15, 03:08 PM |
+| Elbow 90° | Numba | 623 153 | 206 435 | 1m 58.5s | 581ms | 1m 55.9s | 11 705 | 593 MB | - | ✓ | Jan 15, 03:08 PM |
+| Elbow 90° | Numba | 161 984 | 53 344 | 13.74s | 187ms | 13.06s | 4694 | 99 MB | - | ✓ | Jan 15, 03:01 PM |
+| Elbow 90° | Numba | 161 984 | 53 344 | 13.83s | 184ms | 13.10s | 4694 | 99 MB | - | ✓ | Jan 15, 03:01 PM |
+| Elbow 90° | Numba | 161 984 | 53 344 | 13.80s | 185ms | 13.09s | 4694 | 99 MB | - | ✓ | Jan 15, 03:01 PM |
+| Elbow 90° | Numba | 411 | 111 | <0.01s | <0.01s | <0.01s | 142 | 0 MB | - | ✓ | Jan 15, 03:00 PM |
+| Elbow 90° | Numba | 411 | 111 | <0.01s | <0.01s | <0.01s | 142 | 0 MB | - | ✓ | Jan 15, 03:00 PM |
+| Elbow 90° | Numba | 411 | 111 | <0.01s | <0.01s | <0.01s | 142 | 0 MB | - | ✓ | Jan 15, 03:00 PM |
+| Backward-Facing Step | Numba | 1 283 215 | 426 686 | 6m 41.3s | 1.19s | 6m 36.5s | 15 472 | 1.78 GB | - | ✓ | Jan 15, 03:00 PM |
+| Backward-Facing Step | Numba | 1 283 215 | 426 686 | 8m 24.2s | 1.19s | 8m 19.4s | 15 472 | 1.79 GB | - | ✓ | Jan 15, 03:00 PM |
+| Backward-Facing Step | Numba | 1 283 215 | 426 686 | 7m 14.1s | 1.19s | 7m 9.4s | 15 472 | 1.79 GB | - | ✓ | Jan 15, 03:00 PM |
+| Backward-Facing Step | Numba | 766 088 | 254 551 | 4m 59.7s | 722ms | 4m 56.8s | 23 222 | 974 MB | - | ✓ | Jan 15, 02:30 PM |
+| Backward-Facing Step | Numba | 766 088 | 254 551 | 4m 57.5s | 718ms | 4m 54.7s | 23 222 | 977 MB | - | ✓ | Jan 15, 02:30 PM |
+| Backward-Facing Step | Numba | 766 088 | 254 551 | 4m 55.0s | 716ms | 4m 52.1s | 23 222 | 980 MB | - | ✓ | Jan 15, 02:30 PM |
+| Backward-Facing Step | Numba | 195 362 | 64 713 | 14.64s | 220ms | 13.86s | 4213 | 120 MB | - | ✓ | Jan 15, 02:10 PM |
+| Backward-Facing Step | Numba | 195 362 | 64 713 | 14.73s | 214ms | 13.85s | 4213 | 120 MB | - | ✓ | Jan 15, 02:10 PM |
+| Backward-Facing Step | Numba | 195 362 | 64 713 | 14.66s | 219ms | 13.83s | 4213 | 120 MB | - | ✓ | Jan 15, 02:10 PM |
+| Backward-Facing Step | Numba | 287 | 82 | <0.01s | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 15, 02:09 PM |
+| Backward-Facing Step | Numba | 287 | 82 | <0.01s | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 15, 02:09 PM |
+| Backward-Facing Step | Numba | 287 | 82 | <0.01s | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 15, 02:09 PM |
+| T-Junction | Numba | 1 291 289 | 429 176 | 15m 25.6s | 1.20s | 15m 20.8s | 30 441 | 1.82 GB | - | ✓ | Jan 15, 02:09 PM |
+| T-Junction | Numba | 1 291 289 | 429 176 | 16m 46.1s | 1.21s | 16m 41.4s | 30 441 | 1.82 GB | - | ✓ | Jan 15, 02:09 PM |
+| T-Junction | Numba | 1 291 289 | 429 176 | 14m 43.1s | 1.20s | 14m 38.6s | 30 441 | 1.82 GB | - | ✓ | Jan 15, 02:09 PM |
+| T-Junction | Numba | 768 898 | 255 333 | 17m 54.6s | 722ms | 17m 51.4s | 84 469 | 910 MB | - | ✓ | Jan 15, 01:05 PM |
+| T-Junction | Numba | 768 898 | 255 333 | 17m 57.8s | 729ms | 17m 54.8s | 84 469 | 1004 MB | - | ✓ | Jan 15, 01:05 PM |
+| T-Junction | Numba | 768 898 | 255 333 | 17m 46.1s | 731ms | 17m 43.0s | 84 469 | 1007 MB | - | ✓ | Jan 15, 01:05 PM |
+| T-Junction | Numba | 196 420 | 64 987 | 14.97s | 222ms | 14.18s | 4319 | 121 MB | - | ✓ | Jan 15, 11:53 AM |
+| T-Junction | Numba | 196 420 | 64 987 | 15.09s | 214ms | 14.22s | 4319 | 121 MB | - | ✓ | Jan 15, 11:53 AM |
+| T-Junction | Numba | 196 420 | 64 987 | 15.07s | 218ms | 14.29s | 4319 | 121 MB | - | ✓ | Jan 15, 11:53 AM |
+| T-Junction | Numba | 393 | 102 | <0.01s | <0.01s | <0.01s | 168 | 0 MB | - | ✓ | Jan 15, 11:52 AM |
+| T-Junction | Numba | 393 | 102 | <0.01s | <0.01s | <0.01s | 168 | 0 MB | - | ✓ | Jan 15, 11:52 AM |
+| T-Junction | Numba | 393 | 102 | <0.01s | <0.01s | <0.01s | 168 | 0 MB | - | ✓ | Jan 15, 11:52 AM |
+| S-Bend | Numba | 1 286 039 | 427 244 | 116m 56.3s | 1.21s | 116m 51.5s | 283 514 | 1.83 GB | - | ✓ | Jan 15, 11:52 AM |
+| S-Bend | Numba | 1 286 039 | 427 244 | 118m 16.7s | 1.19s | 118m 11.8s | 283 514 | 1.83 GB | - | ✓ | Jan 15, 11:52 AM |
+| S-Bend | Numba | 1 286 039 | 427 244 | 115m 49.9s | 1.19s | 115m 45.3s | 283 514 | 1.84 GB | - | ✓ | Jan 15, 11:52 AM |
+| S-Bend | Numba | 765 441 | 254 034 | 3m 43.6s | 735ms | 3m 40.4s | 18 343 | 1018 MB | - | ✓ | Jan 15, 04:05 AM |
+| S-Bend | Numba | 765 441 | 254 034 | 3m 41.8s | 724ms | 3m 38.7s | 18 343 | 1021 MB | - | ✓ | Jan 15, 04:05 AM |
+| S-Bend | Numba | 765 441 | 254 034 | 3m 41.6s | 719ms | 3m 38.6s | 18 343 | 1.00 GB | - | ✓ | Jan 15, 04:05 AM |
+| S-Bend | Numba | 196 078 | 64 787 | 17.27s | 217ms | 16.43s | 5052 | 120 MB | - | ✓ | Jan 15, 03:50 AM |
+| S-Bend | Numba | 196 078 | 64 787 | 17.29s | 222ms | 16.45s | 5052 | 120 MB | - | ✓ | Jan 15, 03:50 AM |
+| S-Bend | Numba | 196 078 | 64 787 | 17.26s | 216ms | 16.44s | 5052 | 120 MB | - | ✓ | Jan 15, 03:50 AM |
+| S-Bend | Numba | 387 | 222 | <0.01s | <0.01s | <0.01s | 156 | 0 MB | - | ✓ | Jan 15, 03:49 AM |
+| S-Bend | Numba | 387 | 222 | <0.01s | <0.01s | <0.01s | 156 | 0 MB | - | ✓ | Jan 15, 03:49 AM |
+| S-Bend | Numba | 387 | 222 | <0.01s | <0.01s | <0.01s | 156 | 0 MB | - | ✓ | Jan 15, 03:49 AM |
+| Venturi | Numba | 1 284 412 | 427 017 | 11m 9.0s | 1.19s | 11m 3.8s | 28 020 | 1.85 GB | - | ✓ | Jan 15, 03:49 AM |
+| Venturi | Numba | 1 284 412 | 427 017 | 11m 21.3s | 1.19s | 11m 16.4s | 28 020 | 1.85 GB | - | ✓ | Jan 15, 03:49 AM |
+| Venturi | Numba | 1 284 412 | 427 017 | 11m 23.5s | 1.19s | 11m 18.5s | 28 020 | 1.85 GB | - | ✓ | Jan 15, 03:49 AM |
+| Venturi | Numba | 763 707 | 253 704 | 3m 45.1s | 723ms | 3m 42.0s | 18 507 | 1.01 GB | - | ✓ | Jan 15, 03:03 AM |
+| Venturi | Numba | 763 707 | 253 704 | 3m 44.7s | 723ms | 3m 41.6s | 18 507 | 1.02 GB | - | ✓ | Jan 15, 03:03 AM |
+| Venturi | Numba | 763 707 | 253 704 | 3m 44.5s | 712ms | 3m 41.4s | 18 507 | 1.02 GB | - | ✓ | Jan 15, 03:03 AM |
+| Venturi | Numba | 194 325 | 64 334 | 15.00s | 210ms | 14.17s | 4342 | 119 MB | - | ✓ | Jan 15, 02:48 AM |
+| Venturi | Numba | 194 325 | 64 334 | 15.02s | 214ms | 14.20s | 4342 | 119 MB | - | ✓ | Jan 15, 02:48 AM |
+| Venturi | Numba | 194 325 | 64 334 | 15.01s | 211ms | 14.19s | 4342 | 119 MB | - | ✓ | Jan 15, 02:48 AM |
+| Venturi | Numba | 341 | 86 | <0.01s | <0.01s | <0.01s | 132 | 0 MB | - | ✓ | Jan 15, 02:47 AM |
+| Venturi | Numba | 341 | 86 | <0.01s | <0.01s | <0.01s | 132 | 0 MB | - | ✓ | Jan 15, 02:47 AM |
+| Venturi | Numba | 341 | 86 | <0.01s | <0.01s | <0.01s | 132 | 0 MB | - | ✓ | Jan 15, 02:47 AM |
+| Y-Shaped | Numba | 1 357 953 | 338 544 | 4m 0.6s | 1.08s | 3m 55.2s | 9871 | 1.44 GB | - | ✓ | Jan 15, 02:47 AM |
+| Y-Shaped | Numba | 1 357 953 | 338 544 | 4m 3.5s | 1.07s | 3m 58.7s | 9871 | 1.44 GB | - | ✓ | Jan 15, 02:47 AM |
+| Y-Shaped | Numba | 1 357 953 | 338 544 | 4m 1.6s | 1.08s | 3m 56.3s | 9871 | 1.44 GB | - | ✓ | Jan 15, 02:47 AM |
+| Y-Shaped | Numba | 772 069 | 192 308 | 1m 31.5s | 623ms | 1m 28.4s | 7508 | 658 MB | - | ✓ | Jan 15, 02:31 AM |
+| Y-Shaped | Numba | 772 069 | 192 308 | 1m 31.6s | 621ms | 1m 28.5s | 7508 | 660 MB | - | ✓ | Jan 15, 02:31 AM |
+| Y-Shaped | Numba | 772 069 | 192 308 | 1m 31.5s | 618ms | 1m 28.4s | 7508 | 662 MB | - | ✓ | Jan 15, 02:31 AM |
+| Y-Shaped | Numba | 195 853 | 48 607 | 12.82s | 182ms | 11.92s | 3741 | 91 MB | - | ✓ | Jan 15, 02:25 AM |
+| Y-Shaped | Numba | 195 853 | 48 607 | 12.79s | 180ms | 11.92s | 3741 | 91 MB | - | ✓ | Jan 15, 02:25 AM |
+| Y-Shaped | Numba | 195 853 | 48 607 | 12.80s | 181ms | 11.93s | 3741 | 93 MB | - | ✓ | Jan 15, 02:25 AM |
+| Y-Shaped | Numba | 201 | 52 | <0.01s | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 15, 02:24 AM |
+| Y-Shaped | Numba | 201 | 52 | <0.01s | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 15, 02:24 AM |
+| Y-Shaped | Numba | 201 | 52 | <0.01s | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 15, 02:24 AM |
+| Elbow 90° | Multiprocess | 1 044 857 | 346 621 | 4m 34.4s | 9.71s | 376ms | 0 | 1.43 GB | - | ✓ | Jan 15, 02:24 AM |
+| Elbow 90° | Multiprocess | 1 044 857 | 346 621 | 4m 27.2s | 9.61s | 378ms | 0 | 1.43 GB | - | ✓ | Jan 15, 02:24 AM |
+| Elbow 90° | Multiprocess | 1 044 857 | 346 621 | 4m 36.8s | 9.66s | 363ms | 0 | 1.44 GB | - | ✓ | Jan 15, 02:24 AM |
+| Elbow 90° | Multiprocess | 623 153 | 206 435 | 2m 14.5s | 7.10s | 190ms | 0 | 633 MB | - | ✓ | Jan 15, 02:06 AM |
+| Elbow 90° | Multiprocess | 623 153 | 206 435 | 2m 11.3s | 7.19s | 190ms | 0 | 601 MB | - | ✓ | Jan 15, 02:06 AM |
+| Elbow 90° | Multiprocess | 623 153 | 206 435 | 2m 10.7s | 7.15s | 192ms | 0 | 640 MB | - | ✓ | Jan 15, 02:06 AM |
+| Elbow 90° | Multiprocess | 161 984 | 53 344 | 24.91s | 4.23s | 44ms | 0 | 100 MB | - | ✓ | Jan 15, 01:57 AM |
+| Elbow 90° | Multiprocess | 161 984 | 53 344 | 25.48s | 4.21s | 44ms | 0 | 97 MB | - | ✓ | Jan 15, 01:57 AM |
+| Elbow 90° | Multiprocess | 161 984 | 53 344 | 25.16s | 4.28s | 43ms | 0 | 97 MB | - | ✓ | Jan 15, 01:57 AM |
+| Elbow 90° | Multiprocess | 411 | 111 | 1.75s | 881ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:56 AM |
+| Elbow 90° | Multiprocess | 411 | 111 | 1.75s | 876ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:56 AM |
+| Elbow 90° | Multiprocess | 411 | 111 | 1.75s | 881ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:56 AM |
+| Backward-Facing Step | Multiprocess | 1 283 215 | 426 686 | 2m 41.1s | 10.77s | 507ms | 0 | 1.73 GB | - | ✓ | Jan 15, 01:56 AM |
+| Backward-Facing Step | Multiprocess | 1 283 215 | 426 686 | 2m 37.0s | 10.78s | 525ms | 0 | 1.89 GB | - | ✓ | Jan 15, 01:56 AM |
+| Backward-Facing Step | Multiprocess | 1 283 215 | 426 686 | 2m 41.4s | 10.80s | 515ms | 0 | 1.73 GB | - | ✓ | Jan 15, 01:56 AM |
+| Backward-Facing Step | Multiprocess | 766 088 | 254 551 | 1m 21.1s | 7.98s | 248ms | 0 | 992 MB | - | ✓ | Jan 15, 01:45 AM |
+| Backward-Facing Step | Multiprocess | 766 088 | 254 551 | 1m 18.6s | 8.15s | 247ms | 0 | 992 MB | - | ✓ | Jan 15, 01:45 AM |
+| Backward-Facing Step | Multiprocess | 766 088 | 254 551 | 1m 19.9s | 8.04s | 242ms | 0 | 1006 MB | - | ✓ | Jan 15, 01:45 AM |
+| Backward-Facing Step | Multiprocess | 195 362 | 64 713 | 17.35s | 4.31s | 56ms | 0 | 121 MB | - | ✓ | Jan 15, 01:40 AM |
+| Backward-Facing Step | Multiprocess | 195 362 | 64 713 | 17.48s | 4.33s | 53ms | 0 | 121 MB | - | ✓ | Jan 15, 01:40 AM |
+| Backward-Facing Step | Multiprocess | 195 362 | 64 713 | 17.72s | 4.30s | 53ms | 0 | 120 MB | - | ✓ | Jan 15, 01:40 AM |
+| Backward-Facing Step | Multiprocess | 287 | 82 | 1.45s | 578ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:39 AM |
+| Backward-Facing Step | Multiprocess | 287 | 82 | 1.45s | 583ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:39 AM |
+| Backward-Facing Step | Multiprocess | 287 | 82 | 1.45s | 580ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:39 AM |
+| T-Junction | Multiprocess | 1 291 289 | 429 176 | 1m 53.8s | 10.88s | 498ms | 0 | 1.77 GB | - | ✓ | Jan 15, 01:38 AM |
+| T-Junction | Multiprocess | 1 291 289 | 429 176 | 1m 50.2s | 10.81s | 513ms | 0 | 1.92 GB | - | ✓ | Jan 15, 01:38 AM |
+| T-Junction | Multiprocess | 1 291 289 | 429 176 | 1m 54.2s | 10.93s | 507ms | 0 | 1.78 GB | - | ✓ | Jan 15, 01:38 AM |
+| T-Junction | Multiprocess | 768 898 | 255 333 | 58.99s | 8.04s | 243ms | 0 | 1.00 GB | - | ✓ | Jan 15, 01:31 AM |
+| T-Junction | Multiprocess | 768 898 | 255 333 | 57.24s | 8.00s | 241ms | 0 | 1021 MB | - | ✓ | Jan 15, 01:31 AM |
+| T-Junction | Multiprocess | 768 898 | 255 333 | 57.76s | 7.99s | 246ms | 0 | 1.01 GB | - | ✓ | Jan 15, 01:31 AM |
+| T-Junction | Multiprocess | 196 420 | 64 987 | 14.89s | 4.33s | 53ms | 0 | 121 MB | - | ✓ | Jan 15, 01:27 AM |
+| T-Junction | Multiprocess | 196 420 | 64 987 | 14.63s | 4.33s | 53ms | 0 | 120 MB | - | ✓ | Jan 15, 01:27 AM |
+| T-Junction | Multiprocess | 196 420 | 64 987 | 14.79s | 4.34s | 55ms | 0 | 121 MB | - | ✓ | Jan 15, 01:27 AM |
+| T-Junction | Multiprocess | 393 | 102 | 1.75s | 879ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:26 AM |
+| T-Junction | Multiprocess | 393 | 102 | 1.75s | 881ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:26 AM |
+| T-Junction | Multiprocess | 393 | 102 | 1.76s | 883ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:26 AM |
+| S-Bend | Multiprocess | 1 286 039 | 427 244 | 1m 53.1s | 10.81s | 491ms | 0 | 1.78 GB | - | ✓ | Jan 15, 01:26 AM |
+| S-Bend | Multiprocess | 1 286 039 | 427 244 | 1m 50.6s | 11.03s | 490ms | 0 | 1.79 GB | - | ✓ | Jan 15, 01:26 AM |
+| S-Bend | Multiprocess | 1 286 039 | 427 244 | 1m 54.2s | 10.80s | 519ms | 0 | 1.94 GB | - | ✓ | Jan 15, 01:26 AM |
+| S-Bend | Multiprocess | 765 441 | 254 034 | 58.58s | 8.00s | 243ms | 0 | 1.02 GB | - | ✓ | Jan 15, 01:18 AM |
+| S-Bend | Multiprocess | 765 441 | 254 034 | 58.10s | 8.02s | 241ms | 0 | 1.02 GB | - | ✓ | Jan 15, 01:18 AM |
+| S-Bend | Multiprocess | 765 441 | 254 034 | 56.69s | 7.94s | 239ms | 0 | 1.03 GB | - | ✓ | Jan 15, 01:18 AM |
+| S-Bend | Multiprocess | 196 078 | 64 787 | 14.35s | 4.31s | 52ms | 0 | 121 MB | - | ✓ | Jan 15, 01:15 AM |
+| S-Bend | Multiprocess | 196 078 | 64 787 | 14.48s | 4.29s | 51ms | 0 | 121 MB | - | ✓ | Jan 15, 01:15 AM |
+| S-Bend | Multiprocess | 196 078 | 64 787 | 14.41s | 4.36s | 53ms | 0 | 121 MB | - | ✓ | Jan 15, 01:15 AM |
+| S-Bend | Multiprocess | 387 | 222 | 1.75s | 877ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:14 AM |
+| S-Bend | Multiprocess | 387 | 222 | 1.74s | 872ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:14 AM |
+| S-Bend | Multiprocess | 387 | 222 | 1.74s | 873ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 01:14 AM |
+| Venturi | Multiprocess | 1 284 412 | 427 017 | 3m 21.7s | 10.76s | 501ms | 0 | 1.96 GB | - | ✓ | Jan 15, 01:14 AM |
+| Venturi | Multiprocess | 1 284 412 | 427 017 | 3m 17.3s | 10.83s | 515ms | 0 | 1.82 GB | - | ✓ | Jan 15, 01:14 AM |
+| Venturi | Multiprocess | 1 284 412 | 427 017 | 3m 22.9s | 10.81s | 496ms | 0 | 1.96 GB | - | ✓ | Jan 15, 01:14 AM |
+| Venturi | Multiprocess | 763 707 | 253 704 | 1m 39.3s | 7.96s | 243ms | 0 | 1.04 GB | - | ✓ | Jan 15, 01:00 AM |
+| Venturi | Multiprocess | 763 707 | 253 704 | 1m 35.6s | 7.98s | 236ms | 0 | 1.05 GB | - | ✓ | Jan 15, 01:00 AM |
+| Venturi | Multiprocess | 763 707 | 253 704 | 1m 37.4s | 7.96s | 237ms | 0 | 1.05 GB | - | ✓ | Jan 15, 01:00 AM |
+| Venturi | Multiprocess | 194 325 | 64 334 | 20.15s | 4.33s | 53ms | 0 | 121 MB | - | ✓ | Jan 15, 12:54 AM |
+| Venturi | Multiprocess | 194 325 | 64 334 | 20.08s | 4.31s | 53ms | 0 | 188 MB | - | ✓ | Jan 15, 12:54 AM |
+| Venturi | Multiprocess | 194 325 | 64 334 | 19.58s | 4.32s | 50ms | 0 | 120 MB | - | ✓ | Jan 15, 12:54 AM |
+| Venturi | Multiprocess | 341 | 86 | 1.46s | 586ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:52 AM |
+| Venturi | Multiprocess | 341 | 86 | 1.46s | 589ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:52 AM |
+| Venturi | Multiprocess | 341 | 86 | 1.47s | 587ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:52 AM |
+| Y-Shaped | Multiprocess | 1 357 953 | 338 544 | 1m 34.4s | 9.75s | 513ms | 0 | 1.57 GB | - | ✓ | Jan 15, 12:52 AM |
+| Y-Shaped | Multiprocess | 1 357 953 | 338 544 | 1m 32.8s | 9.73s | 519ms | 0 | 1.57 GB | - | ✓ | Jan 15, 12:52 AM |
+| Y-Shaped | Multiprocess | 1 357 953 | 338 544 | 1m 34.7s | 9.78s | 526ms | 0 | 1.57 GB | - | ✓ | Jan 15, 12:52 AM |
+| Y-Shaped | Multiprocess | 772 069 | 192 308 | 47.88s | 7.01s | 217ms | 0 | 697 MB | - | ✓ | Jan 15, 12:46 AM |
+| Y-Shaped | Multiprocess | 772 069 | 192 308 | 47.39s | 7.13s | 217ms | 0 | 703 MB | - | ✓ | Jan 15, 12:46 AM |
+| Y-Shaped | Multiprocess | 772 069 | 192 308 | 47.15s | 7.12s | 213ms | 0 | 705 MB | - | ✓ | Jan 15, 12:46 AM |
+| Y-Shaped | Multiprocess | 195 853 | 48 607 | 12.66s | 4.06s | 50ms | 0 | 91 MB | - | ✓ | Jan 15, 12:43 AM |
+| Y-Shaped | Multiprocess | 195 853 | 48 607 | 12.56s | 4.12s | 50ms | 0 | 91 MB | - | ✓ | Jan 15, 12:43 AM |
+| Y-Shaped | Multiprocess | 195 853 | 48 607 | 12.84s | 4.08s | 50ms | 0 | 91 MB | - | ✓ | Jan 15, 12:43 AM |
+| Y-Shaped | Multiprocess | 201 | 52 | 1.16s | 590ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:42 AM |
+| Y-Shaped | Multiprocess | 201 | 52 | 1.18s | 596ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:42 AM |
+| Y-Shaped | Multiprocess | 201 | 52 | 1.18s | 598ms | <0.01s | 0 | 0 MB | - | ✓ | Jan 15, 12:42 AM |
+| Elbow 90° | Threaded | 1 044 857 | 346 621 | 3m 19.7s | 35.93s | 2m 24.4s | 8151 | 1.84 GB | - | ✓ | Jan 15, 12:42 AM |
+| Elbow 90° | Threaded | 1 044 857 | 346 621 | 3m 20.1s | 35.91s | 2m 24.9s | 8154 | 1.55 GB | - | ✓ | Jan 15, 12:42 AM |
+| Elbow 90° | Threaded | 1 044 857 | 346 621 | 3m 19.9s | 36.08s | 2m 24.5s | 8157 | 1.71 GB | - | ✓ | Jan 15, 12:42 AM |
+| Elbow 90° | Threaded | 623 153 | 206 435 | 1m 33.5s | 21.43s | 1m 0.3s | 6224 | 928 MB | - | ✓ | Jan 15, 12:29 AM |
+| Elbow 90° | Threaded | 623 153 | 206 435 | 1m 33.3s | 21.43s | 1m 0.3s | 6230 | 930 MB | - | ✓ | Jan 15, 12:29 AM |
+| Elbow 90° | Threaded | 623 153 | 206 435 | 1m 33.4s | 21.38s | 1m 0.4s | 6231 | 819 MB | - | ✓ | Jan 15, 12:29 AM |
+| Elbow 90° | Threaded | 161 984 | 53 344 | 17.28s | 5.53s | 8.77s | 3136 | 99 MB | - | ✓ | Jan 15, 12:22 AM |
+| Elbow 90° | Threaded | 161 984 | 53 344 | 17.11s | 5.49s | 8.68s | 3133 | 98 MB | - | ✓ | Jan 15, 12:22 AM |
+| Elbow 90° | Threaded | 161 984 | 53 344 | 17.17s | 5.51s | 8.71s | 3132 | 100 MB | - | ✓ | Jan 15, 12:22 AM |
+| Elbow 90° | Threaded | 411 | 111 | 21ms | 11ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 15, 12:21 AM |
+| Elbow 90° | Threaded | 411 | 111 | 21ms | 11ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 15, 12:21 AM |
+| Elbow 90° | Threaded | 411 | 111 | 21ms | 11ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 15, 12:21 AM |
+| Backward-Facing Step | Threaded | 1 283 215 | 426 686 | 5m 35.0s | 44.34s | 4m 26.8s | 10 850 | 2.06 GB | - | ✓ | Jan 15, 12:21 AM |
+| Backward-Facing Step | Threaded | 1 283 215 | 426 686 | 5m 37.1s | 44.24s | 4m 29.2s | 10 852 | 2.06 GB | - | ✓ | Jan 15, 12:21 AM |
+| Backward-Facing Step | Threaded | 1 283 215 | 426 686 | 5m 38.8s | 44.31s | 4m 30.8s | 10 854 | 2.07 GB | - | ✓ | Jan 15, 12:21 AM |
+| Backward-Facing Step | Threaded | 766 088 | 254 551 | 2m 18.6s | 27.23s | 1m 37.4s | 8104 | 1.21 GB | - | ✓ | Jan 14, 11:59 PM |
+| Backward-Facing Step | Threaded | 766 088 | 254 551 | 2m 18.1s | 27.17s | 1m 37.0s | 8102 | 1.21 GB | - | ✓ | Jan 14, 11:59 PM |
+| Backward-Facing Step | Threaded | 766 088 | 254 551 | 2m 18.5s | 27.28s | 1m 37.1s | 8099 | 1.14 GB | - | ✓ | Jan 14, 11:59 PM |
+| Backward-Facing Step | Threaded | 195 362 | 64 713 | 23.59s | 6.92s | 13.07s | 3991 | 120 MB | - | ✓ | Jan 14, 11:50 PM |
+| Backward-Facing Step | Threaded | 195 362 | 64 713 | 23.51s | 6.90s | 13.04s | 3992 | 121 MB | - | ✓ | Jan 14, 11:50 PM |
+| Backward-Facing Step | Threaded | 195 362 | 64 713 | 23.56s | 6.94s | 13.08s | 3991 | 120 MB | - | ✓ | Jan 14, 11:50 PM |
+| Backward-Facing Step | Threaded | 287 | 82 | 17ms | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 11:48 PM |
+| Backward-Facing Step | Threaded | 287 | 82 | 17ms | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 11:48 PM |
+| Backward-Facing Step | Threaded | 287 | 82 | 17ms | <0.01s | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 11:48 PM |
+| T-Junction | Threaded | 1 291 289 | 429 176 | 5m 58.1s | 44.71s | 4m 49.8s | 11 578 | 2.09 GB | - | ✓ | Jan 14, 11:48 PM |
+| T-Junction | Threaded | 1 291 289 | 429 176 | 5m 59.1s | 44.51s | 4m 50.5s | 11 579 | 2.10 GB | - | ✓ | Jan 14, 11:48 PM |
+| T-Junction | Threaded | 1 291 289 | 429 176 | 5m 52.6s | 46.07s | 4m 43.1s | 11 578 | 2.24 GB | - | ✓ | Jan 14, 11:48 PM |
+| T-Junction | Threaded | 768 898 | 255 333 | 2m 26.1s | 26.39s | 1m 45.5s | 8640 | 1.37 GB | - | ✓ | Jan 14, 11:24 PM |
+| T-Junction | Threaded | 768 898 | 255 333 | 2m 25.4s | 26.59s | 1m 44.6s | 8637 | 1.10 GB | - | ✓ | Jan 14, 11:24 PM |
+| T-Junction | Threaded | 768 898 | 255 333 | 2m 25.6s | 26.57s | 1m 44.9s | 8643 | 1.16 GB | - | ✓ | Jan 14, 11:24 PM |
+| T-Junction | Threaded | 196 420 | 64 987 | 24.70s | 6.69s | 14.34s | 4319 | 131 MB | - | ✓ | Jan 14, 11:15 PM |
+| T-Junction | Threaded | 196 420 | 64 987 | 24.62s | 6.73s | 14.31s | 4319 | 121 MB | - | ✓ | Jan 14, 11:15 PM |
+| T-Junction | Threaded | 196 420 | 64 987 | 25.12s | 6.98s | 14.50s | 4319 | 134 MB | - | ✓ | Jan 14, 11:15 PM |
+| T-Junction | Threaded | 393 | 102 | 22ms | 11ms | <0.01s | 168 | 0 MB | - | ✓ | Jan 14, 11:13 PM |
+| T-Junction | Threaded | 393 | 102 | 22ms | 11ms | <0.01s | 168 | 0 MB | - | ✓ | Jan 14, 11:13 PM |
+| T-Junction | Threaded | 393 | 102 | 22ms | 11ms | <0.01s | 168 | 0 MB | - | ✓ | Jan 14, 11:13 PM |
+| S-Bend | Threaded | 1 286 039 | 427 244 | 6m 23.9s | 41.79s | 5m 18.2s | 12 737 | 2.11 GB | - | ✓ | Jan 14, 11:13 PM |
+| S-Bend | Threaded | 1 286 039 | 427 244 | 6m 20.8s | 41.86s | 5m 16.1s | 12 727 | 2.11 GB | - | ✓ | Jan 14, 11:13 PM |
+| S-Bend | Threaded | 1 286 039 | 427 244 | 6m 41.5s | 41.90s | 5m 36.7s | 12 730 | 2.12 GB | - | ✓ | Jan 14, 11:13 PM |
+| S-Bend | Threaded | 765 441 | 254 034 | 2m 31.6s | 24.83s | 1m 53.1s | 9486 | 1.13 GB | - | ✓ | Jan 14, 10:47 PM |
+| S-Bend | Threaded | 765 441 | 254 034 | 2m 32.0s | 24.94s | 1m 53.2s | 9483 | 1.26 GB | - | ✓ | Jan 14, 10:47 PM |
+| S-Bend | Threaded | 765 441 | 254 034 | 2m 31.4s | 24.67s | 1m 52.8s | 9483 | 1.38 GB | - | ✓ | Jan 14, 10:47 PM |
+| S-Bend | Threaded | 196 078 | 64 787 | 24.82s | 6.32s | 14.99s | 4648 | 155 MB | - | ✓ | Jan 14, 10:37 PM |
+| S-Bend | Threaded | 196 078 | 64 787 | 24.78s | 6.29s | 14.99s | 4650 | 132 MB | - | ✓ | Jan 14, 10:37 PM |
+| S-Bend | Threaded | 196 078 | 64 787 | 24.74s | 6.27s | 15.02s | 4651 | 157 MB | - | ✓ | Jan 14, 10:37 PM |
+| S-Bend | Threaded | 387 | 222 | 17ms | <0.01s | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 10:35 PM |
+| S-Bend | Threaded | 387 | 222 | 17ms | <0.01s | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 10:35 PM |
+| S-Bend | Threaded | 387 | 222 | 17ms | <0.01s | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 10:35 PM |
+| Venturi | Threaded | 1 284 412 | 427 017 | 5m 20.3s | 41.79s | 4m 15.0s | 10 155 | 2.14 GB | - | ✓ | Jan 14, 10:35 PM |
+| Venturi | Threaded | 1 284 412 | 427 017 | 5m 19.0s | 41.78s | 4m 13.9s | 10 153 | 2.13 GB | - | ✓ | Jan 14, 10:35 PM |
+| Venturi | Threaded | 1 284 412 | 427 017 | 5m 13.6s | 41.78s | 4m 8.5s | 10 151 | 2.25 GB | - | ✓ | Jan 14, 10:35 PM |
+| Venturi | Threaded | 763 707 | 253 704 | 2m 11.8s | 24.70s | 1m 33.2s | 7781 | 1.27 GB | - | ✓ | Jan 14, 10:14 PM |
+| Venturi | Threaded | 763 707 | 253 704 | 2m 12.0s | 24.85s | 1m 33.3s | 7785 | 1.27 GB | - | ✓ | Jan 14, 10:14 PM |
+| Venturi | Threaded | 763 707 | 253 704 | 2m 11.6s | 24.72s | 1m 33.1s | 7782 | 1.28 GB | - | ✓ | Jan 14, 10:14 PM |
+| Venturi | Threaded | 194 325 | 64 334 | 22.73s | 6.25s | 13.04s | 4044 | 178 MB | - | ✓ | Jan 14, 10:05 PM |
+| Venturi | Threaded | 194 325 | 64 334 | 22.74s | 6.25s | 13.04s | 4043 | 189 MB | - | ✓ | Jan 14, 10:05 PM |
+| Venturi | Threaded | 194 325 | 64 334 | 22.71s | 6.26s | 12.99s | 4043 | 178 MB | - | ✓ | Jan 14, 10:05 PM |
+| Venturi | Threaded | 341 | 86 | 17ms | <0.01s | <0.01s | 133 | 0 MB | - | ✓ | Jan 14, 10:04 PM |
+| Venturi | Threaded | 341 | 86 | 17ms | <0.01s | <0.01s | 133 | 0 MB | - | ✓ | Jan 14, 10:04 PM |
+| Venturi | Threaded | 341 | 86 | 17ms | <0.01s | <0.01s | 133 | 0 MB | - | ✓ | Jan 14, 10:04 PM |
+| Y-Shaped | Threaded | 1 357 953 | 338 544 | 4m 49.4s | 33.31s | 3m 56.7s | 9871 | 1.71 GB | - | ✓ | Jan 14, 10:04 PM |
+| Y-Shaped | Threaded | 1 357 953 | 338 544 | 4m 49.1s | 33.33s | 3m 56.4s | 9871 | 1.70 GB | - | ✓ | Jan 14, 10:04 PM |
+| Y-Shaped | Threaded | 1 357 953 | 338 544 | 4m 49.4s | 33.32s | 3m 56.8s | 9871 | 1.71 GB | - | ✓ | Jan 14, 10:04 PM |
+| Y-Shaped | Threaded | 772 069 | 192 308 | 2m 0.7s | 18.98s | 1m 29.6s | 7508 | 936 MB | - | ✓ | Jan 14, 09:44 PM |
+| Y-Shaped | Threaded | 772 069 | 192 308 | 1m 59.2s | 19.01s | 1m 29.1s | 7508 | 940 MB | - | ✓ | Jan 14, 09:44 PM |
+| Y-Shaped | Threaded | 772 069 | 192 308 | 1m 59.5s | 18.86s | 1m 29.6s | 7508 | 944 MB | - | ✓ | Jan 14, 09:44 PM |
+| Y-Shaped | Threaded | 195 853 | 48 607 | 19.28s | 4.77s | 11.72s | 3741 | 136 MB | - | ✓ | Jan 14, 09:36 PM |
+| Y-Shaped | Threaded | 195 853 | 48 607 | 19.21s | 4.76s | 11.72s | 3741 | 146 MB | - | ✓ | Jan 14, 09:36 PM |
+| Y-Shaped | Threaded | 195 853 | 48 607 | 19.21s | 4.77s | 11.71s | 3741 | 145 MB | - | ✓ | Jan 14, 09:36 PM |
+| Y-Shaped | Threaded | 201 | 52 | 12ms | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 14, 09:35 PM |
+| Y-Shaped | Threaded | 201 | 52 | 12ms | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 14, 09:35 PM |
+| Y-Shaped | Threaded | 201 | 52 | 12ms | <0.01s | <0.01s | 115 | 0 MB | - | ✓ | Jan 14, 09:35 PM |
+| Elbow 90° | CPU | 1 044 857 | 346 621 | 9m 54.4s | 1m 36.3s | 7m 51.4s | 26 503 | 1.52 GB | - | ✓ | Jan 14, 09:35 PM |
+| Elbow 90° | CPU | 1 044 857 | 346 621 | 9m 51.5s | 1m 36.0s | 7m 48.2s | 26 503 | 1.51 GB | - | ✓ | Jan 14, 09:35 PM |
+| Elbow 90° | CPU | 1 044 857 | 346 621 | 9m 56.4s | 1m 36.2s | 7m 53.6s | 26 503 | 1.52 GB | - | ✓ | Jan 14, 09:35 PM |
+| Elbow 90° | CPU | 623 153 | 206 435 | 3m 11.4s | 57.54s | 1m 57.8s | 12 106 | 898 MB | - | ✓ | Jan 14, 08:55 PM |
+| Elbow 90° | CPU | 623 153 | 206 435 | 3m 12.2s | 57.38s | 1m 58.8s | 12 106 | 900 MB | - | ✓ | Jan 14, 08:55 PM |
+| Elbow 90° | CPU | 623 153 | 206 435 | 3m 11.2s | 57.25s | 1m 57.8s | 12 106 | 910 MB | - | ✓ | Jan 14, 08:55 PM |
+| Elbow 90° | CPU | 161 984 | 53 344 | 31.80s | 14.82s | 12.84s | 4660 | 157 MB | - | ✓ | Jan 14, 08:42 PM |
+| Elbow 90° | CPU | 161 984 | 53 344 | 31.71s | 14.89s | 12.69s | 4660 | 156 MB | - | ✓ | Jan 14, 08:42 PM |
+| Elbow 90° | CPU | 161 984 | 53 344 | 31.63s | 14.78s | 12.76s | 4660 | 151 MB | - | ✓ | Jan 14, 08:42 PM |
+| Elbow 90° | CPU | 411 | 111 | 44ms | 30ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 14, 08:40 PM |
+| Elbow 90° | CPU | 411 | 111 | 44ms | 31ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 14, 08:40 PM |
+| Elbow 90° | CPU | 411 | 111 | 45ms | 32ms | <0.01s | 141 | 0 MB | - | ✓ | Jan 14, 08:40 PM |
+| Backward-Facing Step | CPU | 1 283 215 | 426 686 | 9m 2.9s | 1m 59.1s | 6m 30.5s | 15 329 | 1.93 GB | - | ✓ | Jan 14, 08:40 PM |
+| Backward-Facing Step | CPU | 1 283 215 | 426 686 | 8m 56.6s | 1m 58.2s | 6m 25.7s | 15 329 | 1.93 GB | - | ✓ | Jan 14, 08:40 PM |
+| Backward-Facing Step | CPU | 1 283 215 | 426 686 | 8m 54.2s | 1m 58.5s | 6m 22.6s | 15 329 | 1.94 GB | - | ✓ | Jan 14, 08:40 PM |
+| Backward-Facing Step | CPU | 766 088 | 254 551 | 6m 32.6s | 1m 11.2s | 5m 1.3s | 24 091 | 1.12 GB | - | ✓ | Jan 14, 08:04 PM |
+| Backward-Facing Step | CPU | 766 088 | 254 551 | 6m 29.0s | 1m 11.0s | 4m 58.3s | 24 091 | 1.14 GB | - | ✓ | Jan 14, 08:04 PM |
+| Backward-Facing Step | CPU | 766 088 | 254 551 | 6m 36.5s | 1m 11.2s | 5m 5.7s | 24 091 | 1.15 GB | - | ✓ | Jan 14, 08:04 PM |
+| Backward-Facing Step | CPU | 195 362 | 64 713 | 36.79s | 18.00s | 13.76s | 4206 | 233 MB | - | ✓ | Jan 14, 07:38 PM |
+| Backward-Facing Step | CPU | 195 362 | 64 713 | 36.75s | 17.87s | 13.83s | 4206 | 251 MB | - | ✓ | Jan 14, 07:38 PM |
+| Backward-Facing Step | CPU | 195 362 | 64 713 | 36.80s | 17.98s | 13.74s | 4206 | 240 MB | - | ✓ | Jan 14, 07:38 PM |
+| Backward-Facing Step | CPU | 287 | 82 | 33ms | 23ms | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 07:35 PM |
+| Backward-Facing Step | CPU | 287 | 82 | 34ms | 23ms | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 07:35 PM |
+| Backward-Facing Step | CPU | 287 | 82 | 33ms | 22ms | <0.01s | 137 | 0 MB | - | ✓ | Jan 14, 07:35 PM |
+| T-Junction | CPU | 1 291 289 | 429 176 | 13m 55.0s | 1m 59.2s | 11m 22.5s | 26 942 | 2.00 GB | - | ✓ | Jan 14, 07:35 PM |
+| T-Junction | CPU | 1 291 289 | 429 176 | 13m 53.8s | 1m 58.3s | 11m 22.1s | 26 942 | 2.01 GB | - | ✓ | Jan 14, 07:35 PM |
+| T-Junction | CPU | 1 291 289 | 429 176 | 14m 43.3s | 2m 9.1s | 12m 1.0s | 26 942 | 2.02 GB | - | ✓ | Jan 14, 07:35 PM |
+| T-Junction | CPU | 196 420 | 64 987 | 37.45s | 18.55s | 13.86s | 4319 | 169 MB | - | ✓ | Jan 14, 04:40 AM |
+| T-Junction | CPU | 196 420 | 64 987 | 37.41s | 18.58s | 13.76s | 4319 | 171 MB | - | ✓ | Jan 14, 04:40 AM |
+| T-Junction | CPU | 196 420 | 64 987 | 37.40s | 18.48s | 13.84s | 4319 | 167 MB | - | ✓ | Jan 14, 04:40 AM |
+| T-Junction | CPU | 393 | 102 | 45ms | 31ms | <0.01s | 167 | 0 MB | - | ✓ | Jan 14, 04:38 AM |
+| T-Junction | CPU | 393 | 102 | 62ms | 48ms | <0.01s | 167 | 0 MB | - | ✓ | Jan 14, 04:38 AM |
+| T-Junction | CPU | 393 | 102 | 61ms | 42ms | <0.01s | 167 | 0 MB | - | ✓ | Jan 14, 04:38 AM |
+| S-Bend | CPU | 1 286 039 | 427 244 | 51m 33.2s | 2m 2.1s | 48m 57.9s | 102 871 | 1.86 GB | - | ✓ | Jan 14, 04:38 AM |
+| S-Bend | CPU | 1 286 039 | 427 244 | 51m 13.5s | 2m 1.9s | 48m 38.6s | 102 871 | 1.87 GB | - | ✓ | Jan 14, 04:38 AM |
+| S-Bend | CPU | 1 286 039 | 427 244 | 51m 57.8s | 2m 3.1s | 49m 21.3s | 102 871 | 1.88 GB | - | ✓ | Jan 14, 04:38 AM |
+| S-Bend | CPU | 765 441 | 254 034 | 5m 12.1s | 1m 12.6s | 3m 40.1s | 18 292 | 1.07 GB | - | ✓ | Jan 14, 01:15 AM |
+| S-Bend | CPU | 765 441 | 254 034 | 5m 9.3s | 1m 12.3s | 3m 37.4s | 18 292 | 1.08 GB | - | ✓ | Jan 14, 01:15 AM |
+| S-Bend | CPU | 765 441 | 254 034 | 5m 8.0s | 1m 12.1s | 3m 36.4s | 18 292 | 1.08 GB | - | ✓ | Jan 14, 01:15 AM |
+| S-Bend | CPU | 196 078 | 64 787 | 39.41s | 18.57s | 15.78s | 5031 | 163 MB | - | ✓ | Jan 14, 12:55 AM |
+| S-Bend | CPU | 196 078 | 64 787 | 39.25s | 18.46s | 15.76s | 5031 | 163 MB | - | ✓ | Jan 14, 12:55 AM |
+| S-Bend | CPU | 196 078 | 64 787 | 39.31s | 18.41s | 15.84s | 5031 | 164 MB | - | ✓ | Jan 14, 12:55 AM |
+| S-Bend | CPU | 387 | 222 | 37ms | 24ms | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 12:52 AM |
+| S-Bend | CPU | 387 | 222 | 36ms | 25ms | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 12:52 AM |
+| S-Bend | CPU | 387 | 222 | 39ms | 24ms | <0.01s | 157 | 0 MB | - | ✓ | Jan 14, 12:52 AM |
+| Venturi | CPU | 1 284 412 | 427 017 | 12m 40.6s | 2m 2.8s | 10m 4.3s | 24 719 | 1.89 GB | - | ✓ | Jan 14, 12:52 AM |
+| Venturi | CPU | 1 284 412 | 427 017 | 12m 28.8s | 2m 3.9s | 9m 51.7s | 24 719 | 1.90 GB | - | ✓ | Jan 14, 12:52 AM |
+| Venturi | CPU | 1 284 412 | 427 017 | 12m 37.7s | 2m 4.0s | 9m 59.7s | 24 719 | 1.90 GB | - | ✓ | Jan 14, 12:52 AM |
+| Venturi | CPU | 763 707 | 253 704 | 4m 59.9s | 1m 12.5s | 3m 27.4s | 17 550 | 1.10 GB | - | ✓ | Jan 14, 12:01 AM |
+| Venturi | CPU | 763 707 | 253 704 | 4m 58.3s | 1m 13.6s | 3m 24.8s | 17 550 | 1.10 GB | - | ✓ | Jan 14, 12:01 AM |
+| Venturi | CPU | 763 707 | 253 704 | 5m 12.2s | 1m 14.2s | 3m 37.7s | 17 550 | 1.11 GB | - | ✓ | Jan 14, 12:01 AM |
+| Venturi | CPU | 194 325 | 64 334 | 38.59s | 19.09s | 14.44s | 4353 | 227 MB | - | ✓ | Jan 13, 11:37 PM |
+| Venturi | CPU | 194 325 | 64 334 | 38.89s | 19.17s | 14.55s | 4353 | 233 MB | - | ✓ | Jan 13, 11:37 PM |
+| Venturi | CPU | 194 325 | 64 334 | 38.56s | 18.72s | 14.64s | 4353 | 206 MB | - | ✓ | Jan 13, 11:37 PM |
+| Venturi | CPU | 341 | 86 | 37ms | 25ms | <0.01s | 133 | 0 MB | - | ✓ | Jan 13, 11:34 PM |
+| Venturi | CPU | 341 | 86 | 34ms | 24ms | <0.01s | 133 | 0 MB | - | ✓ | Jan 13, 11:34 PM |
+| Venturi | CPU | 341 | 86 | 36ms | 25ms | <0.01s | 133 | 0 MB | - | ✓ | Jan 13, 11:34 PM |
+| Y-Shaped | CPU | 1 357 953 | 338 544 | 6m 36.8s | 1m 38.7s | 4m 30.2s | 9871 | 1.66 GB | - | ✓ | Jan 13, 11:34 PM |
+| Y-Shaped | CPU | 1 357 953 | 338 544 | 6m 35.8s | 1m 38.8s | 4m 28.5s | 9871 | 1.66 GB | - | ✓ | Jan 13, 11:34 PM |
+| Y-Shaped | CPU | 1 357 953 | 338 544 | 6m 10.6s | 1m 38.3s | 4m 4.6s | 9871 | 1.66 GB | - | ✓ | Jan 13, 11:34 PM |
+| Y-Shaped | CPU | 772 069 | 192 308 | 2m 42.7s | 55.40s | 1m 31.7s | 7508 | 944 MB | - | ✓ | Jan 13, 11:09 PM |
+| Y-Shaped | CPU | 772 069 | 192 308 | 2m 47.9s | 57.35s | 1m 35.1s | 7508 | 953 MB | - | ✓ | Jan 13, 11:09 PM |
+| Y-Shaped | CPU | 772 069 | 192 308 | 2m 48.7s | 57.39s | 1m 35.5s | 7508 | 968 MB | - | ✓ | Jan 13, 11:09 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 32.16s | 15.36s | 12.59s | 3741 | 201 MB | - | ✓ | Jan 13, 10:58 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 31.89s | 14.29s | 13.32s | 3741 | 237 MB | - | ✓ | Jan 13, 10:58 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 30.95s | 14.54s | 12.44s | 3741 | 245 MB | - | ✓ | Jan 13, 10:58 PM |
+| Y-Shaped | CPU | 201 | 52 | 22ms | 14ms | <0.01s | 115 | 0 MB | - | ✓ | Jan 13, 10:56 PM |
+| Y-Shaped | CPU | 201 | 52 | 22ms | 14ms | <0.01s | 115 | 0 MB | - | ✓ | Jan 13, 10:56 PM |
+| Y-Shaped | CPU | 201 | 52 | 23ms | 14ms | <0.01s | 115 | 0 MB | - | ✓ | Jan 13, 10:56 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 31.63s | 15.28s | 12.27s | 3741 | 216 MB | - | ✓ | Jan 13, 10:50 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 32.26s | 15.05s | 13.03s | 3741 | 214 MB | - | ✓ | Jan 13, 10:50 PM |
+| Y-Shaped | CPU | 195 853 | 48 607 | 34.18s | 15.06s | 14.95s | 3741 | 226 MB | - | ✓ | Jan 13, 10:50 PM |
