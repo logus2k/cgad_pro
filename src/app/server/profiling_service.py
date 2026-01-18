@@ -26,21 +26,22 @@ import csv
 import shutil
 import uuid
 import threading
+import time
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass, asdict
 from enum import Enum
 
-# HDF5 writer for optimized binary format
+# HDF5 transformer for GPU-accelerated nsys HDF5 to client HDF5 conversion
 try:
-    from profiling_hdf5_writer import ProfilingHDF5Writer
+    from profiling_hdf5_transformer import ProfilingHDF5Transformer
 except ImportError:
     try:
-        from .profiling_hdf5_writer import ProfilingHDF5Writer
+        from .profiling_hdf5_transformer import ProfilingHDF5Transformer
     except ImportError:
-        ProfilingHDF5Writer = None
-        print("[Profiling] Warning: profiling_hdf5_writer not found, HDF5 export disabled")
+        ProfilingHDF5Transformer = None
+        print("[Profiling] Warning: profiling_hdf5_transformer not found, HDF5 transform disabled")
 
 
 # =============================================================================
@@ -523,266 +524,101 @@ class ProfilingService:
         
         return result
     
-    def write_timeline_hdf5(
-        self,
-        session_id: str,
-        events: List[Dict[str, Any]],
-        total_duration_ns: int
-    ) -> Path:
+    def generate_timeline_hdf5(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
-        Write timeline events to HDF5 format for optimized client loading.
+        Generate client-optimized HDF5 timeline from nsys export.
+        
+        Uses GPU-accelerated transformer for fast processing.
         
         Args:
             session_id: Session identifier
-            events: List of timeline event dicts
-            total_duration_ns: Total profiling duration in nanoseconds
             
         Returns:
-            Path to created HDF5 file
-        """
-        if ProfilingHDF5Writer is None:
-            raise RuntimeError("HDF5 writer not available")
-        
-        h5_path = self.nsys_dir / f"{session_id}.h5"
-        
-        writer = ProfilingHDF5Writer()
-        stats = writer.write(
-            events=events,
-            output_path=h5_path,
-            session_id=session_id,
-            total_duration_ns=int(total_duration_ns)
-        )
-        
-        print(f"[Profiling] HDF5 written: {h5_path} ({stats['file_size_bytes'] / 1024:.1f} KB)")
-        return h5_path
-    
-    def get_timeline(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Extract timeline data from Nsight Systems SQLite export.
-        
-        Also generates HDF5 file on first access for optimized client loading.
-        
-        Returns Gantt-ready timeline events.
+            Dict with generation statistics, or None if session not found
         """
         session = self.sessions.get(session_id)
         if not session or not session.nsys_file:
             return None
         
-        sqlite_file = self.nsys_dir / f"{session_id}.sqlite"
-        if not sqlite_file.exists():
-            # Try to export if .nsys-rep exists
-            nsys_rep = self.nsys_dir / session.nsys_file
-            if nsys_rep.exists():
-                self._export_nsys_sqlite(nsys_rep, sqlite_file)
+        nsys_rep = self.nsys_dir / session.nsys_file
+        if not nsys_rep.exists():
+            return {"error": f"Nsight report not found: {session.nsys_file}"}
         
-        if not sqlite_file.exists():
-            return {"error": "SQLite export not available"}
-        
-        events = []
-        min_start = float('inf')
-        max_end = 0
-        
-        try:
-            conn = sqlite3.connect(str(sqlite_file))
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            
-            # Extract CUDA kernels
-            try:
-                cursor.execute("""
-                    SELECT 
-                        k.correlationId,
-                        k.start,
-                        k.end,
-                        k.deviceId,
-                        k.streamId,
-                        k.gridX, k.gridY, k.gridZ,
-                        k.blockX, k.blockY, k.blockZ,
-                        k.registersPerThread,
-                        k.staticSharedMemory,
-                        k.dynamicSharedMemory,
-                        s.value as name
-                    FROM CUPTI_ACTIVITY_KIND_KERNEL k
-                    LEFT JOIN StringIds s ON k.demangledName = s.id
-                    ORDER BY k.start
-                """)
-                
-                for row in cursor.fetchall():
-                    start = row['start']
-                    end = row['end']
-                    min_start = min(min_start, start)
-                    max_end = max(max_end, end)
-                    
-                    event = TimelineEvent(
-                        id=f"kernel_{row['correlationId']}",
-                        category=CATEGORY_CUDA_KERNEL,
-                        name=row['name'] or "unknown_kernel",
-                        start_ns=start,
-                        duration_ns=end - start,
-                        end_ns=end,
-                        stream=row['streamId'] or 0,
-                        correlation_id=row['correlationId'],
-                        metadata={
-                            "grid": [row['gridX'], row['gridY'], row['gridZ']],
-                            "block": [row['blockX'], row['blockY'], row['blockZ']],
-                            "registers_per_thread": row['registersPerThread'],
-                            "shared_memory_static": row['staticSharedMemory'],
-                            "shared_memory_dynamic": row['dynamicSharedMemory'],
-                            "device_id": row['deviceId']
-                        }
-                    )
-                    events.append(asdict(event))
-            except sqlite3.OperationalError as e:
-                print(f"[Profiling] Kernel query failed: {e}")
-            
-            # Extract memory transfers
-            try:
-                cursor.execute("""
-                    SELECT 
-                        correlationId,
-                        start,
-                        end,
-                        bytes,
-                        copyKind,
-                        streamId
-                    FROM CUPTI_ACTIVITY_KIND_MEMCPY
-                    ORDER BY start
-                """)
-                
-                for row in cursor.fetchall():
-                    start = row['start']
-                    end = row['end']
-                    min_start = min(min_start, start)
-                    max_end = max(max_end, end)
-                    
-                    # Determine category based on copyKind
-                    copy_kind = row['copyKind']
-                    if copy_kind == 1:  # HtoD
-                        category = CATEGORY_CUDA_MEMCPY_H2D
-                        name = "cudaMemcpy HtoD"
-                    elif copy_kind == 2:  # DtoH
-                        category = CATEGORY_CUDA_MEMCPY_D2H
-                        name = "cudaMemcpy DtoH"
-                    else:
-                        category = CATEGORY_CUDA_MEMCPY_D2D
-                        name = f"cudaMemcpy (kind={copy_kind})"
-                    
-                    event = TimelineEvent(
-                        id=f"memcpy_{row['correlationId']}",
-                        category=category,
-                        name=name,
-                        start_ns=start,
-                        duration_ns=end - start,
-                        end_ns=end,
-                        stream=row['streamId'] or 0,
-                        correlation_id=row['correlationId'],
-                        metadata={
-                            "bytes": row['bytes'],
-                            "copy_kind": copy_kind
-                        }
-                    )
-                    events.append(asdict(event))
-            except sqlite3.OperationalError as e:
-                print(f"[Profiling] Memcpy query failed: {e}")
-            
-            # Extract NVTX ranges
-            try:
-                cursor.execute("""
-                    SELECT 
-                        r.eventType,
-                        r.start,
-                        r.end,
-                        s.value as text,
-                        r.globalTid
-                    FROM NVTX_EVENTS r
-                    LEFT JOIN StringIds s ON r.textId = s.id
-                    WHERE r.eventType IN (59, 60)
-                    ORDER BY r.start
-                """)
-                
-                nvtx_id = 0
-                for row in cursor.fetchall():
-                    start = row['start']
-                    end = row['end']
-                    if start and end and end > start:
-                        min_start = min(min_start, start)
-                        max_end = max(max_end, end)
-                        
-                        name = row['text'] or 'nvtx_range'
-                        color = NVTX_COLORS.get(name, "#9b59b6")
-                        
-                        event = TimelineEvent(
-                            id=f"nvtx_{nvtx_id}",
-                            category=CATEGORY_NVTX_RANGE,
-                            name=name,
-                            start_ns=start,
-                            duration_ns=end - start,
-                            end_ns=end,
-                            stream=0,
-                            color=color,
-                            metadata={
-                                "thread_id": row['globalTid']
-                            }
-                        )
-                        events.append(asdict(event))
-                        nvtx_id += 1
-            except sqlite3.OperationalError as e:
-                print(f"[Profiling] NVTX query failed: {e}")
-            
-            conn.close()
-            
-        except Exception as e:
-            print(f"[Profiling] Error extracting timeline: {e}")
-            return {"error": str(e)}
-        
-        # Sort all events by start time
-        events.sort(key=lambda e: e['start_ns'])
-        
-        # Normalize timestamps to start from 0
-        if events and min_start != float('inf'):
-            for event in events:
-                event['start_ns'] -= min_start
-                event['end_ns'] -= min_start
-        
-        total_duration_ns = max_end - min_start if max_end > min_start else 0
-        
-        # Generate HDF5 file if it doesn't exist (for optimized client loading)
         h5_path = self.nsys_dir / f"{session_id}.h5"
-        if not h5_path.exists() and events:
-            try:
-                self.write_timeline_hdf5(session_id, events, int(total_duration_ns))
-            except Exception as e:
-                print(f"[Profiling] HDF5 generation failed (non-fatal): {e}")
+        nsys_h5_path = self.nsys_dir / f"{session_id}.nsys.h5"
+        
+        # Check if already generated
+        if h5_path.exists():
+            return {
+                "session_id": session_id,
+                "status": "cached",
+                "h5_path": str(h5_path),
+                "file_size_bytes": h5_path.stat().st_size
+            }
+        
+        if ProfilingHDF5Transformer is None:
+            return {"error": "HDF5 transformer not available"}
+        
+        total_start = time.perf_counter()
+        
+        # Step 1: Export nsys-rep to native HDF5
+        if not nsys_h5_path.exists():
+            export_start = time.perf_counter()
+            self._export_nsys_hdf5(nsys_rep, nsys_h5_path)
+            export_time = time.perf_counter() - export_start
+            print(f"[Profiling] Export to nsys HDF5: {export_time:.3f}s")
+        else:
+            print(f"[Profiling] Using cached nsys HDF5 export")
+        
+        if not nsys_h5_path.exists():
+            return {"error": "Failed to export nsys HDF5"}
+        
+        # Step 2: Transform to client-optimized HDF5 using GPU
+        try:
+            transformer = ProfilingHDF5Transformer(use_gpu=True)
+            stats = transformer.transform(nsys_h5_path, h5_path, session_id)
+        except Exception as e:
+            print(f"[Profiling] HDF5 transform failed: {e}")
+            return {"error": f"HDF5 transform failed: {e}"}
+        
+        total_time = time.perf_counter() - total_start
+        
+        print(f"[Profiling] Timeline HDF5 generated: {stats['total_events']} events in {total_time:.3f}s")
+        print(f"[Profiling]   File size: {stats['file_size_bytes'] / 1024:.1f} KB")
+        print(f"[Profiling]   GPU used: {stats['used_gpu']}")
+        for cat, cat_stats in stats['categories'].items():
+            print(f"[Profiling]   {cat}: {cat_stats['count']} events")
         
         return {
             "session_id": session_id,
-            "events": events,
-            "total_duration_ns": total_duration_ns,
-            "event_count": len(events),
-            "categories": self._count_categories(events)
+            "status": "generated",
+            "h5_path": str(h5_path),
+            "total_events": stats['total_events'],
+            "total_duration_ns": stats['total_duration_ns'],
+            "file_size_bytes": stats['file_size_bytes'],
+            "generation_time_s": total_time,
+            "used_gpu": stats['used_gpu'],
+            "categories": stats['categories'],
+            "timings": stats['timings']
         }
     
-    def _export_nsys_sqlite(self, nsys_rep: Path, sqlite_file: Path):
-        """Export .nsys-rep to SQLite format."""
+    def _export_nsys_hdf5(self, nsys_rep: Path, hdf5_file: Path):
+        """Export .nsys-rep to native HDF5 format."""
         try:
             cmd = [
                 "nsys", "export",
-                "--type", "sqlite",
-                "--output", str(sqlite_file),
+                "--type", "hdf",
+                "--output", str(hdf5_file),
+                "--force-overwrite", "true",
                 str(nsys_rep)
             ]
-            subprocess.run(cmd, capture_output=True, check=True)
-            print(f"[Profiling] Exported SQLite: {sqlite_file}")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"[Profiling] HDF5 export error: {result.stderr}")
+            else:
+                print(f"[Profiling] Exported HDF5: {hdf5_file}")
         except Exception as e:
-            print(f"[Profiling] SQLite export failed: {e}")
-    
-    def _count_categories(self, events: List[Dict]) -> Dict[str, int]:
-        """Count events by category."""
-        counts = {}
-        for event in events:
-            cat = event.get('category', 'unknown')
-            counts[cat] = counts.get(cat, 0) + 1
-        return counts
+            print(f"[Profiling] HDF5 export failed: {e}")
     
     def get_kernels(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -847,8 +683,8 @@ class ProfilingService:
         files_deleted = []
         
         if session.nsys_file:
-            # Include .h5 in cleanup
-            for ext in ['.nsys-rep', '.sqlite', '.h5']:
+            # Include all generated files in cleanup
+            for ext in ['.nsys-rep', '.sqlite', '.h5', '.nsys.h5']:
                 f = self.nsys_dir / f"{session_id}{ext}"
                 if f.exists():
                     f.unlink()
@@ -953,16 +789,17 @@ def create_profiling_router(service: ProfilingService):
         Get timeline data in HDF5 format (optimized binary).
         
         Returns the pre-generated HDF5 file for fast client loading.
-        Falls back to generating on-demand if not present.
+        Generates on-demand using GPU-accelerated transformer if not present.
         """
         h5_path = service.nsys_dir / f"{session_id}.h5"
         
         # Generate if not exists
         if not h5_path.exists():
-            # Trigger JSON generation which also creates HDF5
-            result = service.get_timeline(session_id)
-            if not result or "error" in result:
-                raise HTTPException(status_code=404, detail="Timeline not available")
+            result = service.generate_timeline_hdf5(session_id)
+            if not result:
+                raise HTTPException(status_code=404, detail="Session not found")
+            if "error" in result:
+                raise HTTPException(status_code=500, detail=result["error"])
         
         if not h5_path.exists():
             raise HTTPException(status_code=404, detail="HDF5 file not available")
@@ -976,13 +813,18 @@ def create_profiling_router(service: ProfilingService):
             }
         )
     
-    @router.get("/timeline/{session_id}")
-    async def get_timeline(session_id: str, response: Response):
-        """Get timeline data for Gantt visualization (JSON format)."""
+    @router.get("/timeline/{session_id}/status")
+    async def get_timeline_status(session_id: str, response: Response):
+        """
+        Get timeline generation status and metadata.
+        
+        Returns info about the HDF5 file without downloading it.
+        Triggers generation if not already present.
+        """
         response.headers["Cache-Control"] = "no-store"
-        result = service.get_timeline(session_id)
+        result = service.generate_timeline_hdf5(session_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Session not found or no timeline data")
+            raise HTTPException(status_code=404, detail="Session not found")
         if "error" in result:
             raise HTTPException(status_code=500, detail=result["error"])
         return result

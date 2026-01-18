@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-17T16:28:09.495356Z",
+  "updated_at": "2026-01-18T00:05:27.734603Z",
   "records": [
     {
       "id": "fef13add",
@@ -396,6 +396,124 @@
         "baseline_ram_mb": 443.03,
         "baseline_vram_mb": 0.0,
         "sample_count": 55,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "235ae5f6",
+      "timestamp": "2026-01-17T23:46:53.819463Z",
+      "model_file": "y_tube_1_3m.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 1357953,
+      "model_elements": 338544,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 9871,
+      "timings": {
+        "load_mesh": 0.4306499270023778,
+        "assemble_system": 0.15268845100945327,
+        "apply_bc": 5.909336579992669,
+        "convert_to_cpu": 0.08668259000114631,
+        "solve_system": 21.75155523599824,
+        "compute_derived": 0.01310345999081619,
+        "total_workflow": 28.276195979997283,
+        "total_program_time": 28.323257209995063
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.82532686204016
+        ],
+        "u_mean": 5.755062507218791,
+        "u_std": 4.390800552371043,
+        "final_residual": 1.6080903300082857e-09,
+        "relative_residual": 1.4384995404256747e-08
+      },
+      "matrix_nnz": 16258759,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 411.73,
+        "peak_vram_mb": 1374.32,
+        "baseline_ram_mb": 443.43,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 280,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {},
+      "client_hash": "unknown"
+    },
+    {
+      "id": "0af7677e",
+      "timestamp": "2026-01-18T00:05:27.662854Z",
+      "model_file": "y_tube_1_3m.h5",
+      "model_name": "Y-Shaped",
+      "model_nodes": 1357953,
+      "model_elements": 338544,
+      "solver_type": "gpu",
+      "converged": true,
+      "iterations": 9871,
+      "timings": {
+        "load_mesh": 0.2753483580017928,
+        "assemble_system": 0.16170015699754003,
+        "apply_bc": 7.232261561992345,
+        "convert_to_cpu": 0.03075041199917905,
+        "solve_system": 21.073372667000513,
+        "compute_derived": 0.005553037000936456,
+        "total_workflow": 28.769163096003467,
+        "total_program_time": 28.77078396700381
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          11.825326862040685
+        ],
+        "u_mean": 5.7550625072191695,
+        "u_std": 4.390800552371347,
+        "final_residual": 1.6085257882721453e-09,
+        "relative_residual": 1.4388890748322608e-08
+      },
+      "matrix_nnz": 16258759,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {},
+      "memory": {
+        "peak_ram_mb": 111.36,
+        "peak_vram_mb": 2425.56,
+        "baseline_ram_mb": 831.62,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 285,
         "interval_ms": 100,
         "gpu_available": true
       },

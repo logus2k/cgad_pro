@@ -272,7 +272,7 @@ function convertToEvents(data) {
         
         for (let i = 0; i < catData.count; i++) {
             const startNs = Number(catData.start_ns[i]);
-            const durationNs = catData.duration_ns[i];
+            const durationNs = Number(catData.duration_ns[i]);
             
             const event = {
                 id: eventId++,
@@ -340,7 +340,7 @@ function prepareRendererData(data) {
         
         for (let i = 0; i < count; i++) {
             startMs[i] = Number(catData.start_ns[i]) / 1e6;
-            durationMs[i] = catData.duration_ns[i] / 1e6;
+            durationMs[i] = Number(catData.duration_ns[i]) / 1e6;
         }
         
         rendererData.byCategory[category] = {
@@ -383,7 +383,7 @@ function prepareRendererData(data) {
 /**
  * @typedef {Object} CategoryData
  * @property {BigUint64Array} start_ns
- * @property {Uint32Array} duration_ns
+ * @property {BigUint64Array} duration_ns
  * @property {Uint8Array} stream
  * @property {Uint16Array} name_idx
  * @property {string[]} names
