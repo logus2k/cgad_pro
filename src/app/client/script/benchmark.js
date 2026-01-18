@@ -113,10 +113,10 @@ export class BenchmarkPanel {
                 </div>
                 <div class="benchmark-footer-right">
                     <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-copy-table-btn">
-                        Copy Table
+                        Copy
                     </button>
                     <button class="benchmark-btn benchmark-btn-secondary" id="benchmark-export-table-btn">
-                        Export Table
+                        Export
                     </button>
                     <button class="benchmark-btn benchmark-btn-close" id="benchmark-close-btn">Close</button>
                 </div>
