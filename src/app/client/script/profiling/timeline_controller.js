@@ -88,7 +88,7 @@ export class TimelineController {
         this.#container.innerHTML = '';
         this.#container.style.position = 'relative';
         this.#container.style.overflow = 'hidden';
-        this.#container.style.backgroundColor = '#ffffff';
+        this.#container.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
         
         const wrapper = document.createElement('div');
         wrapper.style.cssText = 'display: flex; width: 100%; height: 100%;';

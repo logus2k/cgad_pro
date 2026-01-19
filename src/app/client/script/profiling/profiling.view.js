@@ -112,11 +112,13 @@ export class ProfilingView {
             this.#updateSummaryCards(timelineData);
             this.#showLoading(false);
             this.#showStatus('', 'idle');
+            this.#elements.exportBtn.disabled = false;  // Enable export after successful load
             
         } catch (error) {
             console.error('[ProfilingView] Failed to load timeline:', error);
             this.#showLoading(false);
             this.#showStatus('Failed to load timeline', 'error');
+            this.#elements.exportBtn.disabled = true;   // Keep disabled on error
         }
     }
 
@@ -148,6 +150,7 @@ export class ProfilingView {
                     this.#timeline.clear();
                 }
                 this.#clearSummaryCards();
+                this.#elements.exportBtn.disabled = true;
             }
 
             this.#showStatus(`Deleted ${results.deleted.length} session(s)`, 'success');
@@ -213,6 +216,20 @@ export class ProfilingView {
                 <!-- Toolbar -->
                 <div class="profiling-toolbar">
                     <div class="profiling-toolbar-left">
+
+                    </div>
+                    <div class="profiling-toolbar-center">
+                        <span class="profiling-status"></span>
+                    </div>
+                    <div class="profiling-toolbar-right">
+
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="profiling-filters">
+                    <div class="profiling-filter-group">
+                        <label>Profiling Session:</label>
                         <select class="profiling-session-select" title="Select Session">
                             <option value="">-- Select Session --</option>
                         </select>
@@ -222,38 +239,6 @@ export class ProfilingView {
                             </svg>
                         </button>
                     </div>
-                    <div class="profiling-toolbar-center">
-                        <span class="profiling-status"></span>
-                    </div>
-                    <div class="profiling-toolbar-right">
-                        <button class="profiling-btn profiling-btn-delete" title="Delete Selected" disabled>
-                            Delete Selected
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="profiling-summary">
-                    <div class="profiling-card">
-                        <div class="profiling-card-value" id="prof-total-duration">--</div>
-                        <div class="profiling-card-label">Total Duration</div>
-                    </div>
-                    <div class="profiling-card">
-                        <div class="profiling-card-value" id="prof-kernel-count">--</div>
-                        <div class="profiling-card-label">Kernels</div>
-                    </div>
-                    <div class="profiling-card">
-                        <div class="profiling-card-value" id="prof-memcpy-count">--</div>
-                        <div class="profiling-card-label">MemCpy</div>
-                    </div>
-                    <div class="profiling-card">
-                        <div class="profiling-card-value" id="prof-nvtx-count">--</div>
-                        <div class="profiling-card-label">NVTX Ranges</div>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="profiling-filters">
                     <div class="profiling-filter-group">
                         <label>Group by:</label>
                         <select class="profiling-groupby-select">
@@ -286,6 +271,26 @@ export class ProfilingView {
                     </div>
                 </div>
 
+                <!-- Summary Cards -->
+                <div class="profiling-summary">
+                    <div class="profiling-card">
+                        <div class="profiling-card-value" id="prof-total-duration">--</div>
+                        <div class="profiling-card-label">Total Duration</div>
+                    </div>
+                    <div class="profiling-card">
+                        <div class="profiling-card-value" id="prof-kernel-count">--</div>
+                        <div class="profiling-card-label">Kernels</div>
+                    </div>
+                    <div class="profiling-card">
+                        <div class="profiling-card-value" id="prof-memcpy-count">--</div>
+                        <div class="profiling-card-label">MemCpy</div>
+                    </div>
+                    <div class="profiling-card">
+                        <div class="profiling-card-value" id="prof-nvtx-count">--</div>
+                        <div class="profiling-card-label">NVTX Ranges</div>
+                    </div>
+                </div>
+
                 <!-- Timeline Container -->
                 <div class="profiling-timeline-wrapper">
                     <div class="profiling-timeline" id="profiling-timeline-container"></div>
@@ -296,6 +301,23 @@ export class ProfilingView {
                     <summary>Session History</summary>
                     <div class="profiling-session-list"></div>
                 </details>
+
+                <!-- Footer Actions -->
+                <div class="profiling-footer">
+                    <div class="profiling-footer-left">
+                        <button class="profiling-btn profiling-btn-delete" title="Delete Selected" disabled>
+                            Delete Selected
+                        </button>
+                        <button class="profiling-btn profiling-btn-export" title="Export timeline data" disabled>
+                            Export
+                        </button>
+                    </div>
+                    <div class="profiling-footer-right">
+                        <button class="profiling-btn profiling-btn-close">
+                            Close
+                        </button>
+                    </div>
+                </div>                
 
             </div>
         `;
@@ -313,12 +335,15 @@ export class ProfilingView {
         this.#elements.loadingOverlay = this.#container.querySelector('.profiling-loading-overlay');
         this.#elements.progressBar = this.#container.querySelector('.profiling-loading-progress-bar');
         this.#elements.activeRunIndicator = this.#container.querySelector('.profiling-active-run');
+        this.#elements.exportBtn = this.#container.querySelector('.profiling-btn-export');
+        this.#elements.closeBtn = this.#container.querySelector('.profiling-btn-close');
 
         // Initialize timeline
         this.#timeline = new ProfilingTimeline('profiling-timeline-container');
     }
 
     #bindUIEvents() {
+
         // Session select dropdown
         this.#elements.sessionSelect.addEventListener('change', (e) => {
             this.loadSession(e.target.value);
@@ -332,6 +357,16 @@ export class ProfilingView {
         // Delete button
         this.#elements.deleteSelectedBtn.addEventListener('click', () => {
             this.deleteSelected();
+        });
+
+        // Export button
+        this.#elements.exportBtn.addEventListener('click', () => {
+            this.#handleExport();
+        });
+
+        // Close button
+        this.#elements.closeBtn.addEventListener('click', () => {
+            this.#handleClose();
         });
 
         // Group by select (debounced)
@@ -765,10 +800,26 @@ export class ProfilingView {
         return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
 
+    #handleExport() {
+        if (!this.#currentSessionId) {
+            this.#showStatus('No session loaded', 'error');
+            return;
+        }
+        
+        // TODO: Implement export functionality
+        console.log('[ProfilingView] Export requested for session:', this.#currentSessionId);
+        this.#showStatus('Export not yet implemented', 'info');
+    }
+
+    #handleClose() {
+        // Dispatch event for parent to handle (e.g., hide HUD panel)
+        this.#container.dispatchEvent(new CustomEvent('profiling-close', { bubbles: true }));
+    }
+
+
     // ─────────────────────────────────────────────────────────────────────────
     // Cleanup
     // ─────────────────────────────────────────────────────────────────────────
-
     destroy() {
         if (this.#filterDebounceTimer) {
             clearTimeout(this.#filterDebounceTimer);
