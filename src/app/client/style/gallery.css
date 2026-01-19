@@ -247,7 +247,7 @@
 /* Buttons Container */
 .carousel-controls {
     display: flex;
-    justify-content: right;
+    justify-content: space-between;
     padding: 0px 15px 15px 15px;
 }
 
@@ -266,9 +266,8 @@
     transition: all 0.2s ease;
 }
 
-.carousel-controls .btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 1);
-    border-color: #59bcee;
+.carousel-controls .btn-secondary:hover:not(:disabled) {
+    background: #2aaff1;
 }
 
 .carousel-controls .btn:disabled {
@@ -290,10 +289,6 @@
     background: #0f9ce2;
     color: white;
     border-color: #0f9ce2;
-}
-
-.carousel-controls .btn-secondary:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.05);
 }
 
 
