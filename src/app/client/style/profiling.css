@@ -714,10 +714,6 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.gallery-buttons-left {
-    /* Cancel button container */
-}
-
 .gallery-buttons-right {
     display: flex;
     gap: 10px;
