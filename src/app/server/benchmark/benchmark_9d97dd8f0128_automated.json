@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "updated_at": "2026-01-19T19:55:39.157945+00:00",
+  "updated_at": "2026-01-19T20:33:33.839016+00:00",
   "automated": true,
   "server_hash": "9d97dd8f0128",
   "server_config": {
@@ -30646,6 +30646,591 @@
       },
       "client_hash": "automated",
       "matrix_nnz": 11947139,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "9c27cd09-1581-4af9-933c-4d8ad32290ab",
+      "timestamp": "2026-01-19T20:31:06.482358+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 12731,
+      "timings": {
+        "load_mesh": 0.012087733000953449,
+        "assemble_system": 4.504428715999893,
+        "apply_bc": 49.07814484499977,
+        "solve_system": 461.21293698500085,
+        "compute_derived": 1.405345747998581,
+        "total_workflow": 516.2129805120003,
+        "total_program_time": 516.2137812010005
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359354517696199
+        ],
+        "u_mean": 6.354623567633929,
+        "u_std": 3.5097406500301496,
+        "final_residual": 1.1470355116515772e-09,
+        "relative_residual": 1.7097521242727964e-09
+      },
+      "memory": {
+        "peak_ram_mb": 2204.74,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1259.32,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5090,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20090265,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "3c154a0b-547a-4805-8fcc-0015393e43fd",
+      "timestamp": "2026-01-19T20:31:06.522655+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 12731,
+      "timings": {
+        "load_mesh": 0.01301260100080981,
+        "assemble_system": 4.581158565999431,
+        "apply_bc": 47.610276635001355,
+        "solve_system": 459.37396425099905,
+        "compute_derived": 1.4013611619993753,
+        "total_workflow": 512.9798106400012,
+        "total_program_time": 512.980379523
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359354517696199
+        ],
+        "u_mean": 6.354623567633929,
+        "u_std": 3.5097406500301496,
+        "final_residual": 1.1470355116515772e-09,
+        "relative_residual": 1.7097521242727964e-09
+      },
+      "memory": {
+        "peak_ram_mb": 1885.08,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1579.44,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5070,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20090265,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "a7c7ed82-caf7-4254-b9a3-2e4e88f3ddc7",
+      "timestamp": "2026-01-19T20:31:06.560691+00:00",
+      "model_file": "s_bend_1_2m.h5",
+      "model_name": "S-Bend",
+      "model_nodes": 1286039,
+      "model_elements": 427244,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 12731,
+      "timings": {
+        "load_mesh": 0.012522857001386,
+        "assemble_system": 4.54948040400086,
+        "apply_bc": 49.116131098999176,
+        "solve_system": 470.4239597859996,
+        "compute_derived": 1.4048877080003876,
+        "total_workflow": 525.5070183219996,
+        "total_program_time": 525.5072824059989
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          13.359354517696199
+        ],
+        "u_mean": 6.354623567633929,
+        "u_std": 3.5097406500301496,
+        "final_residual": 1.1470355116515772e-09,
+        "relative_residual": 1.7097521242727964e-09
+      },
+      "memory": {
+        "peak_ram_mb": 1882.05,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1521.54,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 5185,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 20090265,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "4ec4ddbb-a112-4e5f-b15d-9da39d8f6eea",
+      "timestamp": "2026-01-19T20:31:08.288450+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 167,
+      "timings": {
+        "load_mesh": 0.0010284319996571867,
+        "assemble_system": 0.17010786099854158,
+        "apply_bc": 0.0013509460004570428,
+        "solve_system": 0.002200517999881413,
+        "compute_derived": 0.16159603300002345,
+        "total_workflow": 0.33630278300006466,
+        "total_program_time": 0.3365340569998807
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.298818325475239
+        ],
+        "u_mean": 3.6752002857176076,
+        "u_std": 1.8426634332375378,
+        "final_residual": 4.923464624478211e-09,
+        "relative_residual": 1.127961650338668e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1398.78,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "073d670d-1af1-4d0d-9c7b-f827e910f7ca",
+      "timestamp": "2026-01-19T20:31:08.327155+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 167,
+      "timings": {
+        "load_mesh": 0.0008618539995950414,
+        "assemble_system": 0.17558846799875028,
+        "apply_bc": 0.0015888109992374666,
+        "solve_system": 0.0022230129998206394,
+        "compute_derived": 0.1573736980008107,
+        "total_workflow": 0.3376571349999722,
+        "total_program_time": 0.33806849000029615
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.298818325475239
+        ],
+        "u_mean": 3.6752002857176076,
+        "u_std": 1.8426634332375378,
+        "final_residual": 4.923464624478211e-09,
+        "relative_residual": 1.127961650338668e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1397.8,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "5eb4b1e8-89a0-41f4-90de-5bed7b867dc2",
+      "timestamp": "2026-01-19T20:31:08.365079+00:00",
+      "model_file": "t_junction_393.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 393,
+      "model_elements": 102,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 167,
+      "timings": {
+        "load_mesh": 0.0011054429996875115,
+        "assemble_system": 0.17711877600049775,
+        "apply_bc": 0.0016407950006396277,
+        "solve_system": 0.002269015001729713,
+        "compute_derived": 0.13670828000067559,
+        "total_workflow": 0.3188648830000602,
+        "total_program_time": 0.3191923720005434
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.298818325475239
+        ],
+        "u_mean": 3.6752002857176076,
+        "u_std": 1.8426634332375378,
+        "final_residual": 4.923464624478211e-09,
+        "relative_residual": 1.127961650338668e-08
+      },
+      "memory": {
+        "peak_ram_mb": 0.0,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1396.82,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 4,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 5357,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "b25211c8-da80-4900-9189-f3a31c22eee1",
+      "timestamp": "2026-01-19T20:33:33.761950+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 4318,
+      "timings": {
+        "load_mesh": 0.002288579000378377,
+        "assemble_system": 0.8032522889989195,
+        "apply_bc": 3.3458347499999945,
+        "solve_system": 27.370934872000362,
+        "compute_derived": 0.32384561099934217,
+        "total_workflow": 31.846186196999042,
+        "total_program_time": 31.84645600699878
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.308530537339178
+        ],
+        "u_mean": 3.6492447219683353,
+        "u_std": 1.8092364892036696,
+        "final_residual": 1.3914477027094221e-09,
+        "relative_residual": 2.1917552512087127e-09
+      },
+      "memory": {
+        "peak_ram_mb": 134.7,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1088.38,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 314,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3057464,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "2d6d567b-9630-4d7d-bc67-6d8bda5c3a8c",
+      "timestamp": "2026-01-19T20:33:33.801238+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 4318,
+      "timings": {
+        "load_mesh": 0.0022890799991728272,
+        "assemble_system": 0.7782147170000826,
+        "apply_bc": 3.494009856998673,
+        "solve_system": 30.16678519299967,
+        "compute_derived": 0.3429797339995275,
+        "total_workflow": 34.784315490000154,
+        "total_program_time": 34.78468167899882
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.308530537339178
+        ],
+        "u_mean": 3.6492447219683353,
+        "u_std": 1.8092364892036696,
+        "final_residual": 1.3914477027094221e-09,
+        "relative_residual": 2.1917552512087127e-09
+      },
+      "memory": {
+        "peak_ram_mb": 45.49,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 1044.14,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 343,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3057464,
+      "element_type": "quad8",
+      "nodes_per_element": 8,
+      "solver_config": {
+        "linear_solver": "cg",
+        "tolerance": 1e-08,
+        "max_iterations": 15000000,
+        "preconditioner": "jacobi"
+      }
+    },
+    {
+      "id": "d109f565-58d5-4184-8644-d21670c369b9",
+      "timestamp": "2026-01-19T20:33:33.839003+00:00",
+      "model_file": "t_junction_196k.h5",
+      "model_name": "T-Junction",
+      "model_nodes": 196420,
+      "model_elements": 64987,
+      "solver_type": "cpu_multiprocess",
+      "converged": true,
+      "iterations": 4318,
+      "timings": {
+        "load_mesh": 0.0030205410002963617,
+        "assemble_system": 0.8099207430004753,
+        "apply_bc": 3.835691272999611,
+        "solve_system": 29.408249852000154,
+        "compute_derived": 0.2953608150000946,
+        "total_workflow": 34.35227399099858,
+        "total_program_time": 34.352638892998584
+      },
+      "solution_stats": {
+        "u_range": [
+          0.0,
+          7.308530537339178
+        ],
+        "u_mean": 3.6492447219683353,
+        "u_std": 1.8092364892036696,
+        "final_residual": 1.3914477027094221e-09,
+        "relative_residual": 2.1917552512087127e-09
+      },
+      "memory": {
+        "peak_ram_mb": 175.02,
+        "peak_vram_mb": 0.0,
+        "baseline_ram_mb": 914.28,
+        "baseline_vram_mb": 0.0,
+        "sample_count": 339,
+        "interval_ms": 100,
+        "gpu_available": true
+      },
+      "server_config": {
+        "hostname": "MERCURY",
+        "os": "Ubuntu 24.04.3 LTS",
+        "architecture": "x86_64",
+        "python_version": "3.10.19",
+        "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+        "cpu_cores": 20,
+        "ram_gb": 94.3,
+        "gpu_model": "NVIDIA GeForce RTX 4090",
+        "gpu_memory_gb": 24.0,
+        "cuda_version": "13.0"
+      },
+      "server_hash": "9d97dd8f0128",
+      "client_config": {
+        "source": "automated_benchmark"
+      },
+      "client_hash": "automated",
+      "matrix_nnz": 3057464,
       "element_type": "quad8",
       "nodes_per_element": 8,
       "solver_config": {

@@ -22,6 +22,10 @@ export class TimelineRenderer {
     #maxInstances = 100000;  // Pre-allocate for performance
     #needsUpload = false;
     #eventBounds = [];  // {event, x, y, width, height} for hit testing
+
+    #gridLines = null;
+    #gridColor = 0xcccccc;
+    #gridMinorColor = 0xe0e0e0;    
     
     // Data
     #events = [];
@@ -50,14 +54,14 @@ export class TimelineRenderer {
     }
     
     #initThree() {
-        // Renderer
+        // Renderer with transparent background
         this.#renderer = new THREE.WebGLRenderer({
             canvas: this.#canvas,
             antialias: false,
-            alpha: false,
+            alpha: true,
             powerPreference: 'high-performance'
         });
-        this.#renderer.setClearColor(0x1e1e1e, 1);
+        this.#renderer.setClearColor(0x000000, 0);  // Transparent
         
         // Scene
         this.#scene = new THREE.Scene();
@@ -280,6 +284,9 @@ export class TimelineRenderer {
         if (this.#instancedMesh.instanceColor) {
             this.#instancedMesh.instanceColor.needsUpdate = true;
         }
+
+        // Update grid lines
+        this.#updateGrid();        
         
         this.#needsUpload = false;
     }
@@ -290,6 +297,109 @@ export class TimelineRenderer {
         }
         return event.category === 'nvtx_range' ? 'nvtx' : `stream_${event.stream}`;
     }
+
+    #updateGrid() {
+        // Remove existing grid
+        if (this.#gridLines) {
+            this.#scene.remove(this.#gridLines);
+            this.#gridLines.geometry.dispose();
+            this.#gridLines.material.dispose();
+            this.#gridLines = null;
+        }
+        
+        const timeSpan = this.#timeRange.end - this.#timeRange.start;
+        if (timeSpan <= 0) return;
+        
+        const width = this.#resolution.width;
+        const height = this.#resolution.height;
+        
+        // Compute tick interval (same logic as TimelineAxis)
+        const { interval, minorInterval } = this.#computeTickInterval(timeSpan, width);
+        
+        const positions = [];
+        const colors = [];
+        
+        const majorColor = new THREE.Color(this.#gridColor);
+        const minorColor = new THREE.Color(this.#gridMinorColor);
+        
+        // Minor ticks first (so major draws on top)
+        const firstMinorTick = Math.ceil(this.#timeRange.start / minorInterval) * minorInterval;
+        for (let t = firstMinorTick; t <= this.#timeRange.end; t += minorInterval) {
+            // Skip major tick positions
+            if (Math.abs(t % interval) < minorInterval * 0.1) continue;
+            
+            const x = ((t - this.#timeRange.start) / timeSpan) * width;
+            
+            positions.push(x, 0, -0.1);
+            positions.push(x, height, -0.1);
+            colors.push(minorColor.r, minorColor.g, minorColor.b);
+            colors.push(minorColor.r, minorColor.g, minorColor.b);
+        }
+        
+        // Major ticks
+        const firstMajorTick = Math.ceil(this.#timeRange.start / interval) * interval;
+        for (let t = firstMajorTick; t <= this.#timeRange.end; t += interval) {
+            const x = ((t - this.#timeRange.start) / timeSpan) * width;
+            
+            positions.push(x, 0, -0.1);
+            positions.push(x, height, -0.1);
+            colors.push(majorColor.r, majorColor.g, majorColor.b);
+            colors.push(majorColor.r, majorColor.g, majorColor.b);
+        }
+        
+        if (positions.length === 0) return;
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        
+        const material = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.5
+        });
+        
+        this.#gridLines = new THREE.LineSegments(geometry, material);
+        this.#scene.add(this.#gridLines);
+
+        console.log('[Grid] positions:', positions.length / 3, 'vertices, interval:', interval, 'timeRange:', this.#timeRange);        
+    }
+
+    #computeTickInterval(timeSpanMs, widthPx) {
+        // Target ~100px between ticks
+        const targetIntervalMs = (timeSpanMs / widthPx) * 100;
+        
+        // Nice intervals in ms
+        const niceIntervals = [
+            0.000001, 0.000002, 0.000005,  // nanoseconds
+            0.00001, 0.00002, 0.00005,      // 10s of ns
+            0.0001, 0.0002, 0.0005,         // 100s of ns
+            0.001, 0.002, 0.005,            // microseconds
+            0.01, 0.02, 0.05,               // 10s of us
+            0.1, 0.2, 0.5,                  // 100s of us
+            1, 2, 5,                        // milliseconds
+            10, 20, 50,                     // 10s of ms
+            100, 200, 500,                  // 100s of ms
+            1000, 2000, 5000,               // seconds
+            10000, 20000, 50000,            // 10s of s
+            100000, 200000, 500000          // 100s of s
+        ];
+        
+        // Find best interval
+        let interval = niceIntervals[0];
+        for (const ni of niceIntervals) {
+            if (ni >= targetIntervalMs) {
+                interval = ni;
+                break;
+            }
+            interval = ni;
+        }
+        
+        return {
+            interval,
+            minorInterval: interval / 5
+        };
+    }    
     
     /**
      * Render frame.
@@ -331,6 +441,11 @@ export class TimelineRenderer {
      * Cleanup resources.
      */
     destroy() {
+        if (this.#gridLines) {
+            this.#gridLines.geometry.dispose();
+            this.#gridLines.material.dispose();
+            this.#scene.remove(this.#gridLines);
+        }
         if (this.#instancedMesh) {
             this.#instancedMesh.geometry.dispose();
             this.#instancedMesh.material.dispose();

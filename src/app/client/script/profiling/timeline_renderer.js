@@ -43,6 +43,11 @@ export class TimelineRenderer {
     #groupMapping = new Map();
     #visibleGroups = [];
     #visibleCategories = new Set();
+
+    // Grid lines
+    #gridLines = null;
+    #gridColor = 0xcccccc;
+    #gridMinorColor = 0xe8e8e8;
     
     // View state
     #timeRange = { start: 0, end: 1000 };
@@ -252,6 +257,9 @@ export class TimelineRenderer {
         } else {
             this.#rebuildMeshesLegacy(timeSpan);
         }
+        
+        // Update grid lines
+        this.#updateGrid();
         
         this.#needsRebuild = false;
         console.timeEnd('[TimelineRenderer] rebuildMeshes');
@@ -481,6 +489,106 @@ export class TimelineRenderer {
         }
         return event.category === 'nvtx_range' ? 'nvtx' : `stream_${event.stream}`;
     }
+
+    #updateGrid() {
+        // Remove existing grid
+        if (this.#gridLines) {
+            this.#scene.remove(this.#gridLines);
+            this.#gridLines.geometry.dispose();
+            this.#gridLines.material.dispose();
+            this.#gridLines = null;
+        }
+        
+        const timeSpan = this.#timeRange.end - this.#timeRange.start;
+        if (timeSpan <= 0) return;
+        
+        const width = this.#resolution.width;
+        const height = this.#resolution.height;
+        
+        // Compute tick interval
+        const { interval, minorInterval } = this.#computeTickInterval(timeSpan, width);
+        
+        const positions = [];
+        const colors = [];
+        
+        const majorColor = new THREE.Color(this.#gridColor);
+        const minorColor = new THREE.Color(this.#gridMinorColor);
+        
+        // Minor ticks
+        const firstMinorTick = Math.ceil(this.#timeRange.start / minorInterval) * minorInterval;
+        for (let t = firstMinorTick; t <= this.#timeRange.end; t += minorInterval) {
+            // Skip major tick positions
+            if (Math.abs(t % interval) < minorInterval * 0.1) continue;
+            
+            const x = ((t - this.#timeRange.start) / timeSpan) * width;
+            
+            positions.push(x, 0, 0);
+            positions.push(x, height, 0);
+            colors.push(minorColor.r, minorColor.g, minorColor.b);
+            colors.push(minorColor.r, minorColor.g, minorColor.b);
+        }
+        
+        // Major ticks
+        const firstMajorTick = Math.ceil(this.#timeRange.start / interval) * interval;
+        for (let t = firstMajorTick; t <= this.#timeRange.end; t += interval) {
+            const x = ((t - this.#timeRange.start) / timeSpan) * width;
+            
+            positions.push(x, 0, 0);
+            positions.push(x, height, 0);
+            colors.push(majorColor.r, majorColor.g, majorColor.b);
+            colors.push(majorColor.r, majorColor.g, majorColor.b);
+        }
+        
+        if (positions.length === 0) return;
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        
+        const material = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            depthTest: false
+        });
+        
+        this.#gridLines = new THREE.LineSegments(geometry, material);
+        this.#gridLines.renderOrder = -1;  // Render before event bars
+        this.#scene.add(this.#gridLines);
+    }
+
+    #computeTickInterval(timeSpanMs, widthPx) {
+        const targetIntervalMs = (timeSpanMs / widthPx) * 100;
+        
+        const niceIntervals = [
+            0.000001, 0.000002, 0.000005,
+            0.00001, 0.00002, 0.00005,
+            0.0001, 0.0002, 0.0005,
+            0.001, 0.002, 0.005,
+            0.01, 0.02, 0.05,
+            0.1, 0.2, 0.5,
+            1, 2, 5,
+            10, 20, 50,
+            100, 200, 500,
+            1000, 2000, 5000,
+            10000, 20000, 50000,
+            100000, 200000, 500000
+        ];
+        
+        let interval = niceIntervals[0];
+        for (const ni of niceIntervals) {
+            if (ni >= targetIntervalMs) {
+                interval = ni;
+                break;
+            }
+            interval = ni;
+        }
+        
+        return {
+            interval,
+            minorInterval: interval / 5
+        };
+    }    
     
     render() {
         this.#rebuildMeshes();
@@ -613,6 +721,14 @@ export class TimelineRenderer {
     }
     
     destroy() {
+        // Clean up grid
+        if (this.#gridLines) {
+            this.#scene.remove(this.#gridLines);
+            this.#gridLines.geometry.dispose();
+            this.#gridLines.material.dispose();
+            this.#gridLines = null;
+        }
+        
         for (const mesh of this.#instancedMeshes.values()) {
             this.#scene.remove(mesh);
             mesh.dispose();
