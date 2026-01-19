@@ -21,6 +21,7 @@ export class TimelineRenderer {
     #instanceCount = 0;
     #maxInstances = 100000;  // Pre-allocate for performance
     #needsUpload = false;
+    #eventBounds = [];  // {event, x, y, width, height} for hit testing
     
     // Data
     #events = [];
@@ -177,13 +178,11 @@ export class TimelineRenderer {
         this.#needsUpload = true;
     }
     
-    /**
-     * Build instance data and upload to GPU.
-     */
     #uploadData() {
         if (!this.#needsUpload || this.#events.length === 0 || this.#visibleGroups.length === 0) {
             if (this.#events.length === 0 || this.#visibleGroups.length === 0) {
                 this.#instancedMesh.count = 0;
+                this.#eventBounds = [];
             }
             this.#needsUpload = false;
             return;
@@ -199,8 +198,8 @@ export class TimelineRenderer {
             const startMs = e.start_ns / 1e6;
             const endMs = e.end_ns / 1e6;
             return endMs >= this.#timeRange.start - margin &&
-                   startMs <= this.#timeRange.end + margin &&
-                   this.#groupMapping.has(this.#getEventGroup(e));
+                startMs <= this.#timeRange.end + margin &&
+                this.#groupMapping.has(this.#getEventGroup(e));
         });
         
         // Sort by start time for stacking
@@ -208,6 +207,9 @@ export class TimelineRenderer {
         
         // Compute stacking within each group
         const groupStacks = new Map();
+        
+        // Reset event bounds
+        this.#eventBounds = [];
         
         let instanceIdx = 0;
         const maxVisible = Math.min(this.#visibleEvents.length, this.#maxInstances);
@@ -248,6 +250,15 @@ export class TimelineRenderer {
             const maxStackLevels = Math.max(stack.length, 1);
             const eventHeight = (rowHeight * 0.9) / maxStackLevels;
             const y = rowIndex * rowHeight + stackLevel * eventHeight + rowHeight * 0.05;
+            
+            // Store bounds for hit testing
+            this.#eventBounds.push({
+                event,
+                x,
+                y,
+                width,
+                height: eventHeight
+            });
             
             // Set transform matrix
             // PlaneGeometry is centered, so offset by half width/height
@@ -297,29 +308,22 @@ export class TimelineRenderer {
     
     /**
      * Hit test at canvas coordinates.
+     * Uses pre-computed bounds from #uploadData for accurate stacking support.
      */
     hitTest(x, y) {
-        if (this.#visibleGroups.length === 0) return null;
+        const minHitWidth = 6;  // Minimum 6px hit area
         
-        const timeSpan = this.#timeRange.end - this.#timeRange.start;
-        const timeAtX = this.#timeRange.start + (x / this.#resolution.width) * timeSpan;
-        const timeAtXNs = timeAtX * 1e6;
-        
-        const rowHeight = this.#resolution.height / this.#visibleGroups.length;
-        const rowIndex = Math.floor(y / rowHeight);
-        
-        if (rowIndex < 0 || rowIndex >= this.#visibleGroups.length) return null;
-        
-        const group = this.#visibleGroups[rowIndex];
-        
-        // Find event at this position (search visible events for better performance)
-        for (const event of this.#visibleEvents) {
-            if (this.#getEventGroup(event) !== group.id) continue;
-            if (event.start_ns <= timeAtXNs && event.end_ns >= timeAtXNs) {
-                return event;
+        // Iterate in reverse to find topmost (last rendered) event first
+        for (let i = this.#eventBounds.length - 1; i >= 0; i--) {
+            const b = this.#eventBounds[i];
+            const hitWidth = Math.max(b.width, minHitWidth);
+            const hitX = b.x - (hitWidth - b.width) / 2;  // Center the expanded hit area
+            
+            if (x >= hitX && x <= hitX + hitWidth &&
+                y >= b.y && y <= b.y + b.height) {
+                return b.event;
             }
         }
-        
         return null;
     }
     

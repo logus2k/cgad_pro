@@ -133,7 +133,7 @@ export class TimelineController {
         
         // WebGL canvas
         this.#glCanvas = document.createElement('canvas');
-        this.#glCanvas.style.cssText = 'flex: 1; display: block; cursor: grab;';
+        this.#glCanvas.style.cssText = 'flex: 1; display: block; cursor: default;';
         timelineArea.appendChild(this.#glCanvas);
         
         wrapper.appendChild(this.#groupsEl);
@@ -260,6 +260,7 @@ export class TimelineController {
         this.#dragStartTime = this.#timeRange.start;
         this.#glCanvas.style.cursor = 'grabbing';
         this.#cancelTooltipTimer();
+        this.#hideTooltip();
     }
     
     #onMouseMove(e) {
@@ -279,15 +280,31 @@ export class TimelineController {
             
             this.#setTimeRange(newStart, newEnd);
         } else if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+            // Check if hovering over an event
+            const event = this.#renderer.hitTest(x, y);
+            this.#glCanvas.style.cursor = event ? 'pointer' : 'grab';
+            
             this.#scheduleTooltip(x, y);
         } else {
+            this.#glCanvas.style.cursor = 'default';
             this.#hideTooltip();
         }
     }
     
     #onMouseUp(e) {
-        this.#isDragging = false;
-        this.#glCanvas.style.cursor = 'grab';
+        if (this.#isDragging) {
+            this.#isDragging = false;
+            // Restore cursor based on current position
+            const rect = this.#glCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                const event = this.#renderer.hitTest(x, y);
+                this.#glCanvas.style.cursor = event ? 'pointer' : 'grab';
+            } else {
+                this.#glCanvas.style.cursor = 'default';
+            }
+        }
     }
     
     #onWheel(e) {
