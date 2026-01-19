@@ -145,17 +145,18 @@ export class TimelineController {
         this.#tooltipEl.style.cssText = `
             position: absolute;
             display: none;
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 8px 12px;
-            font-size: 12px;
-            color: #e0e0e0;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0;
+            font-family: 'Roboto', system-ui, sans-serif;
+            font-size: 11px;
+            color: #212529;
             pointer-events: none;
             z-index: 1000;
-            max-width: 350px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            line-height: 1.5;
+            max-width: 320px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
         `;
         this.#container.appendChild(this.#tooltipEl);
         
@@ -398,39 +399,95 @@ export class TimelineController {
     }
     
     #buildTooltipHtml(event) {
-        const duration = this.#formatDuration(event.duration_ns / 1e6);
-        const category = TimelineController.CATEGORIES[event.category]?.label || event.category;
+        const durationMs = event.duration_ns / 1e6;
+        const startMs = event.start_ns / 1e6;
+        const sessionDuration = this.#totalTimeRange.end - this.#totalTimeRange.start;
+        const percent = sessionDuration > 0 ? ((durationMs / sessionDuration) * 100) : 0;
         
+        const category = event.category;
+        const categoryLabel = TimelineController.CATEGORIES[category]?.label || category;
+        const accentColor = this.#getCategoryColor(category);
+        
+        // Header
         let html = `
-            <div style="font-weight: 600; margin-bottom: 4px; color: #fff;">${this.#escapeHtml(event.name || 'Unknown')}</div>
-            <div style="color: #aaa; font-size: 11px;">
-                <span>${category}</span> &bull; <span>${duration}</span> &bull; <span>Stream ${event.stream}</span>
+            <div style="display: flex; border-bottom: 1px solid #e9ecef;">
+                <div style="width: 4px; background: ${accentColor};"></div>
+                <div style="flex: 1; padding: 8px 10px;">
+                    <div style="font-weight: 600; font-size: 12px; color: #212529; margin-bottom: 2px; word-break: break-word;">
+                        ${this.#escapeHtml(event.name || 'Unknown')}
+                    </div>
+                    <div style="font-size: 10px; color: #6c757d;">
+                        <span style="background: ${accentColor}22; color: ${accentColor}; padding: 1px 5px; border-radius: 3px; font-weight: 500;">${categoryLabel}</span>
+                        <span style="margin-left: 6px;">Stream ${event.stream}</span>
+                    </div>
+                </div>
             </div>
         `;
         
+        // Details grid
+        html += `<div style="padding: 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 11px;">`;
+        
+        // Timing
+        html += this.#tooltipRow('Start', this.#formatDuration(startMs));
+        html += this.#tooltipRow('Duration', `${this.#formatDuration(durationMs)} <span style="color: #6c757d;">(${percent.toFixed(2)}%)</span>`);
+        
+        // Category-specific details
         if (event.metadata) {
             const meta = event.metadata;
-            const details = [];
             
-            if (meta.grid) {
-                details.push(`Grid: [${meta.grid.join(', ')}]`);
-            }
-            if (meta.block) {
-                details.push(`Block: [${meta.block.join(', ')}]`);
-            }
-            if (meta.registers_per_thread) {
-                details.push(`Registers: ${meta.registers_per_thread}`);
-            }
-            if (meta.bytes) {
-                details.push(`Size: ${this.#formatBytes(meta.bytes)}`);
-            }
-            
-            if (details.length > 0) {
-                html += `<div style="margin-top: 6px; font-size: 11px; color: #888;">${details.join(' &bull; ')}</div>`;
+            if (category === 'cuda_kernel') {
+                if (meta.grid) {
+                    html += this.#tooltipRow('Grid', `[${meta.grid.join(', ')}]`);
+                }
+                if (meta.block) {
+                    html += this.#tooltipRow('Block', `[${meta.block.join(', ')}]`);
+                }
+                if (meta.grid && meta.block) {
+                    const totalThreads = 
+                        (meta.grid[0] * meta.grid[1] * meta.grid[2]) *
+                        (meta.block[0] * meta.block[1] * meta.block[2]);
+                    html += this.#tooltipRow('Threads', totalThreads.toLocaleString());
+                }
+                if (meta.registers_per_thread) {
+                    html += this.#tooltipRow('Registers', `${meta.registers_per_thread}/thread`);
+                }
+                const sharedTotal = (meta.shared_memory_static || 0) + (meta.shared_memory_dynamic || 0);
+                if (sharedTotal > 0) {
+                    html += this.#tooltipRow('Shared Mem', this.#formatBytes(sharedTotal));
+                }
+            } else if (category.startsWith('cuda_memcpy')) {
+                if (meta.bytes) {
+                    html += this.#tooltipRow('Size', this.#formatBytes(meta.bytes));
+                    const throughputGBs = (meta.bytes / (durationMs / 1000)) / (1024 * 1024 * 1024);
+                    if (isFinite(throughputGBs) && throughputGBs > 0) {
+                        html += this.#tooltipRow('Throughput', `${throughputGBs.toFixed(2)} GB/s`);
+                    }
+                }
             }
         }
         
+        html += `</div>`;
+        
         return html;
+    }
+
+    #tooltipRow(label, value) {
+        return `
+            <div style="color: #6c757d; white-space: nowrap;">${label}</div>
+            <div style="color: #212529;">${value}</div>
+        `;
+    }
+
+    #getCategoryColor(category) {
+        const colors = {
+            cuda_kernel: '#e74c3c',
+            cuda_memcpy_h2d: '#3498db',
+            cuda_memcpy_d2h: '#2ecc71',
+            cuda_memcpy_d2d: '#f39c12',
+            cuda_sync: '#95a5a6',
+            nvtx_range: '#9b59b6'
+        };
+        return colors[category] || '#6c757d';
     }
     
     #hideTooltip() {
