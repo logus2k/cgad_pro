@@ -5,6 +5,6 @@ Provides multiprocessing.Pool-based parallel implementation for Quad-8 FEM compu
 Demonstrates explicit Python multiprocessing - true parallelism bypassing GIL.
 """
 
-from .quad8_cpu_multiprocess import Quad8FEMSolverMultiprocess
+from .quad8_cpu_multiprocess_v2 import Quad8FEMSolverMultiprocess
 
 __all__ = ['Quad8FEMSolverMultiprocess']

@@ -70,7 +70,7 @@ export class TimelineController {
     // Config
     #groupsWidth = 120;
     #axisHeight = 30;
-    #tooltipDelay = 1000;
+    #tooltipDelay = 0;
     
     constructor(containerId) {
         this.#container = document.getElementById(containerId);
@@ -347,9 +347,13 @@ export class TimelineController {
     
     #scheduleTooltip(x, y) {
         this.#cancelTooltipTimer();
-        this.#hoverTimeout = setTimeout(() => {
+        if (this.#tooltipDelay > 0) {
+            this.#hoverTimeout = setTimeout(() => {
+                this.#showTooltipAt(x, y);
+            }, this.#tooltipDelay);
+        } else {
             this.#showTooltipAt(x, y);
-        }, this.#tooltipDelay);
+        }
     }
     
     #cancelTooltipTimer() {

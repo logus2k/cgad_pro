@@ -250,7 +250,7 @@ def _process_assembly_batch(args):
         COO data and force vectors for this batch
     """
     start_idx, end_idx = args
-    
+
     # Get data from worker state (initialized once at pool creation)
     x = _WORKER_STATE['x']
     y = _WORKER_STATE['y']
@@ -274,7 +274,7 @@ def _process_assembly_batch(args):
         
         # Compute element matrices
         Ke, fe = compute_element_stiffness(XN, xp, wp)
-        
+
         # Store force vector
         fe_batch[local_e] = fe
         
@@ -476,12 +476,13 @@ class IterativeSolverMonitor:
         
         # Notify progress callback
         if self.progress_callback:
-            self.progress_callback.on_solver_iteration(
+            self.progress_callback.on_iteration(
                 iteration=self.it,
-                residual_norm=res_norm,
+                max_iterations=self.maxiter,
+                residual=res_norm,
                 relative_residual=rel_res,
                 elapsed_time=elapsed,
-                estimated_time_remaining=etr
+                etr_seconds=etr
             )
 
 
@@ -676,7 +677,7 @@ class Quad8FEMSolverMultiprocess:
             initargs=(self.x, self.y, self.quad8, xp, wp)
         ) as pool:
             results = pool.map(_process_assembly_batch, batches)
-        
+
         # Collect results
         for start_idx, rows, cols, vals, fe_batch in results:
             all_rows.append(rows)
@@ -698,7 +699,7 @@ class Quad8FEMSolverMultiprocess:
             shape=(self.Nnds, self.Nnds),
             dtype=np.float64
         ).tocsr()
-        
+
         # Accumulate force vector
         self.fg = np.zeros(self.Nnds, dtype=np.float64)
         for e in range(self.Nels):
@@ -742,21 +743,22 @@ class Quad8FEMSolverMultiprocess:
             print(f"  Robin BC: {len(robin_edges)} edges on inlet (gamma={self.gamma})")
         
         # Add Robin BC contribution
-        for edge in robin_edges:
-            edge_x = self.x[list(edge)]
-            edge_y = self.y[list(edge)]
+        inlet_potential = 0.0
+
+        for (n1, n2, n3) in robin_edges:
+            He, Pe = self._robin_quadr(
+                self.x[n1], self.y[n1],
+                self.x[n2], self.y[n2],
+                self.x[n3], self.y[n3],
+                p=inlet_potential,
+                gama=self.gamma
+            )
             
-            Le = np.sqrt((edge_x[2] - edge_x[0])**2 + (edge_y[2] - edge_y[0])**2)
-            
-            Me_1d = Le / 30 * np.array([
-                [4, 2, -1],
-                [2, 16, 2],
-                [-1, 2, 4]
-            ], dtype=np.float64)
-            
-            for i_local, i_global in enumerate(edge):
-                for j_local, j_global in enumerate(edge):
-                    Kg_lil[i_global, j_global] += self.gamma * Me_1d[i_local, j_local]
+            ed = [n1, n2, n3]
+            for i in range(3):
+                self.fg[ed[i]] += Pe[i]
+                for j in range(3):
+                    Kg_lil[ed[i], ed[j]] += He[i, j]
         
         # Dirichlet BC on outlet (maximum x)
         x_max = float(self.x.max())
@@ -774,6 +776,41 @@ class Quad8FEMSolverMultiprocess:
         
         # Convert back to CSR
         self.Kg = Kg_lil.tocsr()
+        
+
+    def _robin_quadr(self, x1, y1, x2, y2, x3, y3, p, gama):
+        """Robin boundary contribution."""
+        He = np.zeros((3, 3), dtype=np.float64)
+        Pe = np.zeros(3, dtype=np.float64)
+        
+        # 3-point 1D Gauss quadrature
+        G = np.sqrt(0.6)
+        xi = np.array([-G, 0.0, G])
+        wi = np.array([5.0, 8.0, 5.0]) / 9.0
+        
+        for ip in range(3):
+            csi = xi[ip]
+            
+            b = np.array([
+                0.5 * csi * (csi - 1.0),
+                1.0 - csi * csi,
+                0.5 * csi * (csi + 1.0)
+            ])
+            
+            db = np.array([csi - 0.5, -2.0 * csi, csi + 0.5])
+            
+            xx = db[0] * x1 + db[1] * x2 + db[2] * x3
+            yy = db[0] * y1 + db[1] * y2 + db[2] * y3
+            
+            jaco = np.sqrt(xx * xx + yy * yy)
+            
+            wip = jaco * wi[ip]
+            He += (wip * p) * np.outer(b, b)
+            Pe += (wip * gama) * b
+        
+        return He, Pe
+
+
 
     # =========================================================================
     # Solver (CG with Jacobi preconditioner)
@@ -1050,7 +1087,7 @@ if __name__ == "__main__":
     PROJECT_ROOT = HERE.parent.parent
     
     solver = Quad8FEMSolverMultiprocess(
-        mesh_file=PROJECT_ROOT / "data/input/exported_mesh_v6.h5",
+        mesh_file=PROJECT_ROOT / "src/app/client/mesh/y_tube_201.h5",
         implementation_name="CPUMultiprocess",
         maxiter=15000,
         cg_print_every=50,

@@ -29,7 +29,6 @@ export class ProfilingView {
         sessionSelect: null,
         timelineContainer: null,
         summaryCards: null,
-        detailsPanel: null,
         statusIndicator: null,
         groupBySelect: null,
         categoryFilters: null,
@@ -298,11 +297,6 @@ export class ProfilingView {
                     <div class="profiling-session-list"></div>
                 </details>
 
-                <!-- Event Details Panel (shown on hover/select) -->
-                <div class="profiling-details-panel" style="display: none;">
-                    <div class="profiling-details-header">Event Details</div>
-                    <div class="profiling-details-content"></div>
-                </div>
             </div>
         `;
 
@@ -322,10 +316,6 @@ export class ProfilingView {
 
         // Initialize timeline
         this.#timeline = new ProfilingTimeline('profiling-timeline-container');
-        
-        // Bind timeline events
-        this.#timeline.on('select', (event) => this.#showEventDetails(event));
-        this.#timeline.on('hover', (event) => this.#showEventDetails(event));
     }
 
     #bindUIEvents() {
@@ -729,48 +719,6 @@ export class ProfilingView {
         document.getElementById('prof-kernel-count').textContent = '--';
         document.getElementById('prof-memcpy-count').textContent = '--';
         document.getElementById('prof-nvtx-count').textContent = '--';
-    }
-
-    #showEventDetails(event) {
-        if (!event) {
-            this.#elements.detailsPanel.style.display = 'none';
-            return;
-        }
-
-        const content = this.#elements.detailsPanel.querySelector('.profiling-details-content');
-        
-        let html = `
-            <table class="profiling-details-table">
-                <tr><th>Name</th><td>${event.name}</td></tr>
-                <tr><th>Category</th><td>${ProfilingTimeline.CATEGORIES[event.category]?.label || event.category}</td></tr>
-                <tr><th>Duration</th><td>${this.#formatDuration(event.duration_ns / 1e6)}</td></tr>
-                <tr><th>Stream</th><td>${event.stream}</td></tr>
-        `;
-
-        if (event.metadata) {
-            if (event.metadata.grid) {
-                html += `<tr><th>Grid</th><td>[${event.metadata.grid.join(', ')}]</td></tr>`;
-            }
-            if (event.metadata.block) {
-                html += `<tr><th>Block</th><td>[${event.metadata.block.join(', ')}]</td></tr>`;
-            }
-            if (event.metadata.registers_per_thread) {
-                html += `<tr><th>Registers</th><td>${event.metadata.registers_per_thread}</td></tr>`;
-            }
-            if (event.metadata.shared_memory_static) {
-                html += `<tr><th>Shared Mem (Static)</th><td>${event.metadata.shared_memory_static} B</td></tr>`;
-            }
-            if (event.metadata.shared_memory_dynamic) {
-                html += `<tr><th>Shared Mem (Dynamic)</th><td>${event.metadata.shared_memory_dynamic} B</td></tr>`;
-            }
-            if (event.metadata.bytes) {
-                html += `<tr><th>Transfer Size</th><td>${this.#formatBytes(event.metadata.bytes)}</td></tr>`;
-            }
-        }
-
-        html += '</table>';
-        content.innerHTML = html;
-        this.#elements.detailsPanel.style.display = 'block';
     }
 
     #showStatus(message, type = 'info') {
