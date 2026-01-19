@@ -39,6 +39,14 @@ export class ProfilingAPI {
     }
 
     /**
+     * Get the base URL for API requests.
+     * @returns {string}
+     */
+    getBaseUrl() {
+        return this.#baseUrl;
+    }    
+
+    /**
      * Get available profiling modes.
      * @returns {Promise<{modes: Array, nsys_available: boolean, ncu_available: boolean}>}
      */

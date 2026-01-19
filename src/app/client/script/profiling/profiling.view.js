@@ -806,9 +806,16 @@ export class ProfilingView {
             return;
         }
         
-        // TODO: Implement export functionality
-        console.log('[ProfilingView] Export requested for session:', this.#currentSessionId);
-        this.#showStatus('Export not yet implemented', 'info');
+        // Trigger download of the Nsight report file
+        const url = `${this.#api.getBaseUrl()}/api/profiling/report/${this.#currentSessionId}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '';  // Let server set filename
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        this.#showStatus('Download started', 'success');
     }
 
     #handleClose() {
