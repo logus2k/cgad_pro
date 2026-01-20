@@ -79,6 +79,13 @@ export class ProfilingView {
             const data = await this.#api.getSessions(100);
             this.#sessions = data.sessions || [];
             this.#renderSessionList();
+            
+            // Auto-load most recent session if none is currently loaded
+            if (!this.#currentSessionId && this.#sessions.length > 0) {
+                const mostRecent = this.#sessions[0];
+                this.#elements.sessionSelect.value = mostRecent.id;
+                this.loadSession(mostRecent.id);
+            }
         } catch (error) {
             console.error('[ProfilingView] Failed to load sessions:', error);
             this.#showStatus('Failed to load sessions', 'error');
