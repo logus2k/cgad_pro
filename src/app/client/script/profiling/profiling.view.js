@@ -93,7 +93,7 @@ export class ProfilingView {
         if (!sessionId) return;
 
         this.#currentSessionId = sessionId;
-        this.#showLoading(true, 'Loading timeline data...');
+        // this.#showLoading(true, 'Loading timeline data...');
 
         try {
             // Fetch timeline data
@@ -298,7 +298,7 @@ export class ProfilingView {
 
                 <!-- Session List (collapsible) -->
                 <details class="profiling-sessions-details" open>
-                    <summary>Session History</summary>
+                    <summary>SESSION HISTORY</summary>
                     <div class="profiling-session-list"></div>
                 </details>
 

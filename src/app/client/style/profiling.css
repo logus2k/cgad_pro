@@ -417,37 +417,59 @@
    ============================================================================= */
 
 .profiling-sessions-details {
-    background: #fff;
+    background: transparent;
 }
 
 .profiling-sessions-details summary {
-    padding: 6px 10px;
-    background: #ffedc9;
+    padding: 6px 10px 6px 10px;
+    background: #ffca83b3;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 11px;
-    color: #1d1d1d;
+    font-size: 10px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     user-select: none;
+    border-radius: 6px 6px 0px 0px !important;
+    list-style: none;
+    justify-content: left;
+    margin-right: 13px;
+}
+
+.profiling-sessions-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.profiling-sessions-details summary::before {
+    content: "\25BC";
+    display: inline-block;
+    margin-right: 6px;
+    font-size: 0.6rem;
+    transition: transform 0.2s ease;
+}
+
+.profiling-sessions-details:not([open]) summary::before {
+    transform: rotate(-90deg);
+    padding-bottom: 0px;
+    padding-top: 6px;
 }
 
 .profiling-sessions-details[open] summary {
-    border-radius: 3px 3px 0 0;
+    border-radius: 0px;
 }
 
 .profiling-session-list {
-    max-height: 180px;
-    overflow-y: auto;
     font-size: 11px;
+    padding-right: 5px;
 }
-
 .profiling-session-header {
     display: flex;
     align-items: center;
     padding: 4px 8px;
-    background: #e3f2fd;
+    background: #ffebc5;
     font-weight: 500;
-    color: #1565c0;
-    border-bottom: 1px solid #90caf9;
+    color: #1d1d1d;
+    border-bottom: 1px solid #f9c790;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -463,11 +485,11 @@
 }
 
 .profiling-session-row:hover {
-    background: #f8f9fa;
+    background: #fff0d0;
 }
 
 .profiling-session-row.selected {
-    background: #e8f5e9;
+    background: #ffe3b6;
 }
 
 .profiling-session-col-checkbox {
@@ -536,24 +558,6 @@
     font-style: italic;
 }
 
-/* Scrollbar styling */
-.profiling-session-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.profiling-session-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.profiling-session-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-.profiling-session-list::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
-}
 
 /* =============================================================================
    Event Details Panel
@@ -662,9 +666,36 @@
 }
 
 .hud.profiling .profiling-session-list {
-    max-height: 120px;
+    max-height: 180px;
+    height: 140px;
+    overflow-y: auto;
 }
 
+/* Width */
+.hud.profiling .profiling-session-list::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+    margin-top: 33px;
+    margin-bottom: 8px;
+}
+   
+/* Handle */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
 
 
 
@@ -888,7 +919,8 @@
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
-    min-height: 30px;
+    min-height: 29px;
+    padding-top: 10px;
 }
 
 .profiling-footer-left,
