@@ -236,7 +236,7 @@ export class ProfilingView {
                 <!-- Filters -->
                 <div class="profiling-filters">
                     <div class="profiling-filter-group">
-                        <label>Profiling Session:</label>
+                        <label>SESSION</label>
                         <select class="profiling-session-select" title="Select Session">
                             <option value="">[ Select a Session ]</option>
                         </select>
@@ -247,14 +247,13 @@ export class ProfilingView {
                         </button>
                     </div>
                     <div class="profiling-filter-group">
-                        <label>Group By:</label>
+                        <label>GROUP BY</label>
                         <select class="profiling-groupby-select">
                             <option value="category" selected>Category</option>
                             <option value="stream">Stream</option>
                         </select>
                     </div>
                     <div class="profiling-filter-group profiling-category-filters">
-                        <label>Show:</label>
                         <label class="profiling-filter-checkbox">
                             <input type="checkbox" data-category="cuda_kernel" checked>
                             <span class="profiling-filter-color" style="background: rgba(231, 76, 60, 0.9);"></span>

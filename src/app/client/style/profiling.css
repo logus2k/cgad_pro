@@ -100,6 +100,7 @@
     background-color: #aee7b4;
     border-radius: 20px;
     border: 0.5px solid #999999;
+    display: none;
 }
 
 .profiling-btn-delete {
@@ -189,20 +190,24 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 2px 8px;
     border-radius: 3px;
+    margin-top: 4px;
 }
 
 .profiling-filter-group {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    align-items: start;
+    gap: 3px;
 }
 
 .profiling-filter-group > label:first-child {
-    font-weight: 500;
-    color: #495057;
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #1d1d1d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 4px;
 }
 
 .profiling-groupby-select {
@@ -225,8 +230,9 @@
 
 .profiling-category-filters {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     gap: 10px;
+    margin-top: 20px;
 }
 
 .profiling-filter-checkbox {
