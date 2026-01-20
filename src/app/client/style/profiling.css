@@ -421,7 +421,6 @@
 }
 
 .profiling-sessions-details summary {
-    padding: 6px 10px 6px 10px;
     background: #ffca83b3;
     cursor: pointer;
     font-size: 10px;
@@ -433,7 +432,10 @@
     border-radius: 6px 6px 0px 0px !important;
     list-style: none;
     justify-content: left;
-    margin-right: 13px;
+    height: 18px;
+    line-height: 2;
+    gap: 4px;
+    align-items: flex-start;
 }
 
 .profiling-sessions-details summary::-webkit-details-marker {
@@ -443,15 +445,13 @@
 .profiling-sessions-details summary::before {
     content: "\25BC";
     display: inline-block;
-    margin-right: 6px;
-    font-size: 0.6rem;
+    margin-left: 6px;
+    font-size: 9px;
     transition: transform 0.2s ease;
 }
 
 .profiling-sessions-details:not([open]) summary::before {
     transform: rotate(-90deg);
-    padding-bottom: 0px;
-    padding-top: 6px;
 }
 
 .profiling-sessions-details[open] summary {
@@ -462,12 +462,13 @@
     font-size: 11px;
     padding-right: 5px;
 }
+
 .profiling-session-header {
     display: flex;
     align-items: center;
     padding: 4px 8px;
     background: #ffebc5;
-    font-weight: 500;
+    font-weight: 600;
     color: #1d1d1d;
     border-bottom: 1px solid #f9c790;
     position: sticky;
@@ -478,8 +479,8 @@
 .profiling-session-row {
     display: flex;
     align-items: center;
-    padding: 4px 8px;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 3px 8px;
+    border-bottom: 1px solid #cecece;
     cursor: pointer;
     transition: background 0.1s;
 }
@@ -497,6 +498,15 @@
     flex-shrink: 0;
 }
 
+.profiling-session-col-checkbox input {
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    cursor: pointer;
+    accent-color: #ffa537e2;
+    margin-top: 1.5px;
+}
+
 .profiling-session-col-date {
     width: 130px;
     flex-shrink: 0;
@@ -505,7 +515,6 @@
 .profiling-session-col-solver {
     width: 90px;
     flex-shrink: 0;
-    font-weight: 500;
 }
 
 .profiling-session-col-mesh {
@@ -525,7 +534,6 @@
     width: 70px;
     flex-shrink: 0;
     text-align: right;
-    font-family: 'Roboto Mono', monospace;
 }
 
 .profiling-status-badge {
@@ -662,12 +670,11 @@
 
 /* Adjust session list height based on panel size */
 .hud.profiling .profiling-sessions-details {
-    max-height: 150px;
+    max-height: 140px;
 }
 
 .hud.profiling .profiling-session-list {
-    max-height: 180px;
-    height: 140px;
+    max-height: 98px;
     overflow-y: auto;
 }
 
@@ -681,8 +688,8 @@
 .hud.profiling .profiling-session-list::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px #73b0ce;
     border-radius: 8px;
-    margin-top: 33px;
-    margin-bottom: 8px;
+    margin-top: 3px;
+    margin-bottom: 3px;
 }
    
 /* Handle */
@@ -918,9 +925,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
     min-height: 29px;
-    padding-top: 10px;
 }
 
 .profiling-footer-left,
