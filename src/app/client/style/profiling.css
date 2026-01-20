@@ -153,7 +153,7 @@
    ============================================================================= */
 
 .profiling-summary {
-    display: flex;
+    display: none;
     gap: 10px;
 }
 
@@ -189,7 +189,7 @@
 .profiling-filters {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
     border-radius: 3px;
     margin-top: 4px;
 }
@@ -466,7 +466,6 @@
 
 .profiling-session-list {
     font-size: 11px;
-    padding-right: 5px;
 }
 
 .profiling-session-header {
@@ -694,8 +693,7 @@
 .hud.profiling .profiling-session-list::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px #73b0ce;
     border-radius: 8px;
-    margin-top: 3px;
-    margin-bottom: 3px;
+    margin: 3px 0px 3px 3px;
 }
    
 /* Handle */
