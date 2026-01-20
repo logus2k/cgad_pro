@@ -62,6 +62,7 @@ export class TimelineRenderer {
             powerPreference: 'high-performance'
         });
         this.#renderer.setClearColor(0x000000, 0);  // Transparent
+        this.#renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         
         // Scene
         this.#scene = new THREE.Scene();

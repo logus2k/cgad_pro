@@ -473,7 +473,7 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
 /* Loading state */
 .benchmark-loading {
     text-align: center;
-    padding: 40px 20px;
+    padding: 80px 20px;
     color: #666;
 }
 
@@ -668,6 +668,14 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
     background: #2ba7e5;
 }
 
+.benchmark-loading-message {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    align-items: center;
+    vertical-align: middle;
+    padding: 15px;
+}
+
 
 @keyframes spin {
     to { transform: rotate(360deg); }
@@ -711,3 +719,5 @@ div.benchmark-table-container::-webkit-scrollbar-thumb:hover {
         width: 100%;
     }
 }
+
+

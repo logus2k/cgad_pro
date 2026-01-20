@@ -34,10 +34,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 8px;
-    border-bottom: 1px solid #dee2e6;
     border-radius: 3px 3px 0 0;
-    min-height: 36px;
+    display: none;
 }
 
 .profiling-toolbar-left,
@@ -53,12 +51,21 @@
 }
 
 .profiling-session-select {
-    padding: 4px 8px;
+    padding: 6px 10px;
     border: 1px solid #ced4da;
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 11px;
     min-width: 200px;
     background: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333333' viewBox='0 0 20 20'%3e%3cpolygon fill='%23333333' points='10,14 4,6 16,6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+    padding-right: 29px;
+    cursor: pointer;
 }
 
 .profiling-session-select:focus {
@@ -68,40 +75,51 @@
 }
 
 .profiling-btn {
-    padding: 4px 10px;
+    padding: 6px 10px;
     border: 1px solid #ced4da;
-    border-radius: 3px;
+    border-radius: 4px;
     background: #fff;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     gap: 4px;
     transition: all 0.15s ease;
 }
 
-.profiling-btn:hover:not(:disabled) {
-    background: #e9ecef;
-    border-color: #adb5bd;
-}
-
 .profiling-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
 }
 
 .profiling-btn-refresh {
-    padding: 4px 6px;
+    padding: 4px;
+    background-color: #aee7b4;
+    border-radius: 20px;
+    border: 0.5px solid #999999;
 }
 
 .profiling-btn-delete {
-    background: #fff5f5;
-    border-color: #f5c6cb;
-    color: #721c24;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: var(--hud-warm, #FB2C36);
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
 }
 
 .profiling-btn-delete:hover:not(:disabled) {
-    background: #f8d7da;
+    background: #ffffff;
+    border-color: #e63946;
+    color: #e63946;
 }
 
 /* =============================================================================
@@ -136,7 +154,6 @@
 .profiling-summary {
     display: flex;
     gap: 10px;
-    padding: 0 4px;
 }
 
 .profiling-card {
@@ -172,9 +189,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 6px 8px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    padding: 2px 8px;
     border-radius: 3px;
 }
 
@@ -191,11 +206,21 @@
 }
 
 .profiling-groupby-select {
-    padding: 3px 6px;
+    padding: 6px 10px;
     border: 1px solid #ced4da;
-    border-radius: 3px;
+    border-radius: 4px;
     font-size: 11px;
+    min-width: 200px;
     background: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333333' viewBox='0 0 20 20'%3e%3cpolygon fill='%23333333' points='10,14 4,6 16,6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+    padding-right: 29px;
+    cursor: pointer;
 }
 
 .profiling-category-filters {
@@ -214,7 +239,12 @@
 }
 
 .profiling-filter-checkbox input {
-    margin: 0;
+    width: 12px;
+    height: 12px;
+    margin-right: 0px;
+    cursor: pointer;
+    accent-color: #ffa537e2;
+    margin-bottom: 2.5px;
 }
 
 .profiling-filter-color {
@@ -387,38 +417,59 @@
    ============================================================================= */
 
 .profiling-sessions-details {
-    background: #fff;
+    background: transparent;
 }
 
 .profiling-sessions-details summary {
-    padding: 6px 10px;
-    background: #ffedc9;
+    padding: 6px 10px 6px 10px;
+    background: #ffca83b3;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 11px;
-    color: #495057;
+    font-size: 10px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     user-select: none;
-    border-radius: 5px 0px;
+    border-radius: 6px 6px 0px 0px !important;
+    list-style: none;
+    justify-content: left;
+    margin-right: 13px;
+}
+
+.profiling-sessions-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.profiling-sessions-details summary::before {
+    content: "\25BC";
+    display: inline-block;
+    margin-right: 6px;
+    font-size: 0.6rem;
+    transition: transform 0.2s ease;
+}
+
+.profiling-sessions-details:not([open]) summary::before {
+    transform: rotate(-90deg);
+    padding-bottom: 0px;
+    padding-top: 6px;
 }
 
 .profiling-sessions-details[open] summary {
-    border-radius: 3px 3px 0 0;
+    border-radius: 0px;
 }
 
 .profiling-session-list {
-    max-height: 180px;
-    overflow-y: auto;
     font-size: 11px;
+    padding-right: 5px;
 }
-
 .profiling-session-header {
     display: flex;
     align-items: center;
     padding: 4px 8px;
-    background: #e3f2fd;
+    background: #ffebc5;
     font-weight: 500;
-    color: #1565c0;
-    border-bottom: 1px solid #90caf9;
+    color: #1d1d1d;
+    border-bottom: 1px solid #f9c790;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -434,11 +485,11 @@
 }
 
 .profiling-session-row:hover {
-    background: #f8f9fa;
+    background: #fff0d0;
 }
 
 .profiling-session-row.selected {
-    background: #e8f5e9;
+    background: #ffe3b6;
 }
 
 .profiling-session-col-checkbox {
@@ -507,24 +558,6 @@
     font-style: italic;
 }
 
-/* Scrollbar styling */
-.profiling-session-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.profiling-session-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.profiling-session-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-.profiling-session-list::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
-}
 
 /* =============================================================================
    Event Details Panel
@@ -606,9 +639,9 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	width: 1100px;
-	min-width: 600px;
+	min-width: 1110px;
 	height: 550px;
-	min-height: 350px;
+	min-height: 460px;
     background-color: #fff4e5c5;
 }
 
@@ -633,9 +666,36 @@
 }
 
 .hud.profiling .profiling-session-list {
-    max-height: 120px;
+    max-height: 180px;
+    height: 140px;
+    overflow-y: auto;
 }
 
+/* Width */
+.hud.profiling .profiling-session-list::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+  
+/* Track */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #73b0ce;
+    border-radius: 8px;
+    margin-top: 33px;
+    margin-bottom: 8px;
+}
+   
+/* Handle */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-thumb {
+    background-color: #3a96c4;
+    border-radius: 10px;
+}
+  
+/* Handle on hover */
+.hud.profiling .profiling-session-list::-webkit-scrollbar-thumb:hover {
+    background-color: #3a96c4;
+    cursor: pointer;
+}
 
 
 
@@ -715,10 +775,6 @@
     align-items: center;
     padding: 12px 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.gallery-buttons-left {
-    /* Cancel button container */
 }
 
 .gallery-buttons-right {
@@ -851,4 +907,64 @@
     padding: 3px 8px;
     border-radius: 10px;
     white-space: nowrap;
+}
+
+
+/* =============================================================================
+   Footer Actions
+   ============================================================================= */
+
+.profiling-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    min-height: 29px;
+    padding-top: 10px;
+}
+
+.profiling-footer-left,
+.profiling-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profiling-btn-export {
+    background: #0f9ce2;
+    color: #ffffff;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;    
+}
+
+.profiling-btn-export:hover  {
+    background: #2da8e6;
+    border-color: #117a8b;
+}
+
+.profiling-btn-close:hover {
+    background: #2da8e6;
+    border-color: #117a8b;
+}
+
+.profiling-btn-export:disabled {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+    opacity: 0.6;
+}
+
+.profiling-btn-close {
+    background: #0f9ce2;
+    color: #ffffff;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;  
 }

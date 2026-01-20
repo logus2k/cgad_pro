@@ -852,7 +852,34 @@ def create_profiling_router(service: ProfilingService):
     async def cleanup(max_age_days: int = 30):
         """Remove old profile sessions."""
         return service.cleanup_old_sessions(max_age_days)
-    
+
+    @router.get("/report/{session_id}")
+    async def download_report(session_id: str):
+        """
+        Download the original Nsight Systems report file (.nsys-rep).
+        
+        This file can be opened in NVIDIA Nsight Systems desktop application.
+        """
+        session = service.sessions.get(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        if not session.nsys_file:
+            raise HTTPException(status_code=404, detail="No report file for this session")
+        
+        report_path = service.nsys_dir / session.nsys_file
+        if not report_path.exists():
+            raise HTTPException(status_code=404, detail="Report file not found on disk")
+        
+        return FileResponse(
+            path=report_path,
+            media_type="application/octet-stream",
+            filename=session.nsys_file,
+            headers={
+                "Content-Disposition": f'attachment; filename="{session.nsys_file}"'
+            }
+        )
+
     return router
 
 

@@ -45,7 +45,7 @@ export class TimelineGroups {
                 .timeline-group-item {
                     display: flex;
                     align-items: center;
-                    padding: 0 8px;
+                    padding: 0 14px;
                     border-bottom: 1px solid #f0f0f0;
                     box-sizing: border-box;
                     cursor: pointer;
@@ -58,7 +58,7 @@ export class TimelineGroups {
                     width: 12px;
                     height: 12px;
                     border-radius: 2px;
-                    margin-right: 8px;
+                    margin-right: 6px;
                     flex-shrink: 0;
                 }
                 .timeline-group-label {
