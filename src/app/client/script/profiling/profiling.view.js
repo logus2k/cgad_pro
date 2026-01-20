@@ -270,6 +270,11 @@ export class ProfilingView {
                             D2H
                         </label>
                         <label class="profiling-filter-checkbox">
+                            <input type="checkbox" data-category="cuda_memcpy_d2d" checked>
+                            <span class="profiling-filter-color" style="background: rgba(243, 156, 18, 0.9);"></span>
+                            D2D
+                        </label>                        
+                        <label class="profiling-filter-checkbox">
                             <input type="checkbox" data-category="nvtx_range" checked>
                             <span class="profiling-filter-color" style="background: rgba(155, 89, 182, 0.9);"></span>
                             NVTX
