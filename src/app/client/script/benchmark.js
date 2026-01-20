@@ -98,7 +98,7 @@ export class BenchmarkPanel {
             <div class="benchmark-table-container" id="benchmark-table-container">
                 <div class="benchmark-loading">
                     <div class="benchmark-loading-spinner"></div>
-                    <div>Loading benchmark data...</div>
+                    <div class="benchmark-loading-message">Loading Benchmark data...</div>
                 </div>
             </div>
             

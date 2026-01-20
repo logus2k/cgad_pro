@@ -231,16 +231,16 @@ export class ProfilingView {
                     <div class="profiling-filter-group">
                         <label>Profiling Session:</label>
                         <select class="profiling-session-select" title="Select Session">
-                            <option value="">-- Select Session --</option>
+                            <option value="">[ Select a Session ]</option>
                         </select>
                         <button class="profiling-btn profiling-btn-refresh" title="Refresh Sessions">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
                             </svg>
                         </button>
                     </div>
                     <div class="profiling-filter-group">
-                        <label>Group by:</label>
+                        <label>Group By:</label>
                         <select class="profiling-groupby-select">
                             <option value="category" selected>Category</option>
                             <option value="stream">Stream</option>
@@ -659,7 +659,7 @@ export class ProfilingView {
 
     #renderSessionList() {
         const currentValue = this.#elements.sessionSelect.value;
-        this.#elements.sessionSelect.innerHTML = '<option value="">-- Select Session --</option>';
+        this.#elements.sessionSelect.innerHTML = '<option value="">No Session Selected</option>';
         
         for (const session of this.#sessions) {
             const option = document.createElement('option');

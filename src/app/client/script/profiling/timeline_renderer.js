@@ -76,6 +76,7 @@ export class TimelineRenderer {
             preserveDrawingBuffer: true
         });
         this.#renderer.setClearColor(0x000000, 0);
+        this.#renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         
         this.#scene = new THREE.Scene();
         
@@ -141,13 +142,15 @@ export class TimelineRenderer {
         for (const [cat, color] of this.#categoryColors) {
             this.#materials.set(cat, new THREE.MeshBasicMaterial({
                 color: color,
-                transparent: false,
+                transparent: true,
+                opacity: 1.0,
                 side: THREE.FrontSide
             }));
         }
         this.#materials.set('default', new THREE.MeshBasicMaterial({
             color: 0x666666,
-            transparent: false,
+            transparent: true,
+            opacity: 1.0,
             side: THREE.FrontSide
         }));
     }
@@ -366,6 +369,7 @@ export class TimelineRenderer {
             console.timeEnd(`[TimelineRenderer] instances ${category}`);
             
             instancedMesh.instanceMatrix.needsUpdate = true;
+            instancedMesh.renderOrder = 0;
             this.#scene.add(instancedMesh);
             this.#instancedMeshes.set(category, instancedMesh);
             this.#visibleRanges.set(category, hitTestData);
@@ -475,6 +479,7 @@ export class TimelineRenderer {
             }
             
             instancedMesh.instanceMatrix.needsUpdate = true;
+            instancedMesh.renderOrder = 0;
             this.#scene.add(instancedMesh);
             this.#instancedMeshes.set(category, instancedMesh);
         }
