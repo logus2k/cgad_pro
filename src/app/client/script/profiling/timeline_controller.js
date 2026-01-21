@@ -1087,6 +1087,11 @@ export class TimelineController {
         const profilingPanel = document.getElementById('hud-profiling');
         if (!profilingPanel) return true;
         
+        // Check if panel is visible first
+        if (!profilingPanel.classList.contains('visible')) {
+            return false;
+        }
+        
         const profilingZ = parseInt(profilingPanel.style.zIndex) || 0;
         const visiblePanels = document.querySelectorAll('.hud.visible');
         
@@ -1096,7 +1101,7 @@ export class TimelineController {
             }
         }
         return true;
-    }    
+    }
 
     #showCursorLine(show) {
         // Don't show if profiling panel is not topmost
