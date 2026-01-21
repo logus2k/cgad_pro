@@ -271,7 +271,7 @@ class BenchmarkRunner:
         test_case: TestCase,
         progress: ProgressTracker,
         test_number: int
-    ) -> Tuple[TestResult, Optional[str]]:
+    ) -> Tuple[Optional[TestResult], Optional[str]]:
         """Execute all runs for a test case."""
         warmup_results = []
         run_results = []
@@ -369,6 +369,7 @@ class BenchmarkRunner:
         solver_filter: Optional[str] = None,
         model_filter: Optional[str] = None,
         max_nodes: Optional[int] = None,
+        mesh_filter: Optional[List[str]] = None,
         dry_run: bool = False,
         resume: bool = False
     ) -> Tuple[List[TestResult], Optional[str]]:
@@ -378,6 +379,14 @@ class BenchmarkRunner:
             model_filter=model_filter,
             max_nodes_override=max_nodes
         )
+        
+        # Filter by mesh file if specified
+        if mesh_filter:
+            mesh_names = set(mesh_filter)
+            test_cases = [
+                tc for tc in test_cases
+                if Path(tc.mesh_file).name in mesh_names
+            ]
         
         if not test_cases:
             return [], "No test cases match the specified filters"
@@ -425,16 +434,22 @@ class BenchmarkRunner:
             
             test_result, error = self._run_test_case(test_case, progress, i)
             
-            if error:
-                self._print_abort(test_case, error, results)
+            if error or test_result is None:
+                self._print_abort(test_case, error or "Unknown error", results)
                 return results, error
             
             results.append(test_result)
             progress.complete_test(test_case, test_result.mean_duration)
             
-            # Record successful runs
-            for run_result in test_result.run_results:
-                if run_result.success:
+            # Record results atomically - only if warmup AND all runs succeeded
+            successful_warmups = [r for r in test_result.warmup_results if r.success]
+            successful_runs = [r for r in test_result.run_results if r.success]
+            
+            warmup_ok = len(successful_warmups) == self.config.execution.warmup_runs
+            runs_ok = len(successful_runs) == self.config.execution.runs_per_test
+            
+            if warmup_ok and runs_ok:
+                for run_result in successful_runs:
                     self.recorder.add_record(
                         model_file=Path(test_case.mesh_file).name,
                         model_name=test_case.model_name,
@@ -449,6 +464,13 @@ class BenchmarkRunner:
                         mesh_info=run_result.mesh_info,
                         solver_config=run_result.solver_config
                     )
+            else:
+                if not warmup_ok:
+                    print(f"          [!] Warmup incomplete ({len(successful_warmups)}/"
+                          f"{self.config.execution.warmup_runs}) - not recording results")
+                else:
+                    print(f"          [!] Only {len(successful_runs)}/{self.config.execution.runs_per_test} "
+                          f"runs succeeded - not recording results")
         
         if current_model:
             progress.complete_model(current_model)
