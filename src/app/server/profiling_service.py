@@ -450,25 +450,27 @@ class ProfilingService:
                 
                 ncu_output = self.ncu_dir / f"{session_id}.ncu-rep"
                 ncu_csv = self.ncu_dir / f"{session_id}.csv"
-                
+
                 ncu_cmd = [
                     "ncu",
-                    "--set", "full",
+                    "--set", "basic",
+                    "--kernel-name", "quad8_assembly_kernel",
+                    "--launch-count", "5",
                     "-o", str(ncu_output),
                     "--csv"
                 ] + base_cmd
-                
+
                 print(f"[Profiling] Running ncu: {' '.join(ncu_cmd)}")
                 result = subprocess.run(ncu_cmd, capture_output=True, text=True)
-                
+
                 if result.returncode != 0:
                     raise Exception(f"ncu failed: {result.stderr}")
-                
+
                 # Save CSV output
                 if result.stdout:
                     with open(ncu_csv, 'w') as f:
                         f.write(result.stdout)
-                
+
                 session.ncu_file = f"{session_id}.ncu-rep"
             
             # Extract metrics
@@ -642,6 +644,7 @@ class ProfilingService:
     def get_kernels(self, session_id: str) -> Optional[Dict[str, Any]]:
         """
         Extract kernel metrics from Nsight Compute CSV output.
+        NCU outputs one row per metric, so we need to pivot by kernel.
         """
         session = self.sessions.get(session_id)
         if not session or not session.ncu_file:
@@ -651,36 +654,66 @@ class ProfilingService:
         if not csv_file.exists():
             return {"error": "Kernel CSV not available"}
         
-        kernels = []
+        # Collect metrics by kernel name
+        kernel_data = {}
         
         try:
             with open(csv_file, 'r') as f:
                 reader = csv.DictReader(f)
                 
                 for row in reader:
-                    kernel = KernelMetrics(
-                        kernel_name=row.get('Kernel Name', 'unknown'),
-                        invocation=int(row.get('Invocations', 1)),
-                        duration_ns=int(float(row.get('Duration', 0)) * 1e9),
-                        grid=[
-                            int(row.get('Grid Size X', 1)),
-                            int(row.get('Grid Size Y', 1)),
-                            int(row.get('Grid Size Z', 1))
-                        ],
-                        block=[
-                            int(row.get('Block Size X', 1)),
-                            int(row.get('Block Size Y', 1)),
-                            int(row.get('Block Size Z', 1))
-                        ],
-                        registers_per_thread=int(row.get('Registers Per Thread', 0)),
-                        shared_memory_static=int(row.get('Static SMem Per Block', 0)),
-                        shared_memory_dynamic=int(row.get('Dynamic SMem Per Block', 0)),
-                        occupancy_achieved=float(row.get('Achieved Occupancy', 0)),
-                        occupancy_theoretical=float(row.get('Theoretical Occupancy', 0)),
-                        sm_throughput_pct=float(row.get('SM [%]', 0)),
-                        dram_throughput_pct=float(row.get('DRAM [%]', 0))
-                    )
-                    kernels.append(asdict(kernel))
+                    kernel_name = row.get('Kernel Name', 'unknown')
+                    
+                    if kernel_name not in kernel_data:
+                        # Parse grid/block from string format "(128, 1, 1)"
+                        block_str = row.get('Block Size', '(1, 1, 1)')
+                        grid_str = row.get('Grid Size', '(1, 1, 1)')
+                        
+                        def parse_tuple(s):
+                            s = s.strip('()')
+                            return [int(x.strip()) for x in s.split(',')]
+                        
+                        kernel_data[kernel_name] = {
+                            'kernel_name': kernel_name,
+                            'block': parse_tuple(block_str),
+                            'grid': parse_tuple(grid_str),
+                            'stream': int(row.get('Stream', 0)),
+                            'metrics': {}
+                        }
+                    
+                    # Store metric value
+                    metric_name = row.get('Metric Name', '')
+                    metric_value = row.get('Metric Value', '')
+                    
+                    if metric_name and metric_value:
+                        try:
+                            kernel_data[kernel_name]['metrics'][metric_name] = float(metric_value)
+                        except ValueError:
+                            kernel_data[kernel_name]['metrics'][metric_name] = metric_value
+            
+            # Convert to KernelMetrics format
+            kernels = []
+            for name, data in kernel_data.items():
+                metrics = data['metrics']
+                
+                kernel = KernelMetrics(
+                    kernel_name=name,
+                    invocation=1,
+                    duration_ns=int(metrics.get('Duration', 0)),
+                    grid=data['grid'],
+                    block=data['block'],
+                    registers_per_thread=int(metrics.get('Registers Per Thread', 0)),
+                    shared_memory_static=int(metrics.get('Static Shared Memory Per Block', 0)),
+                    shared_memory_dynamic=int(metrics.get('Dynamic Shared Memory Per Block', 0)),
+                    occupancy_achieved=metrics.get('Achieved Occupancy', 0) / 100.0,  # Convert from %
+                    occupancy_theoretical=metrics.get('Theoretical Occupancy', 0) / 100.0,
+                    sm_throughput_pct=metrics.get('Compute (SM) Throughput', 0),
+                    dram_throughput_pct=metrics.get('DRAM Throughput', 0),
+                    l1_hit_rate=metrics.get('L1/TEX Cache Throughput', 0) / 100.0,
+                    l2_hit_rate=metrics.get('L2 Cache Throughput', 0) / 100.0,
+                    warp_execution_efficiency=0.0  # Not in basic set
+                )
+                kernels.append(asdict(kernel))
         
         except Exception as e:
             print(f"[Profiling] Error parsing kernel CSV: {e}")

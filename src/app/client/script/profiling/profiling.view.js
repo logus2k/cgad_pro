@@ -123,7 +123,6 @@ export class ProfilingView {
             try {
                 ncuData = await this.#api.getKernels(sessionId);
             } catch (e) {
-                // NCU data not available - that's fine
                 console.log('[ProfilingView] NCU data not available for this session');
             }
 
