@@ -106,32 +106,35 @@ export class ProfilingView {
         if (!sessionId) return;
 
         this.#currentSessionId = sessionId;
-        // this.#showLoading(true, 'Loading timeline data...');
 
         try {
-            // Fetch timeline data
-            const timelineData = await this.#api.getTimeline(sessionId);
-            
-            const eventCount = timelineData.events?.length || 0;
+            // Fetch timeline data (typed arrays for performance)
+            const rendererData = await this.#api.getTimelineForRenderer(sessionId, {
+                onProgress: (phase, loaded, total) => {
+                    this.#updateProgress(Math.round((loaded / total) * 50));
+                }
+            });
+
+            const eventCount = rendererData.totalEvents || 0;
             this.#showLoading(true, `Rendering ${eventCount.toLocaleString()} events...`);
 
             // Load with progress callback
             if (this.#timeline) {
-                await this.#timeline.load(timelineData, (progress) => {
-                    this.#updateProgress(progress);
+                await this.#timeline.loadTyped(rendererData, (progress) => {
+                    this.#updateProgress(50 + Math.round(progress / 2));
                 });
             }
 
-            this.#updateSummaryCards(timelineData);
+            this.#updateSummaryCards(rendererData);
             this.#showLoading(false);
             this.#showStatus('', 'idle');
-            this.#elements.exportBtn.disabled = false;  // Enable export after successful load
+            this.#elements.exportBtn.disabled = false;
             
         } catch (error) {
             console.error('[ProfilingView] Failed to load timeline:', error);
             this.#showLoading(false);
             this.#showStatus('Failed to load timeline', 'error');
-            this.#elements.exportBtn.disabled = true;   // Keep disabled on error
+            this.#elements.exportBtn.disabled = true;
         }
     }
 
@@ -730,6 +733,8 @@ export class ProfilingView {
                 <div class="profiling-session-col-date">Date</div>
                 <div class="profiling-session-col-solver">Solver</div>
                 <div class="profiling-session-col-mesh">Mesh</div>
+                <div class="profiling-session-col-nodes">Nodes</div>
+                <div class="profiling-session-col-elements">Elems</div>                
                 <div class="profiling-session-col-duration">Duration</div>
                 <div class="profiling-session-col-kernels">Kernels</div>
                 <div class="profiling-session-col-memcpy">MemCpy</div>
@@ -763,6 +768,8 @@ export class ProfilingView {
                     <div class="profiling-session-col-date">${this.#formatDate(session.created_at)}</div>
                     <div class="profiling-session-col-solver">${session.solver}</div>
                     <div class="profiling-session-col-mesh">${session.mesh}</div>
+                    <div class="profiling-session-col-nodes">${session.mesh_nodes?.toLocaleString() ?? '--'}</div>
+                    <div class="profiling-session-col-elements">${session.mesh_elements?.toLocaleString() ?? '--'}</div>                    
                     <div class="profiling-session-col-duration">${duration}</div>
                     <div class="profiling-session-col-kernels">${kernelCount}</div>
                     <div class="profiling-session-col-memcpy">${memcpyCount}</div>

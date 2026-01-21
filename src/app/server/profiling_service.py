@@ -165,6 +165,8 @@ class ProfileSession:
     benchmark_results: Optional[Dict[str, Any]] = None
     linked_job_id: Optional[str] = None  # Link to original solve job
     timeline_summary: Optional[Dict[str, Any]] = None  # Cached summary stats
+    mesh_nodes: Optional[int] = None
+    mesh_elements: Optional[int] = None
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -302,7 +304,9 @@ class ProfilingService:
         solver: str,
         mesh_file: str,
         mode: str = ProfileMode.TIMELINE.value,
-        benchmark_args: Optional[Dict[str, Any]] = None
+        benchmark_args: Optional[Dict[str, Any]] = None,
+        mesh_nodes: Optional[int] = None,
+        mesh_elements: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Start a profiled benchmark run.
@@ -342,7 +346,9 @@ class ProfilingService:
             mode=mode,
             status=SessionStatus.PENDING.value,
             created_at=timestamp,
-            linked_job_id=linked_job_id
+            linked_job_id=linked_job_id,
+            mesh_nodes=mesh_nodes,
+            mesh_elements=mesh_elements
         )
         
         with self._lock:
@@ -759,6 +765,8 @@ def create_profiling_router(service: ProfilingService):
         mesh_file: str
         mode: str = ProfileMode.TIMELINE.value
         benchmark_args: Optional[Dict[str, Any]] = None
+        mesh_nodes: Optional[int] = None
+        mesh_elements: Optional[int] = None
     
     @router.get("/modes")
     async def get_modes(response: Response):
@@ -773,7 +781,9 @@ def create_profiling_router(service: ProfilingService):
             solver=request.solver,
             mesh_file=request.mesh_file,
             mode=request.mode,
-            benchmark_args=request.benchmark_args or {}
+            benchmark_args=request.benchmark_args or {},
+            mesh_nodes=request.mesh_nodes,
+            mesh_elements=request.mesh_elements
         )
         
         if "error" in result:

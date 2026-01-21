@@ -534,6 +534,13 @@
     white-space: nowrap;
 }
 
+.profiling-session-col-nodes,
+.profiling-session-col-elements {
+    width: 70px;
+    flex-shrink: 0;
+    text-align: right;
+}
+
 .profiling-session-col-duration {
     width: 70px;
     flex-shrink: 0;

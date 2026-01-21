@@ -48,6 +48,17 @@ export class TimelineRenderer {
     #gridLines = null;
     #gridColor = 0xcccccc;
     #gridMinorColor = 0xe8e8e8;
+
+    // NVTX range colors (matching backend NVTX_COLORS)
+    #nvtxColors = new Map([
+        ['load_mesh', new THREE.Color(0x3498db)],        // Blue
+        ['assemble_system', new THREE.Color(0x2ecc71)],  // Green  
+        ['apply_bc', new THREE.Color(0xf1c40f)],         // Yellow
+        ['solve_system', new THREE.Color(0xe74c3c)],     // Red
+        ['compute_derived', new THREE.Color(0x9b59b6)],  // Purple
+        ['export_results', new THREE.Color(0x95a5a6)],   // Gray
+    ]);
+    #nvtxDefaultColor = new THREE.Color(0x9b59b6); 
     
     // View state
     #timeRange = { start: 0, end: 1000 };
@@ -153,6 +164,14 @@ export class TimelineRenderer {
             opacity: 1.0,
             side: THREE.FrontSide
         }));
+
+        // Special material for NVTX with per-instance colors
+        this.#materials.set('nvtx_range_colored', new THREE.MeshBasicMaterial({
+            color: 0xffffff,  // Base white color, will be multiplied by instance color
+            transparent: true,
+            opacity: 1.0,
+            side: THREE.FrontSide
+        }));     
     }
     
     /**
@@ -203,6 +222,34 @@ export class TimelineRenderer {
         this.#timeRange = { start, end };
         this.#needsRebuild = true;
     }
+
+    /**
+     * Clear all rendered content.
+     */
+    clear() {
+        // Clear all meshes
+        for (const mesh of this.#instancedMeshes.values()) {
+            this.#scene.remove(mesh);
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        }
+        this.#instancedMeshes.clear();
+        this.#visibleRanges.clear();
+        
+        // Clear grid
+        if (this.#gridLines) {
+            this.#scene.remove(this.#gridLines);
+            this.#gridLines.geometry.dispose();
+            this.#gridLines.material.dispose();
+            this.#gridLines = null;
+        }
+        
+        // Reset time range to prevent grid rendering
+        this.#timeRange = { start: 0, end: 0 };
+        
+        // Render empty scene
+        this.#renderer.render(this.#scene, this.#camera);
+    }    
     
     resize(width, height) {
         if (width <= 0 || height <= 0) return;
@@ -311,18 +358,30 @@ export class TimelineRenderer {
             
             totalVisible += visibleIdx.length;
             
-            // Create InstancedMesh
-            const material = this.#materials.get(category) || this.#materials.get('default');
+            // Create InstancedMesh - use colored material for NVTX
+            const isNvtx = category === 'nvtx_range';
+            const material = isNvtx 
+                ? this.#materials.get('nvtx_range_colored')
+                : (this.#materials.get(category) || this.#materials.get('default'));
             const instancedMesh = new THREE.InstancedMesh(this.#geometry, material, visibleIdx.length);
             instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            
+
+            // For NVTX, set up per-instance colors using Three.js built-in instanceColor
+            if (isNvtx) {
+                // Initialize instanceColor - Three.js will create the buffer
+                const tempColor = new THREE.Color();
+                for (let j = 0; j < visibleIdx.length; j++) {
+                    instancedMesh.setColorAt(j, tempColor);
+                }
+            }
+
             // Build hit-test data for this category
             const hitTestData = new Array(visibleIdx.length);
-            
+
             // Stacking - data is already sorted by start time from HDF5
             console.time(`[TimelineRenderer] instances ${category}`);
             const stack = []; // end times for each stack level
-            
+
             for (let j = 0; j < visibleIdx.length; j++) {
                 const i = visibleIdx[j];
                 const start = startMs[i];
@@ -363,12 +422,25 @@ export class TimelineRenderer {
                 this.#tempMatrix.compose(this.#tempPosition, this.#tempQuaternion, this.#tempScale);
                 instancedMesh.setMatrixAt(j, this.#tempMatrix);
                 
+                // Set NVTX instance color based on range name
+                if (isNvtx) {
+                    const name = catData.names[catData.nameIdx[i]] || '';
+                    const color = this.#nvtxColors.get(name) || this.#nvtxDefaultColor;
+                    console.log(`NVTX: "${name}" -> color:`, color, 'has color:', this.#nvtxColors.has(name));
+                    instancedMesh.setColorAt(j, color);
+                }
+                
                 // Store hit-test data
                 hitTestData[j] = { startMs: start, endMs: end, originalIdx: i };
             }
+
             console.timeEnd(`[TimelineRenderer] instances ${category}`);
-            
+
             instancedMesh.instanceMatrix.needsUpdate = true;
+            if (isNvtx && instancedMesh.instanceColor) {
+                instancedMesh.instanceColor.needsUpdate = true;
+            }
+
             instancedMesh.renderOrder = 0;
             this.#scene.add(instancedMesh);
             this.#instancedMeshes.set(category, instancedMesh);
@@ -603,6 +675,104 @@ export class TimelineRenderer {
     invalidate() {
         this.#needsRebuild = true;
     }
+
+    /**
+     * Get NVTX range label data for overlay rendering.
+     * Returns array of { name, startMs, durationMs, rowIndex, rowHeight, stackLevel, maxStackLevels }
+     */
+    getNvtxLabels() {
+        if (this.#visibleGroups.length === 0) return [];
+        
+        const rowHeight = this.#resolution.height / this.#visibleGroups.length;
+        const category = 'nvtx_range';
+        
+        // Check if NVTX is visible
+        if (!this.#visibleCategories.has(category)) return [];
+        
+        const rowIndex = this.#groupMapping.get(category);
+        if (rowIndex === undefined) return [];
+        
+        const labels = [];
+        
+        if (this.#dataMode === 'typed') {
+            const catData = this.#typedData?.byCategory[category];
+            const ranges = this.#visibleRanges.get(category);
+            
+            if (catData && ranges) {
+                // Calculate stack levels for visible ranges
+                const stack = [];
+                
+                for (const range of ranges) {
+                    const idx = range.originalIdx;
+                    const name = catData.names[catData.nameIdx[idx]] || '';
+                    
+                    // Find stack level
+                    let stackLevel = 0;
+                    let foundSlot = false;
+                    for (let s = 0; s < stack.length; s++) {
+                        if (stack[s] <= range.startMs) {
+                            stackLevel = s;
+                            stack[s] = range.endMs;
+                            foundSlot = true;
+                            break;
+                        }
+                    }
+                    if (!foundSlot) {
+                        stackLevel = stack.length;
+                        stack.push(range.endMs);
+                    }
+                    
+                    labels.push({
+                        name,
+                        startMs: range.startMs,
+                        durationMs: range.endMs - range.startMs,
+                        rowIndex,
+                        rowHeight,
+                        stackLevel,
+                        maxStackLevels: Math.max(stack.length, 1)
+                    });
+                }
+            }
+        } else {
+            // Legacy mode
+            const nvtxEvents = this.#visibleEvents.filter(e => e.category === category);
+            const stack = [];
+            
+            for (const event of nvtxEvents) {
+                const startMs = event.start_ns / 1e6;
+                const durationMs = event.duration_ns / 1e6;
+                const endMs = startMs + durationMs;
+                
+                // Find stack level
+                let stackLevel = 0;
+                let foundSlot = false;
+                for (let s = 0; s < stack.length; s++) {
+                    if (stack[s] <= startMs) {
+                        stackLevel = s;
+                        stack[s] = endMs;
+                        foundSlot = true;
+                        break;
+                    }
+                }
+                if (!foundSlot) {
+                    stackLevel = stack.length;
+                    stack.push(endMs);
+                }
+                
+                labels.push({
+                    name: event.name || '',
+                    startMs,
+                    durationMs,
+                    rowIndex,
+                    rowHeight,
+                    stackLevel,
+                    maxStackLevels: Math.max(stack.length, 1)
+                });
+            }
+        }
+        
+        return labels;
+    }    
     
     /**
      * Hit test at canvas coordinates.

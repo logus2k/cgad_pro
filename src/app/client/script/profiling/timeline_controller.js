@@ -10,6 +10,8 @@
 import { TimelineRenderer } from './timeline_renderer.js';
 import { TimelineAxis } from './timeline_axis.js';
 import { TimelineGroups } from './timeline_groups.js';
+import { TimelineLabels } from './timeline_labels.js';
+
 
 export class TimelineController {
     
@@ -32,6 +34,9 @@ export class TimelineController {
     #renderer;
     #axis;
     #groupsSidebar;
+
+    #labels;
+    #labelsCanvas;    
     
     // DOM elements
     #mainEl;
@@ -133,10 +138,21 @@ export class TimelineController {
         `;
         timelineArea.appendChild(this.#axisCanvas);
         
+        // WebGL canvas container (for overlay positioning)
+        const canvasContainer = document.createElement('div');
+        canvasContainer.style.cssText = 'flex: 1; position: relative; min-height: 0;';
+
         // WebGL canvas
         this.#glCanvas = document.createElement('canvas');
-        this.#glCanvas.style.cssText = 'flex: 1; display: block; cursor: default;';
-        timelineArea.appendChild(this.#glCanvas);
+        this.#glCanvas.style.cssText = 'width: 100%; height: 100%; display: block; cursor: default;';
+        canvasContainer.appendChild(this.#glCanvas);
+
+        // Labels canvas (overlay)
+        this.#labelsCanvas = document.createElement('canvas');
+        this.#labelsCanvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;';
+        canvasContainer.appendChild(this.#labelsCanvas);
+
+        timelineArea.appendChild(canvasContainer);
         
         wrapper.appendChild(this.#groupsEl);
         wrapper.appendChild(timelineArea);
@@ -177,6 +193,7 @@ export class TimelineController {
     #initComponents() {
         this.#renderer = new TimelineRenderer(this.#glCanvas);
         this.#axis = new TimelineAxis(this.#axisCanvas, this.#axisHeight);
+        this.#labels = new TimelineLabels(this.#labelsCanvas);
         this.#groupsSidebar = new TimelineGroups(this.#groupsEl._listContainer);
         
         this.#groupsSidebar.onToggle((groupId, enabled) => {
@@ -223,6 +240,7 @@ export class TimelineController {
         
         this.#renderer.resize(timelineWidth, timelineHeight);
         this.#axis.resize(timelineWidth);
+        this.#labels.resize(timelineWidth, timelineHeight);
         
         if (this.#groups.length > 0) {
             const rowHeight = timelineHeight / this.#groups.length;
@@ -231,9 +249,11 @@ export class TimelineController {
         
         this.#renderer.render();
         this.#axis.render();
+        this.#updateLabels();
+        this.#labels.render();
         this.#needsRender = false;
     }
-    
+
     #bindEvents() {
         const canvas = this.#glCanvas;
         
@@ -265,6 +285,8 @@ export class TimelineController {
                 this.#axis.setTimeRange(this.#timeRange.start, this.#timeRange.end);
                 this.#renderer.render();
                 this.#axis.render();
+                this.#updateLabels();
+                this.#labels.render();
                 this.#needsRender = false;
             }
             this.#animationFrame = requestAnimationFrame(loop);
@@ -802,9 +824,15 @@ export class TimelineController {
         this.#rawEvents = [];
         this.#typedData = null;
         this.#groups = [];
-        this.#renderer.setData([], []);
+        this.#totalTimeRange = { start: 0, end: 0 };
+        this.#timeRange = { start: 0, end: 0 };
+        this.#renderer.clear();
         this.#groupsSidebar.setGroups([], 60);
-        this.#needsRender = true;
+        this.#labels.setLabels([]);
+        this.#labels.render();
+        this.#axis.setTimeRange(0, 0);
+        this.#axis.render();
+        this.#needsRender = false;
     }
     
     async setGroupBy(groupBy) {
@@ -976,6 +1004,13 @@ export class TimelineController {
         this.#cursorBadgeEl.textContent = this.#formatDuration(timeAtCursor);
         this.#cursorBadgeEl.style.left = `${lineX}px`;
         this.#cursorBadgeEl.style.top = `${rect.top - containerRect.top - 20}px`;
+    }   
+    
+    #updateLabels() {
+        // Get NVTX range data from renderer for label display
+        const nvtxLabels = this.#renderer.getNvtxLabels();
+        this.#labels.setTimeRange(this.#timeRange.start, this.#timeRange.end);
+        this.#labels.setLabels(nvtxLabels);
     }    
     
     destroy() {
@@ -994,6 +1029,7 @@ export class TimelineController {
         this.#renderer.destroy();
         this.#axis.destroy();
         this.#groupsSidebar.destroy();
+        this.#labels.destroy();
         this.#container.innerHTML = '';
     }
 }
