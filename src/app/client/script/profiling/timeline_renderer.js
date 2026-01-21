@@ -614,6 +614,9 @@ export class TimelineRenderer {
         const timeSpan = this.#timeRange.end - this.#timeRange.start;
         const timeAtX = this.#timeRange.start + (x / this.#resolution.width) * timeSpan;
         
+        // Minimum hit tolerance of 3 pixels converted to time units
+        const hitToleranceMs = (3 / this.#resolution.width) * timeSpan;
+        
         const rowHeight = this.#resolution.height / this.#visibleGroups.length;
         const rowIndex = Math.floor(y / rowHeight);
         
@@ -623,13 +626,13 @@ export class TimelineRenderer {
         const category = group.id;
         
         if (this.#dataMode === 'typed') {
-            return this.#hitTestTyped(category, timeAtX);
+            return this.#hitTestTyped(category, timeAtX, hitToleranceMs);
         } else {
-            return this.#hitTestLegacy(group.id, timeAtX * 1e6);
+            return this.#hitTestLegacy(group.id, timeAtX * 1e6, hitToleranceMs * 1e6);
         }
     }
     
-    #hitTestTyped(category, timeAtXMs) {
+    #hitTestTyped(category, timeAtXMs, toleranceMs = 0) {
         const ranges = this.#visibleRanges.get(category);
         if (!ranges) return null;
         
@@ -638,7 +641,10 @@ export class TimelineRenderer {
         
         // Binary search would be faster for large datasets, but linear is fine for visible subset
         for (const range of ranges) {
-            if (range.startMs <= timeAtXMs && range.endMs >= timeAtXMs) {
+            // Expand hit area by tolerance for thin bars
+            const hitStart = range.startMs - toleranceMs;
+            const hitEnd = range.endMs + toleranceMs;
+            if (hitStart <= timeAtXMs && hitEnd >= timeAtXMs) {
                 const idx = range.originalIdx;
                 
                 // Build event object for tooltip
@@ -691,10 +697,12 @@ export class TimelineRenderer {
         return result;
     }
     
-    #hitTestLegacy(groupId, timeAtXNs) {
+    #hitTestLegacy(groupId, timeAtXNs, toleranceNs = 0) {
         for (const event of this.#visibleEvents) {
             if (this.#getEventGroup(event) !== groupId) continue;
-            if (event.start_ns <= timeAtXNs && event.end_ns >= timeAtXNs) {
+            const hitStart = event.start_ns - toleranceNs;
+            const hitEnd = event.end_ns + toleranceNs;
+            if (hitStart <= timeAtXNs && hitEnd >= timeAtXNs) {
                 return event;
             }
         }

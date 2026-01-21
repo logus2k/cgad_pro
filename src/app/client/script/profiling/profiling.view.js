@@ -78,13 +78,19 @@ export class ProfilingView {
         try {
             const data = await this.#api.getSessions(100);
             this.#sessions = data.sessions || [];
+            
+            // Auto-select most recent session if none is currently loaded
+            const shouldAutoLoad = !this.#currentSessionId && this.#sessions.length > 0;
+            if (shouldAutoLoad) {
+                this.#currentSessionId = this.#sessions[0].id;
+            }
+            
             this.#renderSessionList();
             
-            // Auto-load most recent session if none is currently loaded
-            if (!this.#currentSessionId && this.#sessions.length > 0) {
-                const mostRecent = this.#sessions[0];
-                this.#elements.sessionSelect.value = mostRecent.id;
-                this.loadSession(mostRecent.id);
+            // Load the auto-selected session
+            if (shouldAutoLoad) {
+                this.#elements.sessionSelect.value = this.#currentSessionId;
+                this.loadSession(this.#currentSessionId);
             }
         } catch (error) {
             console.error('[ProfilingView] Failed to load sessions:', error);
@@ -357,7 +363,27 @@ export class ProfilingView {
 
         // Session select dropdown
         this.#elements.sessionSelect.addEventListener('change', (e) => {
-            this.loadSession(e.target.value);
+            const sessionId = e.target.value;
+            
+            // Update selected row in Session History table
+            this.#elements.sessionList.querySelectorAll('.profiling-session-row').forEach(r => {
+                r.classList.remove('selected');
+                if (r.dataset.sessionId === sessionId) {
+                    r.classList.add('selected');
+                }
+            });
+            
+            if (sessionId) {
+                this.loadSession(sessionId);
+            } else {
+                // Clear timeline when no session selected
+                this.#currentSessionId = null;
+                if (this.#timeline) {
+                    this.#timeline.clear();
+                }
+                this.#clearSummaryCards();
+                this.#elements.exportBtn.disabled = true;
+            }
         });
 
         // Refresh button
@@ -419,6 +445,12 @@ export class ProfilingView {
             if (row && !e.target.matches('input[type="checkbox"]')) {
                 const sessionId = row.dataset.sessionId;
                 if (sessionId) {
+                    // Update selected row styling
+                    this.#elements.sessionList.querySelectorAll('.profiling-session-row').forEach(r => {
+                        r.classList.remove('selected');
+                    });
+                    row.classList.add('selected');
+                    
                     this.#elements.sessionSelect.value = sessionId;
                     this.loadSession(sessionId);
                 }
@@ -830,8 +862,9 @@ export class ProfilingView {
     }
 
     #handleClose() {
-        // Dispatch event for parent to handle (e.g., hide HUD panel)
-        this.#container.dispatchEvent(new CustomEvent('profiling-close', { bubbles: true }));
+        if (window.menuManager) {
+            window.menuManager.hidePanel('profiling');
+        }
     }
 
 

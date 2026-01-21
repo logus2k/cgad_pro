@@ -39,6 +39,8 @@ export class TimelineController {
     #glCanvas;
     #groupsEl;
     #tooltipEl;
+    #cursorLineEl;
+    #cursorBadgeEl;
     
     // Data - supports both modes
     #dataMode = 'none'; // 'none' | 'legacy' | 'typed'
@@ -158,8 +160,17 @@ export class TimelineController {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             overflow: hidden;
         `;
-        this.#container.appendChild(this.#tooltipEl);
-        
+        document.body.appendChild(this.#tooltipEl);
+
+        // Cursor time indicator (vertical line + time badge)
+        this.#cursorLineEl = document.createElement('div');
+        this.#cursorLineEl.className = 'timeline-cursor-line';
+        this.#container.appendChild(this.#cursorLineEl);
+
+        this.#cursorBadgeEl = document.createElement('div');
+        this.#cursorBadgeEl.className = 'timeline-cursor-badge';
+        this.#container.appendChild(this.#cursorBadgeEl); 
+
         this.#groupsEl._listContainer = groupsList;
     }
     
@@ -230,6 +241,17 @@ export class TimelineController {
         window.addEventListener('mousemove', (e) => this.#onMouseMove(e));
         window.addEventListener('mouseup', (e) => this.#onMouseUp(e));
         canvas.addEventListener('wheel', (e) => this.#onWheel(e), { passive: false });
+
+        canvas.addEventListener('mouseenter', () => {
+            if (!this.#isDragging) {
+                this.#showCursorLine(true);
+            }
+        });
+        canvas.addEventListener('mouseleave', () => {
+            if (!this.#isDragging) {
+                this.#showCursorLine(false);
+            }
+        });  
         
         canvas.addEventListener('touchstart', (e) => this.#onTouchStart(e), { passive: false });
         canvas.addEventListener('touchmove', (e) => this.#onTouchMove(e), { passive: false });
@@ -279,15 +301,21 @@ export class TimelineController {
             const newEnd = newStart + timeSpan;
             
             this.#setTimeRange(newStart, newEnd);
-        } else if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-            // Check if hovering over an event
-            const event = this.#renderer.hitTest(x, y);
-            this.#glCanvas.style.cursor = event ? 'pointer' : 'grab';
-            
-            this.#scheduleTooltip(x, y);
-        } else {
+            } else if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+
+                // Show and update cursor line position
+                this.#showCursorLine(true);
+                this.#updateCursorLine(x);
+
+                // Check if hovering over an event
+                const event = this.#renderer.hitTest(x, y);
+                this.#glCanvas.style.cursor = event ? 'pointer' : 'grab';
+                
+                this.#scheduleTooltip(x, y);
+            } else {
             this.#glCanvas.style.cursor = 'default';
             this.#hideTooltip();
+            this.#showCursorLine(false);
         }
     }
     
@@ -301,6 +329,8 @@ export class TimelineController {
             if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
                 const event = this.#renderer.hitTest(x, y);
                 this.#glCanvas.style.cursor = event ? 'pointer' : 'grab';
+                this.#showCursorLine(true);
+                this.#updateCursorLine(x);                
             } else {
                 this.#glCanvas.style.cursor = 'default';
             }
@@ -389,23 +419,23 @@ export class TimelineController {
             this.#tooltipEl.innerHTML = html;
             
             const rect = this.#glCanvas.getBoundingClientRect();
-            const containerRect = this.#container.getBoundingClientRect();
-            
-            let tooltipX = rect.left - containerRect.left + x + 15;
-            let tooltipY = rect.top - containerRect.top + y + 15;
             
             this.#tooltipEl.style.display = 'block';
             
             const tooltipRect = this.#tooltipEl.getBoundingClientRect();
-            if (tooltipX + tooltipRect.width > containerRect.width) {
-                tooltipX = x - tooltipRect.width - 15;
-            }
-            if (tooltipY + tooltipRect.height > containerRect.height) {
-                tooltipY = y - tooltipRect.height - 15;
+            
+            // Position relative to page, below and to the right of cursor
+            const cursorOffset = 20;
+            let tooltipX = rect.left + x + cursorOffset;
+            let tooltipY = rect.top + y + cursorOffset;
+            
+            // If tooltip goes beyond right edge, flip to left of cursor
+            if (tooltipX + tooltipRect.width > window.innerWidth) {
+                tooltipX = rect.left + x - tooltipRect.width - cursorOffset;
             }
             
             this.#tooltipEl.style.left = `${Math.max(0, tooltipX)}px`;
-            this.#tooltipEl.style.top = `${Math.max(0, tooltipY)}px`;
+            this.#tooltipEl.style.top = `${tooltipY}px`;
             
             if (this.#eventHandlers.hover) {
                 this.#eventHandlers.hover(event);
@@ -914,14 +944,52 @@ export class TimelineController {
         if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
         return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
+
+    #showCursorLine(show) {
+        if (this.#cursorLineEl) {
+            this.#cursorLineEl.style.display = show ? 'block' : 'none';
+        }
+        if (this.#cursorBadgeEl) {
+            this.#cursorBadgeEl.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    #updateCursorLine(x) {
+        if (!this.#cursorLineEl || !this.#cursorBadgeEl) return;
+        
+        const rect = this.#glCanvas.getBoundingClientRect();
+        const containerRect = this.#container.getBoundingClientRect();
+        
+        // Position relative to container
+        const lineX = Math.round(rect.left - containerRect.left + x);
+        
+        // Update line position and height
+        this.#cursorLineEl.style.left = `${lineX}px`;
+        this.#cursorLineEl.style.top = `${rect.top - containerRect.top}px`;
+        this.#cursorLineEl.style.height = `${rect.height}px`;
+        
+        // Calculate time at cursor position
+        const timeSpan = this.#timeRange.end - this.#timeRange.start;
+        const timeAtCursor = this.#timeRange.start + (x / rect.width) * timeSpan;
+        
+        // Update badge
+        this.#cursorBadgeEl.textContent = this.#formatDuration(timeAtCursor);
+        this.#cursorBadgeEl.style.left = `${lineX}px`;
+        this.#cursorBadgeEl.style.top = `${rect.top - containerRect.top - 20}px`;
+    }    
     
     destroy() {
+
         if (this.#animationFrame) {
             cancelAnimationFrame(this.#animationFrame);
         }
         if (this.#resizeObserver) {
             this.#resizeObserver.disconnect();
         }
+        if (this.#tooltipEl && this.#tooltipEl.parentNode) {
+            this.#tooltipEl.parentNode.removeChild(this.#tooltipEl);
+        }
+
         this.#cancelTooltipTimer();
         this.#renderer.destroy();
         this.#axis.destroy();
