@@ -446,6 +446,12 @@ export class TimelineController {
     }
     
     #showTooltipAt(x, y) {
+        // Don't show tooltip if profiling panel is not the topmost
+        if (!this.#isProfilingPanelTopmost()) {
+            this.#hideTooltip();
+            return;
+        }
+        
         const event = this.#renderer.hitTest(x, y);
         
         if (event) {
@@ -1077,7 +1083,27 @@ export class TimelineController {
         return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
 
+    #isProfilingPanelTopmost() {
+        const profilingPanel = document.getElementById('hud-profiling');
+        if (!profilingPanel) return true;
+        
+        const profilingZ = parseInt(profilingPanel.style.zIndex) || 0;
+        const visiblePanels = document.querySelectorAll('.hud.visible');
+        
+        for (const panel of visiblePanels) {
+            if (panel !== profilingPanel && (parseInt(panel.style.zIndex) || 0) > profilingZ) {
+                return false;
+            }
+        }
+        return true;
+    }    
+
     #showCursorLine(show) {
+        // Don't show if profiling panel is not topmost
+        if (show && !this.#isProfilingPanelTopmost()) {
+            show = false;
+        }
+        
         if (this.#cursorLineEl) {
             this.#cursorLineEl.style.display = show ? 'block' : 'none';
         }
