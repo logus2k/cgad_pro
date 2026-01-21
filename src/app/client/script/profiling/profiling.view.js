@@ -730,8 +730,11 @@ export class ProfilingView {
                 <div class="profiling-session-col-date">Date</div>
                 <div class="profiling-session-col-solver">Solver</div>
                 <div class="profiling-session-col-mesh">Mesh</div>
-                <div class="profiling-session-col-status">Status</div>
                 <div class="profiling-session-col-duration">Duration</div>
+                <div class="profiling-session-col-kernels">Kernels</div>
+                <div class="profiling-session-col-memcpy">MemCpy</div>
+                <div class="profiling-session-col-nvtx">NVTX</div>                
+                <div class="profiling-session-col-status">Status</div>
             </div>
         `;
 
@@ -739,9 +742,17 @@ export class ProfilingView {
             const statusClass = session.status === 'completed' ? 'success' : 
                                session.status === 'failed' ? 'error' : 'pending';
             
-            const duration = session.timeline_summary?.total_duration_ms 
-                ? this.#formatDuration(session.timeline_summary.total_duration_ms)
+            const summary = session.timeline_summary;
+            const duration = summary?.total_duration_ms 
+                ? this.#formatDuration(summary.total_duration_ms)
                 : '--';
+            const kernelCount = summary?.categories?.cuda_kernel?.count ?? '--';
+            const memcpyCount = summary ? 
+                (summary.categories?.cuda_memcpy_h2d?.count || 0) +
+                (summary.categories?.cuda_memcpy_d2h?.count || 0) +
+                (summary.categories?.cuda_memcpy_d2d?.count || 0) : '--';
+
+            const nvtxCount = summary?.categories?.nvtx_range?.count ?? '--';
 
             html += `
                 <div class="profiling-session-row ${this.#currentSessionId === session.id ? 'selected' : ''}" 
@@ -752,10 +763,13 @@ export class ProfilingView {
                     <div class="profiling-session-col-date">${this.#formatDate(session.created_at)}</div>
                     <div class="profiling-session-col-solver">${session.solver}</div>
                     <div class="profiling-session-col-mesh">${session.mesh}</div>
+                    <div class="profiling-session-col-duration">${duration}</div>
+                    <div class="profiling-session-col-kernels">${kernelCount}</div>
+                    <div class="profiling-session-col-memcpy">${memcpyCount}</div>
+                    <div class="profiling-session-col-nvtx">${nvtxCount}</div>
                     <div class="profiling-session-col-status">
                         <span class="profiling-status-badge ${statusClass}">${session.status}</span>
                     </div>
-                    <div class="profiling-session-col-duration">${duration}</div>
                 </div>
             `;
         }

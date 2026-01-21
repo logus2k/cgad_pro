@@ -164,6 +164,7 @@ class ProfileSession:
     ncu_file: Optional[str] = None
     benchmark_results: Optional[Dict[str, Any]] = None
     linked_job_id: Optional[str] = None  # Link to original solve job
+    timeline_summary: Optional[Dict[str, Any]] = None  # Cached summary stats
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -549,11 +550,14 @@ class ProfilingService:
         
         # Check if already generated
         if h5_path.exists():
+            # If summary not cached yet, we still return cached status
+            # Summary will be populated on next generation or can be extracted from HDF5
             return {
                 "session_id": session_id,
                 "status": "cached",
                 "h5_path": str(h5_path),
-                "file_size_bytes": h5_path.stat().st_size
+                "file_size_bytes": h5_path.stat().st_size,
+                "timeline_summary": session.timeline_summary
             }
         
         if ProfilingHDF5Transformer is None:
@@ -588,6 +592,15 @@ class ProfilingService:
         print(f"[Profiling]   GPU used: {stats['used_gpu']}")
         for cat, cat_stats in stats['categories'].items():
             print(f"[Profiling]   {cat}: {cat_stats['count']} events")
+        
+        # Store summary in session for quick access in session list
+        session.timeline_summary = {
+            'total_duration_ms': stats['total_duration_ns'] / 1e6,
+            'total_events': stats['total_events'],
+            'categories': stats['categories']
+        }
+        with self._lock:
+            self._save_sessions()
         
         return {
             "session_id": session_id,
