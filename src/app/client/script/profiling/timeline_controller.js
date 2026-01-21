@@ -46,7 +46,8 @@ export class TimelineController {
     #groupsSidebar;
 
     #labels;
-    #labelsCanvas;    
+    #labelsCanvas;
+    #ncuDataByKernel = new Map();
     
     // DOM elements
     #mainEl;
@@ -503,14 +504,15 @@ export class TimelineController {
             </div>
         `;
         
-        // Details grid
-        html += `<div style="padding: 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 11px;">`;
+        // Nsight Systems section
+        html += `<div style="padding: 6px 10px 2px 10px; font-size: 10px; font-weight: 600; color: #6c757d; border-bottom: 1px solid #f0f0f0;">Nsight Systems</div>`;
+        html += `<div style="padding: 6px 10px 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 11px;">`;
         
         // Timing
         html += this.#tooltipRow('Start', this.#formatDuration(startMs));
         html += this.#tooltipRow('Duration', `${this.#formatDuration(durationMs)} <span style="color: #6c757d;">(${percent.toFixed(2)}%)</span>`);
         
-        // Category-specific details
+        // Category-specific details from nsys
         if (event.metadata) {
             const meta = event.metadata;
             
@@ -547,6 +549,45 @@ export class TimelineController {
         
         html += `</div>`;
         
+        // Nsight Compute section (only for CUDA kernels with NCU data)
+        if (category === 'cuda_kernel' && event.name) {
+            const ncuData = this.#ncuDataByKernel.get(event.name);
+            if (ncuData) {
+                html += `<div style="padding: 6px 10px 2px 10px; font-size: 10px; font-weight: 600; color: #6c757d; border-bottom: 1px solid #f0f0f0; border-top: 1px solid #e9ecef;">Nsight Compute</div>`;
+                html += `<div style="padding: 6px 10px 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 11px;">`;
+                
+                // Occupancy
+                if (ncuData.occupancy_achieved !== undefined) {
+                    const occAchieved = (ncuData.occupancy_achieved * 100).toFixed(1);
+                    const occTheoretical = (ncuData.occupancy_theoretical * 100).toFixed(1);
+                    html += this.#tooltipRow('Occupancy', `${occAchieved}% <span style="color: #6c757d;">(theo: ${occTheoretical}%)</span>`);
+                }
+                
+                // Throughput
+                if (ncuData.sm_throughput_pct !== undefined) {
+                    html += this.#tooltipRow('SM Throughput', `${ncuData.sm_throughput_pct.toFixed(1)}%`);
+                }
+                if (ncuData.dram_throughput_pct !== undefined) {
+                    html += this.#tooltipRow('DRAM Throughput', `${ncuData.dram_throughput_pct.toFixed(1)}%`);
+                }
+                
+                // Cache hit rates
+                if (ncuData.l1_hit_rate !== undefined && ncuData.l1_hit_rate > 0) {
+                    html += this.#tooltipRow('L1 Hit Rate', `${(ncuData.l1_hit_rate * 100).toFixed(1)}%`);
+                }
+                if (ncuData.l2_hit_rate !== undefined && ncuData.l2_hit_rate > 0) {
+                    html += this.#tooltipRow('L2 Hit Rate', `${(ncuData.l2_hit_rate * 100).toFixed(1)}%`);
+                }
+                
+                // Warp efficiency
+                if (ncuData.warp_execution_efficiency !== undefined && ncuData.warp_execution_efficiency > 0) {
+                    html += this.#tooltipRow('Warp Efficiency', `${(ncuData.warp_execution_efficiency * 100).toFixed(1)}%`);
+                }
+                
+                html += `</div>`;
+            }
+        }
+        
         return html;
     }
 
@@ -564,7 +605,9 @@ export class TimelineController {
             cuda_memcpy_d2h: '#2ecc71',
             cuda_memcpy_d2d: '#f39c12',
             cuda_sync: '#95a5a6',
-            nvtx_range: '#9b59b6'
+            nvtx_range: '#9b59b6',
+            nvtx_phases: '#9b59b6',
+            nvtx_cuda: '#888888'
         };
         return colors[category] || '#6c757d';
     }
@@ -863,6 +906,7 @@ export class TimelineController {
         this.#groups = [];
         this.#totalTimeRange = { start: 0, end: 0 };
         this.#timeRange = { start: 0, end: 0 };
+        this.#ncuDataByKernel.clear();
         this.#renderer.clear();
         this.#groupsSidebar.setGroups([], 60);
         this.#labels.setLabels([]);
@@ -895,6 +939,22 @@ export class TimelineController {
             this.#updateVisibleData();
         }
     }
+
+    /**
+     * Set NCU kernel metrics for tooltip enrichment.
+     * @param {Array} kernels - Array of kernel metrics from NCU
+     */
+    setNcuData(kernels) {
+        this.#ncuDataByKernel.clear();
+        for (const kernel of kernels) {
+            // Index by kernel name for quick lookup
+            const name = kernel.kernel_name;
+            if (!this.#ncuDataByKernel.has(name)) {
+                this.#ncuDataByKernel.set(name, kernel);
+            }
+        }
+        console.log(`[TimelineController] Loaded NCU data for ${this.#ncuDataByKernel.size} unique kernels`);
+    }    
     
     async toggleCategory(category, visible) {
         if (visible) {

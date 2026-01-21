@@ -111,17 +111,31 @@ export class ProfilingView {
             // Fetch timeline data (typed arrays for performance)
             const rendererData = await this.#api.getTimelineForRenderer(sessionId, {
                 onProgress: (phase, loaded, total) => {
-                    this.#updateProgress(Math.round((loaded / total) * 50));
+                    this.#updateProgress(Math.round((loaded / total) * 40));
                 }
             });
 
             const eventCount = rendererData.totalEvents || 0;
             this.#showLoading(true, `Rendering ${eventCount.toLocaleString()} events...`);
 
-            // Load with progress callback
+            // Fetch NCU kernel metrics (non-blocking, may not exist)
+            let ncuData = null;
+            try {
+                ncuData = await this.#api.getKernels(sessionId);
+            } catch (e) {
+                // NCU data not available - that's fine
+                console.log('[ProfilingView] NCU data not available for this session');
+            }
+
+            // Load timeline with progress callback
             if (this.#timeline) {
+                // Pass NCU data to timeline for tooltip enrichment
+                if (ncuData?.kernels) {
+                    this.#timeline.setNcuData(ncuData.kernels);
+                }
+                
                 await this.#timeline.loadTyped(rendererData, (progress) => {
-                    this.#updateProgress(50 + Math.round(progress / 2));
+                    this.#updateProgress(40 + Math.round(progress * 0.6));
                 });
             }
 
