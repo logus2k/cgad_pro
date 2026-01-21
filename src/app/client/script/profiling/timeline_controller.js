@@ -22,8 +22,18 @@ export class TimelineController {
         cuda_memcpy_d2h: { label: 'MemCpy D-H', order: 3 },
         cuda_memcpy_d2d: { label: 'MemCpy D-D', order: 4 },
         cuda_sync: { label: 'CUDA Sync', order: 5 },
-        nvtx_range: { label: 'NVTX Ranges', order: 6 }
+        nvtx_phases: { label: 'NVTX Phases', order: 6 },
+        nvtx_cuda: { label: 'NVTX CUDA', order: 7 }
     };
+
+    static NVTX_PHASE_NAMES = new Set([
+        'load_mesh',
+        'assemble_system',
+        'apply_bc',
+        'solve_system',
+        'compute_derived',
+        'export_results'
+    ]);
     
     static GROUP_BY = {
         CATEGORY: 'category',
@@ -671,7 +681,10 @@ export class TimelineController {
         if (onProgress) onProgress(70);
         
         this.fit();
-        
+
+        // Force resize to ensure sidebar row heights match
+        requestAnimationFrame(() => this.#doResize());
+
         if (onProgress) onProgress(100);
     }
     
@@ -698,10 +711,21 @@ export class TimelineController {
         const rowHeight = this.#groups.length > 0 ? timelineHeight / this.#groups.length : 60;
         this.#groupsSidebar.setGroups(this.#groups, rowHeight);
         
-        // Filter typed data to visible categories
+        // Include nvtx_range data if either nvtx_phases or nvtx_cuda is visible
+        const visibleDataCategories = new Set();
+        for (const cat of this.#typedData.categories) {
+            if (cat === 'nvtx_range') {
+                if (this.#visibleCategories.has('nvtx_phases') || this.#visibleCategories.has('nvtx_cuda')) {
+                    visibleDataCategories.add(cat);
+                }
+            } else if (this.#visibleCategories.has(cat)) {
+                visibleDataCategories.add(cat);
+            }
+        }
+        
         const filteredData = {
             ...this.#typedData,
-            categories: this.#typedData.categories.filter(c => this.#visibleCategories.has(c))
+            categories: this.#typedData.categories.filter(c => visibleDataCategories.has(c))
         };
         
         this.#renderer.setTypedData(filteredData, this.#groups);
@@ -759,27 +783,40 @@ export class TimelineController {
         const groups = [];
         
         if (this.#currentGroupBy === TimelineController.GROUP_BY.CATEGORY) {
+            // Check if nvtx_range data exists (for the split categories)
+            const hasNvtx = this.#typedData.byCategory['nvtx_range']?.count > 0;
+            
             for (const [catId, catInfo] of Object.entries(TimelineController.CATEGORIES)) {
-                const catData = this.#typedData.byCategory[catId];
-                if (catData && catData.count > 0 && this.#visibleCategories.has(catId)) {
-                    groups.push({
-                        id: catId,
-                        content: catInfo.label,
-                        order: catInfo.order,
-                        className: `profiling-item-${catId}`
-                    });
+                // Handle nvtx_phases and nvtx_cuda specially
+                if (catId === 'nvtx_phases' || catId === 'nvtx_cuda') {
+                    if (hasNvtx && this.#visibleCategories.has(catId)) {
+                        groups.push({
+                            id: catId,
+                            content: catInfo.label,
+                            order: catInfo.order,
+                            className: `profiling-item-${catId}`
+                        });
+                    }
+                } else {
+                    const catData = this.#typedData.byCategory[catId];
+                    if (catData && catData.count > 0 && this.#visibleCategories.has(catId)) {
+                        groups.push({
+                            id: catId,
+                            content: catInfo.label,
+                            order: catInfo.order,
+                            className: `profiling-item-${catId}`
+                        });
+                    }
                 }
             }
             
             groups.sort((a, b) => a.order - b.order);
         } else {
-            // Stream grouping - need to collect unique streams from typed data
+            // Stream grouping
             const streams = new Set();
             let hasNvtx = false;
             
             for (const category of this.#typedData.categories) {
-                if (!this.#visibleCategories.has(category)) continue;
-                
                 const catData = this.#typedData.byCategory[category];
                 if (!catData || catData.count === 0) continue;
                 
@@ -803,12 +840,12 @@ export class TimelineController {
             }
             
             if (hasNvtx) {
-                groups.push({
-                    id: 'nvtx',
-                    content: 'NVTX Ranges',
-                    order: 1000,
-                    className: 'profiling-item-nvtx_range'
-                });
+                if (this.#visibleCategories.has('nvtx_phases')) {
+                    groups.push({ id: 'nvtx_phases', content: 'NVTX Phases', order: 1000, className: 'profiling-item-nvtx_phases' });
+                }
+                if (this.#visibleCategories.has('nvtx_cuda')) {
+                    groups.push({ id: 'nvtx_cuda', content: 'NVTX CUDA', order: 1001, className: 'profiling-item-nvtx_cuda' });
+                }
             }
         }
         

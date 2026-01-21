@@ -59,6 +59,17 @@ export class TimelineRenderer {
         ['export_results', new THREE.Color(0x95a5a6)],   // Gray
     ]);
     #nvtxDefaultColor = new THREE.Color(0x9b59b6); 
+
+    // Known phase names for NVTX splitting
+    #nvtxPhaseNames = new Set([
+        'load_mesh',
+        'assemble_system',
+        'apply_bc',
+        'solve_system',
+        'compute_derived',
+        'export_results'
+    ]);
+    #nvtxCudaColor = new THREE.Color(0x888888);    
     
     // View state
     #timeRange = { start: 0, end: 1000 };
@@ -329,11 +340,16 @@ export class TimelineRenderer {
         let totalVisible = 0;
         
         for (const category of this.#typedData.categories) {
-            // Skip if category not in visible groups
-            if (!this.#visibleCategories.has(category)) continue;
-            
             const catData = this.#typedData.byCategory[category];
             if (!catData || catData.count === 0) continue;
+            
+            // Special handling for nvtx_range - split into phases and cuda rows
+            if (category === 'nvtx_range') {
+                totalVisible += this.#renderNvtxSplit(catData, pxPerMs, rowHeight, minTime, maxTime);
+                continue;
+            }
+            
+            if (!this.#visibleCategories.has(category)) continue;
             
             const rowIndex = this.#groupMapping.get(category);
             if (rowIndex === undefined) continue;
@@ -342,8 +358,7 @@ export class TimelineRenderer {
             const durationMs = catData.durationMs;
             const count = catData.count;
             
-            // First pass: count visible events and build index list
-            console.time(`[TimelineRenderer] filter ${category}`);
+            // Filter to visible time range
             const visibleIdx = [];
             for (let i = 0; i < count; i++) {
                 const start = startMs[i];
@@ -352,43 +367,25 @@ export class TimelineRenderer {
                     visibleIdx.push(i);
                 }
             }
-            console.timeEnd(`[TimelineRenderer] filter ${category}`);
             
             if (visibleIdx.length === 0) continue;
-            
             totalVisible += visibleIdx.length;
             
-            // Create InstancedMesh - use colored material for NVTX
-            const isNvtx = category === 'nvtx_range';
-            const material = isNvtx 
-                ? this.#materials.get('nvtx_range_colored')
-                : (this.#materials.get(category) || this.#materials.get('default'));
+            // Create mesh
+            const material = this.#materials.get(category) || this.#materials.get('default');
             const instancedMesh = new THREE.InstancedMesh(this.#geometry, material, visibleIdx.length);
             instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-            // For NVTX, set up per-instance colors using Three.js built-in instanceColor
-            if (isNvtx) {
-                // Initialize instanceColor - Three.js will create the buffer
-                const tempColor = new THREE.Color();
-                for (let j = 0; j < visibleIdx.length; j++) {
-                    instancedMesh.setColorAt(j, tempColor);
-                }
-            }
-
-            // Build hit-test data for this category
+            
             const hitTestData = new Array(visibleIdx.length);
-
-            // Stacking - data is already sorted by start time from HDF5
-            console.time(`[TimelineRenderer] instances ${category}`);
-            const stack = []; // end times for each stack level
-
+            const stack = [];
+            
             for (let j = 0; j < visibleIdx.length; j++) {
                 const i = visibleIdx[j];
                 const start = startMs[i];
                 const duration = durationMs[i];
                 const end = start + duration;
                 
-                // Find stack level
+                // Stacking
                 let stackLevel = 0;
                 let foundSlot = false;
                 for (let s = 0; s < stack.length; s++) {
@@ -404,50 +401,128 @@ export class TimelineRenderer {
                     stack.push(end);
                 }
                 
-                // Calculate position in pixels
                 const x = (start - this.#timeRange.start) * pxPerMs;
                 const barWidth = Math.max(duration * pxPerMs, 1);
-                
                 const maxStackLevels = Math.max(stack.length, 1);
                 const barHeight = Math.max((rowHeight * 0.85) / maxStackLevels, 1);
                 const y = rowIndex * rowHeight + rowHeight * 0.075 + stackLevel * barHeight;
                 
-                // Convert to Three.js coordinates
                 const screenY = y + barHeight / 2;
                 const threeY = this.#resolution.height - screenY;
                 
-                // Set instance matrix
                 this.#tempPosition.set(x + barWidth / 2, threeY, 0);
                 this.#tempScale.set(barWidth, barHeight, 1);
                 this.#tempMatrix.compose(this.#tempPosition, this.#tempQuaternion, this.#tempScale);
                 instancedMesh.setMatrixAt(j, this.#tempMatrix);
                 
-                // Set NVTX instance color based on range name
-                if (isNvtx) {
-                    const name = catData.names[catData.nameIdx[i]] || '';
-                    const color = this.#nvtxColors.get(name) || this.#nvtxDefaultColor;
-                    console.log(`NVTX: "${name}" -> color:`, color, 'has color:', this.#nvtxColors.has(name));
-                    instancedMesh.setColorAt(j, color);
-                }
-                
-                // Store hit-test data
                 hitTestData[j] = { startMs: start, endMs: end, originalIdx: i };
             }
-
-            console.timeEnd(`[TimelineRenderer] instances ${category}`);
-
+            
             instancedMesh.instanceMatrix.needsUpdate = true;
-            if (isNvtx && instancedMesh.instanceColor) {
-                instancedMesh.instanceColor.needsUpdate = true;
-            }
-
-            instancedMesh.renderOrder = 0;
             this.#scene.add(instancedMesh);
             this.#instancedMeshes.set(category, instancedMesh);
             this.#visibleRanges.set(category, hitTestData);
         }
         
-        console.log(`[TimelineRenderer] Rendered ${totalVisible} events in ${this.#instancedMeshes.size} draw calls (typed)`);
+        // console.log(`[TimelineRenderer] Rendered ${totalVisible} events in ${this.#instancedMeshes.size} draw calls (typed)`);
+    }
+
+    #renderNvtxSplit(catData, pxPerMs, rowHeight, minTime, maxTime) {
+        const startMs = catData.startMs;
+        const durationMs = catData.durationMs;
+        const count = catData.count;
+        
+        const phasesIdx = [];
+        const cudaIdx = [];
+        
+        for (let i = 0; i < count; i++) {
+            const start = startMs[i];
+            const end = start + durationMs[i];
+            if (end < minTime || start > maxTime) continue;
+            
+            const name = catData.names[catData.nameIdx[i]] || '';
+            if (this.#nvtxPhaseNames.has(name)) {
+                phasesIdx.push(i);
+            } else {
+                cudaIdx.push(i);
+            }
+        }
+        
+        let total = 0;
+        
+        const phasesRowIndex = this.#groupMapping.get('nvtx_phases');
+        if (phasesRowIndex !== undefined && phasesIdx.length > 0) {
+            this.#renderNvtxRow(catData, phasesIdx, phasesRowIndex, rowHeight, pxPerMs, 'nvtx_phases', true);
+            total += phasesIdx.length;
+        }
+        
+        const cudaRowIndex = this.#groupMapping.get('nvtx_cuda');
+        if (cudaRowIndex !== undefined && cudaIdx.length > 0) {
+            this.#renderNvtxRow(catData, cudaIdx, cudaRowIndex, rowHeight, pxPerMs, 'nvtx_cuda', false);
+            total += cudaIdx.length;
+        }
+        
+        return total;
+    }
+
+    #renderNvtxRow(catData, visibleIdx, rowIndex, rowHeight, pxPerMs, rowId, usePhaseColors) {
+        const startMs = catData.startMs;
+        const durationMs = catData.durationMs;
+        
+        const material = this.#materials.get('nvtx_range_colored');
+        const instancedMesh = new THREE.InstancedMesh(this.#geometry, material, visibleIdx.length);
+        instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        
+        // Initialize colors
+        const tempColor = new THREE.Color();
+        for (let j = 0; j < visibleIdx.length; j++) {
+            instancedMesh.setColorAt(j, tempColor);
+        }
+        
+        const hitTestData = new Array(visibleIdx.length);
+        const stack = [];
+        
+        for (let j = 0; j < visibleIdx.length; j++) {
+            const i = visibleIdx[j];
+            const start = startMs[i];
+            const duration = durationMs[i];
+            const end = start + duration;
+            
+            // Stacking
+            let stackLevel = 0;
+            let foundSlot = false;
+            for (let s = 0; s < stack.length; s++) {
+                if (stack[s] <= start) { stackLevel = s; stack[s] = end; foundSlot = true; break; }
+            }
+            if (!foundSlot) { stackLevel = stack.length; stack.push(end); }
+            
+            const x = (start - this.#timeRange.start) * pxPerMs;
+            const barWidth = Math.max(duration * pxPerMs, 1);
+            const maxStackLevels = Math.max(stack.length, 1);
+            const barHeight = Math.max((rowHeight * 0.85) / maxStackLevels, 1);
+            const y = rowIndex * rowHeight + rowHeight * 0.075 + stackLevel * barHeight;
+            
+            const screenY = y + barHeight / 2;
+            const threeY = this.#resolution.height - screenY;
+            
+            this.#tempPosition.set(x + barWidth / 2, threeY, 0);
+            this.#tempScale.set(barWidth, barHeight, 1);
+            this.#tempMatrix.compose(this.#tempPosition, this.#tempQuaternion, this.#tempScale);
+            instancedMesh.setMatrixAt(j, this.#tempMatrix);
+            
+            // Set color
+            const name = catData.names[catData.nameIdx[i]] || '';
+            const color = usePhaseColors ? (this.#nvtxColors.get(name) || this.#nvtxDefaultColor) : this.#nvtxCudaColor;
+            instancedMesh.setColorAt(j, color);
+            
+            hitTestData[j] = { startMs: start, endMs: end, originalIdx: i };
+        }
+        
+        instancedMesh.instanceMatrix.needsUpdate = true;
+        if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+        this.#scene.add(instancedMesh);
+        this.#instancedMeshes.set(rowId, instancedMesh);
+        this.#visibleRanges.set(rowId, hitTestData);
     }
     
     /**
@@ -684,95 +759,45 @@ export class TimelineRenderer {
         if (this.#visibleGroups.length === 0) return [];
         
         const rowHeight = this.#resolution.height / this.#visibleGroups.length;
-        const category = 'nvtx_range';
         
-        // Check if NVTX is visible
-        if (!this.#visibleCategories.has(category)) return [];
-        
-        const rowIndex = this.#groupMapping.get(category);
+        // Only show labels for phases row
+        const rowIndex = this.#groupMapping.get('nvtx_phases');
         if (rowIndex === undefined) return [];
         
-        const labels = [];
+        const ranges = this.#visibleRanges.get('nvtx_phases');
+        if (!ranges || ranges.length === 0) return [];
         
-        if (this.#dataMode === 'typed') {
-            const catData = this.#typedData?.byCategory[category];
-            const ranges = this.#visibleRanges.get(category);
+        const catData = this.#typedData?.byCategory['nvtx_range'];
+        if (!catData) return [];
+        
+        const labels = [];
+        const stack = [];
+        
+        for (const range of ranges) {
+            const idx = range.originalIdx;
+            const name = catData.names[catData.nameIdx[idx]] || '';
             
-            if (catData && ranges) {
-                // Calculate stack levels for visible ranges
-                const stack = [];
-                
-                for (const range of ranges) {
-                    const idx = range.originalIdx;
-                    const name = catData.names[catData.nameIdx[idx]] || '';
-                    
-                    // Find stack level
-                    let stackLevel = 0;
-                    let foundSlot = false;
-                    for (let s = 0; s < stack.length; s++) {
-                        if (stack[s] <= range.startMs) {
-                            stackLevel = s;
-                            stack[s] = range.endMs;
-                            foundSlot = true;
-                            break;
-                        }
-                    }
-                    if (!foundSlot) {
-                        stackLevel = stack.length;
-                        stack.push(range.endMs);
-                    }
-                    
-                    labels.push({
-                        name,
-                        startMs: range.startMs,
-                        durationMs: range.endMs - range.startMs,
-                        rowIndex,
-                        rowHeight,
-                        stackLevel,
-                        maxStackLevels: Math.max(stack.length, 1)
-                    });
-                }
+            // Stacking
+            let stackLevel = 0;
+            let foundSlot = false;
+            for (let s = 0; s < stack.length; s++) {
+                if (stack[s] <= range.startMs) { stackLevel = s; stack[s] = range.endMs; foundSlot = true; break; }
             }
-        } else {
-            // Legacy mode
-            const nvtxEvents = this.#visibleEvents.filter(e => e.category === category);
-            const stack = [];
+            if (!foundSlot) { stackLevel = stack.length; stack.push(range.endMs); }
             
-            for (const event of nvtxEvents) {
-                const startMs = event.start_ns / 1e6;
-                const durationMs = event.duration_ns / 1e6;
-                const endMs = startMs + durationMs;
-                
-                // Find stack level
-                let stackLevel = 0;
-                let foundSlot = false;
-                for (let s = 0; s < stack.length; s++) {
-                    if (stack[s] <= startMs) {
-                        stackLevel = s;
-                        stack[s] = endMs;
-                        foundSlot = true;
-                        break;
-                    }
-                }
-                if (!foundSlot) {
-                    stackLevel = stack.length;
-                    stack.push(endMs);
-                }
-                
-                labels.push({
-                    name: event.name || '',
-                    startMs,
-                    durationMs,
-                    rowIndex,
-                    rowHeight,
-                    stackLevel,
-                    maxStackLevels: Math.max(stack.length, 1)
-                });
-            }
+            labels.push({
+                name,
+                startMs: range.startMs,
+                durationMs: range.endMs - range.startMs,
+                rowIndex,
+                rowHeight,
+                stackLevel,
+                maxStackLevels: Math.max(stack.length, 1)
+            });
         }
         
         return labels;
-    }    
+    }   
     
     /**
      * Hit test at canvas coordinates.
@@ -806,7 +831,9 @@ export class TimelineRenderer {
         const ranges = this.#visibleRanges.get(category);
         if (!ranges) return null;
         
-        const catData = this.#typedData.byCategory[category];
+        // Map nvtx_phases/nvtx_cuda back to nvtx_range for data lookup
+        const dataCategory = (category === 'nvtx_phases' || category === 'nvtx_cuda') ? 'nvtx_range' : category;
+        const catData = this.#typedData.byCategory[dataCategory];
         if (!catData) return null;
         
         // Binary search would be faster for large datasets, but linear is fine for visible subset

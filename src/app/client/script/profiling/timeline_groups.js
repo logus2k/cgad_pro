@@ -19,7 +19,9 @@ export class TimelineGroups {
         cuda_memcpy_d2h: 'MemCpy D-H',
         cuda_memcpy_d2d: 'MemCpy D-D',
         cuda_sync: 'CUDA Sync',
-        nvtx_range: 'NVTX Ranges'
+        nvtx_range: 'NVTX Ranges',
+        nvtx_phases: 'NVTX Phases',
+        nvtx_cuda: 'NVTX CUDA'
     };
     
     constructor(container) {
@@ -150,7 +152,9 @@ export class TimelineGroups {
             cuda_memcpy_d2h: 'rgba(46, 204, 113, 0.9)',
             cuda_memcpy_d2d: 'rgba(243, 156, 18, 0.9)',
             cuda_sync: 'rgba(149, 165, 166, 0.9)',
-            nvtx_range: 'rgba(155, 89, 182, 0.9)'
+            nvtx_range: 'rgba(155, 89, 182, 0.9)',
+            nvtx_phases: 'rgba(155, 89, 182, 0.9)',
+            nvtx_cuda: 'rgba(136, 136, 136, 0.9)'
         };
         
         return defaults[group.id] || '#666';

@@ -284,9 +284,14 @@ export class ProfilingView {
                             D2D
                         </label>                        
                         <label class="profiling-filter-checkbox">
-                            <input type="checkbox" data-category="nvtx_range" checked>
+                            <input type="checkbox" data-category="nvtx_phases" checked>
                             <span class="profiling-filter-color" style="background: rgba(155, 89, 182, 0.9);"></span>
-                            NVTX
+                            Phases
+                        </label>
+                        <label class="profiling-filter-checkbox">
+                            <input type="checkbox" data-category="nvtx_cuda" checked>
+                            <span class="profiling-filter-color" style="background: rgba(136, 136, 136, 0.9);"></span>
+                            CUDA
                         </label>
                     </div>
                 </div>
