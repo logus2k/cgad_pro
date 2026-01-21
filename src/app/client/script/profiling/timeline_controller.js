@@ -187,7 +187,8 @@ export class TimelineController {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             overflow: hidden;
         `;
-        document.body.appendChild(this.#tooltipEl);
+        const overlay = document.getElementById('overlay');
+        (overlay || document.body).appendChild(this.#tooltipEl);
 
         // Cursor time indicator (vertical line + time badge)
         this.#cursorLineEl = document.createElement('div');
@@ -454,6 +455,12 @@ export class TimelineController {
             const rect = this.#glCanvas.getBoundingClientRect();
             
             this.#tooltipEl.style.display = 'block';
+
+            // Set z-index just above the profiling panel
+            const profilingPanel = document.getElementById('hud-profiling');
+            if (profilingPanel) {
+                this.#tooltipEl.style.zIndex = (parseInt(profilingPanel.style.zIndex) || 20) + 1;
+            }            
             
             const tooltipRect = this.#tooltipEl.getBoundingClientRect();
             
