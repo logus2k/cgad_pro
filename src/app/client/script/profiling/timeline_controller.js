@@ -187,7 +187,8 @@ export class TimelineController {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             overflow: hidden;
         `;
-        document.body.appendChild(this.#tooltipEl);
+        const overlay = document.getElementById('overlay');
+        (overlay || document.body).appendChild(this.#tooltipEl);
 
         // Cursor time indicator (vertical line + time badge)
         this.#cursorLineEl = document.createElement('div');
@@ -445,6 +446,12 @@ export class TimelineController {
     }
     
     #showTooltipAt(x, y) {
+        // Don't show tooltip if profiling panel is not the topmost
+        if (!this.#isProfilingPanelTopmost()) {
+            this.#hideTooltip();
+            return;
+        }
+        
         const event = this.#renderer.hitTest(x, y);
         
         if (event) {
@@ -454,6 +461,12 @@ export class TimelineController {
             const rect = this.#glCanvas.getBoundingClientRect();
             
             this.#tooltipEl.style.display = 'block';
+
+            // Set z-index just above the profiling panel
+            const profilingPanel = document.getElementById('hud-profiling');
+            if (profilingPanel) {
+                this.#tooltipEl.style.zIndex = (parseInt(profilingPanel.style.zIndex) || 20) + 1;
+            }            
             
             const tooltipRect = this.#tooltipEl.getBoundingClientRect();
             
@@ -1070,7 +1083,32 @@ export class TimelineController {
         return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     }
 
+    #isProfilingPanelTopmost() {
+        const profilingPanel = document.getElementById('hud-profiling');
+        if (!profilingPanel) return true;
+        
+        // Check if panel is visible first
+        if (!profilingPanel.classList.contains('visible')) {
+            return false;
+        }
+        
+        const profilingZ = parseInt(profilingPanel.style.zIndex) || 0;
+        const visiblePanels = document.querySelectorAll('.hud.visible');
+        
+        for (const panel of visiblePanels) {
+            if (panel !== profilingPanel && (parseInt(panel.style.zIndex) || 0) > profilingZ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     #showCursorLine(show) {
+        // Don't show if profiling panel is not topmost
+        if (show && !this.#isProfilingPanelTopmost()) {
+            show = false;
+        }
+        
         if (this.#cursorLineEl) {
             this.#cursorLineEl.style.display = show ? 'block' : 'none';
         }

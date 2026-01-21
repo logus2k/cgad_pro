@@ -9,6 +9,9 @@ Usage:
     python run_benchmark.py --solver gpu
     python run_benchmark.py --model Venturi
     python run_benchmark.py --max-nodes 1000
+    python run_benchmark.py --mesh y_tube_772k.h5
+    python run_benchmark.py --mesh y_tube_772k.h5 --mesh s_bend_765k.h5
+    python run_benchmark.py --mesh y_tube_772k.h5 --solver gpu
     python run_benchmark.py --dry-run
 
 Location: /src/app/server/automated_benchmark/run_benchmark.py
@@ -101,6 +104,14 @@ Available models:
         default=None,
         help="Maximum mesh size (nodes) to test"
     )
+
+    parser.add_argument(
+        "--mesh",
+        type=str,
+        action="append",
+        default=None,
+        help="Run only specific mesh file(s) - can be repeated (e.g., --mesh y_tube_772k.h5 --mesh s_bend_765k.h5)"
+    )    
     
     parser.add_argument(
         "--runs", "-r",
@@ -208,6 +219,7 @@ Available models:
         solver_filter=args.solver,
         model_filter=args.model,
         max_nodes=args.max_nodes,
+        mesh_filter=args.mesh,
         dry_run=args.dry_run,
         resume=args.resume
     )

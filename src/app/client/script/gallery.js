@@ -646,7 +646,7 @@ class MeshGallery {
                 body: JSON.stringify({
                     solver: solverType,
                     mesh_file: selectedMesh.file,
-                    mode: 'timeline',
+                    mode: 'timeline',  // Options: 'timeline' (nsys only), 'kernels' (ncu only), 'full' (nsys + ncu)
                     mesh_nodes: selectedMesh.nodes,
                     mesh_elements: selectedMesh.elements
                 })
