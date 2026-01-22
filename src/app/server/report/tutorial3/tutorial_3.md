@@ -713,7 +713,7 @@ The implementations cover sequential CPU execution, shared-memory and process-ba
 
 Numerical equivalence is preserved across all implementations, enabling direct and fair comparison of execution behavior, performance, and scalability under consistent numerical conditions.
 
-## 3.1.1. Pre-Implementation Phase
+### 3.1.1. Pre-Implementation Phase
 
 Before the development of the CPU and GPU execution models presented in this section, a dedicated pre-implementation phase was carried out to migrate an existing Finite Element Method (FEM) solver, previously developed in MATLAB by a member of the group, to the Python programming language.
 
@@ -745,94 +745,114 @@ The CPU baseline implementation serves as the reference against which all other 
 
 ### 3.2.2. Technology Background
 
-#### 3.2.2.1. NumPy and SciPy Ecosystem
-The baseline implementation is built on Python’s scientific computing ecosystem:
+The baseline implementation is built on Python’s scientific computing ecosystem and executes on a sequential CPU model.
+
+**Software ecosystem:**
 
 - **NumPy** provides N-dimensional arrays and vectorized operations backed by optimized BLAS/LAPACK libraries.  
 - **SciPy** supplies sparse matrix data structures and iterative solvers for large linear systems.  
 - **h5py and pandas** support efficient binary input/output for mesh and result data.  
+- This stack enables concise algorithm expression while delegating computationally intensive kernels to compiled numerical libraries.  
 
-This stack enables concise algorithm expression while delegating computationally intensive kernels to compiled numerical libraries.
+**Execution characteristics:**
 
-#### 3.2.2.2. Execution Characteristics
-Execution is performed within the CPython interpreter and is therefore subject to the Global Interpreter Lock (GIL). While NumPy and SciPy release the GIL during computational kernels, Python-level control flow remains serialized.
+- Execution is performed within the **CPython interpreter**, and is therefore subject to the **Global Interpreter Lock (GIL)**.  
+- While NumPy and SciPy release the GIL during computational kernels, Python-level control flow remains serialized.  
+- For FEM workloads, this results in a mixed execution model:
+  - **Element loops** execute sequentially at the Python level with the GIL held.  
+  - **Dense linear algebra operations** are executed in optimized BLAS/LAPACK routines with the GIL released.  
+  - **Sparse iterative solvers** execute predominantly in compiled SciPy code, also releasing the GIL during major operations.  
 
-For FEM workloads, this results in a mixed execution model:
+**Relevance for FEM:**
 
-- **Element loops** execute sequentially at the Python level with the GIL held.  
-- **Dense linear algebra operations** are executed in optimized BLAS/LAPACK routines with the GIL released.  
-- **Sparse iterative solvers** execute predominantly in compiled SciPy code, also releasing the GIL during major operations.  
-
-#### 3.2.2.3. Relevance for FEM
-The sequential CPU baseline fulfills several essential roles in the FEM workflow:
-
-- Provides a clear and traceable mapping between the mathematical formulation and the implementation  
-- Serves as a correctness reference for validating parallel implementations  
-- Enables early identification of computational bottlenecks through profiling  
-- Establishes a minimum performance bound for speedup evaluation  
+- Provides a clear and traceable mapping between the mathematical formulation and the implementation.  
+- Serves as a correctness reference for validating parallel implementations.  
+- Enables early identification of computational bottlenecks through profiling.  
+- Establishes a minimum performance bound for speedup evaluation.  
 
 ---
 
 ### 3.2.3. Implementation Strategy
 
-#### 3.2.3.1. Mesh Loading
-Mesh data is loaded primarily from binary HDF5 files. This choice minimizes parsing overhead and ensures that input/output costs remain negligible relative to computation, even for large meshes.
+The FEM workflow is organized into sequential stages to ensure correctness and consistent performance evaluation.
 
-#### 3.2.3.2. System Assembly
-The global stiffness matrix and load vector are assembled using a classical element-by-element FEM approach:
+- **Mesh loading**: mesh data is loaded from binary HDF5 files to minimize parsing overhead and keep I/O negligible.  
 
-1. The global sparse matrix is initialized in a format optimized for incremental insertion.  
-2. Elements are processed sequentially.  
-3. For each element, an 8×8 local stiffness matrix and corresponding load contributions are computed using numerical quadrature.  
-4. Local contributions are scattered into the global sparse matrix.  
+- **System assembly** (element-by-element):
+  1. initialize the global sparse matrix in an insertion-friendly format  
+  2. compute per element an 8×8 local stiffness matrix + load terms using numerical quadrature  
+  3. scatter local contributions into the global sparse system  
+  4. convert the matrix to a compressed sparse format optimized for sparse matrix–vector products during solving  
 
-After assembly, the global matrix is converted to a compressed sparse format optimized for sparse matrix–vector products during the solution phase. This two-phase strategy balances insertion efficiency during assembly with arithmetic efficiency during iterative solution.
+- **Boundary conditions**:
+  - Robin (inlet) enforced via numerical integration of boundary terms  
+  - Dirichlet (outlet) imposed using a penalty method  
+  - overall cost is small compared to assembly/solve  
 
-#### 3.2.3.3. Boundary Condition Application
-Boundary conditions are applied after assembly using standard FEM techniques:
+- **Linear system solution**: solved using SciPy Conjugate Gradient (CG) with:
+  - diagonal equilibration  
+  - Jacobi (diagonal) preconditioning  
+  - identical solver configuration across implementations for consistent convergence behavior  
 
-- **Robin boundary conditions (inlet)** are enforced through numerical integration of boundary contributions.  
-- **Dirichlet boundary conditions (outlet)** are imposed using the penalty method for implementation simplicity.  
-
-The computational cost of boundary condition application is small relative to assembly and solution phases.
-
-#### 3.2.3.4. Linear System Solution
-The resulting linear system is solved using the Conjugate Gradient (CG) method provided by SciPy. To ensure robust and consistent convergence:
-
-- The system is diagonally equilibrated to improve numerical conditioning.  
-- A Jacobi (diagonal) preconditioner is applied.  
-
-The same solver configuration and convergence criteria are used across all implementations, ensuring identical iteration counts and comparable numerical behavior.
-
-#### 3.2.3.5. Post-Processing
-Post-processing computes derived quantities such as velocity fields and pressure from the solved potential field. These operations involve additional element-level loops and are executed sequentially.
-
-While not dominant, post-processing introduces a measurable overhead for large meshes.
-
+- **Post-processing**: derived fields (e.g., velocity, pressure) computed via additional element-level loops; not dominant, but measurable for large meshes.
 ---
 
 ### 3.2.4. Optimization Techniques Applied
 
-#### 3.2.4.1. Sparse Matrix Format Selection
-Different sparse matrix formats are employed at different stages of the computation:
+Several optimizations are applied to improve performance while preserving numerical equivalence and implementation simplicity.
+
+- **Sparse matrix format selection**: different sparse formats are used depending on the computation stage, balancing assembly efficiency and solver performance:
 
 | Format | Insertion | SpMV | Memory | Usage |
 |--------|-----------|------|--------|-------|
 | LIL (List of Lists) | O(1) amortized | O(nnz) | Higher | Assembly |
 | CSR (Compressed Sparse Row) | O(n) | O(nnz) optimal | Lower | Solve |
 
-This separation minimizes assembly overhead while ensuring efficient memory access during iterative solution.
+  - The LIL → CSR strategy minimizes insertion overhead during assembly while ensuring optimal sparse matrix–vector products during iterative solving.
 
-#### 3.2.4.2. Diagonal Equilibration
-Prior to solving, the linear system is diagonally equilibrated to improve conditioning. This scaling reduces sensitivity to variations in element size and improves convergence behavior, particularly for large or heterogeneous meshes.
+- **Diagonal equilibration**:
+  - the linear system is diagonally equilibrated before solving to improve conditioning  
+  - reduces sensitivity to element size variation and improves convergence, especially for large/heterogeneous meshes  
 
-#### 3.2.4.3. Preconditioning Strategy
-A Jacobi (diagonal) preconditioner is employed within the Conjugate Gradient solver. Despite its simplicity, this preconditioner provides a favorable trade-off between implementation complexity and convergence robustness, ensuring stable and reproducible iteration counts.
+- **Preconditioning strategy**:
+  - a Jacobi (diagonal) preconditioner is applied in the CG solver  
+  - provides a good trade-off between simplicity and convergence robustness, ensuring stable iteration counts  
 
-#### 3.2.4.4. Vectorized Inner Operations
-Within each element computation, dense linear algebra operations are expressed using NumPy array operations. These operations are executed in optimized compiled libraries, partially mitigating Python interpreter overhead at the inner-kernel level.
+- **Vectorized inner operations**:
+  - element-level dense operations are expressed using NumPy vectorized kernels 
+  - this delegates inner computations to optimized compiled BLAS/LAPACK routines, mitigating Python interpreter overhead  
 
 ---
+
+### 3.2.5. Challenges and Limitations
+
+The sequential CPU baseline exhibits several performance and scalability limitations, mainly driven by Python-level execution, sparse assembly costs, and unfavorable memory access patterns.
+
+- **Sequential element loop**:
+  - assembly relies on an explicit Python loop over all elements  
+  - for large meshes, performance scales linearly and becomes dominated by interpreter overhead  
+
+- **GIL constraints**:
+  - although NumPy/SciPy kernels release the GIL, Python control flow and sparse indexing remain serialized  
+  - as a result, multi-threading provides limited benefit for this baseline design  
+
+- **Sparse matrix insertion overhead**:
+  - incremental sparse updates incur high overhead due to dynamic allocation and indirect indexing  
+  - these costs dominate assembly time for large problem sizes  
+
+- **Memory access patterns**:
+  - element assembly requires scattered reads (nodal data) and scattered writes (global matrix)  
+  - poor spatial locality leads to cache inefficiency and increased memory traffic  
+
+- **Observed execution behavior**:
+  - **assembly is interpreter-bound**, dominated by Python iteration and sparse indexing rather than floating-point arithmetic  
+  - sparse assembly uses an insertion-friendly format, then converts to a solver-efficient compressed format (**trade-off: extra conversion cost**, amortized over solver iterations)  
+  - solver convergence is sensitive to preconditioning:
+    - without preconditioning, CG may require many more iterations or fail  
+    - **Jacobi preconditioning** stabilizes convergence with negligible overhead  
+  - convergence monitoring uses the **true residual norm** (not solver estimates), enabling consistent criteria and anomaly detection  
+    - residual evaluation cost is small (≈ one SpMV per monitoring step) relative to total solver runtime  
+
 
 ### 3.2.5. Challenges and Limitations
 
@@ -932,36 +952,28 @@ Unlike the baseline, which executes all element-level operations sequentially, t
 
 ---
 
-## 3.3.2. Technology Background
+### 3.3.2. Technology Background
 
-#### 3.3.2.1 Python Threading and the Global Interpreter Lock
+Python threading is limited by the Global Interpreter Lock (GIL), which serializes execution of Python bytecode and prevents true parallelism for CPU-bound workloads at the Python level. However, many NumPy kernels release the GIL, allowing partial concurrency.
 
-Python’s Global Interpreter Lock (GIL) enforces serialized execution of Python bytecode, preventing true parallel execution of CPU-bound workloads across threads. This simplifies memory management but significantly constrains scalability for numerical applications implemented at the Python level.
+**GIL and NumPy behavior**
 
-However, many NumPy operations release the GIL during execution, including:
+- The GIL blocks parallel execution of Python-level code across threads.  
+- NumPy releases the GIL in several operations:
+  - Vectorized arithmetic
+  - BLAS/LAPACK dense kernels 
+  - Element-wise math kernels 
 
-- Vectorized array arithmetic  
-- Dense linear algebra routines (BLAS/LAPACK)  
-- Element-wise mathematical kernels  
+**ThreadPoolExecutor model**
 
-This behavior enables limited concurrency when the computation is structured to maximize time spent inside GIL-released NumPy kernels, while minimizing Python-level control flow.
+- `ThreadPoolExecutor` provides reusable worker threads and a future-based execution model.  
+- Key advantages:
+  - Low overhead due to persistent threads  
+  - Asynchronous submission via `Future`  
+  - Dynamic scheduling (basic load balancing)  
+  - Shared-memory access to NumPy arrays  
 
-#### 3.3.2.2 ThreadPoolExecutor Execution Model
-
-The `ThreadPoolExecutor` abstraction provides a pool of reusable worker threads and a future-based execution model.
-
-Key characteristics include:
-
-- Persistent worker threads, reducing creation overhead  
-- Asynchronous task submission via `Future` objects  
-- Automatic synchronization and cleanup through context management  
-- Dynamic scheduling that enables basic load balancing  
-
-This abstraction simplifies parallel orchestration while preserving shared-memory access to NumPy arrays.
-
-#### 3.3.2.3 Implications for FEM Workloads
-
-Relative to the CPU baseline, the expected impact of threading on FEM operations is mixed:
+**Implications for FEM workloads**
 
 | Operation | GIL Released | Expected Benefit |
 |----------|--------------|------------------|
@@ -970,7 +982,7 @@ Relative to the CPU baseline, the expected impact of threading on FEM operations
 | NumPy dense kernels | Yes | Moderate |
 | Element-wise NumPy ops | Yes | Moderate |
 
-The overall benefit therefore depends on increasing the ratio of GIL-free numerical computation relative to GIL-held Python coordination.
+- Speedup depends on maximizing time spent in GIL-free NumPy kernels and minimizing Python coordination.
 
 ---
 
@@ -1026,21 +1038,23 @@ The linear solver is identical to the CPU baseline. SciPy’s Conjugate Gradient
 
 ### 3.3.4. Optimization Techniques Applied
 
-#### 3.3.4.1 Batch Size Selection
+Several optimizations are applied to improve threaded performance by reducing overhead and maximizing time spent in GIL-free NumPy kernels.
 
-Batch size is a critical tuning parameter controlling the balance between coordination overhead and load balance. Empirical testing indicates that batch sizes between 500 and 2000 elements provide the best trade-off for typical problem sizes.
+- **Batch size selection**:
+  - batch size controls the trade-off between scheduling overhead and load balance  
+  - empirical testing shows best results for ~500–2000 elements per batch  
 
-#### 3.3.4.2 Pre-allocation of Thread-Local Buffers
+- **Pre-allocation of thread-local buffers**:
+  - fixed-size arrays are allocated once per batch/thread invocation  
+  - avoids repeated dynamic allocations inside inner loops, improving cache locality  
 
-Each batch allocates fixed-size arrays once per thread invocation, avoiding repeated dynamic memory allocation within inner loops. This reduces overhead and improves cache locality.
+- **Inlined element computation**:
+  - stiffness computation is implemented directly inside the batch function  
+  - minimizes function call overhead and increases time spent in GIL-released NumPy kernels  
 
-#### 3.3.4.3 Inlined Element Computation
-
-Element stiffness computation is implemented directly within the batch function to minimize function call overhead and maximize time spent in GIL-released NumPy kernels.
-
-#### 3.3.4.4 Shared Read-Only Data
-
-Mesh coordinates, connectivity, and quadrature data are shared across threads as read-only NumPy arrays. This avoids memory duplication while maintaining thread safety.
+- **Shared read-only data**:
+  - mesh coordinates, connectivity, and quadrature data are shared across threads as read-only arrays  
+  - avoids memory duplication while ensuring thread safety  
 
 ---
 
@@ -1125,23 +1139,20 @@ The CPU Multiprocess implementation achieves true parallelism by using process-b
 
 ### 3.4.2. Technology Background
 
-#### 3.4.2.1 Python Multiprocessing
-
-The multiprocessing execution model spawns multiple independent worker processes. Each worker runs its own Python interpreter with an isolated memory space and its own Global Interpreter Lock.
-
+Python multiprocessing achieves parallelism by spawning multiple independent worker processes. Each process runs its own Python interpreter with an isolated memory space and its own GIL, avoiding GIL contention and enabling true CPU parallelism.
 
 ![Multiprocessing](images/documents/tutorial2/multiprocessing.png)
 
-Key characteristics:
+**Multiprocessing model**
 
-- **Separate memory**: Each process has isolated address space  
-- **Independent GIL**: No GIL contention between processes  
-- **IPC required**: Data must be serialized (pickled) for transfer  
-- **Higher overhead**: Process creation and coordination are more expensive than threads  
+- Separate memory: each process has an isolated address space  
+- Independent GIL: no GIL contention between processes  
+- IPC required: data must be transferred via serialization  
+- Higher overhead: process creation and coordination are more expensive than threads  
 
-#### 3.4.2.2 multiprocessing.Pool
+**multiprocessing.Pool execution**
 
-The Pool abstraction manages a fixed number of worker processes and distributes work among them using mapping primitives.
+- `Pool` manages a fixed number of worker processes and distributes work using mapping primitives:
 
 | Method | Behavior | Ordering |
 |--------|----------|----------|
@@ -1150,22 +1161,14 @@ The Pool abstraction manages a fixed number of worker processes and distributes 
 | `imap()` | Lazy iterator | Preserved |
 | `imap_unordered()` | Lazy iterator | Arbitrary |
 
-Compared to the threaded implementation, which can collect results asynchronously, `map()` returns results in submission order, simplifying aggregation.
+**Pickle serialization (IPC)**
 
+- Data transfer relies on pickle serialization:
+  - input arguments are serialized and sent to workers  
+  - return values are serialized and returned to the main process  
+- Large NumPy arrays can introduce significant overhead.  
 
-#### 3.4.2.3 Pickle Serialization
-
-Inter-process communication relies on pickle serialization:
-
-- All input arguments are serialized and sent to workers  
-- Return values are serialized and sent back to the main process  
-- Worker functions must be defined at module level  
-- Large arrays incur significant serialization overhead  
-
-
-#### 3.4.2.4 Relevance for FEM
-
-Relative to threading, multiprocessing offers true parallelism but introduces additional overheads:
+**Relevance for FEM workloads**
 
 | Aspect | Threading | Multiprocessing |
 |------|-----------|-----------------|
@@ -1175,70 +1178,52 @@ Relative to threading, multiprocessing offers true parallelism but introduces ad
 | Communication | Direct memory access | Pickle serialization |
 | Scalability | Limited by GIL | Limited by cores and IPC |
 
-For FEM assembly with element-independent computation, multiprocessing can approach near-linear speedup if IPC overhead is amortized.
-
+- For element-independent FEM assembly, multiprocessing can provide near-linear speedup if IPC costs are amortized.
 ---
 
 ### 3.4.3. Implementation Strategy
 
-#### 3.4.3.1 Module-Level Function Requirement
+The multiprocessing implementation follows a batch-parallel execution model, where independent element batches are processed by separate worker processes. This enables true CPU parallelism but introduces additional constraints and IPC overhead.
 
-A critical constraint of multiprocessing is that worker logic must be defined at module level to be serializable. This imposes structural constraints compared to class-centric designs.
+- **Module-level function requirement**:
+  - worker logic must be defined at module scope to be serializable (picklable)  
+  - computational kernels and batch-processing logic are therefore implemented at top-level scope  
 
-All computational kernels and batch-processing logic must therefore reside at top-level scope.
+- **Batch processing architecture**:
+  - the global element set is partitioned into contiguous batches  
+  - each batch is processed independently by a worker process  
+  - batches include the element range and required FEM data (coordinates, connectivity, quadrature)  
+  - batching amortizes IPC overhead and reduces scheduling frequency  
 
-
-#### 3.4.3.2 Batch Processing Architecture
-
-The global element set is partitioned into contiguous batches. Each batch is processed independently by a worker process.
-
-Each batch contains:
-
-- Element index range  
-- Coordinate data  
-- Connectivity information  
-- Quadrature data  
-
-Batching amortizes IPC overhead and reduces scheduling frequency.
-
-
-#### 3.4.3.3 Data Serialization Implications
-
-Unlike threading, multiprocessing requires explicit data transfer per batch:
-
+- **Data serialization implications (IPC overhead)**:
+  - unlike threading, multiprocessing requires explicit data transfer per batch  
 
 ![Multiprocessing Data Serialization](images/documents/tutorial2/multiprocessing_dataserial.png)
 
-For large meshes, serialization frequency and volume become dominant performance constraints.
+  - for large meshes, serialization volume and frequency become major performance constraints  
 
+- **COO assembly strategy**:
+  - workers produce thread/process-independent COO contributions  
+  - the main process concatenates partial COO results  
+  - COO → CSR conversion automatically merges duplicates  
+  - avoids concurrent updates to shared sparse structures  
 
-#### 3.4.3.4 COO Assembly Strategy
+- **Post-processing**:
+  - derived field computation uses the same batching strategy  
+  - the solution field must also be serialized to workers, increasing IPC overhead  
 
-As in the threaded implementation, assembly uses a coordinate-based sparse representation:
-
-- Workers generate independent COO contributions  
-- The main process concatenates all partial results  
-- COO → CSR conversion merges duplicates automatically  
-
-This avoids concurrent updates to shared sparse structures.
-
-
-#### 3.4.3.5 Post-Processing Parallelization
-
-Derived field computation follows the same batching strategy. The solution field must also be serialized and transmitted to workers, increasing IPC overhead during post-processing.
-
-
-#### 3.4.3.6 Linear System Solution
-
-The linear solver is executed in the main process using the same configuration as other implementations, ensuring consistent convergence behavior and numerical equivalence.
+- **Linear system solution**:
+  - executed in the main process using the same solver configuration as other implementations  
+  - ensures consistent convergence behavior and numerical equivalence  
 
 ---
 
 ### 3.4.4. Optimization Techniques Applied
 
-#### 3.4.4.1 Batch Size for IPC Amortization
+The multiprocessing implementation focuses on reducing IPC overhead and ensuring safe parallel sparse assembly.
 
-Larger batches reduce IPC frequency but limit load balancing flexibility:
+- **Batch size for IPC amortization**:
+  - larger batches reduce IPC frequency but reduce load-balancing flexibility  
 
 | Batch Size | Batches (100K elements) | IPC Transfers | IPC Overhead |
 |------------|--------------------------|---------------|--------------|
@@ -1247,19 +1232,17 @@ Larger batches reduce IPC frequency but limit load balancing flexibility:
 | 5000 | 20 | 40 | Low |
 | 10000 | 10 | 20 | Very Low |
 
-#### 3.4.4.2 Tuple-Based Argument Packing
+- **Tuple-based argument packing**:
+  - all required batch data is packed and transferred together  
+  - simplifies orchestration but increases serialization cost per task  
 
-All data required for batch processing is grouped and transmitted together. This simplifies orchestration but increases serialization cost per task.
+- **COO assembly for parallel safety**:
+  - each worker generates independent COO outputs (no shared-state writes)  
+  - duplicate handling is deferred to the final sparse matrix conversion  
 
-
-#### 3.4.4.3 COO Assembly for Parallel Safety
-
-Independent per-batch output generation avoids shared-state mutation. Duplicate summation is deferred to the final sparse matrix conversion.
-
-
-#### 3.4.4.4 Worker Count Configuration
-
-Worker count typically matches available CPU cores. While this maximizes parallelism, it also increases memory duplication and IPC traffic.
+- **Worker count configuration**:
+  - worker count typically matches the number of CPU cores  
+  - maximizes parallelism but increases memory duplication and IPC traffic  
 
 ---
 
@@ -1404,109 +1387,100 @@ This implementation combines the low memory overhead of shared-memory execution 
 
 ### 3.5.2. Technology Background
 
-#### 3.5.2.1 Just-In-Time Compilation
+Numba provides Just-In-Time (JIT) compilation by translating Python functions into optimized machine code using the LLVM infrastructure. This removes Python interpreter overhead and enables near-native CPU execution.
 
-Numba is a Just-In-Time compiler that translates Python functions into optimized machine code using the LLVM compiler infrastructure. The compilation pipeline transforms Python source code through intermediate representations into native CPU instructions.
+**Just-In-Time (JIT) compilation with Numba**
 
-Key advantages relative to interpreted execution include:
+- Eliminates Python interpreter overhead  
+- Native performance comparable to C/Fortran  
+- Enables compiler optimizations (inlining, loop optimizations, SIMD via LLVM)  
+- Executes without typical GIL constraints in compiled code  
 
-- Elimination of Python interpreter overhead  
-- Native execution speed comparable to C/Fortran  
-- Automatic loop unrolling and inlining  
-- SIMD vectorization via LLVM  
-- Execution without Global Interpreter Lock (GIL) constraints  
+**`@njit` compilation model**
 
-#### 3.5.2.2 The `@njit` Compilation Model
+- The implementation uses `@njit` to enforce *nopython* mode:
+  - Python bytecode is bypassed  
+  - Types are inferred at compile time  
+  - Unsupported Python/NumPy features are disallowed  
+- Compilation caching is enabled to amortize compilation cost across executions.  
 
-The implementation uses Numba’s `@njit` decorator to enforce *nopython* mode. In this mode:
+**Parallel execution with `prange`**
 
-- All Python bytecode is bypassed  
-- Type inference is resolved at compile time  
-- Unsupported Python and NumPy features are disallowed  
+- Loop parallelism is implemented using `prange`:
+  - Execution occurs without GIL limitations  
+  - Threads operate in shared memory  
+  - OpenMP-style work distribution  
+- Near-linear speedup is possible for independent iterations.  
 
-Compilation caching is enabled to persist generated machine code across executions, amortizing compilation cost.
+**Relevance for FEM workloads**
 
-#### 3.5.2.3 Parallel Execution with `prange`
+- JIT compilation targets key FEM bottlenecks:
+  - Element stiffness matrix computation
+  - Element-level assembly loops
+  - Derived field computation  
+- Sparse matrix construction and solvers remain in SciPy, preserving numerical equivalence with previous approaches.
 
-Parallelism is achieved using Numba’s `prange`, which distributes loop iterations across CPU threads. Unlike Python threading:
-
-- Execution occurs without GIL constraints  
-- Threads operate in shared memory  
-- Work distribution follows an OpenMP-style model  
-- Near-linear speedup is achievable for independent iterations  
-
-#### 3.5.2.4 Relevance for FEM
-
-For FEM workloads, JIT compilation directly targets the dominant computational bottlenecks:
-
-- Element stiffness matrix computation  
-- Element-level assembly loops  
-- Derived field computation  
-
-Sparse matrix construction and iterative solvers remain in SciPy, preserving numerical equivalence with previous implementations.
 
 ---
 
 ### 3.5.3. Implementation Strategy
 
-#### 3.5.3.1 Function-Level JIT Compilation
+The Numba implementation moves all element-level FEM computation into JIT-compiled kernels, minimizing interpreter overhead and enabling parallel execution through `prange`.
 
-All computational kernels are implemented as Numba-compiled functions. Element stiffness computation, boundary condition evaluation, and post-processing kernels are explicitly written using loop-based formulations compatible with Numba’s *nopython* mode.
+- **Function-level JIT compilation**:
+  - all computational kernels are compiled with Numba in *nopython* mode  
+  - stiffness computation, boundary contributions, and post-processing are implemented using loop-based formulations  
+  - ensures element-level computation runs fully in compiled code (no Python interpreter overhead)  
 
-This ensures that the entire element-level computation executes in compiled code without interpreter intervention.
+- **Parallel element assembly (`prange`)**:
+  - global assembly is performed as a parallel loop over elements  
+  - each iteration:
+    1. gathers element nodal coordinates  
+    2. computes local stiffness matrix + load vector  
+    3. writes contributions into pre-allocated COO arrays 
+  - element independence enables safe parallelism and near-linear scaling  
 
-#### 3.5.3.2 Parallel Element Assembly
+- **Explicit loop-based kernels**:
+  - operations are written as explicit loops (not vectorized NumPy) to maximize LLVM optimizations:
+    - loop unrolling for small fixed-size loops  
+    - inlining and reduced overhead  
+    - fewer temporary allocations  
+    - SIMD vectorization of inner loops  
 
-Global assembly is implemented through a parallel loop over elements. Each iteration:
+- **Parallel post-processing**:
+  - derived field computation follows the same compiled-parallel pattern  
+  - each element evaluates gradients and stores results in element-wise output arrays  
 
-1. Gathers nodal coordinates for a single element  
-2. Computes the local stiffness matrix and load vector  
-3. Writes local contributions into pre-allocated COO arrays  
+- **Solver integration**:
+  - Numba generates COO-format data, while SciPy performs sparse matrix construction and solution (CG)  
+  - the JIT boundary is placed at the array level to preserve numerical equivalence with previous implementations
 
-Parallelism is applied at the element level using `prange`, ensuring that each element is processed independently and concurrently.
-
-#### 3.5.3.3 Explicit Loop-Based Kernels
-
-Unlike vectorized NumPy formulations, all numerical operations are expressed as explicit loops. This allows LLVM to:
-
-- Fully unroll small fixed-size loops  
-- Inline function calls  
-- Eliminate temporary array allocations  
-- Apply SIMD vectorization to inner loops  
-
-This explicit structure is critical for achieving high performance in JIT-compiled FEM kernels.
-
-#### 3.5.3.4 Parallel Post-Processing
-
-Derived field computation (velocity and magnitude) follows the same compiled parallel pattern. Each element gathers local solution values, evaluates gradients at integration points, and stores results in element-wise output arrays.
-
-#### 3.5.3.5 Solver Integration
-
-Sparse matrix construction and the Conjugate Gradient solver are executed outside Numba using SciPy. The JIT boundary is placed at the array level: Numba generates COO-format data, and SciPy handles sparse matrix assembly and solution.
 
 ---
 
 ### 3.5.4. Optimization Techniques Applied
 
-#### 3.5.4.1 Interpreter Elimination
+The Numba JIT implementation improves performance by eliminating interpreter overhead and enabling compiler-level optimizations.
 
-The dominant optimization is the complete removal of Python interpreter overhead from element-level computation. All inner loops execute as native machine code.
+- **Interpreter elimination**:
+  - Python interpreter overhead is removed from element-level computation  
+  - inner loops execute as native machine code  
 
-#### 3.5.4.2 Loop Unrolling and Inlining
+- **Loop unrolling and inlining**:
+  - small fixed-size loops are unrolled by LLVM  
+  - nested function calls in compiled code are typically inlined, reducing call overhead  
 
-Small, fixed-size loops are fully unrolled by LLVM. Nested function calls within JIT-compiled code are typically inlined, eliminating function call overhead.
+- **SIMD vectorization**:
+  - LLVM applies SIMD vectorization to inner arithmetic loops when possible  
+  - enables multiple operations per CPU cycle  
 
-#### 3.5.4.3 SIMD Vectorization
+- **Memory access optimization**:
+  - COO output is written sequentially in element-major order  
+  - improves cache locality and reduces write overhead  
 
-LLVM applies SIMD vectorization to inner arithmetic loops where data layout permits, enabling multiple operations per CPU cycle.
-
-#### 3.5.4.4 Memory Access Optimization
-
-COO data is written sequentially in element-major order, improving cache locality and reducing memory write overhead.
-
-#### 3.5.4.5 Shared-Memory Parallelism
-
-Parallel execution uses shared memory without data duplication, preserving memory efficiency relative to multiprocessing-based approaches.
+- **Shared-memory parallelism**:
+  - parallel execution uses shared memory without data duplication  
+  - preserves memory efficiency compared to multiprocessing approaches  
 
 ---
 
@@ -1591,109 +1565,102 @@ Element-level FEM computations are offloaded to the GPU using a one-thread-per-e
 
 ### 3.6.2. Technology Background
 
-#### 3.6.2.1 Numba CUDA Programming Model
+Numba extends its JIT compilation framework to NVIDIA GPUs through the `@cuda.jit` decorator. CUDA kernels are compiled to PTX and executed on the GPU, enabling massive parallelism using the CUDA SIMT model (many lightweight threads executing the same kernel concurrently).
 
-Numba extends its JIT compilation framework to NVIDIA GPUs through the `@cuda.jit` decorator. Python functions annotated as CUDA kernels are compiled to PTX (Parallel Thread Execution) code and executed on the GPU.
+**Numba CUDA programming model**
 
-GPU execution follows the CUDA SIMT model, where thousands of lightweight threads execute the same kernel concurrently.
+- `@cuda.jit` compiles Python functions into GPU kernels (PTX code).  
+- Execution follows the CUDA SIMT model, suited for thousands of parallel threads.  
 
-#### 3.6.2.2 CUDA Execution Hierarchy
+**CUDA execution hierarchy**
 
-GPU kernels are launched using a hierarchical structure:
+- GPU kernels launch threads using a hierarchical structure:
+  - Grid: all threads launched by a kernel  
+  - Block: group of threads with cooperation via shared memory  
+  - Thread: smallest execution unit  
+  - Warp: 32 threads executing in lockstep  
+- Threads are indexed with `cuda.grid(1)`, enabling direct mapping:
+  - thread index ↔ FEM element index**  
 
-- **Grid**: All threads launched by a kernel invocation  
-- **Block**: A group of threads that can cooperate via shared memory  
-- **Thread**: The smallest execution unit  
-- **Warp**: A group of 32 threads executing in lockstep  
+**GPU memory hierarchy**
+- Memory is organized in tiers:
+  - Registers (fastest, thread-private)  
+  - Local memory (thread-private, may spill)  
+  - Shared memory (fast, block-shared)  
+  - Global memory (large, high latency)  
+- The implementation typically uses:
+  - registers/local memory for element-level arrays  
+  - global memory for mesh input data and assembled outputs  
 
-Threads are indexed using `cuda.grid(1)`, enabling a direct mapping between thread index and FEM element index.
+**Relevance for FEM workloads**
 
-#### 3.6.2.3 GPU Memory Hierarchy
-
-GPU memory is organized in multiple tiers:
-
-- **Registers**: Fastest, thread-private storage  
-- **Local memory**: Thread-private, may spill to device memory  
-- **Shared memory**: Fast, block-shared memory  
-- **Global memory**: Large but high-latency device memory  
-
-The implementation primarily uses registers and local memory for element-level arrays and global memory for mesh data and assembled results.
-
-#### 3.6.2.4 Relevance for FEM
-
-GPU execution is particularly well suited for FEM workloads with large numbers of independent elements. Element-level stiffness matrix computation exhibits high arithmetic intensity and minimal inter-thread dependency, making it ideal for SIMT execution.
+- GPUs are effective for FEM with many independent elements.  
+- Element stiffness computation has high arithmetic intensity and low dependency, making it well-suited for SIMT execution.
 
 ---
 
 ### 3.6.3. Implementation Strategy
 
-#### 3.6.3.1 Kernel-Based Element Assembly
+The GPU implementation offloads FEM assembly and post-processing to CUDA kernels, using a one-thread-per-element mapping to exploit massive parallelism while avoiding inter-thread dependencies.
 
-Element assembly is implemented as a GPU kernel where each thread processes a single element. For each element, the thread:
+- **Kernel-based element assembly**:
+  - assembly is implemented as a GPU kernel where each thread processes one element  
+  - per element, each thread:
+    1. loads nodal indices and coordinates  
+    2. computes shape functions, Jacobians, and gradients  
+    3. assembles the local stiffness matrix and load vector  
+    4. writes results to global memory  
+  - computations use explicit loops compatible with Numba CUDA  
 
-1. Loads nodal indices and coordinates  
-2. Computes shape functions, Jacobians, and gradients  
-3. Assembles the local stiffness matrix and load vector  
-4. Writes results to global memory  
+- **Thread-to-element mapping**:
+  - 1D grid launch, one thread per element  
+  - extra threads exit early when the element index exceeds mesh size  
+  - enables uniform work distribution without synchronization during element evaluation  
 
-All computations are performed using explicit loops compatible with Numba CUDA.
+- **Local memory usage**:
+  - per-thread temporary arrays are stored using `cuda.local.array`:
+    - DOF indices, coordinates  
+    - local stiffness matrix and load vector  
+    - shape functions and derivatives  
+  - thread-private memory avoids race conditions and synchronization overhead  
 
-#### 3.6.3.2 Thread-to-Element Mapping
+- **Force vector assembly (atomics)**:
+  - shared nodes require thread-safe accumulation  
+  - global force vector is assembled using `cuda.atomic.add` to ensure correctness  
 
-A one-thread-per-element strategy is used:
+- **Post-processing on GPU**:
+  - derived fields are computed in a separate GPU kernel  
+  - each thread evaluates gradients and stores element-wise averaged results  
 
-- Each GPU thread computes one element  
-- Threads are launched in 1D grids  
-- Excess threads exit early if the element index exceeds the mesh size  
-
-This mapping ensures uniform work distribution and avoids inter-thread synchronization during element computation.
-
-#### 3.6.3.3 Local Memory Usage
-
-Per-thread temporary arrays are allocated using `cuda.local.array`, including:
-
-- Element DOF indices  
-- Nodal coordinates  
-- Local stiffness matrix and load vector  
-- Shape functions and derivatives  
-
-These arrays are private to each thread, eliminating race conditions and synchronization overhead.
-
-#### 3.6.3.4 Force Vector Assembly with Atomics
-
-Because multiple elements share nodes, assembly of the global force vector requires atomic operations. Thread-safe accumulation is performed using `cuda.atomic.add` to ensure correctness.
-
-#### 3.6.3.5 Post-Processing on GPU
-
-Derived field computation (velocity and magnitude) is implemented as a separate GPU kernel. Each thread processes one element, evaluates gradients at integration points, and stores averaged results.
-
-#### 3.6.3.6 Solver Integration
-
-The linear system is solved on the GPU using CuPy’s sparse Conjugate Gradient solver. Sparse matrices are converted to CuPy formats, allowing the entire solution phase to execute on the GPU before transferring results back to CPU memory.
+- **Solver integration**:
+  - the linear system is solved on the GPU using CuPy sparse Conjugate Gradient (CG) 
+  - sparse matrices are converted to CuPy formats and the solution phase runs fully on GPU before copying results back to CPU memory
 
 ---
 
 ### 3.6.4. Optimization Techniques Applied
 
-#### 3.6.4.1 Massive Parallelism
+The Numba CUDA implementation applies GPU-focused optimizations to maximize throughput and reduce memory/control-flow inefficiencies.
 
-The GPU executes tens of thousands of threads concurrently, enabling element-level parallelism far beyond CPU core counts.
+- **Massive parallelism**:
+  - GPU executes tens of thousands of threads concurrently  
+  - enables element-level parallelism far beyond CPU core counts  
 
-#### 3.6.4.2 Block Size Tuning
+- **Block size tuning**:
+  - kernel launch configuration is tuned for occupancy vs. register pressure  
+  - 128 threads per block provides good performance for register-heavy FEM kernels  
 
-Kernel launch configuration is tuned to balance occupancy and register pressure. A block size of 128 threads provides good performance for the register-heavy FEM kernels.
+- **Memory coalescing**:
+  - memory access patterns are structured so consecutive threads access contiguous memory  
+  - improves global memory bandwidth utilization  
 
-#### 3.6.4.3 Memory Coalescing
+- **Register and local memory management**:
+  - small per-thread arrays are kept in registers when possible  
+  - larger arrays may spill to local memory but remain thread-private and cached efficiently  
 
-Global memory accesses are structured so that consecutive threads write to contiguous memory regions, improving memory coalescing and bandwidth utilization.
-
-#### 3.6.4.4 Register and Local Memory Management
-
-Small per-thread arrays are kept in registers where possible. Larger arrays may spill to local memory, but remain private and efficiently cached.
-
-#### 3.6.4.5 Warp Divergence Minimization
-
-Kernel control flow is designed to minimize conditional branches. Aside from bounds checking at kernel entry, all threads follow identical execution paths.
+- **Warp divergence minimization**:
+  - control flow minimizes conditional branches  
+  - aside from bounds checks, threads follow identical execution paths  
 
 ---
 
@@ -1777,138 +1744,107 @@ The GPU CuPy implementation represents the most performance-oriented approach, u
 
 ### 3.7.2. Technology Background
 
-#### 3.7.2.1 CuPy Overview
+CuPy is a NumPy-compatible GPU array library that enables accelerated numerical computing using NVIDIA GPUs. It provides GPU-resident arrays, sparse matrix support, and iterative solvers running directly on the GPU.
 
-CuPy is a NumPy-compatible array library for GPU computing. It provides:
+**CuPy overview**
 
-- **Drop-in NumPy replacement**: `import cupy as cp` mirrors NumPy API
-- **GPU arrays**: Data stored in GPU memory (VRAM)
-- **Sparse matrices**: CSR/CSC/COO formats on GPU
-- **Iterative solvers**: CG, GMRES, etc. running entirely on GPU
-- **RawKernel**: Direct CUDA C/C++ kernel execution
+- Drop-in NumPy replacement (`import cupy as cp`) with a similar API  
+- GPU arrays stored in GPU memory (VRAM)  
+- Sparse matrices in CSR/CSC/COO formats on GPU  
+- GPU iterative solvers (e.g., CG, GMRES)  
+- RawKernel interface for custom CUDA C/C++ kernels  
 
-#### 3.7.2.2 RawKernel Interface
+**RawKernel execution model**
 
-CuPy's `RawKernel` allows embedding CUDA C code directly in Python. This provides:
+- `RawKernel` embeds CUDA C/C++ code directly in Python, enabling:
+  - full CUDA feature set  
+  - maximum performance (no Python overhead in the kernel)  
+  - explicit control over memory, synchronization, and shared memory  
+- Kernels are compiled once and cached for reuse.  
 
-- Full CUDA C feature set
-- Maximum performance (no Python overhead in kernel)
-- Direct control over memory, synchronization, shared memory
-- Compiled once, cached for reuse
-
-#### 3.7.2.3 Comparison with Numba CUDA
+**Comparison with Numba CUDA**
 
 | Aspect | Numba CUDA | CuPy RawKernel |
 |--------|------------|----------------|
 | Kernel language | Python | CUDA C/C++ |
-| Performance | ~90-95% of peak | ~100% of peak |
+| Performance | ~90–95% of peak | ~100% of peak |
 | Shared memory | Basic support | Full control |
 | Warp primitives | Limited | Full access |
 | Learning curve | Lower | Higher |
-| Debugging | Python-like | GPU debugger |
-| Compilation | JIT per function | JIT per kernel string |
 
-#### 3.7.2.4 GPU Memory Model
-
+**GPU memory model**
 
 ![GPU Memory Architeture](images/documents/tutorial2/gpu_memory.png)
+
 
 ---
 
 ### 3.7.3. Implementation Strategy
 
-#### 3.7.3.1 CUDA C Kernel Architecture
+This implementation uses CuPy RawKernel to execute custom CUDA C kernels while keeping the full FEM pipeline GPU-resident, including assembly, sparse matrix construction, solving, and post-processing.
 
-The implementation defines two primary CUDA C kernels as string literals embedded in Python:
+- **CUDA C kernel architecture (RawKernel)**:
+  - two primary kernels are embedded as CUDA C string literals:
+    - **Assembly kernel** (`quad8_assembly_kernel`)
+      - one thread per element  
+      - computes 8×8 stiffness matrix (64 values)  
+      - writes values to global COO value array  
+      - atomic accumulation into the global force vector  
+    - **Post-processing kernel** (`quad8_postprocess_kernel`)
+      - one thread per element  
+      - evaluates velocity gradient at 4 Gauss points  
+      - averages to centroid velocity  
+      - writes velocity components and magnitude  
 
-**Assembly Kernel** (`quad8_assembly_kernel`):
-- One thread per element
-- Computes 8×8 element stiffness matrix
-- Writes 64 values to global COO value array
-- Atomic update to global force vector
+- **Kernel source structure (assembly)**:
+  - thread index computed from `blockIdx`, `blockDim`, `threadIdx`  
+  - thread-local arrays for element data and local matrices  
+  - fixed quadrature/integration loops matching CPU formulation  
+  - scatter step writes flattened 8×8 values  
+  - force vector assembled via atomic updates  
 
-**Post-Processing Kernel** (`quad8_postprocess_kernel`):
-- One thread per element
-- Computes velocity gradient at 4 Gauss points
-- Averages to element centroid velocity
-- Writes velocity components and magnitude
+- **GPU-accelerated COO index generation**:
+  - COO row/column indices are generated on GPU using vectorized CuPy ops:
+    - creates all \(N_{el} \times 64\) indices in parallel  
+    - avoids CPU-side index generation and CPU–GPU synchronization  
+  - CUDA kernel computes only the COO values  
 
-#### 3.7.3.2 Kernel Source Structure
+- **Sparse matrix construction on GPU**:
+  - build COO matrix with CuPy sparse  
+  - convert COO → CSR on GPU (duplicates merged automatically)  
+  - sparse matrix remains GPU-resident  
 
-The assembly kernel follows a CUDA C structure with:
-
-- Thread index derived from `blockIdx`, `blockDim`, and `threadIdx`
-- Thread-local arrays for element data and local matrices
-- Fixed integration loops matching the CPU formulation
-- Scatter step writing flattened element stiffness matrix values
-- Atomic force vector accumulation
-
-#### 3.7.3.3 GPU-Accelerated COO Index Generation
-
-Unlike the Numba CUDA version which generates COO indices on CPU, this implementation uses vectorized CuPy operations on GPU:
-
-- Generates all \(N_{el} \times 64\) row indices in parallel
-- Generates all \(N_{el} \times 64\) column indices in parallel
-- Avoids CPU-GPU synchronization for index generation
-- Uses CuPy’s optimized array operations for index construction
-
-The kernel computes only the COO values; index arrays are generated on GPU.
-
-#### 3.7.3.4 Sparse Matrix Construction
-
-After kernel execution, COO data is converted to CSR:
-
-- COO sparse matrix is created on GPU using CuPy sparse
-- COO → CSR conversion merges duplicates automatically
-- Entire sparse matrix remains GPU-resident
-
-#### 3.7.3.5 GPU Sparse Solver
-
-The linear system is solved entirely on GPU using CuPy’s sparse solvers:
-
-- Diagonal equilibration is performed on GPU
-- Jacobi preconditioning is implemented on GPU using a linear operator abstraction
-- Conjugate Gradient (CG) runs fully on GPU
-- Solution is de-equilibrated on GPU
-
-All solver operations (SpMV, vector updates, dot products) run without CPU round-trips.
-
-#### 3.7.3.6 GPU Post-Processing
-
-Velocity computation is performed using a dedicated RawKernel:
-
-- One thread per element
-- Gradient evaluated at 4 Gauss points
-- Element-averaged velocity and magnitude stored in GPU arrays
-- Pressure computed from Bernoulli using vectorized GPU operations
+- **GPU sparse solver**:
+  - system solved fully on GPU using CuPy sparse solvers:
+    - diagonal equilibration on GPU  
+    - Jacobi preconditioning via linear operator  
+    - Conjugate Gradient (CG) fully on GPU  
+    - de-equilibration on GPU
 
 ---
 
 ### 3.7.4. Optimization Techniques Applied
 
-#### 3.7.4.1 CUDA C Shape Function Derivatives
+The CuPy RawKernel implementation applies CUDA C-level optimizations to maximize kernel efficiency and ensure solver robustness.
 
-Shape function derivatives are computed inline inside the kernel using explicit CUDA C expressions, avoiding function call overhead and enabling compiler optimization.
+- **Inline CUDA C shape function derivatives**:
+  - derivatives are computed directly inside the kernel using explicit CUDA C expressions  
+  - avoids function call overhead and enables compiler optimization  
 
-#### 3.7.4.2 Jacobian and Inverse in CUDA C
+- **Explicit Jacobian and inverse computation**:
+  - Jacobian, determinant, and inverse are computed inside the kernel using:
+    - explicit loops over the 8 nodes  
+    - fixed-size operations suitable for compiler unrolling  
+    - direct 2×2 determinant and inverse evaluation  
 
-The Jacobian matrix, determinant, and inverse are computed explicitly inside the kernel:
+- **Atomic force vector update**:
+  - nodal force accumulation uses CUDA atomics (`atomicAdd`)  
+  - ensures correctness when multiple elements contribute to shared nodes  
 
-- Explicit loops over the 8 nodes
-- Fixed-size operations suitable for unrolling
-- Determinant and inverse computed directly from 2×2 Jacobian
-
-#### 3.7.4.3 Atomic Force Vector Update
-
-Force vector accumulation is performed using CUDA atomics (`atomicAdd`) to ensure correctness when multiple elements share nodes.
-
-#### 3.7.4.4 Solver Fallback Strategy
-
-The implementation includes a solver fallback mechanism:
-
-- Attempts CG solve first
-- Falls back to GMRES if CG fails
-- Improves robustness under cases of numerical difficulty
+- **Solver fallback strategy**:
+  - attempts CG first  
+  - falls back to GMRES if CG fails  
+  - improves robustness under numerically difficult cases  
 
 ---
 
