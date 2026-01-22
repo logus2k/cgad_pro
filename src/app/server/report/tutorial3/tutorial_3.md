@@ -2167,22 +2167,17 @@ In line with this scope, the benchmarks presented below are conducted on three r
 
 ### 4.4.1 Assembly vs. Solve Time Breakdown Across Mesh Sizes
 
-Figure 4.4 illustrates the decomposition of total execution time into **assembly** and **solve** phases for the different solver implementations, evaluated across four increasing mesh sizes. This breakdown provides crucial insight into *how* and *why* performance characteristics change as the problem scale increases, beyond what can be inferred from total runtime alone.
+Figure XXX presents a detailed breakdown of total execution time into assembly and solve phases for all solver implementations, evaluated across four increasingly large mesh sizes. This decomposition is essential to understand not only which implementation is faster, but why performance changes with scale, revealing the underlying computational bottlenecks that dominate each regime.
 
-For the **smallest mesh (201 nodes)**, the results are clearly dominated by *overhead effects*. All implementations exhibit very short absolute runtimes, and differences are primarily driven by fixed costs rather than computational efficiency. In this regime, the CPU baseline and lightweight threaded approaches perform competitively, while multiprocessing incurs a disproportionately large assembly cost due to process creation and inter-process communication. GPU-based approaches (CuPy and Numba CUDA) show higher relative solve times, reflecting kernel launch overhead and data transfer latency, which outweigh any potential parallelism benefits at this scale. This confirms that accelerator-based execution is inherently inefficient for very small FEM problems.
+For the smallest mesh (201 nodes), total runtimes are extremely short for all implementations, and performance is governed almost entirely by fixed overheads rather than sustained computation. The CPU baseline and lightweight threaded execution perform efficiently due to minimal setup costs, while multiprocessing exhibits a severe assembly penalty, clearly visible in the figure, caused by process spawning and inter-process communication overhead. GPU-based implementations (Numba CUDA and CuPy GPU) show relatively larger solve fractions despite low absolute runtimes, reflecting kernel launch latency and synchronization costs that cannot be amortized at this scale. These results confirm that accelerator-based execution is structurally inefficient for very small FEM problems, regardless of hardware capability.
 
-At the **medium mesh size (194,325 nodes)**, a qualitative shift becomes evident. Assembly time increases substantially for CPU-based implementations, while the solve phase begins to dominate total runtime for all solvers. The standard CPU implementation shows a relatively balanced split between assembly and solve, whereas the threaded and multiprocessing variants reduce assembly time but expose the solver as the new bottleneck. Numba JIT significantly lowers assembly cost compared to pure Python, but the solve phase becomes overwhelmingly dominant, indicating that the sparse linear algebra backend, rather than element-level computation, now limits performance. GPU-based solvers show a marked reduction in assembly time, but the solve phase remains substantial, highlighting the transition from compute-bound to memory-bound behavior.
+At the intermediate mesh size (194,325 nodes), the performance profile enters a transition regime. Assembly time increases substantially for CPU-based implementations, especially for the baseline solver, while the solve phase becomes the dominant contributor for most execution models. Threaded and multiprocessing approaches reduce assembly time relative to the baseline, but this primarily exposes the sparse solver as the new bottleneck rather than eliminating it. Numba JIT significantly compresses assembly cost, making the solve phase overwhelmingly dominant. GPU-based solvers show a pronounced reduction in assembly time compared to CPU approaches; however, the solve phase remains substantial, indicating that performance is increasingly constrained by sparse linear algebra and memory access patterns rather than element-level computation.
 
-For the **large mesh (766,088 nodes)**, the dominance of the solve phase becomes unequivocal. CPU-based solvers spend the vast majority of time in the iterative solver, with assembly contributing only a secondary fraction of the total cost. Even with JIT compilation, the CPU solver is constrained by sparse matrix-vector operations and memory bandwidth. In contrast, GPU implementations exhibit drastically reduced assembly times and significantly lower overall solve times. The assembly phase becomes almost negligible relative to the solver, indicating that GPU parallelism is highly effective at eliminating element-level bottlenecks. However, the solve phase still represents the largest portion of runtime, even on the GPU, underscoring the fundamental cost of sparse linear algebra at scale.
+For the large mesh (766,088 nodes), solver dominance becomes unequivocal. All CPU-based implementations spend the vast majority of their execution time in the iterative solver, with assembly contributing only a secondary fraction of the total cost—even when JIT compilation is employed. This reflects the inherently memory-bandwidth-bound nature of sparse matrix–vector operations on CPUs. In contrast, GPU implementations dramatically reduce assembly time to near-negligible levels and significantly lower overall solve time. The figure shows that GPU parallelism is highly effective at eliminating element-level bottlenecks; nevertheless, the solve phase remains the largest contributor even on the GPU.
 
-This trend is further amplified for the **largest mesh (1,357,953 nodes)**. Across all CPU-based implementations, the solve phase dominates total runtime almost entirely, rendering assembly optimizations largely irrelevant. GPU-based solvers maintain low assembly costs and comparatively moderate solve times, but even here the solver accounts for the majority of execution time. The narrowing gap between GPU and Numba CUDA assembly times suggests that, at this scale, performance is governed primarily by **memory bandwidth and sparse access patterns**, rather than raw compute throughput or kernel efficiency.
+This behavior is further reinforced for the largest mesh (1,357,953 nodes). Across all CPU execution models, runtime is almost entirely dominated by the solve phase, rendering additional assembly optimizations largely irrelevant. GPU-based solvers maintain minimal assembly costs and comparatively moderate solve times, but the solver still accounts for the majority of execution time. The convergence of assembly times between GPU and Numba CUDA at this scale indicates that performance is governed primarily by memory bandwidth and sparse access patterns, rather than kernel-level computational throughput.
 
-Overall, the figure clearly demonstrates a **systematic migration of the performance bottleneck** as problem size increases:
-- from overhead-dominated execution at small scales,
-- to assembly-dominated execution at intermediate scales,
-- and finally to solver- and memory-bandwidth-dominated execution at large scales.
-
-This analysis highlights that optimizing FEM performance is inherently scale-dependent. While CPU-level parallelism and JIT compilation provide meaningful gains at moderate sizes, they are insufficient to overcome the fundamental limitations of sparse linear algebra on CPUs. GPU acceleration, by contrast, effectively removes assembly as a bottleneck and substantially mitigates solver cost, making it the only viable strategy for large-scale problems. However, even on GPUs, further performance improvements must target solver algorithms and memory efficiency rather than kernel-level optimizations alone.
+This analysis highlights that FEM performance optimization is inherently scale-dependent. While CPU-level parallelism and JIT compilation provide meaningful gains at moderate sizes, they are insufficient to overcome the fundamental limitations of sparse linear algebra on CPUs. GPU acceleration effectively removes assembly as a bottleneck and substantially mitigates solver cost, making it the only viable strategy for large-scale problems. However, even on GPUs, further performance improvements must focus on solver algorithms, preconditioning strategies, and memory efficiency, rather than kernel-level optimizations alone.
 
 
 
@@ -2203,7 +2198,7 @@ The intersection point of the two curves defines the **CPU–GPU crossover regio
 
 Beyond the crossover point, the divergence between CPU and GPU runtimes increases rapidly. This behavior confirms that CPU-based solvers become increasingly constrained by memory bandwidth and cache inefficiency, while GPU-based solvers sustain higher effective throughput due to wider memory interfaces and higher concurrency. The gap widens further as problem size grows, reinforcing the conclusion that CPUs do not scale favorably for large sparse FEM systems, even when augmented with threading or JIT compilation.
 
-Overall, this crossover analysis provides a clear and actionable performance guideline: **CPU execution is preferable only for small-scale problems**, where overhead dominates, whereas **GPU execution becomes the superior choice once the problem size exceeds the crossover threshold**. This result complements the assembly-versus-solve breakdown by offering a global, hardware-agnostic perspective on performance scalability, and directly motivates the cross-GPU comparisons presented in the subsequent sections.
+This crossover analysis provides a clear and actionable performance guideline: **CPU execution is preferable only for small-scale problems**, where overhead dominates, whereas **GPU execution becomes the superior choice once the problem size exceeds the crossover threshold**. This result complements the assembly-versus-solve breakdown by offering a global, hardware-agnostic perspective on performance scalability, and directly motivates the cross-GPU comparisons presented in the subsequent sections.
 
 
 
@@ -2223,7 +2218,7 @@ Beyond an intermediate problem size, a distinct CPU–GPU crossover point is obs
 
 Importantly, the crossover point is not purely hardware-dependent but emerges from the interaction between problem size, algorithmic structure, and architectural characteristics. The results demonstrate that GPU acceleration becomes increasingly advantageous once the solver phase dominates runtime and parallel workload granularity is sufficient to amortize GPU overheads.
 
-Overall, this analysis confirms that CPU-based approaches remain suitable for small and moderately sized problems, while GPU acceleration is essential for maintaining scalability in large-scale finite element simulations. The findings reinforce the importance of selecting solver strategies based on both problem size and computational architecture, rather than relying on a one-size-fits-all execution model.
+This analysis confirms that CPU-based approaches remain suitable for small and moderately sized problems, while GPU acceleration is essential for maintaining scalability in large-scale finite element simulations. The findings reinforce the importance of selecting solver strategies based on both problem size and computational architecture, rather than relying on a one-size-fits-all execution model.
 
 
 
@@ -2233,15 +2228,17 @@ Overall, this analysis confirms that CPU-based approaches remain suitable for sm
 
 ### 4.4.3 Runtime Scaling and CPU–GPU Crossover Analysis
 
-The figure reveals a clear and systematic scaling behaviour across all geometries considered. For low node counts, execution time remains relatively small and increases smoothly, indicating that fixed overheads—such as solver initialization, memory allocation, and kernel launch costs—dominate total runtime. In this regime, CPU-based solvers are competitive and, in some cases, outperform GPU implementations due to their lower startup overhead and tighter integration with system memory.
+Figure XXX shows the normalized runtime per element as a function of the number of elements for the Venturi geometry, using logarithmic scales on both axes. This representation isolates scaling efficiency from absolute runtime and provides a clearer view of how each execution model behaves asymptotically as problem size increases.
 
-As the number of nodes increases, a pronounced change in slope becomes evident. Runtime growth accelerates, reflecting the increasing computational burden associated with both element assembly and, more significantly, the solution of the global sparse linear system. This transition marks the point at which the problem shifts from being overhead-bound to computation- and memory-bandwidth-bound.
+For small meshes (≈10³ elements), the normalized runtime per element is relatively high and scattered across implementations. In this regime, fixed overheads dominate execution, and GPU-based solvers (Numba CUDA and CuPy GPU) exhibit significantly worse efficiency per element than CPU-based approaches. This behavior reflects kernel launch latency, memory transfer overhead, and GPU context management costs, which cannot be amortized when the computational workload per element is small. Lightweight CPU approaches, particularly Numba JIT, achieve the lowest per-element cost in this range due to minimal overhead and efficient compiled execution.
 
-Beyond this crossover region, GPU-based solvers exhibit markedly superior scaling behaviour. While CPU runtimes grow steeply with mesh size, GPU runtimes increase at a significantly lower rate, demonstrating the effectiveness of massive thread-level parallelism and higher memory bandwidth in handling large sparse systems. This effect is particularly visible in geometries with more complex connectivity, where solver time dominates the overall cost.
+As the number of elements increases toward the mid-scale regime (≈10⁵–10⁶ elements), a clear change in scaling behavior emerges. CPU-based implementations show an increasing runtime per element, indicating deteriorating efficiency as sparse solver costs and memory bandwidth limitations begin to dominate. In contrast, GPU-based solvers exhibit a decreasing runtime per element, demonstrating improved amortization of overheads and more effective utilization of parallel hardware resources. This region corresponds to the CPU–GPU crossover, where GPU execution transitions from being overhead-bound to throughput-efficient.
 
-Notably, although all geometries display the same qualitative trend, the precise crossover point varies slightly between cases. This variation reflects differences in mesh topology, sparsity patterns, and solver iteration counts, indicating that performance is influenced not only by problem size but also by geometric and numerical characteristics.
+Beyond the crossover point (≈10⁶ elements), GPU implementations clearly dominate. Both CuPy GPU and Numba CUDA show the lowest and flattest curves, indicating near-optimal scaling where additional elements incur only marginal increases in per-element cost. This behavior highlights the advantage of massive thread-level parallelism and high memory bandwidth when handling large sparse systems. Among GPU approaches, CuPy consistently achieves slightly lower per-element runtimes than Numba CUDA, reflecting lower kernel abstraction overhead and more optimized execution paths.
 
-Overall, this figure provides strong empirical evidence that GPU acceleration becomes essential for large-scale finite element simulations. While CPU-based solvers remain well suited for small and medium problems, their scalability is fundamentally limited. In contrast, GPU-based approaches demonstrate sustained performance advantages as problem size increases, confirming their suitability for high-resolution, production-scale FEM workloads.
+CPU-based solvers, including multiprocessing and threading, display the opposite trend: their per-element runtime increases steadily with mesh size. This confirms that CPU execution becomes increasingly constrained by memory access patterns and sparse linear algebra operations, which do not scale favorably with core count alone. Multiprocessing shows particularly poor efficiency at small scales and only moderate improvement at larger sizes, underscoring the cost of inter-process communication.
+
+Overall, the figure provides strong empirical evidence that GPU acceleration is essential for achieving scalable FEM performance at large problem sizes. While CPU-based solvers remain efficient and competitive for small meshes, their asymptotic behavior is fundamentally limited. GPU-based approaches, by contrast, demonstrate improving efficiency with scale and clearly superior asymptotic performance, making them the preferred execution model for high-resolution, production-scale finite element simulations.
 
 
 
@@ -2251,22 +2248,23 @@ Overall, this figure provides strong empirical evidence that GPU acceleration be
 
 ### 4.4.4 Pareto-Based Performance Trade-off Analysis
 
-This Pareto-based representation provides a multidimensional perspective on performance that goes beyond raw execution time, explicitly capturing the trade-off between **computational cost** (runtime) and **numerical effort** (iteration count). This distinction is essential, as faster runtimes do not necessarily imply superior numerical behavior, nor do lower iteration counts guarantee overall efficiency.
+Figure xxx presents a Pareto-based analysis of solver performance, explicitly relating average total runtime to average solver iteration count across four increasing mesh sizes. This representation provides a multidimensional view of efficiency, allowing runtime performance to be evaluated jointly with numerical effort, rather than in isolation.
 
-For the **smallest mesh (201 nodes)**, most execution models cluster tightly in terms of iteration count, reflecting the fact that solver convergence is primarily governed by the mathematical properties of the system rather than the execution backend. In this regime, the Pareto frontier is dominated by CPU-based approaches, particularly threaded and baseline CPU solvers, which achieve minimal runtime without incurring GPU initialization or data transfer overheads. GPU-based solutions, while correct, appear Pareto-dominated due to fixed overheads that outweigh parallelism benefits at this scale.
+For the smallest mesh (201 nodes), all implementations exhibit very similar iteration counts, confirming that convergence behavior is independent of the execution backend at this scale. Performance differences are therefore entirely driven by execution overhead. In this regime, the Pareto frontier is defined by CPU-based approaches, particularly the baseline and threaded CPU implementations, which achieve minimal runtime with no GPU-related initialization or data transfer costs. Multiprocessing is clearly Pareto-dominated, exhibiting both higher runtime and no numerical advantage. GPU and Numba CUDA solutions also lie off the Pareto frontier, as fixed GPU overheads outweigh any benefit from parallel execution for such small systems.
 
-As mesh size increases to **~200k nodes**, a clear structural shift occurs. GPU and Numba CUDA implementations move closer to the Pareto frontier, achieving substantially lower runtimes for comparable iteration counts. CPU and threaded approaches, while still converging in a similar number of iterations, become dominated due to their rapidly increasing wall-clock cost. This highlights an important insight: **iteration count remains largely invariant across architectures**, confirming numerical equivalence, while performance divergence is driven by execution efficiency.
+At approximately 200k nodes (195,853 nodes), a clear transition occurs. While iteration counts remain clustered across all solvers—indicating preserved numerical equivalence—the runtime dimension separates sharply by architecture. GPU-based solvers (GPU and Numba CUDA) move decisively toward the Pareto frontier, achieving substantially lower runtimes for iteration counts comparable to CPU-based methods. In contrast, baseline CPU, threaded, and Numba CPU implementations become Pareto-dominated due to rapidly increasing wall-clock time, despite similar convergence behavior. This confirms that the performance divergence is architectural rather than algorithmic.
 
-For **large meshes (≈770k and 1.36M nodes)**, GPU-based solvers (GPU and Numba CUDA) consistently define the Pareto frontier. They achieve orders-of-magnitude reductions in runtime while maintaining iteration counts comparable to CPU-based solvers. Multiprocessing, although significantly faster than single-threaded CPU execution, remains Pareto-dominated due to high overhead and less favorable scaling. Numba CPU, while competitive in iteration efficiency, becomes runtime-dominated as memory bandwidth and sparse linear algebra operations saturate CPU capabilities.
+For larger meshes (≈772k nodes), the Pareto structure becomes even more pronounced. GPU and Numba CUDA implementations clearly define the Pareto frontier, combining low runtime with iteration counts indistinguishable from CPU solvers. CPU and threaded implementations occupy the upper-right region of the plots, reflecting both higher runtime and no numerical benefit. Multiprocessing, while improving over baseline CPU in absolute time, remains Pareto-dominated due to its limited scalability and overhead costs. Numba CPU retains acceptable iteration efficiency but becomes increasingly dominated in runtime as sparse solver and memory bandwidth limitations saturate CPU resources.
 
-An important qualitative observation is that **iteration count scales with problem size but not with execution model**. This confirms that all implementations preserve the same mathematical formulation, boundary conditions, and solver tolerances. Consequently, the Pareto frontier primarily reflects architectural efficiency rather than algorithmic differences, strengthening the validity of cross-platform performance comparisons.
+At the largest mesh size (1,357,953 nodes), GPU dominance is unequivocal. GPU-based solvers achieve order-of-magnitude reductions in runtime while maintaining iteration counts consistent with all other implementations. The Pareto frontier is exclusively defined by GPU and Numba CUDA approaches, demonstrating that no CPU-based execution model offers a competitive trade-off at this scale. The vertical alignment of iteration counts across all solvers further reinforces that numerical behavior is invariant, and that the Pareto advantage arises solely from superior execution efficiency.
 
-Overall, this analysis demonstrates that:
-- **For small problems**, CPU-based solvers are Pareto-optimal due to minimal overhead.
-- **For medium to large problems**, GPU-based solvers dominate the Pareto frontier, offering the best trade-off between runtime and numerical effort.
-- **Multiprocessing and threaded CPU approaches** occupy an intermediate regime, beneficial only within limited problem sizes.
+This Pareto analysis leads to three key conclusions:
 
-This Pareto analysis reinforces the central conclusion of the performance study: **GPU acceleration becomes not only advantageous but essential as problem size grows**, while preserving numerical consistency across all execution models.
+1. For small-scale problems, CPU-based solvers are Pareto-optimal, as minimal overhead outweighs any benefit from accelerator hardware;
+2. For medium-scale problems, the Pareto frontier begins to shift toward GPU-based execution, marking the onset of the CPU–GPU crossover;
+3. For large-scale problems, GPU-based solvers fully dominate the Pareto frontier, delivering the best achievable balance between runtime and numerical effort.
+
+This analysis reinforces the central finding of the performance study: GPU acceleration is not merely faster in absolute terms, but becomes structurally superior as problem size increases, while fully preserving numerical consistency across all execution models.
 
 
 ![DESCRIPTION](images/documents/tutorial2/performance_envelope_y_shaped.svg)
@@ -2281,7 +2279,7 @@ As mesh complexity increases, a clear crossover point emerges where GPU-based so
 
 An important observation is that Numba CUDA and CuPy-based implementations form the lower bound of the envelope for large meshes, confirming that once overheads are amortized, execution efficiency is primarily governed by available parallelism and memory bandwidth rather than interpreter or compilation strategy.
 
-Overall, this figure demonstrates that solver optimality is strongly mesh-dependent. While CPU execution remains appropriate for small-scale problems, GPU acceleration defines the optimal performance envelope for medium to large meshes, justifying its use as the default strategy in high-resolution FEM simulations.
+This figure demonstrates that solver optimality is strongly mesh-dependent. While CPU execution remains appropriate for small-scale problems, GPU acceleration defines the optimal performance envelope for medium to large meshes, justifying its use as the default strategy in high-resolution FEM simulations.
 
 
 ![DESCRIPTION](images/documents/tutorial2/venturi_iterations_vs_nodes_all_solvers.svg)
@@ -2303,7 +2301,7 @@ This result also reinforces the interpretation of performance gains observed in 
 
 From a performance analysis standpoint, this figure isolates **runtime efficiency** as the sole differentiating factor between solvers. Since the iteration count is invariant with respect to execution model, any reduction in total runtime directly reflects architectural advantages such as increased parallelism, higher memory bandwidth, and reduced instruction overhead.
 
-In summary, this convergence analysis confirms that:
+This convergence analysis confirms that:
 - All solver implementations are numerically equivalent and directly comparable.
 - GPU acceleration preserves solver robustness and stability.
 - Performance improvements observed in later sections are genuine computational gains rather than numerical artefacts.
@@ -2317,22 +2315,28 @@ This result is fundamental for the credibility of the benchmarking study and val
 
 ### 4.4.7 Comparative Execution Time Breakdown for the Y-Shaped Geometry
 
-This figure consolidates and visually reinforces several key performance patterns observed throughout the benchmarking study. For the smallest mesh configurations, execution times across all solvers remain relatively close, with CPU-based implementations often matching or slightly outperforming GPU-based approaches. This behavior is consistent with the dominance of fixed overheads — such as kernel compilation, GPU memory allocation, and host–device transfers — which disproportionately affect GPU runtimes at small scales.
+Figure XXX provides a consolidated comparison of execution time scaling for the Y-Shaped geometry across multiple execution models (CPU, threaded, multiprocessing, and Numba JIT CPU), explicitly accounting for different CPU architectures. This representation strengthens the robustness of the performance analysis by demonstrating that the observed trends are not tied to a single processor, but persist across heterogeneous hardware configurations.
 
-As mesh size increases, the separation between execution models becomes progressively more pronounced. The CPU baseline and threaded implementations exhibit near-linear growth in execution time, reflecting interpreter overhead, limited parallelism, and memory bandwidth constraints. Multiprocess execution improves scalability relative to threading but remains bounded by inter-process communication overhead and memory duplication costs.
+For the smallest mesh size, execution times remain tightly clustered across all CPUs and execution models. Differences between Intel and AMD processors are minimal and largely masked by fixed overheads such as solver initialization, memory allocation, and Python runtime setup. In this regime, absolute performance is dominated by non-scalable costs rather than architectural efficiency, and all execution models behave similarly regardless of CPU family.
 
-The Numba JIT CPU implementation demonstrates a clear performance advantage over pure Python approaches, confirming the effectiveness of JIT compilation and parallel execution in eliminating interpreter overhead. However, its scaling curve still rises more steeply than GPU-based solutions, indicating that shared-memory CPU parallelism ultimately saturates due to limited core counts and memory bandwidth.
+As mesh size increases, the scaling behavior becomes more clearly differentiated. The baseline CPU implementation exhibits near-linear growth in execution time across all processors, indicating that performance is primarily constrained by interpreter overhead and memory bandwidth rather than core count. While absolute runtimes vary slightly between CPUs, the slope of the curves remains remarkably consistent, confirming that the baseline implementation is architecture-agnostic but fundamentally limited in scalability.
 
-In contrast, GPU-based implementations — particularly CuPy with RawKernel and Numba CUDA — define the lower envelope of execution time for large meshes. Their flatter scaling profiles reflect the ability of GPUs to exploit massive parallelism and high memory throughput for element-level FEM operations and sparse linear algebra. The widening performance gap at larger mesh sizes highlights the architectural advantage of GPUs for high-resolution FEM workloads.
+The threaded execution model improves performance at small and medium scales but shows increasing divergence between CPUs as mesh size grows. This reflects sensitivity to core count, cache hierarchy, and NUMA effects. Nevertheless, the overall scaling trend remains similar to the baseline CPU, reinforcing that Python threading provides limited benefits for compute-bound FEM workloads due to the Global Interpreter Lock (GIL).
 
-An important qualitative insight from this figure is that the relative ordering of execution models remains stable across mesh sizes. Once GPU solvers become dominant, they consistently outperform all CPU-based alternatives, suggesting predictable crossover behavior and robust scalability characteristics.
+The multiprocessing approach displays the highest variability across CPUs. While it reduces execution time relative to baseline CPU for larger meshes, its scaling is less stable and more sensitive to hardware characteristics. This behavior is consistent with the overhead of process creation, inter-process communication, and memory duplication, which amplify architectural differences and reduce predictability.
 
-Overall, this comparison demonstrates that:
-- CPU-based solvers are suitable for small-scale problems and rapid prototyping.
-- JIT compilation provides substantial gains but does not fully close the gap with GPU acceleration.
-- GPU-based solvers offer superior scalability and become the optimal choice as problem size grows.
+The Numba JIT CPU implementation demonstrates the most consistent and favorable scaling among CPU-based approaches. Across all tested processors, its execution time grows more slowly with mesh size, and inter-CPU variability is significantly reduced. This confirms that JIT compilation effectively removes interpreter overhead and enables more efficient parallel execution, making performance primarily dependent on raw memory bandwidth and vectorized execution rather than Python runtime behavior.
 
-This figure therefore serves as a concise summary of the performance hierarchy established in this study and provides strong empirical justification for GPU acceleration in large-scale FEM simulations.
+A key insight from this figure is that, although absolute runtimes vary between CPUs, the relative ordering of execution models is preserved across architectures. Numba JIT consistently outperforms pure Python approaches, while baseline and threaded CPU executions remain the least scalable. This stability indicates that the conclusions drawn from earlier sections generalize across different hardware environments.
+
+Overall, this analysis reinforces several important findings:
+
+1. CPU-based solvers scale predictably but are ultimately limited by memory bandwidth and core count.
+2. Threading and multiprocessing introduce variability without fundamentally changing scaling behavior.
+3. Numba JIT provides a robust and portable performance improvement across CPU architectures.
+4. Hardware differences affect absolute performance but do not alter the structural performance hierarchy.
+
+This figure therefore strengthens the validity of the study’s conclusions by demonstrating that the observed performance patterns are architecturally robust, while also highlighting the intrinsic scalability limits of CPU-based FEM solvers when compared to GPU-accelerated approaches discussed in subsequent sections.
 
 ![DESCRIPTION](images/documents/tutorial2/y_shaped_gpu_side_by_side.svg)
 
@@ -2348,9 +2352,9 @@ The scaling trends observed indicate that both GPU implementations benefit from 
 
 Importantly, both GPU approaches maintain similar solver iteration counts and numerical behavior, confirming that the observed performance differences are purely architectural and implementation-driven. This reinforces the interpretation that RawKernel-based execution represents the upper bound of achievable single-GPU performance within the scope of this project.
 
-In summary, this figure demonstrates that:
-- Numba CUDA offers a strong balance between performance and development productivity.
-- CuPy RawKernel achieves the best absolute performance for large-scale problems.
+This figure demonstrates that:
+- Numba CUDA offers a strong balance between performance and development productivity;
+- CuPy RawKernel achieves the best absolute performance for large-scale problems;
 - Kernel-level control becomes increasingly important as problem size grows.
 
 This analysis justifies the inclusion of both approaches in the study and positions CuPy RawKernel as the reference implementation for maximum-performance GPU execution in the final benchmarking comparisons.
@@ -2361,27 +2365,32 @@ This analysis justifies the inclusion of both approaches in the study and positi
 
 ### 4.4.9 GPU Speedup Analysis for the Y-Shaped Geometry
  
-The speedup curves clearly illustrate the non-linear nature of GPU acceleration in FEM workloads. For small mesh sizes, both GPU implementations exhibit limited speedup, and in some cases approach unity. This behavior is expected, as fixed overheads—such as kernel launch latency, memory transfers, and JIT compilation—dominate execution time and outweigh the benefits of massive parallelism.
+Figure XXX provides a combined view of absolute runtime scaling and relative speedup versus the CPU baseline for the Y-Shaped geometry, offering a comprehensive perspective on how different execution models behave as the number of nodes increases.
 
-As mesh resolution increases, a pronounced acceleration regime emerges. Both GPU implementations show rapidly increasing speedup, confirming that the FEM assembly and post-processing stages scale extremely well on GPU architectures once sufficient computational workload is available. In this regime, arithmetic intensity increases, and GPU cores are more effectively utilized.
+From the runtime curves (top panel), a clear hierarchy emerges. For small meshes (≈200 nodes), all implementations exhibit very low absolute runtimes, and differences between execution models are marginal. In this regime, GPU-based solvers (CuPy GPU and Numba CUDA) show no meaningful advantage and, in absolute terms, remain comparable to CPU execution. This behavior reflects the dominance of fixed overheads — kernel launch latency, device synchronization, and host–device data transfers — which prevent GPUs from exploiting parallelism at such small problem sizes. Consequently, GPU acceleration is ineffective and provides little to no speedup.
 
-The CuPy RawKernel implementation consistently outperforms Numba CUDA in terms of achieved speedup, particularly for the largest meshes. This reflects the cumulative advantage of native CUDA C kernels, including more efficient register usage, improved memory coalescing, and reduced abstraction overhead. The widening gap between the two curves highlights how low-level kernel optimization becomes increasingly impactful at scale.
+As mesh size increases, runtime growth becomes strongly execution-model dependent. CPU, threaded, and Numba CPU implementations show steep scaling trends, with execution time increasing rapidly as the number of nodes grows. Multiprocessing reduces the slope relative to the CPU baseline but remains significantly slower than GPU-based approaches due to process management overhead and limited scalability. In contrast, GPU implementations exhibit substantially flatter scaling curves, indicating much better asymptotic behavior.
 
-Another important observation is the saturation tendency at very large problem sizes. Although speedup continues to grow, the rate of improvement decreases. This indicates a transition from compute-bound behavior during assembly to memory-bandwidth-bound behavior during the sparse linear solve. Once the solver dominates runtime, further acceleration is constrained by GPU memory throughput rather than raw compute capability.
+This transition is more clearly quantified in the speedup plot (bottom panel). For the smallest mesh, all speedups remain close to unity, confirming that GPU execution does not amortize its overhead. However, beyond the intermediate mesh size (≈200k nodes), a pronounced acceleration regime emerges. GPU-based solvers rapidly surpass all CPU-based implementations, with speedup increasing sharply as problem size grows.
 
-From a methodological perspective, this figure reinforces several key conclusions:
-- GPU acceleration is not universally beneficial; problem size is a decisive factor.
-- Meaningful speedups are only realized beyond a clear crossover point.
-- Kernel-level optimization directly translates into higher asymptotic speedup.
-- Sparse solvers ultimately limit end-to-end scalability.
+The CuPy RawKernel implementation consistently achieves the highest speedup across all large meshes, reaching several tens of times faster than the CPU baseline at the largest scale. Numba CUDA follows the same qualitative trend but achieves systematically lower speedups. This gap reflects differences in kernel maturity and execution efficiency: CuPy benefits from native CUDA C kernels with tighter control over memory access patterns, better register allocation, and reduced abstraction overhead, which become increasingly important as arithmetic intensity grows.
 
-Overall, this speedup analysis confirms that GPU-based FEM solvers provide substantial performance gains for large-scale problems, with CuPy RawKernel establishing the highest achievable acceleration relative to the CPU baseline. These results validate the GPU-focused design decisions adopted in the later stages of this work.
+An important observation is the sublinear growth of speedup at the largest mesh sizes. Although GPU acceleration remains substantial, the rate of improvement decreases, indicating a transition from compute-bound assembly phases to solver-dominated execution. At this stage, sparse linear algebra operations become memory-bandwidth-bound, even on the GPU, imposing a fundamental limit on achievable acceleration.
+
+Overall, this figure demonstrates that:
+
+1. GPU acceleration is highly scale-dependent and ineffective for small FEM problems;
+2. A clear CPU–GPU crossover occurs as mesh size increases, after which GPUs dominate;
+3. CuPy RawKernel consistently delivers the highest asymptotic speedup;
+4. Sparse solver performance ultimately constrains end-to-end scalability.
+
+These results provide strong empirical confirmation that GPU acceleration is essential for large-scale FEM simulations, while also highlighting that further performance gains at extreme scales must focus on solver algorithms and memory efficiency rather than kernel-level optimizations alone.
 
 
 
 ![DESCRIPTION](images/documents/tutorial2/y_shaped_total_time_breakdown_2x2.svg)
 
-**Figure 4.12 – Detailed runtime breakdown of the total execution time for the Y-shaped geometry across CPU and GPU execution models.** 
+**Figure XXX – Detailed runtime breakdown of the total execution time for the Y-shaped geometry across CPU and GPU execution models.** 
 
 ### 4.4.10 Runtime Breakdown Across Execution Models for the Y-Shaped Geometry
  
@@ -3515,9 +3524,78 @@ Key results from performance benchmarks comparing FEM solver implementations.
 
 <div class="echart-container bar-chart" id="exec-speedup-11" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (M)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.5,1.9,2.3,10.8,13.6]}],"yAxisName":"Speedup (x)"}'></div>
 
-#### Critical Analysis
+#### 4.7.1 Critical Analysis – NVIDIA RTX 5060 Ti
 
-## Critical Analysis
+##### 4.7.1.1 Small-Scale Problems (XS meshes)
+
+Across all geometries with XS meshes (≈200–400 nodes), the RTX 5060 Ti exhibits behavior that is fully consistent with overhead-dominated execution regimes. GPU-based implementations (Numba CUDA and CuPy GPU) consistently underperform relative to CPU-based approaches, with speedups ranging between 0.3× and 0.7×, indicating actual slowdowns.
+
+This outcome is not a limitation of the implementation but a direct consequence of the problem scale. At this size, FEM workloads are dominated by:
+
+* Kernel launch latency,
+* GPU context initialization,
+* Host–device memory transfers,
+* JIT compilation overhead (Numba CUDA).
+
+These fixed costs cannot be amortized when the number of elements is small. Even lightweight GPU kernels incur latency that exceeds the total compute time required by optimized CPU execution. As a result, Numba JIT CPU clearly dominates, delivering speedups between 3.4× and 5.6×, while threaded CPU execution provides modest but consistent gains.
+
+CPU multiprocessing performs particularly poorly, often exceeding 700–900 ms, confirming that process creation and inter-process communication overhead completely dominate at small scales. Overall, these results reinforce that GPU acceleration on the RTX 5060 Ti is fundamentally unsuitable for small FEM problems, regardless of implementation quality.
+
+##### 4.7.1.2 Medium-Scale Problems (M meshes)
+
+For medium-scale meshes (≈160k–200k nodes), the performance landscape changes decisively and consistently across all geometries. This regime marks the CPU–GPU crossover point for the RTX 5060 Ti.
+
+Key observations include:
+
+* GPU acceleration becomes clearly beneficial, with speedups ranging from ~10× to ~18×;
+* CuPy GPU consistently outperforms Numba CUDA, achieving the highest speedups across all geometries;
+* CPU-based approaches saturate, rarely exceeding ~2.5× speedup, even with multiprocessing or JIT compilation.
+
+The RTX 5060 Ti, while not a high-end accelerator, is able to fully exploit GPU parallelism once the FEM workload becomes sufficiently large. Assembly and post-processing costs are effectively suppressed, and the solver phase dominates runtime. Compared to high-end GPUs (e.g., RTX 4090/5090), the achieved speedups are lower, but still represent an order-of-magnitude improvement over CPU execution.
+
+Notably, the relative performance ranking of execution models is stable:
+
+* CuPy GPU > Numba CUDA > Numba CPU ≈ CPU Multiprocess > Threaded > CPU baseline.
+
+This consistency confirms that performance differences are driven by architectural efficiency rather than numerical behavior or solver convergence.
+
+##### 4.7.1.3 Solver-Dominated Regime and Architectural Limits
+
+Despite the substantial gains observed at medium scale, the RTX 5060 Ti shows earlier saturation of speedup growth compared to higher-end GPUs. Peak speedups plateau around ~15×–18×, reflecting architectural constraints:
+
+* Lower memory bandwidth relative to flagship GPUs,
+* Fewer SMs and reduced parallel occupancy,
+* Limited ability to hide sparse memory access latency.
+
+Once assembly is fully accelerated, the sparse iterative solver becomes the dominant bottleneck. Sparse matrix–vector products are inherently memory-bound, and on the RTX 5060 Ti this limitation becomes apparent sooner. Consequently, further kernel-level optimizations yield diminishing returns, and additional speedup would require:
+
+* More advanced preconditioning,
+* Solver algorithm changes,
+* Multi-GPU or hybrid CPU–GPU strategies.
+
+This behavior confirms that the RTX 5060 Ti is not compute-limited, but rather constrained by memory bandwidth and sparse access patterns, which are intrinsic to FEM solvers.
+
+##### 4.7.1.4 Practical Assessment and Positioning of the RTX 5060 Ti
+
+From a practical and methodological perspective, the RTX 5060 Ti occupies a well-defined and coherent role within the performance spectrum explored in this study:
+
+| Regime                           | Best Execution Model | Rationale                                                 |
+| -------------------------------- | -------------------- | --------------------------------------------------------- |
+| XS meshes                        | Numba JIT CPU        | Minimal overhead, compiled execution                      |
+| M meshes                         | CuPy GPU             | Best balance of throughput and efficiency                 |
+| CPU-only systems                 | Numba JIT CPU        | Strong performance without GPU                            |
+| GPU prototyping                  | Numba CUDA           | Easier development, acceptable speed                      |
+| Production workloads (mid-scale) | CuPy GPU             | Maximum achievable acceleration on this class of hardware |
+
+While the RTX 5060 Ti does not reach the extreme speedups observed on flagship GPUs, it consistently delivers order-of-magnitude acceleration for realistic FEM workloads at medium scale. This makes it a highly attractive option for:
+
+* Cost-sensitive environments,
+* Workstations without high-end GPUs,
+* Educational, research, and prototyping contexts,
+* Moderate-resolution production simulations.
+
+The RTX 5060 Ti confirms the central conclusions of this study:
+GPU acceleration is scale-dependent, architecture-dependent, and solver-limited. When applied appropriately, even a mid-range GPU provides substantial benefits. However, indiscriminate GPU usage—particularly for small problems—remains inefficient. The results validate the RTX 5060 Ti as a capable and well-balanced accelerator for medium-scale FEM workloads, while clearly delineating its limits relative to higher-end architectures.
 
 ### Bottleneck Evolution
 
@@ -3762,6 +3840,12 @@ As optimizations progress, the computational bottleneck shifts:
 | Multiprocess → Numba CPU | JIT compilation eliminates interpreter overhead; true parallel loops |
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
+
+#### 4060Ti Bottleneck critical analysis
+
+On the RTX 5060 Ti, the bottleneck evolution follows a clear and internally consistent pattern that mirrors the architectural constraints of a mid-range GPU. For XS meshes (≈200–400 nodes), execution is overwhelmingly dominated by fixed overheads rather than computation: CPU implementations spend most of their time in assembly and post-processing, while GPU-based solvers appear solve-dominated mainly due to kernel launch latency, device synchronization, and host–device transfer costs. In this regime, GPU execution is intrinsically inefficient and cannot amortize its overhead, and even multiprocessing on the CPU performs poorly due to IPC and process startup costs. As mesh size increases to the M regime (≈160k–200k nodes), the performance bottleneck shifts decisively toward the sparse linear solve across all implementations. 
+
+CPU baselines remain partially assembly-bound, but threaded and multiprocessing variants reduce assembly time and expose the solver as the dominant cost. Numba CPU effectively removes interpreter and assembly overhead, yet becomes almost entirely solve-bound, highlighting the fundamental memory-bandwidth limitations of sparse linear algebra on CPUs. GPU implementations, by contrast, virtually eliminate assembly cost and achieve substantially lower total runtimes; however, their performance is ultimately constrained by the same solver-dominated behavior, with a non-negligible contribution from boundary condition application and synchronization. Overall, the RTX 5060 Ti demonstrates that GPU acceleration is only advantageous beyond a clear problem-size threshold, and that once assembly is removed from the critical path, further performance gains depend primarily on improving solver efficiency and memory access patterns rather than kernel-level optimizations alone.
 
 ## 4.8 Cross-Platform Comparative Analysis
 
