@@ -759,7 +759,6 @@
     background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
     border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 8px;
-    margin-bottom: 12px;
 }
 
 .profiling-active-run-spinner {
@@ -904,14 +903,13 @@
     background: linear-gradient(135deg, #e8f4fd 0%, #d1e8fa 100%);
     border: 1px solid #90caf9;
     border-radius: 6px;
-    margin-bottom: 10px;
 }
 
 .profiling-active-run-spinner {
     width: 20px;
     height: 20px;
     border: 2px solid #90caf9;
-    border-top-color: #1976d2;
+    border-top-color: #71ca9d;
     border-radius: 50%;
     animation: profiling-active-spin 0.8s linear infinite;
     flex-shrink: 0;

@@ -116,7 +116,7 @@ export class ProfilingView {
             });
 
             const eventCount = rendererData.totalEvents || 0;
-            this.#showLoading(true, `Rendering ${eventCount.toLocaleString()} events...`);
+            // this.#showLoading(true, `Rendering ${eventCount.toLocaleString()} events...`);
 
             // Fetch NCU kernel metrics (non-blocking, may not exist)
             let ncuData = null;
@@ -431,7 +431,7 @@ export class ProfilingView {
         this.#elements.groupBySelect.addEventListener('change', (e) => {
             this.#debounceFilterChange(() => {
                 if (this.#timeline) {
-                    this.#showLoading(true, 'Regrouping events...');
+                    // this.#showLoading(true, 'Regrouping events...');
                     this.#timeline.setGroupBy(e.target.value).then(() => {
                         this.#showLoading(false);
                     });
@@ -444,7 +444,7 @@ export class ProfilingView {
             cb.addEventListener('change', (e) => {
                 this.#debounceFilterChange(() => {
                     if (this.#timeline) {
-                        this.#showLoading(true, 'Filtering events...');
+                        // this.#showLoading(true, 'Filtering events...');
                         this.#timeline.toggleCategory(e.target.dataset.category, e.target.checked).then(() => {
                             this.#showLoading(false);
                         });
