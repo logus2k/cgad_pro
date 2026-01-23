@@ -28,9 +28,9 @@
             "file": "docker/DOCKERHUB.md"
         },
         {
-            "id": "gpu_profiling",
-            "title": "GPU Profiling Service",
-            "file": "profiling/gpu_profiling_service.md"
+            "id": "profiling_technical_report",
+            "title": "Profiling Technical Report",
+            "file": "profiling/profiling_technical_report.md"
         }
     ]
 }
