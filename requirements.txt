@@ -13,3 +13,4 @@ psutil
 cupy-cuda13x
 numba-cuda
 cuda-python
+nvtx

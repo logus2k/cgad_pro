@@ -17,7 +17,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
     python-socketio uvicorn fastapi numpy pandas scipy matplotlib h5py weasyprint playwright pypandoc \
-    psutil cupy-cuda13x numba-cuda cuda-python
+    psutil cupy-cuda13x numba-cuda cuda-python nvtx
 
 RUN playwright install chromium
 

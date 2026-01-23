@@ -71,7 +71,7 @@ export class ProfilingView {
     // Public Methods
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
+/**
      * Load sessions from server.
      */
     async loadSessions() {
@@ -79,16 +79,20 @@ export class ProfilingView {
             const data = await this.#api.getSessions(100);
             this.#sessions = data.sessions || [];
             
-            // Auto-select most recent session if none is currently loaded
+            // Auto-select most recent COMPLETED session if none is currently loaded
             const shouldAutoLoad = !this.#currentSessionId && this.#sessions.length > 0;
             if (shouldAutoLoad) {
-                this.#currentSessionId = this.#sessions[0].id;
+                // Find first completed session (skip pending/running sessions)
+                const completedSession = this.#sessions.find(s => s.status === 'completed');
+                if (completedSession) {
+                    this.#currentSessionId = completedSession.id;
+                }
             }
             
             this.#renderSessionList();
             
-            // Load the auto-selected session
-            if (shouldAutoLoad) {
+            // Load the auto-selected session (only if we found a completed one)
+            if (shouldAutoLoad && this.#currentSessionId) {
                 this.#elements.sessionSelect.value = this.#currentSessionId;
                 this.loadSession(this.#currentSessionId);
             }
