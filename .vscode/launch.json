@@ -39,7 +39,8 @@
             "url": "http://localhost:5867",
             "userDataDir": true,
             "webRoot": "${workspaceFolder}/src/app/client",
-        }          
+            "preLaunchTask": "wait-for-server"
+        }         
     ],
 
     "compounds": [
