@@ -118,12 +118,16 @@ export class ProfilingView {
             const eventCount = rendererData.totalEvents || 0;
             // this.#showLoading(true, `Rendering ${eventCount.toLocaleString()} events...`);
 
-            // Fetch NCU kernel metrics (non-blocking, may not exist)
+            // Fetch NCU kernel metrics (only for GPU solvers - CPU solvers have no kernels)
             let ncuData = null;
-            try {
-                ncuData = await this.#api.getKernels(sessionId);
-            } catch (e) {
-                console.log('[ProfilingView] NCU data not available for this session');
+            const session = this.#sessions.find(s => s.id === sessionId);
+            const cpuSolvers = ['cpu', 'cpu_threaded', 'cpu_multiprocess'];
+            if (session && !cpuSolvers.includes(session.solver)) {
+                try {
+                    ncuData = await this.#api.getKernels(sessionId);
+                } catch (e) {
+                    console.log('[ProfilingView] NCU data not available for this session');
+                }
             }
 
             // Load timeline with progress callback

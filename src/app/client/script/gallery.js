@@ -7,13 +7,13 @@
  * 
  * Supports two run modes:
  * - Run Simulation: Normal solver execution with visualization
- * - Run Profiling: nsys-wrapped execution for GPU profiling (CUDA solvers only)
+ * - Run Profiling: nsys-wrapped execution for profiling (CUDA and CPU solvers)
  */
 
 import { meshLoader } from './mesh-loader.js';
 
-// CUDA-capable solvers that support profiling
-const CUDA_SOLVERS = ['gpu', 'numba_cuda'];
+// Solvers that support profiling (NVTX-instrumented)
+const PROFILING_SOLVERS = ["cpu", "cpu_threaded", "cpu_multiprocess", "numba", "numba_cuda", "gpu"];
 
 class MeshGallery {
     constructor(options = {}) {
@@ -360,11 +360,11 @@ class MeshGallery {
     }
     
     /**
-     * Check if the currently selected solver supports CUDA profiling
+     * Check if the currently selected solver supports profiling
      */
     isProfilingSupported() {
         const solverType = this.getSolverForItem(this.selectedIndex);
-        return CUDA_SOLVERS.includes(solverType);
+        return PROFILING_SOLVERS.includes(solverType);
     }
     
     /**
@@ -379,7 +379,7 @@ class MeshGallery {
         if (supported) {
             this.profilingBtn.title = 'Run with NVIDIA Nsight profiling';
         } else {
-            this.profilingBtn.title = 'Profiling only available for CUDA solvers (gpu, numba_cuda)';
+            this.profilingBtn.title = 'Profiling available for: GPU (CuPy), Numba CUDA, CPU Baseline';
         }
     }
     
@@ -398,22 +398,17 @@ class MeshGallery {
         switch (stage) {
             case 'init_h5wasm':
                 indicator.style.display = 'flex';
-                text.textContent = 'Initializing...';
+                if (text) text.textContent = 'Initializing...';
                 break;
-            case 'downloading':
+            case 'fetching':
                 indicator.style.display = 'flex';
-                if (progress !== null) {
-                    text.textContent = `Downloading ${Math.round(progress * 100)}%`;
-                } else {
-                    text.textContent = 'Downloading...';
-                }
+                if (text) text.textContent = 'Downloading...';
                 break;
             case 'parsing':
-                text.textContent = 'Parsing HDF5...';
+                if (text) text.textContent = 'Parsing mesh...';
                 break;
             case 'complete':
                 indicator.style.display = 'none';
-                // Add a "ready" indicator
                 item.classList.add('mesh-ready');
                 break;
             case 'error':
@@ -423,93 +418,77 @@ class MeshGallery {
         }
     }
     
-    /**
-     * Select an item and start preloading its mesh
-     */
     selectItem(index) {
         if (index < 0 || index >= this.models.length) return;
         
+        // Update selection state
         this.selectedIndex = index;
         
-        // Update visual selection
-        const items = this.track.querySelectorAll('.carousel-item');
-        items.forEach((item, i) => {
-            item.classList.toggle('selected-indicator', i === index);
-            // Reset preload indicators
-            item.classList.remove('mesh-ready', 'mesh-error');
-            const indicator = item.querySelector('.preload-indicator');
-            if (indicator) indicator.style.display = 'none';
+        // Visual update
+        const items = this.track?.querySelectorAll('.carousel-item');
+        items?.forEach((item, i) => {
+            item.classList.toggle('selected', i === index);
         });
         
-        // Ensure selected item is visible
-        const page = Math.floor(index / this.itemsPerView);
-        if (page !== Math.floor(this.currentIndex / this.itemsPerView)) {
-            this.goToPage(page);
-        }
-        
-        const model = this.models[index];
-        const selectedMesh = this.getSelectedMeshForItem(index);
-        console.log(`Selected: ${model.name} (${selectedMesh?.label})`);
-        
-        // Start preloading mesh data immediately
-        this.preloadMesh(model, selectedMesh);
-        
-        // Update profiling button state based on selected solver
+        // Update profiling button
         this.updateProfilingButtonState();
+        
+        // Reset preload state for new selection
+        const model = this.models[index];
+        const mesh = this.getSelectedMeshForItem(index);
+        
+        if (model && mesh) {
+            this.preloadMesh(model, mesh);
+        }
     }
     
     /**
-     * Preload mesh data (non-blocking)
+     * Preload mesh data when item is selected (before confirm)
      */
     async preloadMesh(model, mesh) {
-        if (!mesh) return;
-        
         const meshUrl = mesh.file;
         
-        // Skip if already preloading this mesh
-        if (this.preloadingUrl === meshUrl) {
-            return;
-        }
+        // Skip if already loading this mesh
+        if (this.preloadingUrl === meshUrl) return;
         
-        // Skip if already cached
-        if (meshLoader.isCached(meshUrl)) {
-            console.log(`Mesh already cached: ${model.name} - ${mesh.label}`);
-            this.preloadedMeshData = meshLoader.getCached(meshUrl);
-            
-            // Show ready indicator
-            const item = this.track?.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
-            if (item) item.classList.add('mesh-ready');
+        // Skip if already loaded
+        if (this.preloadedMeshData?.url === meshUrl) {
+            console.log(`Mesh already preloaded: ${mesh.label}`);
             return;
         }
         
         this.preloadingUrl = meshUrl;
         this.preloadedMeshData = null;
         
+        console.log(`Preloading mesh: ${mesh.label} (${meshUrl})`);
+        
         try {
-            console.log(`Preloading mesh: ${model.name} - ${mesh.label} (${meshUrl})`);
-            const meshData = await meshLoader.preload(meshUrl);
+            const meshData = await meshLoader.load(meshUrl);  // <-- Fixed: was loadMesh
             
-            // Only store if still the selected mesh
-            const currentMesh = this.getSelectedMeshForItem(this.selectedIndex);
-            if (currentMesh?.file === meshUrl) {
-                this.preloadedMeshData = meshData;
-                console.log(`Mesh preloaded and ready: ${model.name} - ${mesh.label}`);
+            // Verify this is still the mesh we want
+            if (this.preloadingUrl === meshUrl) {
+                this.preloadedMeshData = {
+                    url: meshUrl,
+                    data: meshData
+                };
+                console.log(`Mesh preloaded: ${mesh.label} (${meshData.nodes} nodes, ${meshData.elements} elements)`);
             }
         } catch (error) {
-            console.error(`Failed to preload mesh: ${model.name} - ${mesh.label}`, error);
-            this.preloadedMeshData = null;
+            console.error(`Failed to preload mesh: ${mesh.label}`, error);
+            if (this.preloadingUrl === meshUrl) {
+                this.preloadedMeshData = null;
+            }
         } finally {
             if (this.preloadingUrl === meshUrl) {
                 this.preloadingUrl = null;
             }
         }
     }
-    
+
     /**
-     * Confirm selection and dispatch event with preloaded mesh data
-     * This starts a normal simulation run
+     * Confirm selection and start simulation
      */
-    confirmSelection() {
+    async confirmSelection() {
         const model = this.models[this.selectedIndex];
         if (!model) {
             console.warn('No model selected');
@@ -523,75 +502,55 @@ class MeshGallery {
             return;
         }
         
-        // Close gallery
-        this.close();
-        
-        // Auto-open Metrics panel to show solver progress
-        if (window.menuManager) {
-            window.menuManager.showPanel('metrics');
-        }
-        
         // Get solver from the selected item's dropdown
         const selectedItem = this.track.querySelector(`.carousel-item[data-index="${this.selectedIndex}"]`);
         const solverDropdown = selectedItem?.querySelector('.solver-select');
         const solverType = solverDropdown?.value || model.solver_type || 'gpu';
 
+        // Get extrusion type from the selected item's dropdown  
         const extrusionDropdown = selectedItem?.querySelector('.extrusion-select');
-        const extrusionType = extrusionDropdown?.value || 'rectangular';        
+        const extrusionType = extrusionDropdown?.value || 'rectangular';
         
-        const maxIterations = model.max_iterations || 50000;
-        const progressInterval = model.progress_interval || 100;
+        // Close gallery
+        this.close();
         
-        console.log('=== MODEL SELECTION CONFIRMED ===');
+        // Auto-open metrics panel
+        if (window.menuManager) {
+            window.menuManager.showPanel('metrics');
+        }
+        
+        console.log('=== SIMULATION STARTED ===');
         console.log('Model:', model.name);
         console.log('Mesh:', selectedMesh.label);
         console.log('File:', selectedMesh.file);
         console.log('Solver:', solverType);
-        console.log('Extrusion:', extrusionType);        
-        console.log('Max Iterations:', maxIterations);
-        console.log('=================================');
+        console.log('Extrusion:', extrusionType);
+        console.log('==========================');
         
-        // Get preloaded data if available (don't wait if not ready)
-        const meshData = this.preloadedMeshData;
+        // Use preloaded mesh data if available
+        const preloadedData = this.preloadedMeshData?.url === selectedMesh.file 
+            ? this.preloadedMeshData.data 
+            : null;
         
-        // Build a combined object for backward compatibility
-        const meshInfo = {
-            ...model,
-            ...selectedMesh,
-            extrusion_type: extrusionType,
-            solver_type: solverType
-        };
+        if (preloadedData) {
+            console.log('Using preloaded mesh data');
+        }
         
-        // Dispatch event with preloaded data (may be null if still loading)
+        // Dispatch event with selection details
         const event = new CustomEvent('meshSelected', {
             detail: {
-                mesh: meshInfo,
                 model: model,
-                selectedMesh: selectedMesh,
-                index: this.selectedIndex,
-                preloadedData: meshData,
-                meshLoader: meshLoader,
-                extrusionType: extrusionType
+                mesh: selectedMesh,
+                solver: solverType,
+                extrusion: extrusionType,
+                preloadedMeshData: preloadedData
             }
         });
         document.dispatchEvent(event);
-        
-        // Start the solver (uses existing femClient from window)
-        if (window.femClient) {
-            window.femClient.startSolve({
-                mesh_file: selectedMesh.file,
-                solver_type: solverType,
-                max_iterations: maxIterations,
-                progress_interval: progressInterval
-            });
-        } else {
-            console.error('femClient not found on window');
-        }
     }
     
     /**
-     * Confirm profiling run - starts nsys-wrapped solver execution
-     * Opens PROFILING panel instead of SIMULATION panel
+     * Confirm profiling run (profiling-capable solvers only)
      */
     async confirmProfiling() {
         const model = this.models[this.selectedIndex];
@@ -612,9 +571,9 @@ class MeshGallery {
         const solverDropdown = selectedItem?.querySelector('.solver-select');
         const solverType = solverDropdown?.value || model.solver_type || 'gpu';
         
-        // Verify CUDA solver
-        if (!CUDA_SOLVERS.includes(solverType)) {
-            console.warn('Profiling only supported for CUDA solvers');
+        // Verify profiling-capable solver
+        if (!PROFILING_SOLVERS.includes(solverType)) {
+            console.warn('Profiling only supported for: GPU (CuPy), Numba CUDA, CPU Baseline');
             return;
         }
         

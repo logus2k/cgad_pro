@@ -21,12 +21,12 @@ sys.path.insert(0, str(SRC_DIR / "cpu_threaded"))
 sys.path.insert(0, str(SRC_DIR / "cpu_multiprocess"))
 sys.path.insert(0, str(SRC_DIR / "shared"))
 
-from quad8_cpu_v3 import Quad8FEMSolver as CPUSolver
+from quad8_cpu_v4 import Quad8FEMSolver as CPUSolver
 from quad8_gpu_v3 import Quad8FEMSolverGPU as GPUSolver
-from quad8_numba import Quad8FEMSolverNumba as NumbaSolver
+from quad8_numba_v2 import Quad8FEMSolverNumba as NumbaSolver
 from quad8_numba_cuda import Quad8FEMSolverNumbaCUDA as NumbaCUDASolver
-from quad8_cpu_threaded import Quad8FEMSolverThreaded as ThreadedSolver
-from quad8_cpu_multiprocess_v2 import Quad8FEMSolverMultiprocess as MultiprocessSolver
+from quad8_cpu_threaded_v2 import Quad8FEMSolverThreaded as ThreadedSolver
+from quad8_cpu_multiprocess_v3 import Quad8FEMSolverMultiprocess as MultiprocessSolver
 
 # Import memory tracking
 from memory_tracker import MemoryTracker

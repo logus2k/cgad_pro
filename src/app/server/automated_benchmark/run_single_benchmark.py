@@ -36,10 +36,10 @@ if str(SERVER_DIR) not in sys.path:
 
 # Solver class mapping
 SOLVER_CLASSES = {
-    "cpu": ("quad8_cpu_v3", "Quad8FEMSolverCPU"),
-    "cpu_threaded": ("quad8_cpu_threaded", "Quad8FEMSolverCPUThreaded"),
-    "cpu_multiprocess": ("quad8_cpu_multiprocess", "Quad8FEMSolverCPUMultiprocess"),
-    "numba": ("quad8_numba", "Quad8FEMSolverNumba"),
+    "cpu": ("quad8_cpu_v4", "Quad8FEMSolver"),
+    "cpu_threaded": ("quad8_cpu_threaded_v2", "Quad8FEMSolverThreaded"),
+    "cpu_multiprocess": ("quad8_cpu_multiprocess_v3", "Quad8FEMSolverMultiprocess"),
+    "numba": ("quad8_numba_v2", "Quad8FEMSolverNumba"),
     "numba_cuda": ("quad8_numba_cuda", "Quad8FEMSolverNumbaCUDA"),
     "gpu": ("quad8_gpu_v3", "Quad8FEMSolverGPU"),
 }

@@ -891,7 +891,8 @@ def create_profiling_router(service: ProfilingService):
         response.headers["Cache-Control"] = "no-store"
         result = service.get_kernels(session_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Session not found or no kernel data")
+            # Return empty (instead of 404) as NCU data is optional, depending on the solver
+            return {"kernels": [], "session_id": session_id}
         if "error" in result:
             raise HTTPException(status_code=500, detail=result["error"])
         return result
