@@ -1,10 +1,10 @@
-# Technical Report: Progressive Optimization of Quad-8 FEM Solver for 2D Potential Flow
+# Progressive Optimization Through Profiling
 
-This report documents the systematic optimization journey of a GPU-accelerated Finite Element Method (FEM) solver, progressing from a serial CPU baseline through parallel CPU variants to fully optimized GPU implementations. Each section presents the implementation's technical approach, the profiling data that revealed its bottlenecks, and the insights that guided subsequent optimization efforts.
+This section documents the systematic optimization journey of a GPU-accelerated Finite Element Method (FEM) solver, progressing from a serial CPU baseline through parallel CPU variants to fully optimized GPU implementations. Each section presents the implementation's technical approach, the profiling data that revealed its bottlenecks, and the insights that guided subsequent optimization efforts.
 
-All profiling data was collected using NVIDIA Nsight Systems with NVTX annotations, enabling precise phase-level timing analysis. Two mesh configurations were tested: a minimal mesh (y_tube_201: 201 nodes, 52 elements) to expose fixed overheads, and a production-scale mesh (y_tube_1_3m: 1,357,953 nodes, 338,544 elements) to evaluate scalability.
+The solver was validated across a comprehensive test matrix of 144 configurations: six mesh geometries (Y-Shaped channel, Venturi tube, S-Bend, T-Junction, Backward-Facing Step, and 90° Elbow), each at four refinement levels ranging from approximately 200 to 1.3 million nodes, executed on all six solver implementations. This report presents detailed analysis for the Y-Shaped channel geometry, selected as representative of the overall performance patterns observed across all configurations. Results focus on the smallest mesh (201 nodes, 52 elements) and largest mesh (1,357,953 nodes, 338,544 elements) to clearly illustrate the contrast between fixed-overhead behavior and production-scale performance; intermediate mesh sizes confirmed smooth scaling transitions consistent with these boundary cases.
 
----
+All profiling data was collected using NVIDIA Nsight Systems with NVTX annotations, enabling precise phase-level timing analysis.
 
 ## 1. CPU Baseline Implementation
 
@@ -34,7 +34,13 @@ Each element computation (`Elem_Quad8`) performs 9-point Gauss-Legendre quadratu
 | y_tube_201 | 141.5 ms | ~13 ms | ~7 ms | 9% | 5% |
 | y_tube_1_3m | 506.3 s | 85.7 s | 395.9 s | 17% | 78% |
 
-*Figure: CPU Baseline timeline for y_tube_1_3m showing assembly (85.7s) and solve (395.9s) phases.*
+![](images/documents/profiling_report/y_tube_201_cpu.png)
+
+***Figure 1a**: CPU Baseline timeline for y_tube_201 (141.5 ms total) — mesh loading dominates at small scale.*
+
+![](images/documents/profiling_report/y_tube_1_3m_cpu.png)
+
+***Figure 1b**: CPU Baseline timeline for y_tube_1_3m (506.3s total) showing assembly (85.7s) and solve (395.9s) phases.*
 
 ### Analysis
 
@@ -43,8 +49,6 @@ The profiling reveals two distinct bottleneck patterns depending on mesh scale. 
 The serial assembly loop suffers from Python interpreter overhead on each of the 338,544 iterations. Within each iteration, `np.linalg.det` and `np.linalg.inv` incur function call overhead for small 2x2 matrices where explicit formulas would be faster. The list `.extend()` operations for COO accumulation cause repeated memory reallocations.
 
 These observations establish the optimization targets: parallelize assembly to address the per-element overhead, and ultimately accelerate the solve phase which dominates at scale.
-
----
 
 ## 2. CPU Threaded Implementation
 
@@ -70,7 +74,13 @@ Each worker executes the same `Elem_Quad8` logic as the baseline, but multiple b
 | y_tube_201 | 165.9 ms | ~9 ms | ~7 ms | 0.85x (slower) |
 | y_tube_1_3m | 447.3 s | 37.4 s | 381.7 s | 1.13x |
 
-*Figure: CPU Threaded timeline showing reduced assembly phase (37.4s) but similar solve duration.*
+![](images/documents/profiling_report/y_tube_201_cpu_threaded.png)
+
+***Figure 2a**: CPU Threaded timeline for y_tube_201 (165.9 ms total) — threading overhead exceeds gains at small scale.*
+
+![](images/documents/profiling_report/y_tube_1_3m_cpu_threaded.png)
+
+***Figure 2b**: CPU Threaded timeline for y_tube_1_3m (447.3s total) showing reduced assembly phase (37.4s) but similar solve duration (381.7s).*
 
 ### Analysis
 
@@ -81,8 +91,6 @@ The threading gains are limited by Python's Global Interpreter Lock (GIL). While
 At small scale, threading actually degrades performance (165.9 ms vs 141.5 ms). The overhead of creating the thread pool, dispatching work, and collecting results exceeds the time saved on the trivial 52-element workload.
 
 The key insight: threading provides modest assembly improvements but cannot address the dominant solve bottleneck, and introduces overhead that hurts small-scale performance.
-
----
 
 ## 3. CPU Multiprocess Implementation
 
@@ -111,7 +119,13 @@ with mp.Pool(processes=self.num_workers,
 | y_tube_201 | 262.2 ms | 53.2 ms | ~5 ms | 0.54x (slower) | 0.63x (slower) |
 | y_tube_1_3m | 427.1 s | 43.1 s | 378.8 s | 1.19x | 1.05x |
 
-*Figure: CPU Multiprocess timeline showing assembly (43.1s) and additional process coordination overhead.*
+![](images/documents/profiling_report/y_tube_201_cpu_multiprocess.png)
+
+***Figure 3a**: CPU Multiprocess timeline for y_tube_201 (262.2 ms total) — process spawn overhead dominates at small scale.*
+
+![](images/documents/profiling_report/y_tube_1_3m_cpu_multiprocess.png)
+
+***Figure 3b**: CPU Multiprocess timeline for y_tube_1_3m (427.1s total) showing assembly (43.1s) and solve (378.8s) phases with process coordination overhead.*
 
 ### Analysis
 
@@ -128,8 +142,6 @@ The marginal total improvement (1.19x) comes primarily from slightly better solv
 Additional practical considerations include Windows compatibility — the implementation uses `spawn` rather than `fork` to work across platforms, which incurs higher startup costs but ensures portability. Memory pressure is also a concern: each worker process maintains its own copy of mesh data, which can strain RAM for very large meshes approaching system memory limits.
 
 This implementation demonstrates that bypassing the GIL is not sufficient for performance gains; the communication and coordination costs of process-based parallelism can outweigh the benefits of true concurrency, particularly when the workload involves returning substantial data from workers.
-
----
 
 ## 4. Numba JIT Implementation
 
@@ -178,7 +190,13 @@ def assemble_system_numba(coords, connect, ...):
 | y_tube_201 | 219.4 ms | 86.8 ms | ~5 ms | 0.65x (slower) |
 | y_tube_1_3m | 390.3 s | ~4.6 s | 385.6 s | 1.30x |
 
-*Figure: Numba JIT timeline showing dramatically reduced assembly (~4.6s) but unchanged solve phase (385.6s).*
+![](images/documents/profiling_report/y_tube_201_numba.png)
+
+***Figure 4a**: Numba JIT timeline for y_tube_201 (219.4 ms total) — JIT compilation overhead visible on first run.*
+
+![](images/documents/profiling_report/y_tube_1_3m_numba.png)
+
+***Figure 4b**: Numba JIT timeline for y_tube_1_3m (390.3s total) showing dramatically reduced assembly (~4.6s) but unchanged solve phase (385.6s).*
 
 ### Analysis
 
@@ -194,8 +212,6 @@ However, total speedup is only 1.30x because the solve phase (385.6s) remains un
 At small scale, the 219.4 ms runtime reflects JIT compilation overhead on first execution — Numba must compile each `@njit` function to machine code before it can run. The `cache=True` directive mitigates this for subsequent runs by persisting the compiled code to disk. On repeated executions with warm cache, the small-mesh overhead drops significantly, making Numba JIT competitive with the baseline even at small scale. This first-run versus subsequent-run distinction is important for interactive applications where startup latency matters.
 
 The key insight from Numba JIT: CPU assembly can be optimized to match GPU assembly performance, but the solve phase becomes an insurmountable bottleneck. Further improvements require GPU-accelerated solving.
-
----
 
 ## 5. Numba CUDA Implementation
 
@@ -244,7 +260,13 @@ K = sp.coo_matrix((vals_host, (rows, cols)), shape=(Nnds, Nnds)).tocsr()
 | y_tube_201 | 1.18 s | 399.4 ms | 123.9 ms | ~200 ms | 2,135 | 146 |
 | y_tube_1_3m | 14.94 s | 4.59 s | 3.47 s | 5.92 s | 179,115 | 10,097 |
 
-*Figure: Numba CUDA timeline showing assembly (4.59s), BC application (3.47s), and solve (5.92s) phases with visible kernel and memory transfer activity.*
+![](images/documents/profiling_report/y_tube_201_numba_cuda.png)
+
+***Figure 5a**: Numba CUDA timeline for y_tube_201 (1.18s total) — GPU initialization and kernel launch overhead dominate at small scale.*
+
+![](images/documents/profiling_report/y_tube_1_3m_numba_cuda.png)
+
+***Figure 5b**: Numba CUDA timeline for y_tube_1_3m (14.94s total) showing assembly (4.59s), BC application (3.47s), and solve (5.92s) phases with visible kernel and memory transfer activity.*
 
 ### Analysis
 
@@ -261,8 +283,6 @@ The memory transfer pattern shows substantial device-to-host activity during sol
 At small scale, the GPU implementation is dramatically slower (1.18s vs 141.5ms baseline, 8.3x slowdown). The 449.5 ms mesh loading phase and 399.4 ms assembly phase include CUDA context initialization, kernel compilation, and memory allocation overhead that cannot be amortized over the trivial 52-element workload.
 
 Key observations: GPU acceleration finally breaks through the solve bottleneck, but BC application emerges as a new optimization target, and fixed GPU overhead makes this unsuitable for small meshes.
-
----
 
 ## 6. CuPy GPU Implementation
 
@@ -315,7 +335,13 @@ K_csr = K_gpu.tocsr()  # Conversion on GPU
 | y_tube_201 | 658.6 ms | ~50 ms | 133.7 ms | ~70 ms | 3,361 | 240 |
 | y_tube_1_3m | 7.55 s | 0.58 s | 1.23 s | 5.68 s | 222,066 | 14,547 |
 
-*Figure: CuPy GPU timeline showing optimized assembly (~0.58s), BC application (1.23s), and solve (5.68s) phases.*
+![](images/documents/profiling_report/y_tube_201_gpu.png)
+
+***Figure 6a**: CuPy GPU timeline for y_tube_201 (658.6 ms total) — GPU overhead still significant but reduced compared to Numba CUDA.*
+
+![](images/documents/profiling_report/y_tube_1_3m_gpu.png)
+
+***Figure 6b**: CuPy GPU timeline for y_tube_1_3m (7.55s total) showing optimized assembly (~0.58s), BC application (1.23s), and solve (5.68s) phases.*
 
 ### Analysis
 
@@ -339,8 +365,6 @@ Phase-by-phase comparison with Numba CUDA:
 **Solve (1.04x)**: Both implementations use CuPy's CG solver, so performance is nearly identical. The solve phase now accounts for 75% of total runtime, indicating it has become the new bottleneck.
 
 At small scale, CuPy (658.6 ms) is faster than Numba CUDA (1.18 s) but still 4.7x slower than the CPU baseline. The reduced overhead comes from CuPy's pre-compiled kernels versus Numba's JIT compilation, but GPU context initialization still dominates.
-
----
 
 ## 7. Conclusions
 
@@ -405,4 +429,4 @@ GPU solvers exhibit dramatically better scaling: a 6,750x increase in problem si
 
 **Memory optimization.** Explore unified memory (CUDA managed memory) to simplify the programming model and potentially improve performance for meshes near GPU memory limits.
 
-**Multi-GPU scaling.** For very large meshes, domain decomposition with multi-GPU execution would extend the solver's capability beyond single-GPU memory constraints.
+**Multi-GPU scaling.** For very large meshes, domain decomposition with multi-GPU execution — potentially leveraging Dask for distributed computation — would extend the solver's capability beyond single-GPU memory constraints.
