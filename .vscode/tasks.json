@@ -4,9 +4,9 @@
         {
             "label": "wait-for-server",
             "type": "shell",
-            "command": "sleep 2",
+            "command": "sleep 4",
             "windows": {
-                "command": "ping -n 4 127.0.0.1 > nul"
+                "command": "ping -n 5 127.0.0.1 > nul"
             },
             "presentation": {
                 "reveal": "silent"

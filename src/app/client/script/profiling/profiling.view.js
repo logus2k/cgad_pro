@@ -71,7 +71,7 @@ export class ProfilingView {
     // Public Methods
     // ─────────────────────────────────────────────────────────────────────────
 
-/**
+    /**
      * Load sessions from server.
      */
     async loadSessions() {
@@ -80,7 +80,10 @@ export class ProfilingView {
             this.#sessions = data.sessions || [];
             
             // Auto-select most recent COMPLETED session if none is currently loaded
-            const shouldAutoLoad = !this.#currentSessionId && this.#sessions.length > 0;
+            // AND no profiling is actively running
+            const shouldAutoLoad = !this.#currentSessionId && 
+                                !this.#activeProfilingSession &&
+                                this.#sessions.length > 0;
             if (shouldAutoLoad) {
                 // Find first completed session (skip pending/running sessions)
                 const completedSession = this.#sessions.find(s => s.status === 'completed');
@@ -211,6 +214,15 @@ export class ProfilingView {
             ...metadata,
             startTime: Date.now()
         };
+        
+        // Clear previous timeline and summary to avoid confusion
+        console.log('[ProfilingView] Clearing previous timeline data');
+        this.#currentSessionId = null;
+        if (this.#timeline) {
+            this.#timeline.clear();
+        }
+        this.#clearSummaryCards();
+        this.#elements.exportBtn.disabled = true;
         
         // Join Socket.IO room for this session
         if (this.#socket) {
