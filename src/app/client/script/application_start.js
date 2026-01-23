@@ -160,6 +160,12 @@ window.cameraController = cameraController;
 femClient.on('connected', () => {
     metricsDisplay.updateStatus('Connected');
     console.log('Connected to FEM server');
+    
+    // Initialize metrics after server connection is ready
+    if (!window.metricsManager) {
+        const metricsManager = initMetricsManager();
+        window.metricsManager = metricsManager;
+    }
 });
 
 femClient.on('stage_start', (data) => {
@@ -1260,9 +1266,3 @@ window.setHUDOpacity = (value) => {
 };
 
 window.settingsManager = new SettingsManager();
-
-// ============================================================================
-// Initialize Metrics System
-// ============================================================================
-const metricsManager = initMetricsManager();
-window.metricsManager = metricsManager;

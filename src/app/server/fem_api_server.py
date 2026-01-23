@@ -327,18 +327,6 @@ async def run_solver_task(job_id: str, params: dict):
         except Exception as bench_err:
             print(f"Warning: Benchmark recording failed: {bench_err}")
 
-        # Enqueue profiling for GPU solvers
-        try:
-            if profiling_worker and solver_type in ('gpu', 'numba_cuda'):
-                profiling_worker.enqueue(
-                    solver=solver_type,
-                    mesh_file=params['mesh_file'],
-                    job_id=job_id
-                )
-                print(f"[Server] Profiling enqueued for job {job_id}")
-        except Exception as prof_err:
-            print(f"Warning: Profiling enqueue failed: {prof_err}")            
-        
         print(f"Job {job_id} completed and stored successfully\n")
         
         # THEN emit solve_complete event
@@ -378,18 +366,6 @@ async def run_solver_task(job_id: str, params: dict):
 # REST API Endpoints
 # ============================================================================
 
-"""
-@app.get("/")
-async def root():
-    # API health check
-    return {
-        "status": "ok",
-        "service": "FEMulator Pro API",
-        "version": "1.0.0"
-    }
-"""
-
-
 @app.get("/health")
 async def health():
     """Detailed health check"""
@@ -407,8 +383,7 @@ async def health():
         "profiling": {
             "nsys_available": profiling_service.nsys_available,
             "ncu_available": profiling_service.ncu_available,
-            "worker_running": profiling_worker is not None and profiling_worker._running if profiling_worker else False,
-            "queue_size": profiling_worker.queue_size if profiling_worker else 0
+            "worker_active": profiling_worker is not None
         }
     }
 
