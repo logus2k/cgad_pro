@@ -10,7 +10,9 @@ The fundamental idea of FEM is to replace a continuous problem by a discrete one
 
 ![](images/documents/tutorial2/image1.png)
 
+![Finite Element Method workflow overview.](images/documents/tutorial2/image1.png)
 
+**Figure 1.** Finite Element Method (FEM) workflow illustration: discretization of the domain into finite elements and transformation of the continuous problem into a discrete algebraic system.
 
 Because of this formulation, FEM naturally maps to linear algebra operations and therefore constitutes an ideal candidate for high-performance computing and parallel execution.
 
@@ -64,6 +66,11 @@ In FEM, the continuous domain is discretized into a finite number of elements co
 
 ![](images/documents/tutorial2/image2.png)
 
+![Quad-8 element geometry and node numbering.](images/documents/tutorial2/image2.png)
+
+**Figure 2.** Eight-node quadrilateral (Quad-8) element: geometry, corner and mid-edge nodes, and the counter-clockwise node numbering convention.
+
+
 Several element types exist, depending on dimensionality and interpolation order. In two dimensions, common choices include triangular and quadrilateral elements, with either linear or higher-order interpolation.
 
 In this work, eight-node quadrilateral elements (Quad-8) are used. These elements employ quadratic interpolation functions, allowing higher accuracy compared to linear elements while preserving numerical stability. 
@@ -115,6 +122,10 @@ where $N$ denotes the shape functions and $D$ represents the material or conduct
 
 
 ![DESCRIPTION](images/documents/tutorial2/Sparse FEM Matrix.svg)
+
+![Sparse global stiffness matrix structure assembled with FEM.](images/documents/tutorial2/Sparse%20FEM%20Matrix.svg)
+
+**Figure 3.** Example of a sparse FEM global stiffness matrix: nonzero entries reflect element connectivity, yielding a banded spa
 
 
 ### 1.2.3. Boundary Conditions
@@ -947,6 +958,11 @@ To amortize threading overhead and reduce GIL contention, elements are grouped i
 
 ![](images/documents/tutorial2/multithreading.png)
 
+![Batch-based threading model for FEM assembly using ThreadPoolExecutor.](images/documents/tutorial2/multithreading.png)
+
+**Figure 4.** CPU multithreading approach (ThreadPoolExecutor): the mesh is partitioned into batches, each processed by a thread to compute element contributions and assemble the global system.
+
+
 Each thread operates independently on a contiguous range of elements, computing local stiffness contributions and storing results in thread-local buffers.
 
 #### 3.3.3.2 Element Batch Processing
@@ -1089,6 +1105,11 @@ Python multiprocessing achieves parallelism by spawning multiple independent wor
 
 ![Multiprocessing](images/documents/tutorial2/multiprocessing.png)
 
+![Process-based parallel execution model for FEM assembly using multiprocessing.](images/documents/tutorial2/multiprocessing.png)
+
+**Figure 5.** CPU multiprocessing model: element batches are distributed across independent worker processes, bypassing the GIL at the cost of higher coordination and memory overhead.
+
+
 **Multiprocessing model**
 
 - Separate memory: each process has an isolated address space  
@@ -1145,6 +1166,12 @@ The multiprocessing implementation follows a batch-parallel execution model, whe
   - unlike threading, multiprocessing requires explicit data transfer per batch  
 
 ![Multiprocessing Data Serialization](images/documents/tutorial2/multiprocessing_dataserial.png)
+
+
+![Inter-process data serialization overhead in multiprocessing-based FEM assembly.](images/documents/tutorial2/multiprocessing_dataserial.png)
+
+**Figure 6.** Data serialization in multiprocessing: input mesh data and batch results must be transferred between processes (pickle/IPC), which can become a major overhead for large meshes.
+
 
   - for large meshes, serialization volume and frequency become major performance constraints  
 
@@ -1686,6 +1713,11 @@ CuPy is a NumPy-compatible GPU array library that enables accelerated numerical 
 
 ![GPU Memory Architeture](images/documents/tutorial2/gpu_memory.png)
 
+![GPU memory hierarchy relevant to FEM kernels and sparse linear algebra.](images/documents/tutorial2/gpu_memory.png)
+
+**Figure 7.** GPU memory hierarchy: registers, shared memory, and global memory influence kernel performance through latency, bandwidth, and access patterns in FEM assembly and post-processing.
+
+
 
 ---
 
@@ -1906,50 +1938,53 @@ This progression reflects a deliberate transition from interpreter-driven execut
 
 ## 4.4 Testing Environment
 
-At this stage of the project, the experimental evaluation is conducted using a selected set of servers (**ids: #1/#4/#5**) and problem sizes. In a subsequent phase, the study will be extended to include a larger pool of computational servers as well as significantly larger models, with increased numbers of nodes and elements, in order to further highlight performance, scalability, and hardware sensitivity. The current setup therefore represents an initial and controlled benchmarking baseline.
+The experimental evaluation presented in this section constitutes the final performance assessment of the finite element solver implementations developed in this work.  Benchmarks were conducted on a carefully selected set of computational servers and problem sizes, designed to capture the performance characteristics
+of CPU and GPU-based execution models across a representative range of hardware capabilities.
+
+The selected systems span mid-range, high-end, and upper-bound GPU configurations, enabling a robust and comparative analysis of scalability, execution efficiency, and architectural sensitivity. All experiments were performed using identical solver configurations, numerical parameters, and convergence criteria, ensuring that observed performance differences arise exclusively from the execution model and underlying hardware.
+
 
 ### Contributing Servers
 
-Benchmark data aggregated from **5 servers**:
+The benchmark dataset was generated using the following computational servers:
 
 | # | Hostname | CPU | Cores | RAM | GPU | VRAM | Records |
 |---|----------|-----|-------|-----|-----|------|---------|
-| 1 | DESKTOP-3MCDHQ7 | AMD64 Family 25 Model 97 St... | 12 | - | NVIDIA GeForce RT... | 15.9 GB | 237 |
-| 2 | DESKTOP-B968RT3 | AMD64 Family 25 Model 97 St... | 12 | - | NVIDIA GeForce RT... | 15.9 GB | 33 |
-| 3 | KRATOS | Intel64 Family 6 Model 183 ... | 28 | - | NVIDIA GeForce RT... | 12.0 GB | 81 |
-| 4 | MERCURY | 13th Gen Intel(R) Core(TM) ... | 20 | 94.3 GB | NVIDIA GeForce RT... | 24.0 GB | 275 |
-| 5 | RICKYROG700 | Intel64 Family 6 Model 198 ... | 24 | - | NVIDIA GeForce RT... | 31.8 GB | 238 |
+| 1 | DESKTOP-B968RT3 | AMD64 Family 25 Model 97 St... | 12 | - | NVIDIA GeForce RT... | 15.9 GB | 432 |
+| 2 | KRATOS | Intel64 Family 6 Model 183 ... | 28 | - | NVIDIA GeForce RT... | 12.0 GB | 432 |
+| 3 | MERCURY | 13th Gen Intel(R) Core(TM) ... | 20 | 94.3 GB | NVIDIA GeForce RT... | 24.0 GB | 432 |
+| 4 | RICKYROG700 | Intel64 Family 6 Model 198 ... | 24 | - | NVIDIA GeForce RT... | 31.8 GB | 432 |
 
-### Test Meshes
+## Test Meshes
 
 | Model | Size | Nodes | Elements | Matrix NNZ |
 |-------|------|-------|----------|------------|
 | Backward-Facing Step | XS | 287 | 82 | 3,873 |
 | Backward-Facing Step | M | 195,362 | 64,713 | 3,042,302 |
-| Backward-Facing Step | L | 766,088 | 254,551 | 11,973,636 |
-| Backward-Facing Step | XL | 1,283,215 | 426,686 | 20,066,869 |
-| Elbow 90° | XS | 411 | 111 | 5,063 |
-| Elbow 90° | M | 161,984 | 53,344 | 2,503,138 |
-| Elbow 90° | L | 623,153 | 206,435 | 9,712,725 |
-| Elbow 90° | XL | 1,044,857 | 346,621 | 16,304,541 |
-| S-Bend | XS | 387 | 222 | 4,109 |
-| S-Bend | M | 196,078 | 64,787 | 3,048,794 |
-| S-Bend | L | 765,441 | 254,034 | 11,952,725 |
-| S-Bend | XL | 1,286,039 | 427,244 | 20,097,467 |
+| Backward-Facing Step | L | 766,088 | 254,551 | 11,965,814 |
+| Backward-Facing Step | XL | 1,283,215 | 426,686 | 20,056,653 |
+| Elbow 90° | XS | 411 | 111 | 5,029 |
+| Elbow 90° | M | 161,984 | 53,344 | 2,502,276 |
+| Elbow 90° | L | 623,153 | 206,435 | 9,692,925 |
+| Elbow 90° | XL | 1,044,857 | 346,621 | 16,278,553 |
+| S-Bend | XS | 387 | 222 | 4,031 |
+| S-Bend | M | 196,078 | 64,787 | 3,048,716 |
+| S-Bend | L | 765,441 | 254,034 | 11,947,139 |
+| S-Bend | XL | 1,286,039 | 427,244 | 20,090,265 |
 | T-Junction | XS | 393 | 102 | 5,357 |
 | T-Junction | M | 196,420 | 64,987 | 3,057,464 |
 | T-Junction | L | 768,898 | 255,333 | 12,012,244 |
-| T-Junction | XL | 1,291,289 | 429,176 | 20,186,313 |
-| Venturi | XS | 341 | 86 | 4,061 |
-| Venturi | M | 194,325 | 64,334 | 3,023,503 |
-| Venturi | L | 763,707 | 253,704 | 11,934,351 |
-| Venturi | XL | 1,284,412 | 427,017 | 20,083,132 |
+| T-Junction | XL | 1,291,289 | 429,176 | 20,178,849 |
+| Venturi | XS | 341 | 86 | 4,023 |
+| Venturi | M | 194,325 | 64,334 | 3,023,465 |
+| Venturi | L | 763,707 | 253,704 | 11,923,621 |
+| Venturi | XL | 1,284,412 | 427,017 | 20,069,214 |
 | Y-Shaped | XS | 201 | 52 | 2,571 |
-| Y-Shaped | M | 195,853 | 48,607 | 2,336,363 |
-| Y-Shaped | L | 772,069 | 192,308 | 9,242,129 |
-| Y-Shaped | XL | 1,357,953 | 338,544 | 16,265,217 |
+| Y-Shaped | M | 195,853 | 48,607 | 2,287,756 |
+| Y-Shaped | L | 772,069 | 192,308 | 9,044,929 |
+| Y-Shaped | XL | 1,357,953 | 338,544 | 15,920,215 |
 
-### Solver Configuration
+## Solver Configuration
 
 | Parameter | Value |
 |-----------|-------|
@@ -1960,7 +1995,7 @@ Benchmark data aggregated from **5 servers**:
 | Max Iterations | 15,000,000 |
 | Preconditioner | Jacobi |
 
-### Implementations Tested
+## Implementations Tested
 
 | # | Implementation | File | Parallelism Strategy |
 |---|----------------|------|----------------------|
@@ -1971,22 +2006,17 @@ Benchmark data aggregated from **5 servers**:
 | 5 | Numba CUDA | `quad8_numba_cuda.py` | @cuda.jit kernels |
 | 6 | CuPy GPU | `quad8_gpu_v3.py` | CUDA C RawKernels |
 
-In line with this scope, the benchmarks presented below are conducted on three representative systems and on meshes with a limited number of nodes and elements, ensuring consistent and reproducible measurements:
-
-
-| System | GPU Model | VRAM | Benchmark Relevance |
-|------|-----------|------|---------------------|
-| RICKYROG700 | RTX 5090 | 31.8 GB | Upper performance ceiling |
-| MERCURY | RTX 4090 | 24 GB | High-end reference GPU |
-| DESKTOP-B968RT3 | RTX 5060 Ti | 15.9 GB | Mid-range GPU |
 
 ---
 
-![DESCRIPTION](images/documents/tutorial2/assembly_vs_solve_breakdown_2x2_mesh_sizes.svg)
+![Assembly vs. solve time breakdown across mesh sizes for all solver implementations.](images/documents/tutorial2/assembly_vs_solve_breakdown_2x2_mesh_sizes.svg)
+
+**Figure 8.** Assembly vs. solve time breakdown across multiple mesh sizes and solver backends, highlighting how computational bottlenecks shift with problem scale.
+
 
 ### 4.4.1 Assembly vs. Solve Time Breakdown Across Mesh Sizes
 
-Figure XXX presents a detailed breakdown of total execution time into assembly and solve phases for all solver implementations, evaluated across four increasingly large mesh sizes. This decomposition is essential to understand not only which implementation is faster, but why performance changes with scale, revealing the underlying computational bottlenecks that dominate each regime.
+Figure 8 presents a detailed breakdown of total execution time into assembly and solve phases for all solver implementations, evaluated across four increasingly large mesh sizes. This decomposition is essential to understand not only which implementation is faster, but why performance changes with scale, revealing the underlying computational bottlenecks that dominate each regime.
 
 For the smallest mesh (201 nodes), total runtimes are extremely short for all implementations, and performance is governed almost entirely by fixed overheads rather than sustained computation. The CPU baseline and lightweight threaded execution perform efficiently due to minimal setup costs, while multiprocessing exhibits a severe assembly penalty, clearly visible in the figure, caused by process spawning and inter-process communication overhead. GPU-based implementations (Numba CUDA and CuPy GPU) show relatively larger solve fractions despite low absolute runtimes, reflecting kernel launch latency and synchronization costs that cannot be amortized at this scale. These results confirm that accelerator-based execution is structurally inefficient for very small FEM problems, regardless of hardware capability.
 
@@ -2000,14 +2030,13 @@ This analysis highlights that FEM performance optimization is inherently scale-d
 
 
 
-![DESCRIPTION](images/documents/tutorial2/CPU_GPU_runtime_crossover_interpolated.svg)
+![Interpolated CPU–GPU runtime crossover as a function of problem size.](images/documents/tutorial2/CPU_GPU_runtime_crossover_interpolated.svg)
 
-*Figure xxx- Interpolated CPU-GPU runtime crossover as a function of problem size.*
-
+**Figure 9.** Interpolated CPU–GPU runtime crossover as a function of problem size.
 
 ### 4.4.2 CPU-GPU Runtime Crossover Analysis
 
-Figure 4.5 presents the interpolated runtime crossover between CPU-based and GPU-based solver executions as a function of problem size. This analysis aims to identify the **break-even point** at which GPU acceleration becomes consistently advantageous over CPU execution, providing a quantitative criterion for hardware-aware solver selection.
+Figure 9 presents the interpolated runtime crossover between CPU-based and GPU-based solver executions as a function of problem size. This analysis aims to identify the **break-even point** at which GPU acceleration becomes consistently advantageous over CPU execution, providing a quantitative criterion for hardware-aware solver selection.
 
 At small problem sizes, the CPU implementation exhibits lower total runtime, which is primarily explained by its minimal startup overhead. GPU-based execution, while massively parallel, incurs fixed costs related to kernel launch, device synchronization, and data movement between host and device memory. In this regime, these overheads dominate total execution time, rendering GPU acceleration inefficient despite its superior theoretical throughput.
 
@@ -2021,9 +2050,9 @@ This crossover analysis provides a clear and actionable performance guideline: *
 
 
 
-![DESCRIPTION](images/documents/tutorial2/geometry_small_multiples_runtime_scaling.svg)
+![Runtime scaling across geometries and execution models.](images/documents/tutorial2/geometry_small_multiples_runtime_scaling.svg)
 
-**Figure xxx - Assembly and solve time breakdown for different solver strategies across multiple mesh sizes.**
+**Figure 10.** Assembly and solve time breakdown for different solver strategies across multiple mesh sizes and geometries.
 
 ### 4.4.3 Critical Analysis of Runtime Scaling and CPU-GPU Transition
 
@@ -2041,13 +2070,14 @@ This analysis confirms that CPU-based approaches remain suitable for small and m
 
 
 
-![DESCRIPTION](images/documents/tutorial2/normalized_time_per_element_venturi.svg)
+![Normalized runtime per element vs. mesh size for the Venturi geometry across solver implementations.](images/documents/tutorial2/normalized_time_per_element_venturi.svg)
 
-**Figure xxx - Runtime scaling of the FEM solver as a function of the number of nodes for different geometries.**
+**Figure 11.** Normalized runtime per element as a function of problem size (Venturi), highlighting scaling efficiency and the CPU–GPU crossover regime.
+
 
 ### 4.4.3 Runtime Scaling and CPU-GPU Crossover Analysis
 
-Figure XXX shows the normalized runtime per element as a function of the number of elements for the Venturi geometry, using logarithmic scales on both axes. This representation isolates scaling efficiency from absolute runtime and provides a clearer view of how each execution model behaves asymptotically as problem size increases.
+Figure 11 shows the normalized runtime per element as a function of the number of elements for the Venturi geometry, using logarithmic scales on both axes. This representation isolates scaling efficiency from absolute runtime and provides a clearer view of how each execution model behaves asymptotically as problem size increases.
 
 For small meshes (≈10³ elements), the normalized runtime per element is relatively high and scattered across implementations. In this regime, fixed overheads dominate execution, and GPU-based solvers (Numba CUDA and CuPy GPU) exhibit significantly worse efficiency per element than CPU-based approaches. This behavior reflects kernel launch latency, memory transfer overhead, and GPU context management costs, which cannot be amortized when the computational workload per element is small. Lightweight CPU approaches, particularly Numba JIT, achieve the lowest per-element cost in this range due to minimal overhead and efficient compiled execution.
 
@@ -2061,13 +2091,13 @@ Overall, the figure provides strong empirical evidence that GPU acceleration is 
 
 
 
-![DESCRIPTION](images/documents/tutorial2/pareto_frontier_per_mesh_size_markers_angles.svg)
+![Pareto frontier of total runtime versus solver iterations across mesh sizes and execution models.](images/documents/tutorial2/pareto_frontier_per_mesh_size_markers_angles.svg)
 
-**Figure xxx - Pareto frontier of average total runtime versus average solver iterations for different mesh sizes and execution models.**  
+**Figure 12.** Pareto frontier of average total runtime versus average solver iterations for different mesh sizes and execution models.
 
 ### 4.4.4 Pareto-Based Performance Trade-off Analysis
 
-Figure xxx presents a Pareto-based analysis of solver performance, explicitly relating average total runtime to average solver iteration count across four increasing mesh sizes. This representation provides a multidimensional view of efficiency, allowing runtime performance to be evaluated jointly with numerical effort, rather than in isolation.
+Figure 12 presents a Pareto-based analysis of solver performance, explicitly relating average total runtime to average solver iteration count across four increasing mesh sizes. This representation provides a multidimensional view of efficiency, allowing runtime performance to be evaluated jointly with numerical effort, rather than in isolation.
 
 For the smallest mesh (201 nodes), all implementations exhibit very similar iteration counts, confirming that convergence behavior is independent of the execution backend at this scale. Performance differences are therefore entirely driven by execution overhead. In this regime, the Pareto frontier is defined by CPU-based approaches, particularly the baseline and threaded CPU implementations, which achieve minimal runtime with no GPU-related initialization or data transfer costs. Multiprocessing is clearly Pareto-dominated, exhibiting both higher runtime and no numerical advantage. GPU and Numba CUDA solutions also lie off the Pareto frontier, as fixed GPU overheads outweigh any benefit from parallel execution for such small systems.
 
@@ -2086,9 +2116,9 @@ This Pareto analysis leads to three key conclusions:
 This analysis reinforces the central finding of the performance study: GPU acceleration is not merely faster in absolute terms, but becomes structurally superior as problem size increases, while fully preserving numerical consistency across all execution models.
 
 
-![DESCRIPTION](images/documents/tutorial2/performance_envelope_y_shaped.svg)
+![Performance envelope across execution models for the Y-shaped geometry.](images/documents/tutorial2/performance_envelope_y_shaped.svg)
 
-**Figure xxx - Performance envelope across execution models for the Y-shaped geometry.**  
+**Figure 13.** Performance envelope across execution models for the Y-shaped geometry.
 
 ### 4.4.5. Performance Envelope Analysis for the Y-Shaped Geometry
 
@@ -2101,9 +2131,9 @@ An important observation is that Numba CUDA and CuPy-based implementations form 
 This figure demonstrates that solver optimality is strongly mesh-dependent. While CPU execution remains appropriate for small-scale problems, GPU acceleration defines the optimal performance envelope for medium to large meshes, justifying its use as the default strategy in high-resolution FEM simulations.
 
 
-![DESCRIPTION](images/documents/tutorial2/venturi_iterations_vs_nodes_all_solvers.svg)
+![Conjugate Gradient iteration count versus mesh size for all solver implementations (Venturi geometry).](images/documents/tutorial2/venturi_iterations_vs_nodes_all_solvers.svg)
 
-**Figure xxx - Number of Conjugate Gradient iterations as a function of mesh size for all solver implementations (Venturi geometry).** 
+**Figure 14.** Number of Conjugate Gradient iterations as a function of mesh size for all solver implementations (Venturi geometry).
 
 ### 4.4.6 Solver Convergence Behaviour Across Mesh Sizes
 
@@ -2128,9 +2158,10 @@ This convergence analysis confirms that:
 This result is fundamental for the credibility of the benchmarking study and validates the fairness of the cross-platform performance comparison.
 
 
-![DESCRIPTION](images/documents/tutorial2/y_shaped_cpu_2x2_execution_models.svg)
+![Execution time comparison across CPU and GPU solver implementations for the Y-shaped geometry.](images/documents/tutorial2/y_shaped_cpu_2x2_execution_models.svg)
 
-**Figure xxx - Execution time comparison across solver implementations for the Y-shaped geometry (CPU-based and GPU-based models).**  
+**Figure 15.** Execution time comparison across solver implementations for the Y-shaped geometry (CPU-based and GPU-based models).
+
 
 ### 4.4.7 Comparative Execution Time Breakdown for the Y-Shaped Geometry
 
@@ -2157,9 +2188,9 @@ Overall, this analysis reinforces several important findings:
 
 This figure therefore strengthens the validity of the study’s conclusions by demonstrating that the observed performance patterns are architecturally robust, while also highlighting the intrinsic scalability limits of CPU-based FEM solvers when compared to GPU-accelerated approaches discussed in subsequent sections.
 
-![DESCRIPTION](images/documents/tutorial2/y_shaped_gpu_side_by_side.svg)
+![Side-by-side execution time comparison between Numba CUDA and CuPy RawKernel for the Y-shaped geometry.](images/documents/tutorial2/y_shaped_gpu_side_by_side.svg)
 
-**Figure xxx - Side-by-side execution time comparison of GPU-based solvers for the Y-shaped geometry.**  
+**Figure 16.** Side-by-side execution time comparison of GPU-based solvers for the Y-shaped geometry.
 
 ### 4.4.8 GPU-Centric Performance Comparison for the Y-Shaped Geometry
 
@@ -2178,13 +2209,13 @@ This figure demonstrates that:
 
 This analysis justifies the inclusion of both approaches in the study and positions CuPy RawKernel as the reference implementation for maximum-performance GPU execution in the final benchmarking comparisons.
 
-![DESCRIPTION](images/documents/tutorial2/y_shaped_runtime_speedup.svg)
+![Runtime and speedup of GPU-based solvers relative to the CPU baseline for the Y-shaped geometry.](images/documents/tutorial2/y_shaped_runtime_speedup.svg)
 
-**Figure xxx - Runtime speedup of GPU-based implementations relative to the CPU baseline for the Y-shaped geometry.**  
+**Figure 17.** Runtime speedup of GPU-based implementations relative to the CPU baseline for the Y-shaped geometry.
 
 ### 4.4.9 GPU Speedup Analysis for the Y-Shaped Geometry
  
-Figure XXX provides a combined view of absolute runtime scaling and relative speedup versus the CPU baseline for the Y-Shaped geometry, offering a comprehensive perspective on how different execution models behave as the number of nodes increases.
+Figure 17 provides a combined view of absolute runtime scaling and relative speedup versus the CPU baseline for the Y-Shaped geometry, offering a comprehensive perspective on how different execution models behave as the number of nodes increases.
 
 From the runtime curves (top panel), a clear hierarchy emerges. For small meshes (≈200 nodes), all implementations exhibit very low absolute runtimes, and differences between execution models are marginal. In this regime, GPU-based solvers (CuPy GPU and Numba CUDA) show no meaningful advantage and, in absolute terms, remain comparable to CPU execution. This behavior reflects the dominance of fixed overheads — kernel launch latency, device synchronization, and host-device data transfers — which prevent GPUs from exploiting parallelism at such small problem sizes. Consequently, GPU acceleration is ineffective and provides little to no speedup.
 
@@ -2205,15 +2236,13 @@ Overall, this figure demonstrates that:
 
 These results provide strong empirical confirmation that GPU acceleration is essential for large-scale FEM simulations, while also highlighting that further performance gains at extreme scales must focus on solver algorithms and memory efficiency rather than kernel-level optimizations alone.
 
+![Stage-level runtime breakdown across execution models for the Y-shaped geometry.](images/documents/tutorial2/y_shaped_total_time_breakdown_2x2.svg)
 
-
-![DESCRIPTION](images/documents/tutorial2/y_shaped_total_time_breakdown_2x2.svg)
-
-**Figure XXX - Detailed runtime breakdown of the total execution time for the Y-shaped geometry across CPU and GPU execution models.** 
+**Figure 18.** Detailed runtime breakdown of the total execution time for the Y-shaped geometry across CPU and GPU execution models.
 
 ### 4.4.10 Runtime Breakdown Across Execution Models for the Y-Shaped Geometry
  
-This figure decomposes the total runtime into its main computational stages—mesh loading, system assembly, boundary condition application, linear system solution, and post-processing—for the different execution models considered in this study. The comparison is performed for a representative mesh size, enabling direct inspection of how each execution model redistributes computational cost across the FEM pipeline.
+This figure 18 decomposes the total runtime into its main computational stages—mesh loading, system assembly, boundary condition application, linear system solution, and post-processing—for the different execution models considered in this study. The comparison is performed for a representative mesh size, enabling direct inspection of how each execution model redistributes computational cost across the FEM pipeline.
 
 The runtime breakdown highlights fundamental differences in how CPU- and GPU-based implementations allocate computational effort across the FEM workflow. In the CPU baseline and threaded variants, system assembly represents a dominant fraction of the total runtime. This reflects the interpreter-bound nature of element-level loops and sparse matrix insertion, where Python overhead and memory indirection significantly limit performance.
 
