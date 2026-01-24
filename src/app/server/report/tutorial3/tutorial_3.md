@@ -8,8 +8,6 @@ The Finite Element Method (FEM) is a numerical technique widely used to approxim
 
 The fundamental idea of FEM is to replace a continuous problem by a discrete one. The physical domain is subdivided into a finite number of smaller regions, called elements, over which the unknown field is approximated using interpolation functions. By assembling the contributions of all elements, the original continuous problem is transformed into a system of algebraic equations that can be solved numerically.
 
-![](images/documents/tutorial2/image1.png)
-
 ![Finite Element Method workflow overview.](images/documents/tutorial2/image1.png)
 
 **Figure 1.** Finite Element Method (FEM) workflow illustration: discretization of the domain into finite elements and transformation of the continuous problem into a discrete algebraic system.
@@ -64,7 +62,6 @@ This equation captures all the essential computational challenges of FEM and is 
 
 In FEM, the continuous domain is discretized into a finite number of elements connected at nodes. Within each element, the unknown field is approximated using shape functions defined over the element’s geometry.
 
-![](images/documents/tutorial2/image2.png)
 
 ![Quad-8 element geometry and node numbering.](images/documents/tutorial2/image2.png)
 
@@ -120,8 +117,6 @@ $$\mathbf{K}^{(e)} = \int_{\Omega_e} (\nabla \mathbf{N})^T \mathbf{D} (\nabla \m
 
 where $N$ denotes the shape functions and $D$ represents the material or conductivity matrix. The resulting global matrix is sparse, symmetric, and positive definite, which strongly influences solver choice and performance behavior.
 
-
-![DESCRIPTION](images/documents/tutorial2/Sparse FEM Matrix.svg)
 
 ![Sparse global stiffness matrix structure assembled with FEM.](images/documents/tutorial2/Sparse%20FEM%20Matrix.svg)
 
@@ -956,8 +951,6 @@ Python threading is limited by the Global Interpreter Lock (GIL), which serializ
 
 To amortize threading overhead and reduce GIL contention, elements are grouped into fixed-size batches. Each batch is processed by a single thread, enabling coarse-grained parallelism:
 
-![](images/documents/tutorial2/multithreading.png)
-
 ![Batch-based threading model for FEM assembly using ThreadPoolExecutor.](images/documents/tutorial2/multithreading.png)
 
 **Figure 4.** CPU multithreading approach (ThreadPoolExecutor): the mesh is partitioned into batches, each processed by a thread to compute element contributions and assemble the global system.
@@ -1103,8 +1096,6 @@ The CPU Multiprocess implementation achieves true parallelism by using process-b
 
 Python multiprocessing achieves parallelism by spawning multiple independent worker processes. Each process runs its own Python interpreter with an isolated memory space and its own GIL, avoiding GIL contention and enabling true CPU parallelism.
 
-![Multiprocessing](images/documents/tutorial2/multiprocessing.png)
-
 ![Process-based parallel execution model for FEM assembly using multiprocessing.](images/documents/tutorial2/multiprocessing.png)
 
 **Figure 5.** CPU multiprocessing model: element batches are distributed across independent worker processes, bypassing the GIL at the cost of higher coordination and memory overhead.
@@ -1164,9 +1155,6 @@ The multiprocessing implementation follows a batch-parallel execution model, whe
 
 - **Data serialization implications (IPC overhead)**:
   - unlike threading, multiprocessing requires explicit data transfer per batch  
-
-![Multiprocessing Data Serialization](images/documents/tutorial2/multiprocessing_dataserial.png)
-
 
 ![Inter-process data serialization overhead in multiprocessing-based FEM assembly.](images/documents/tutorial2/multiprocessing_dataserial.png)
 
@@ -1711,13 +1699,9 @@ CuPy is a NumPy-compatible GPU array library that enables accelerated numerical 
 
 **GPU memory model**
 
-![GPU Memory Architeture](images/documents/tutorial2/gpu_memory.png)
-
 ![GPU memory hierarchy relevant to FEM kernels and sparse linear algebra.](images/documents/tutorial2/gpu_memory.png)
 
 **Figure 7.** GPU memory hierarchy: registers, shared memory, and global memory influence kernel performance through latency, bandwidth, and access patterns in FEM assembly and post-processing.
-
-
 
 ---
 
@@ -2028,8 +2012,6 @@ This behavior is further reinforced for the largest mesh (1,357,953 nodes). Acro
 
 This analysis highlights that FEM performance optimization is inherently scale-dependent. While CPU-level parallelism and JIT compilation provide meaningful gains at moderate sizes, they are insufficient to overcome the fundamental limitations of sparse linear algebra on CPUs. GPU acceleration effectively removes assembly as a bottleneck and substantially mitigates solver cost, making it the only viable strategy for large-scale problems. However, even on GPUs, further performance improvements must focus on solver algorithms, preconditioning strategies, and memory efficiency, rather than kernel-level optimizations alone.
 
-
-
 ![Interpolated CPU–GPU runtime crossover as a function of problem size.](images/documents/tutorial2/CPU_GPU_runtime_crossover_interpolated.svg)
 
 **Figure 9.** Interpolated CPU–GPU runtime crossover as a function of problem size.
@@ -2047,8 +2029,6 @@ The intersection point of the two curves defines the **CPU-GPU crossover region*
 Beyond the crossover point, the divergence between CPU and GPU runtimes increases rapidly. This behavior confirms that CPU-based solvers become increasingly constrained by memory bandwidth and cache inefficiency, while GPU-based solvers sustain higher effective throughput due to wider memory interfaces and higher concurrency. The gap widens further as problem size grows, reinforcing the conclusion that CPUs do not scale favorably for large sparse FEM systems, even when augmented with threading or JIT compilation.
 
 This crossover analysis provides a clear and actionable performance guideline: **CPU execution is preferable only for small-scale problems**, where overhead dominates, whereas **GPU execution becomes the superior choice once the problem size exceeds the crossover threshold**. This result complements the assembly-versus-solve breakdown by offering a global, hardware-agnostic perspective on performance scalability, and directly motivates the cross-GPU comparisons presented in the subsequent sections.
-
-
 
 ![Runtime scaling across geometries and execution models.](images/documents/tutorial2/geometry_small_multiples_runtime_scaling.svg)
 
@@ -2069,7 +2049,6 @@ Importantly, the crossover point is not purely hardware-dependent but emerges fr
 This analysis confirms that CPU-based approaches remain suitable for small and moderately sized problems, while GPU acceleration is essential for maintaining scalability in large-scale finite element simulations. The findings reinforce the importance of selecting solver strategies based on both problem size and computational architecture, rather than relying on a one-size-fits-all execution model.
 
 
-
 ![Normalized runtime per element vs. mesh size for the Venturi geometry across solver implementations.](images/documents/tutorial2/normalized_time_per_element_venturi.svg)
 
 **Figure 11.** Normalized runtime per element as a function of problem size (Venturi), highlighting scaling efficiency and the CPU–GPU crossover regime.
@@ -2088,8 +2067,6 @@ Beyond the crossover point (≈10⁶ elements), GPU implementations clearly domi
 CPU-based solvers, including multiprocessing and threading, display the opposite trend: their per-element runtime increases steadily with mesh size. This confirms that CPU execution becomes increasingly constrained by memory access patterns and sparse linear algebra operations, which do not scale favorably with core count alone. Multiprocessing shows particularly poor efficiency at small scales and only moderate improvement at larger sizes, underscoring the cost of inter-process communication.
 
 Overall, the figure provides strong empirical evidence that GPU acceleration is essential for achieving scalable FEM performance at large problem sizes. While CPU-based solvers remain efficient and competitive for small meshes, their asymptotic behavior is fundamentally limited. GPU-based approaches, by contrast, demonstrate improving efficiency with scale and clearly superior asymptotic performance, making them the preferred execution model for high-resolution, production-scale finite element simulations.
-
-
 
 ![Pareto frontier of total runtime versus solver iterations across mesh sizes and execution models.](images/documents/tutorial2/pareto_frontier_per_mesh_size_markers_angles.svg)
 
@@ -2114,7 +2091,6 @@ This Pareto analysis leads to three key conclusions:
 3. For large-scale problems, GPU-based solvers fully dominate the Pareto frontier, delivering the best achievable balance between runtime and numerical effort.
 
 This analysis reinforces the central finding of the performance study: GPU acceleration is not merely faster in absolute terms, but becomes structurally superior as problem size increases, while fully preserving numerical consistency across all execution models.
-
 
 ![Performance envelope across execution models for the Y-shaped geometry.](images/documents/tutorial2/performance_envelope_y_shaped.svg)
 
