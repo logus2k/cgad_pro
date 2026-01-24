@@ -108,14 +108,6 @@
     text-align: center;
 }
 
-.credits-logo svg text tspan:first-child {
-    fill: #e8e8e0;
-}
-
-.credits-logo svg text tspan:nth-child(2) {
-    fill: #d4d4c8;
-}
-
 .credits-tagline {
     text-align: center;
     font-size: 12px;
