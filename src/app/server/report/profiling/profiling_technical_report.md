@@ -1,3 +1,5 @@
+![](images/documents/cover/cover_page_web.png)
+
 # Progressive Optimization Through Profiling
 
 This section documents the systematic optimization journey of the GPU-accelerated Finite Element Method (FEM) solver, progressing from a serial CPU baseline through parallel CPU variants to fully optimized GPU implementations. Each section presents the implementation's technical approach, the profiling data that revealed its bottlenecks, and the insights that guided subsequent optimization efforts.
