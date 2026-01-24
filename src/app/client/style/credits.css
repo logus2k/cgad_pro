@@ -89,11 +89,6 @@
     z-index: 1;
 }
 
-/* Each loop - duplicated for seamless loop */
-.credits-loop {
-    /* No extra spacing */
-}
-
 @keyframes creditsScroll {
     0% {
         transform: translateY(0);
