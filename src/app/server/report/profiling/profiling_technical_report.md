@@ -1,10 +1,12 @@
 # Progressive Optimization Through Profiling
 
-This section documents the systematic optimization journey of a GPU-accelerated Finite Element Method (FEM) solver, progressing from a serial CPU baseline through parallel CPU variants to fully optimized GPU implementations. Each section presents the implementation's technical approach, the profiling data that revealed its bottlenecks, and the insights that guided subsequent optimization efforts.
+This section documents the systematic optimization journey of the GPU-accelerated Finite Element Method (FEM) solver, progressing from a serial CPU baseline through parallel CPU variants to fully optimized GPU implementations. Each section presents the implementation's technical approach, the profiling data that revealed its bottlenecks, and the insights that guided subsequent optimization efforts.
 
-The solver was validated across a comprehensive test matrix of 144 configurations: six mesh geometries (Y-Shaped channel, Venturi tube, S-Bend, T-Junction, Backward-Facing Step, and 90° Elbow), each at four refinement levels ranging from approximately 200 to 1.3 million nodes, executed on all six solver implementations. This report presents detailed analysis for the Y-Shaped channel geometry, selected as representative of the overall performance patterns observed across all configurations. Results focus on the smallest mesh (201 nodes, 52 elements) and largest mesh (1,357,953 nodes, 338,544 elements) to clearly illustrate the contrast between fixed-overhead behavior and production-scale performance; intermediate mesh sizes confirmed smooth scaling transitions consistent with these boundary cases.
+The solver was validated across a comprehensive test matrix of 144 configurations: six mesh geometries (Y-Shaped channel, Venturi tube, S-Bend, T-Junction, Backward-Facing Step, and 90° Elbow), each at four refinement levels ranging from approximately 200 to 1.3 million nodes, executed on all six solver implementations.
 
-All profiling data was collected using NVIDIA Nsight Systems with NVTX annotations, enabling precise phase-level timing analysis.
+We present a detailed analysis for the Y-Shaped channel geometry, selected as representative of the overall performance patterns observed across all configurations. Results focus on the smallest mesh (201 nodes, 52 elements) and largest mesh (1,357,953 nodes, 338,544 elements) to clearly illustrate the contrast between fixed-overhead behavior and production-scale performance; intermediate mesh sizes confirmed smooth scaling transitions consistent with these boundary cases.
+
+All profiling data was collected using NVIDIA Nsight Systems with NVTX annotations, enabling precise phase-level timing analysis. The hardware utilized for profiling tests was a Intel i9-12900K CPU and a NVidia RTX 4090 GPU.
 
 ## 1. CPU Baseline Implementation
 
