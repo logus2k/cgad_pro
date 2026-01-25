@@ -1,3 +1,5 @@
+![](images/documents/cover/cover_page_web.png)
+
 # High-Performance GPU-Accelerated Finite Element Analysis
 
 **Project Report**
