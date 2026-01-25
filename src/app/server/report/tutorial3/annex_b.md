@@ -19,8 +19,6 @@ docker run -d --name femulator --hostname femulator --gpus all -p 5868:5868 logu
 - Access the application at: **http://localhost:5868**
 - The container is automatically restarted on system boot (unless manually stopped)
 
-If the network `femulator_network` does **not** yet exist, Docker will create it automatically.
-
 ## Alternative: Using Docker Compose
 
 ### 1. Prerequisites
