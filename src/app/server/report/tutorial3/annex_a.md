@@ -1,4 +1,12 @@
-### 4.5 RTX 5090 Performance
+# High-Performance GPU-Accelerated Finite Element Analysis
+
+**Annex A - Solver Implementations Detailed Report**
+
+---
+
+## 1. Solver Implementations Detailed Report
+
+### 1.1 RTX 5090 Performance
 
 Key results from performance benchmarks comparing FEM solver implementations.
 
@@ -315,9 +323,9 @@ Key results from performance benchmarks comparing FEM solver implementations.
 <div class="echart-container bar-chart" id="exec-speedup-23" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XL)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.2,1.1,1.3,35.1,91.5]}],"yAxisName":"Speedup (x)"}'></div>
 
 
-### 4.5.1 Critical Analysis RTX 5090
+### 1.1.1 Critical Analysis RTX 5090
 
-#### 4.5.1.1 Small-Scale Problems (XS meshes)
+#### 1.1.1.1 Small-Scale Problems (XS meshes)
 
 Across all geometries with **XS meshes (≈200–400 nodes)**, the results show a **clear and consistent pattern**:
 
@@ -329,7 +337,7 @@ This behavior is expected from a performance-modeling perspective. At this scale
 
 In addition, **CPU multiprocessing performs extremely poorly** in this regime, often taking several seconds, as process creation and inter-process communication dominate execution time. This reinforces that parallel execution models must be carefully matched to problem size.
 
-#### 4.5.1.2 Medium-Scale Problems (M meshes)
+#### 1.1.1.2 Medium-Scale Problems (M meshes)
 
 For **medium-scale meshes (≈160k–200k nodes)**, the performance profile changes sharply and consistently across all geometries:
 
@@ -340,7 +348,7 @@ For **medium-scale meshes (≈160k–200k nodes)**, the performance profile chan
 
 At this scale, arithmetic intensity and parallel workload are sufficient to fully exploit the RTX 5090’s massive parallelism and memory bandwidth. Assembly and post-processing costs become negligible, and total runtime is increasingly dominated by the sparse linear solver. More complex geometries (e.g., T-Junction and Venturi) benefit disproportionately from GPU execution, indicating improved efficiency as solver workload and sparsity complexity increase.
 
-#### 4.5.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
+#### 1.1.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
 
 For **large (L) and extra-large (XL) meshes (≈700k–1.35M nodes)**, GPU acceleration becomes **essential rather than optional**:
 
@@ -352,7 +360,7 @@ For **large (L) and extra-large (XL) meshes (≈700k–1.35M nodes)**, GPU accel
 
 At these scales, GPU execution effectively eliminates assembly and post-processing as bottlenecks. However, the sparse iterative solver becomes dominant, and performance is constrained primarily by memory bandwidth and sparse access patterns rather than compute throughput. The flattening of speedup curves at XL scale reflects this **solver-dominated, memory-bound regime**.
 
-#### 4.5.1.4 Comparative Assessment Across Scales
+#### 1.1.1.4 Comparative Assessment Across Scales
 
 From a practical standpoint, the results support the following execution-model selection:
 
@@ -363,7 +371,7 @@ From a practical standpoint, the results support the following execution-model s
 - **GPU prototyping:** Numba CUDA — faster development with acceptable performance.
 - **Production GPU workloads:** CuPy RawKernel — highest and most consistent speedups.
 
-#### 4.5.1.5 Comparative Assessment of Execution Models
+#### 1.1.1.5 Comparative Assessment of Execution Models
 
 From a practical standpoint, the benchmark results support the following conclusions:
 
@@ -386,7 +394,7 @@ Overall, the benchmarks confirm that the RTX 5090 is exceptionally well suited f
 
 These results establish a clear upper bound for single-GPU FEM performance on the RTX 5090 within this study, validating the architectural choices adopted in the GPU implementations while providing quantitative evidence of when and why GPU acceleration is most effective. The RTX 5090 demonstrates **excellent scalability for medium to extreme FEM problem sizes**, delivering order-of-magnitude speedups when the problem scale justifies GPU usage. At the same time, the results clearly show that **hardware capability alone is insufficient**: algorithmic structure, solver behavior, and execution model ultimately determine performance.
 
-### 4.5.2 RTX 5090 Bottleneck Evolution Critical Analysis
+### 1.1.2 RTX 5090 Bottleneck Evolution Critical Analysis
 
 As optimizations progress, the computational bottleneck shifts:
 
@@ -856,7 +864,7 @@ As optimizations progress, the computational bottleneck shifts:
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
 
-#### 4.5.2.1 Bottleneck Migration on RTX 5090
+#### 1.1.2.1 Bottleneck Migration on RTX 5090
 
 From a bottleneck-analysis perspective, the results on the RTX 5090 reveal a clear and systematic migration of performance constraints as optimization levels increase:
 
@@ -868,7 +876,7 @@ From a bottleneck-analysis perspective, the results on the RTX 5090 reveal a cle
 
 These results demonstrate that the RTX 5090 does not shift the bottleneck back to computation, but rather exposes the **memory-bound nature of sparse solvers**, particularly SpMV operations within the Conjugate Gradient method.
 
-#### 4.5.2.2 Optimization Implications and Performance Limits
+#### 1.1.2.2 Optimization Implications and Performance Limits
 
 From an optimization standpoint, the bottleneck behavior on the RTX 5090 implies the following practical conclusions:
 
@@ -884,7 +892,7 @@ From an optimization standpoint, the bottleneck behavior on the RTX 5090 implies
 
 The RTX 5090 marks a transition point where FEM performance is constrained not by raw compute power, but by **algorithmic structure, memory access patterns, and solver design**, establishing a clear upper bound for single-GPU performance in this study.
 
-### 4.6 RTX 4090 Performance
+### 1.2 RTX 4090 Performance
 
 Key results from performance benchmarks comparing FEM solver implementations.
 
@@ -1200,9 +1208,9 @@ Key results from performance benchmarks comparing FEM solver implementations.
 
 <div class="echart-container bar-chart" id="exec-speedup-23" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XL)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.1,1.2,1.3,32.2,67.9]}],"yAxisName":"Speedup (x)"}'></div>
 
-### 4.6.1 Critical Analysis RTX 4090
+### 1.2.1 Critical Analysis RTX 4090
 
-#### 4.6.1.1 Small-Scale Problems (XS meshes)
+#### 1.2.1.1 Small-Scale Problems (XS meshes)
 
 Across all geometries with **XS meshes (≈200–400 nodes)**, the benchmarks show a **clear overhead-dominated regime**:
 
@@ -1214,7 +1222,7 @@ This behavior is technically expected. At XS scale, FEM execution time is domina
 
 Additionally, **CPU multiprocessing performs poorly** in this regime, with speedups around **~0.1×–0.2×** (e.g., 260–374 ms and similar), because process spawning, IPC, and serialization overhead dominate the computation. This reinforces that parallel execution models must be matched to the problem scale.
 
-#### 4.6.1.2 Medium-Scale Problems (M meshes)
+#### 1.2.1.2 Medium-Scale Problems (M meshes)
 
 For **medium-scale meshes (≈160k–200k nodes)**, the performance profile changes sharply and consistently across geometries, indicating a clear **CPU–GPU crossover**:
 
@@ -1225,7 +1233,7 @@ For **medium-scale meshes (≈160k–200k nodes)**, the performance profile chan
 
 At this scale, the workload becomes large enough to exploit GPU parallelism effectively: assembly and post-processing costs are substantially reduced and the overall runtime becomes increasingly solver-dominated. Geometry-dependent differences persist, with the strongest GPU gains observed in cases that increase solver workload and sparsity complexity, consistent with improved GPU utilization as arithmetic intensity rises.
 
-#### 4.6.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
+#### 1.2.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
 
 With **large (L) and extra-large (XL) meshes (≈600k–1.35M nodes)**, GPU acceleration shifts from beneficial to **critical**:
 
@@ -1237,7 +1245,7 @@ With **large (L) and extra-large (XL) meshes (≈600k–1.35M nodes)**, GPU acce
 
 At these scales, assembly and post-processing are effectively amortized and cease to be limiting factors. Performance becomes constrained primarily by the **sparse iterative solver**, which is fundamentally **memory-bandwidth bound** and sensitive to irregular sparsity patterns. The persistence of a solver-dominated runtime explains why gains do not scale linearly with problem size or purely with compute throughput.
 
-#### 4.6.1.4 Comparative Assessment Across Scales
+#### 1.2.1.4 Comparative Assessment Across Scales
 
 From a practical standpoint, the benchmarks support the following execution-model selection:
 
@@ -1248,7 +1256,7 @@ From a practical standpoint, the benchmarks support the following execution-mode
 - **GPU prototyping:** Numba CUDA — easier development with strong speedups.
 - **Production GPU workloads:** CuPy RawKernel — highest and most consistent speedups.
 
-#### 4.6.1.5 Comparative Assessment of Execution Models
+#### 1.2.1.5 Comparative Assessment of Execution Models
 
 From a practical standpoint, the benchmark results support the following conclusions:
 
@@ -1272,7 +1280,7 @@ Overall, the benchmarks confirm that the RTX 4090 is highly effective for **medi
 Tthe RTX 4090 as a robust GPU for FEM acceleration across meaningful problem sizes, while confirming that the ultimate ceiling is governed by sparse linear algebra efficiency rather than raw compute throughput.
 
 
-### 4.6.2 RTX 4090 Bottleneck Evolution Critical Analysis
+### 1.2.2 RTX 4090 Bottleneck Evolution Critical Analysis
 
 As optimizations progress, the computational bottleneck shifts:
 
@@ -1742,7 +1750,7 @@ As optimizations progress, the computational bottleneck shifts:
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
 
-#### 4.6.2.1 Bottleneck Migration on RTX 4090
+#### 1.2.2.1 Bottleneck Migration on RTX 4090
 
 From the RTX 4090 profiling, the bottleneck migration follows the same macro-pattern observed in higher-tier GPUs, but with clearer evidence of **fixed GPU overheads** at small scale and a more visible **solver/BC trade-off** in CuPy for XS meshes:
 
@@ -1772,7 +1780,7 @@ From the RTX 4090 profiling, the bottleneck migration follows the same macro-pat
 
 Overall, the RTX 4090 results confirm that once GPU acceleration is active, **assembly and post-processing rapidly collapse in relative importance**, and the pipeline becomes dominated by **sparse solver behavior**, with **BC application** acting as a persistent secondary limiter—especially at small scale.
 
-#### 4.6.2.2 Optimization Implications and Limits on RTX 4090
+#### 1.2.2.2 Optimization Implications and Limits on RTX 4090
 
 The RTX 4090 bottleneck structure points to a clear hierarchy of where additional speedups can still be extracted:
 
@@ -1802,7 +1810,7 @@ The RTX 4090 bottleneck structure points to a clear hierarchy of where additiona
 
 The RTX 4090 exposes a transition where performance is constrained less by “raw compute” and more by **sparse memory efficiency** and **pipeline-level design choices**, with the solver and BC enforcement defining the practical ceiling for further acceleration.
 
-### 4.7 RTX 5070  Performance
+### 1.3 RTX 5070  Performance
 
 Key results from performance benchmarks comparing FEM solver implementations.
 
@@ -2119,9 +2127,9 @@ Key results from performance benchmarks comparing FEM solver implementations.
 <div class="echart-container bar-chart" id="exec-speedup-23" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XL)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.1,1.1,1.2,20.8,32.9]}],"yAxisName":"Speedup (x)"}'></div>
 
 
-### 4.7.1 Critical Analysis RTX 4070
+### 1.3.1 Critical Analysis RTX 4070
 
-#### 4.7.1.1 Small-Scale Problems (XS meshes)
+#### 1.3.1.1 Small-Scale Problems (XS meshes)
 
 Across all geometries with **XS meshes (≈200–400 nodes)**, the results show a **clear overhead-dominated regime**:
 
@@ -2133,7 +2141,7 @@ This behavior is expected. At XS scale, FEM runtime is dominated by fixed overhe
 
 Additionally, **CPU multiprocessing performs extremely poorly** in this regime (often several seconds, i.e., ~0× speedup), as process startup and IPC costs dominate execution time. Threading helps (≈1.8×–2.1×), but still trails behind JIT compilation.
 
-#### 4.7.1.2 Medium-Scale Problems (M meshes)
+#### 1.3.1.2 Medium-Scale Problems (M meshes)
 
 For **medium-scale meshes (≈160k–200k nodes)**, the performance profile shifts consistently across all geometries, marking a clear **CPU–GPU crossover**:
 
@@ -2144,7 +2152,7 @@ For **medium-scale meshes (≈160k–200k nodes)**, the performance profile shif
 
 At this scale, there is enough parallel work to saturate the GPU, and assembly/post-processing become relatively cheap. Total runtime increasingly reflects solver behavior, while CuPy’s lower abstraction overhead and stronger GPU residency enable consistently higher speedups than Numba CUDA.
 
-#### 4.7.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
+#### 1.3.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
 
 For **large (L) and extra-large (XL) meshes (≈600k–1.35M nodes)**, GPU acceleration becomes **essential**:
 
@@ -2156,7 +2164,7 @@ For **large (L) and extra-large (XL) meshes (≈600k–1.35M nodes)**, GPU accel
 
 At these scales, assembly and post-processing are effectively amortized, and the runtime is dominated by the sparse iterative solver. Speedups flatten as the solver becomes **memory-bandwidth bound** with sparse/irregular access patterns, limiting how far hardware capability alone can push performance.
 
-#### 4.7.1.4 Comparative Assessment Across Scales
+#### 1.3.1.4 Comparative Assessment Across Scales
 
 From a practical standpoint, the results support the following execution-model selection:
 
@@ -2167,7 +2175,7 @@ From a practical standpoint, the results support the following execution-model s
 - **GPU prototyping:** Numba CUDA — faster development with solid speedups.
 - **Production GPU workloads:** CuPy RawKernel — highest and most consistent speedups.
 
-#### 4.7.1.5 Comparative Assessment of Execution Models
+#### 1.3.1.5 Comparative Assessment of Execution Models
 
 From a practical standpoint, the benchmark results support the following conclusions:
 
@@ -2188,7 +2196,7 @@ The RTX 4070 demonstrates **clear scalability once problem size justifies GPU us
 
 Taken together, these results position the RTX 4070 as a capable GPU for FEM acceleration at realistic scales, while confirming that sparse linear algebra efficiency ultimately defines the performance ceiling.
 
-### 4.7.2 RTX 4070 Bottleneck Evolution Critical Analysis
+### 1.3.2 RTX 4070 Bottleneck Evolution Critical Analysis
 
 As optimizations progress, the computational bottleneck shifts:
 
@@ -2658,7 +2666,7 @@ As optimizations progress, the computational bottleneck shifts:
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
 
-#### 4.7.2.1 Bottleneck Migration Pattern on RTX 4070
+#### 1.3.2.1 Bottleneck Migration Pattern on RTX 4070
 
 Across all five geometries (Backward-Facing Step, Elbow, S-Bend, T-Junction, Venturi, Y-Shaped), the RTX 4070 shows a stable migration sequence:
 
@@ -2695,7 +2703,7 @@ Across all five geometries (Backward-Facing Step, Elbow, S-Bend, T-Junction, Ven
 
 **Core takeaway:** on RTX 4070, once the GPU is used effectively, the pipeline becomes **solver-bound**, and **Apply BC** is the persistent secondary cost—especially at XS.
 
-#### 4.7.2.2 Optimization Implications and Practical Limits on RTX 4070
+#### 1.3.2.2 Optimization Implications and Practical Limits on RTX 4070
 
 The RTX 4070 profile suggests very clear optimization boundaries depending on mesh scale:
 
@@ -2731,7 +2739,7 @@ The RTX 4070 profile suggests very clear optimization boundaries depending on me
 
 In short, the RTX 4070 behaves like a “solver-dominated GPU” at scale, but exposes stronger **overhead sensitivity** at XS and a sharper **multiprocess penalty** through Post-Processing dominance.
 
-### 4.8 RTX 5060 Ti Performance
+### 1.4 RTX 5060 Ti Performance
 
 Key results from performance benchmarks comparing FEM solver implementations.
 
@@ -3047,9 +3055,9 @@ Key results from performance benchmarks comparing FEM solver implementations.
 
 <div class="echart-container bar-chart" id="exec-speedup-23" style="height:250px" data-chart='{"type":"bar","title":"Speedup vs CPU Baseline - Y-Shaped (XL)","categories":["CPU Threaded","CPU Multiprocess","Numba CPU","Numba CUDA","CuPy GPU"],"series":[{"name":"Speedup","data":[1.3,4.1,1.6,17.9,28.5]}],"yAxisName":"Speedup (x)"}'></div>
 
-### 4.8.1 Critical Analysis RTX 5060 Ti
+### 1.4.1 Critical Analysis RTX 5060 Ti
 
-#### 4.8.1.1 Small-Scale Problems (XS meshes)
+#### 1.4.1.1 Small-Scale Problems (XS meshes)
 
 Across all geometries with **XS meshes (≈200–400 nodes)**, the RTX 5060 Ti exhibits a **strongly overhead-dominated regime**, fully consistent with FEM performance theory:
 
@@ -3061,7 +3069,7 @@ At this scale, FEM execution is dominated by fixed costs such as kernel launch l
 
 Additionally, **CPU multiprocessing performs extremely poorly** (often >1s, ≈0× speedup), confirming that process creation and IPC overhead dominate runtime. CPU threading improves performance modestly (~2×), but remains inferior to JIT compilation.
 
-#### 4.8.1.2 Medium-Scale Problems (M meshes)
+#### 1.4.1.2 Medium-Scale Problems (M meshes)
 
 For **medium-scale meshes (≈160k–200k nodes)**, a consistent **CPU–GPU crossover** emerges across all geometries:
 
@@ -3072,7 +3080,7 @@ For **medium-scale meshes (≈160k–200k nodes)**, a consistent **CPU–GPU cro
 
 At this scale, arithmetic intensity and parallel workload are sufficient to exploit the GPU effectively. The RTX 5060 Ti shows stable GPU utilization, and CuPy’s lower overhead and better kernel fusion translate into consistently higher performance than Numba CUDA.
 
-#### 4.8.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
+#### 1.4.1.3 Large-Scale and Extreme-Scale Problems (L and XL meshes)
 
 For **large (L) and extra-large (XL) meshes (≈700k–1.35M nodes)**, GPU acceleration becomes **essential**:
 
@@ -3084,7 +3092,7 @@ For **large (L) and extra-large (XL) meshes (≈700k–1.35M nodes)**, GPU accel
 
 At these scales, assembly and post-processing costs are effectively amortized. Performance is dominated by the sparse iterative solver, and speedup curves flatten as execution becomes **memory-bandwidth bound** with irregular access patterns.
 
-#### 4.8.1.4 Comparative Assessment Across Scales
+#### 1.4.1.4 Comparative Assessment Across Scales
 
 From a practical standpoint, the results support the following execution-model selection for the RTX 5060 Ti:
 
@@ -3095,7 +3103,7 @@ From a practical standpoint, the results support the following execution-model s
 - **GPU prototyping:** Numba CUDA — faster development with reasonable performance.
 - **Production GPU workloads:** CuPy RawKernel — highest and most consistent speedups.
 
-#### 4.8.1.5 Comparative Assessment of Execution Models
+#### 1.4.1.5 Comparative Assessment of Execution Models
 
 From a practical standpoint, the benchmark results support the following conclusions:
 
@@ -3116,7 +3124,7 @@ Overall, the RTX 5060 Ti demonstrates **clear and predictable scalability** once
 
 These results position the RTX 5060 Ti as a **strong mid-range GPU for large-scale FEM workloads**, while clearly illustrating the limits imposed by problem size, solver structure, and memory behavior rather than raw compute capability alone.
 
-### 4.8.2 RTX 4060Ti Bottleneck Evolution Critical Analysis
+### 1.4.2 RTX 4060Ti Bottleneck Evolution Critical Analysis
 
 As optimizations progress, the computational bottleneck shifts:
 
@@ -3586,7 +3594,7 @@ As optimizations progress, the computational bottleneck shifts:
 | Numba CPU → Numba CUDA | GPU parallelism: thousands of threads vs dozens of CPU cores |
 | Numba CUDA → CuPy GPU | CUDA C kernels more optimized than Numba-generated PTX |
 
-#### 4.7.2.1 Bottleneck Migration Pattern on RTX 5060 Ti
+#### 1.4.2.1 Bottleneck Migration Pattern on RTX 5060 Ti
 
 Across all five geometries (Backward-Facing Step, Elbow, S-Bend, T-Junction, Venturi, Y-Shaped), the RTX 5060 Ti shows a stable migration sequence:
 
@@ -3633,7 +3641,7 @@ Across all five geometries (Backward-Facing Step, Elbow, S-Bend, T-Junction, Ven
 
 **Core takeaway:** on RTX 5060 Ti, effective GPU usage leads to a **solver-bound pipeline**, with **Apply BC as the persistent secondary cost**, while **CPU multiprocess collapses into BC dominance at scale**.
 
-#### 4.7.2.2 Optimization Implications and Practical Limits on RTX 5060 Ti
+#### 1.4.2.2 Optimization Implications and Practical Limits on RTX 5060 Ti
 
 The RTX 5060 Ti results define clear optimization boundaries:
 
@@ -3661,12 +3669,12 @@ The RTX 5060 Ti results define clear optimization boundaries:
 Overall, the RTX 5060 Ti behaves as a **solver-dominated GPU at scale**, with pronounced **BC sensitivity** at XS and a uniquely severe **multiprocess penalty** at M/L/XL.
 
 
-## 4.9 Cross-Platform Comparative Analysis
+## 2. Cross-Platform Comparative Analysis
 
 This section consolidates the benchmark results presented in Sections 4.5-4.7 into a unified comparative analysis.  
 Rather than reiterating individual measurements, the focus here is on **interpreting performance trends**, **explaining architectural effects**, and **extracting general conclusions** regarding execution models and GPU classes.
 
-### 4.9.1 CPU vs GPU: Where the Paradigm Shifts
+### 2.1 CPU vs GPU: Where the Paradigm Shifts
 
 Across all geometries and medium-to-large meshes, a clear and consistent transition point emerges:
 
@@ -3684,7 +3692,7 @@ Across all geometries and medium-to-large meshes, a clear and consistent transit
 
 This confirms that GPU acceleration is not universally beneficial, but **highly problem-size dependent**.
 
-### 4.9.2 CPU Scaling Limits
+### 2.2 CPU Scaling Limits
 
 The benchmark reveals well-defined limits for CPU-based optimization strategies.
 
@@ -3702,7 +3710,7 @@ For medium meshes, the solver becomes:
 
 This explains why Numba CPU converges to similar performance as multiprocessing for large problems.
 
-### 4.9.3 GPU Acceleration: Numba CUDA vs CuPy RawKernel
+### 2.3 GPU Acceleration: Numba CUDA vs CuPy RawKernel
 
 A consistent hierarchy is observed across all GPUs:
 
@@ -3722,7 +3730,7 @@ Key observations:
 
 This confirms that **kernel maturity and low-level control matter** once GPU execution becomes solver-bound.
 
-### 4.9.4 Cross-GPU Performance Scaling
+### 2.4 Cross-GPU Performance Scaling
 
 A core objective of this benchmark was to separate **software scaling** from **hardware scaling**.
 
@@ -3750,7 +3758,7 @@ However, performance does **not** scale linearly with theoretical FLOPs.
 
 This confirms that **architectural balance**, not raw FLOPs, drives FEM performance.
 
-### 4.9.5 Bottleneck Evolution Across Platforms
+### 2.5 Bottleneck Evolution Across Platforms
 
 A central insight from the benchmark is the **systematic migration of bottlenecks**:
 
@@ -3772,7 +3780,7 @@ Key implications:
 
 This validates the design decision to prioritize GPU-resident solvers.
 
-### 4.9.6 Efficiency vs Absolute Performance
+### 2.6 Efficiency vs Absolute Performance
 
 While the RTX 5090 delivers the highest absolute performance, efficiency considerations are relevant:
 
@@ -3790,7 +3798,7 @@ For production environments, this suggests:
   - repeated simulations,
   - solver-dominated pipelines.
 
-### 4.9.7 Robustness and Numerical Consistency
+### 2.7 Robustness and Numerical Consistency
 
 Crucially, acceleration does **not** alter numerical behavior:
 
@@ -3800,7 +3808,7 @@ Crucially, acceleration does **not** alter numerical behavior:
 
 This confirms that performance gains are achieved **without sacrificing numerical correctness**.
 
-### 4.9.8 Consolidated Summary
+### 2.8 Consolidated Summary
 
 | Aspect | Key Conclusion |
 |------|----------------|
@@ -3812,12 +3820,12 @@ This confirms that performance gains are achieved **without sacrificing numerica
 | Best overall GPU | RTX 5090 |
 | Best cost-efficiency | RTX 5060 Ti |
 
-### 4.9.9 Final Insight
+### 2.9 Final Insights
 
 The benchmark demonstrates that **GPU acceleration fundamentally changes the performance landscape of FEM solvers**, but only when:
 
-- the problem size is sufficiently large,
-- data remains resident on the GPU,
-- solver execution dominates the pipeline.
+- The problem size is sufficiently large,
+- Data remains resident on the GPU,
+- Solver execution dominates the pipeline.
 
 Beyond this point, performance becomes a function of **memory architecture rather than algorithmic complexity**, placing modern GPUs at a decisive advantage over CPUs for large-scale finite element simulations.

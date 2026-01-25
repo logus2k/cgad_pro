@@ -7,24 +7,24 @@
             "file": "tutorial3/tutorial_3.md"
         },
         {
-            "id": "docker_user_manual",
-            "title": "Docker User Manual",
-            "file": "docker/docker_user_manual.md"
+            "id": "annex_a",
+            "title": "Annex A - Solver Implementations Detailed Report",
+            "file": "tutorial3/annex_a.md"
         },
         {
-            "id": "docker_hub",
-            "title": "Dockerhub User Manual",
-            "file": "docker/DOCKERHUB.md"
+            "id": "annex_b",
+            "title": "Annex B - FEMulator Pro Installation",
+            "file": "tutorial3/annex_b.md"
+        },
+        {
+            "id": "annex_c",
+            "title": "Annex C - Project Proposal (Tutorial #1)",
+            "file": "tutorial3/annex_c.md"
         },
         {
             "id": "tutorial_1",
             "title": "Tutorial #1 - Project Proposal",
             "file": "tutorial1/tutorial_1.md"
-        },
-        {
-            "id": "profiling_technical_report",
-            "title": "Profiling Technical Report",
-            "file": "profiling/profiling_technical_report.md"
         }
     ]
 }

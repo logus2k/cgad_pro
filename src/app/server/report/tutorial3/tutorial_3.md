@@ -4,6 +4,8 @@
 
 **Project Report**
 
+---
+
 # 1. Introduction - Finite Element Method
 
 The Finite Element Method (FEM) is a numerical technique widely used to approximate solutions of partial differential equations arising in engineering and scientific problems. Its main strength lies in its ability to handle complex geometries, heterogeneous materials, and general boundary conditions, which are often intractable using analytical approaches.
@@ -2533,6 +2535,8 @@ GPU solvers exhibit dramatically better scaling: a 6,750x increase in problem si
 
 # 8. Annexes
 
-## 8.1 - Solvers Implementation Reporting
+## 8.1 - Solver Implementations Detailed Report
 
 ## 8.2 - FEMulator Pro Installation
+
+## 8.3 - Project Proposal (Tutorial #1)
