@@ -2,17 +2,7 @@
     "title": "Project Reports",
     "documents": [
         {
-            "id": "tutorial_1",
-            "title": "Tutorial #1 - Project Proposal",
-            "file": "tutorial1/tutorial_1.md"
-        },
-        {
-            "id": "tutorial_2",
-            "title": "Tutorial #2 - Report",
-            "file": "tutorial2/tutorial_2.md"
-        },
-        {
-            "id": "report",
+            "id": "tutorial_3",
             "title": "Tutorial #3 - Final Report",
             "file": "tutorial3/tutorial_3.md"
         },
@@ -20,12 +10,16 @@
             "id": "docker_user_manual",
             "title": "Docker User Manual",
             "file": "docker/docker_user_manual.md"
-        }
-        ,
+        },
         {
             "id": "docker_hub",
             "title": "Dockerhub User Manual",
             "file": "docker/DOCKERHUB.md"
+        },
+        {
+            "id": "tutorial_1",
+            "title": "Tutorial #1 - Project Proposal",
+            "file": "tutorial1/tutorial_1.md"
         },
         {
             "id": "profiling_technical_report",
