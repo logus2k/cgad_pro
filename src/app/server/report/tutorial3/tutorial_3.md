@@ -1,6 +1,6 @@
 # High-Performance GPU-Accelerated Finite Element Analysis
 
-**Project Tutorial #2 Report**
+**Project Report**
 
 # 1. General Overview - Finite Element Method
 
