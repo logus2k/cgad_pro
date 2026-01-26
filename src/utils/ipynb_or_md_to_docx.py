@@ -15,13 +15,23 @@ Requirements:
   pip install nbformat nbconvert
   # For DOCX:
   pip install pypandoc            # required
-  # OR install system pandoc: https://pandoc.org/install.html  
+  # OR install system pandoc: https://pandoc.org/install.html
+  # For SVG images in DOCX:
+  #   Linux: sudo apt install librsvg2-bin
+  #   Windows: choco install rsvg-convert (or use Inkscape)
 
 Options:
   --out report_basename    Base name for outputs (without extension)
+  --template path.docx     Reference DOCX template for styling (page layout, fonts, etc.)
   --no-code                (Notebooks only) Hide code cells in the exported outputs
   --html                   (Notebooks only) Also export to HTML format
   --markdown               (Notebooks only) Also export to Markdown format
+
+Template creation:
+  To create a custom template with your preferred styles (A4 page, fonts, etc.):
+    pandoc -o my_template.docx --print-default-data-file reference.docx
+  Then open my_template.docx in Word/LibreOffice, customize page layout and styles
+  (Heading 1, Heading 2, Normal, List Bullet, Table Grid, etc.), and save.
 
 Examples:
   # Notebook to DOCX with code visible
@@ -32,6 +42,8 @@ Examples:
   python notebook_to_report.py my_notebook.ipynb --html --markdown
   # Markdown to DOCX
   python notebook_to_report.py my_document.md
+  # Markdown to DOCX with custom template
+  python notebook_to_report.py my_document.md --template my_template.docx
 """
 
 import argparse
@@ -105,22 +117,26 @@ def export_markdown(nb, out_md, assets_dir: str, hide_code: bool):
         out_path.write_bytes(data)
 
 
-def markdown_to_docx(md_path, docx_path):
+def markdown_to_docx(md_path, docx_path, template_path=None):
     """Convert Markdown to DOCX using pypandoc if available; else shell pandoc."""
+    extra_args = ["--standalone", "--resource-path=."]
+    if template_path:
+        extra_args.append(f"--reference-doc={template_path}")
+    
     try:
         import pypandoc  # type: ignore
         pypandoc.convert_file(
             str(md_path),
             "docx",
             outputfile=str(docx_path),
-            extra_args=["--standalone", "--resource-path=."],
+            extra_args=extra_args,
         )
         return
     except Exception as e:
         print("[info] pypandoc not available or failed:", e)
 
     import subprocess
-    cmd = ["pandoc", str(md_path), "-o", str(docx_path), "--standalone", "--resource-path=."]
+    cmd = ["pandoc", str(md_path), "-o", str(docx_path)] + extra_args
     try:
         subprocess.check_call(cmd)
     except FileNotFoundError:
@@ -131,7 +147,7 @@ def markdown_to_docx(md_path, docx_path):
         sys.exit(2)
 
 
-def process_notebook(notebook_path, base_name, output_dir, args):
+def process_notebook(notebook_path, base_name, output_dir, args, template_path=None):
     """Process a Jupyter notebook file."""
     try:
         import nbformat as nbf
@@ -146,29 +162,29 @@ def process_notebook(notebook_path, base_name, output_dir, args):
     assets_dir = f"{base_name}_report_files"
     out_docx = output_dir / f"{base_name}_report.docx"
 
-    print("[1/3] Reading notebook…")
+    print("[1/3] Reading notebook...")
     nb = nbf.read(str(notebook_path), as_version=4)
 
-    print("[2/3] Stripping text outputs, keeping charts…")
+    print("[2/3] Stripping text outputs, keeping charts...")
     nb_clean = keep_only_image_outputs(nb)
 
     # Export HTML if requested
     if args.html:
-        print(f"[3a/3] Exporting HTML → {out_html} (hide_code={args.no_code})")
+        print(f"[3a/3] Exporting HTML -> {out_html} (hide_code={args.no_code})")
         export_html(nb_clean, str(out_html), hide_code=args.no_code)
 
     # Always export Markdown (needed for DOCX), but only mention if explicitly requested
     if args.markdown:
-        print(f"[3b/3] Exporting Markdown (and images) → {out_md} (hide_code={args.no_code})")
+        print(f"[3b/3] Exporting Markdown (and images) -> {out_md} (hide_code={args.no_code})")
     export_markdown(nb_clean, str(out_md), assets_dir=assets_dir, hide_code=args.no_code)
 
     # Always export DOCX
-    print(f"[3/3] Converting to DOCX → {out_docx}")
-    markdown_to_docx(str(out_md), str(out_docx))
+    print(f"[3/3] Converting to DOCX -> {out_docx}")
+    markdown_to_docx(str(out_md), str(out_docx), template_path=template_path)
 
     # Clean up intermediate files if neither markdown nor html was requested
     if not args.markdown:
-        print("[cleanup] Removing intermediate Markdown files…")
+        print("[cleanup] Removing intermediate Markdown files...")
         out_md.unlink(missing_ok=True)
         import shutil
         assets_path = output_dir / assets_dir
@@ -178,12 +194,12 @@ def process_notebook(notebook_path, base_name, output_dir, args):
     return out_docx, out_html if args.html else None, out_md if args.markdown else None
 
 
-def process_markdown(markdown_path, base_name, output_dir):
+def process_markdown(markdown_path, base_name, output_dir, template_path=None):
     """Process a Markdown file directly."""
     out_docx = output_dir / f"{base_name}.docx"
     
-    print(f"[1/1] Converting Markdown to DOCX → {out_docx}")
-    markdown_to_docx(markdown_path, out_docx)
+    print(f"[1/1] Converting Markdown to DOCX -> {out_docx}")
+    markdown_to_docx(markdown_path, out_docx, template_path=template_path)
     
     return out_docx
 
@@ -194,6 +210,10 @@ def main():
     )
     ap.add_argument("input_file", help="Path to source .ipynb or .md file")
     ap.add_argument("--out", help="Base name for outputs (without extension)")
+    ap.add_argument(
+        "--template",
+        help="Path to reference DOCX template for styling (page layout, fonts, etc.)",
+    )
     ap.add_argument(
         "--no-code",
         action="store_true",
@@ -225,6 +245,15 @@ def main():
     base = args.out if args.out else input_path.with_suffix("").name
     output_dir = input_path.parent
 
+    # Validate template path if provided
+    template_path = None
+    if args.template:
+        template_path = Path(args.template).resolve()
+        if not template_path.exists():
+            print(f"[error] Template file not found: {template_path}")
+            sys.exit(1)
+        print(f"[info] Using template: {template_path}")
+
     # Initialize variables to avoid Pylance warnings
     html_out = None
     md_out = None
@@ -233,22 +262,22 @@ def main():
     # Process based on file type
     if input_path.suffix.lower() == '.ipynb':
         # Notebook processing
-        docx_out, html_out, md_out = process_notebook(input_path, base, output_dir, args)
+        docx_out, html_out, md_out = process_notebook(input_path, base, output_dir, args, template_path=template_path)
     elif input_path.suffix.lower() == '.md':
         # Direct Markdown processing
         if args.no_code or args.html or args.markdown:
             print(f"[warning] Options --no-code, --html, --markdown are ignored for Markdown input")
         
-        docx_out = process_markdown(input_path, base, output_dir)
+        docx_out = process_markdown(input_path, base, output_dir, template_path=template_path)
 
     print("\nDone.")
     print("Outputs:")
     if html_out:
-        print("  • HTML report     :", html_out)
+        print("  - HTML report     :", html_out)
     if md_out:
         assets_dir = f"{base}_report_files"
-        print("  • Markdown        :", md_out, f"(assets in ./{assets_dir}/)")
-    print("  • Word (.docx)    :", docx_out)
+        print("  - Markdown        :", md_out, f"(assets in ./{assets_dir}/)")
+    print("  - Word (.docx)    :", docx_out)
 
 
 if __name__ == "__main__":
