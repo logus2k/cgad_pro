@@ -4,9 +4,25 @@
 
 ---
 
-## Easiest Way to Install and Run (single command, recommended for most users)
+![](images/documents/tutorial3/app_screenshot.png)
 
-The absolute simplest way to get **FEMulator Pro** running is with **one single `docker run` command**.  
+***Figure 1:** FEMUlator Pro application screenshot upon running simulation and profiling sessions.*
+
+## Online Access (Recommended for Evaluation)
+
+For project evaluation purposes, **FEMulator Pro** is available online at:
+
+**https://logus2k.com/fem**
+
+No installation required - simply access the URL above to use the application with full GPU acceleration.
+
+If you prefer to run the application locally, follow the installation instructions below.
+
+---
+
+## Easiest Way to Install and Run (single command)
+
+The simplest way to get **FEMulator Pro** running locally is with **one single `docker run` command**.  
 This command has the **same effect** as the `docker-compose.yml` configuration shown later.
 
 ```bash
@@ -14,10 +30,9 @@ docker run -d --name femulator --hostname femulator --gpus all -p 5868:5868 logu
 ```
 
 **Notes:**
-- `--gpus all` → tries to use all available NVIDIA GPUs (ignored gracefully if no GPU or no NVIDIA support)
+- `--gpus all` -> tries to use all available NVIDIA GPUs (ignored gracefully if no GPU or no NVIDIA support)
 - First run will automatically **pull** the latest image from Docker Hub
 - Access the application at: **http://localhost:5868**
-- The container is automatically restarted on system boot (unless manually stopped)
 
 ## Alternative: Using Docker Compose
 
@@ -70,7 +85,7 @@ docker compose up -d
 
 The image will be downloaded automatically and the container will start in the background.
 
-→ Access the application at **http://localhost:5868**
+-> Access the application at **http://localhost:5868**
 
 ## Management Commands (Docker Compose)
 
@@ -87,8 +102,8 @@ The image will be downloaded automatically and the container will start in the b
 For users who prefer not to manage `docker-compose.yml` manually or who are working with local source code, the project provides **ready-to-use helper scripts**.
 
 **Important:**  
-- **Windows users** → use only files ending in **`.bat`**  
-- **Linux users** → use only files ending in **`.sh`**
+- **Windows users** -> use only files ending in **`.bat`**  
+- **Linux users** -> use only files ending in **`.sh`**
 
 | Purpose              | Windows            | Linux               |
 |----------------------|--------------------|---------------------|
@@ -115,8 +130,8 @@ chmod +x *.sh
    Linux: `./stop.sh`
 
 3. **Update after code changes**  
-   Stop → Update → Start  
-   (Windows: `stop.bat` → `update.bat` → `start.bat`)
+   Stop -> Update -> Start  
+   (Windows: `stop.bat` -> `update.bat` -> `start.bat`)
 
 4. **Full reset (when something is broken)**  
    Windows: `rebuild_all.bat` then `start.bat`  
@@ -128,20 +143,20 @@ chmod +x *.sh
 
 ## CPU vs GPU Behavior
 
-- **CPU mode** → always available, used by default  
-- **GPU mode** → automatically enabled **only** if:  
+- **CPU mode** -> always available, used by default  
+- **GPU mode** -> automatically enabled **only** if:  
   - NVIDIA GPU is present  
   - NVIDIA Container Toolkit / WSL2 GPU support is properly configured  
   - The `--gpus all` flag or `deploy.resources.reservations.devices` is present
 
-No manual choice is required — the container will use GPU **if possible**, otherwise fall back to CPU.
+No manual choice is required - the container will use GPU **if possible**, otherwise fall back to CPU.
 
 ## Notes
 
 - The official pre-built image is hosted on **Docker Hub**:  
-  → **logus2k/femulator:latest**
+  -> **logus2k/femulator:latest**
 - The single `docker run` command and the `docker-compose.yml` file are **functionally equivalent**
-- All management can be done with the helper scripts **or** with plain Docker / Compose commands — choose whatever is more convenient for you
+- All management can be done with the helper scripts **or** with plain Docker / Compose commands - choose whatever is more convenient for you
 
 Enjoy using **FEMulator Pro**!
 
