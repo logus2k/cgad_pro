@@ -8,9 +8,9 @@ echo "[$(date +%H:%M:%S)] FEMULATOR - FULL REMOVE"
 # Remove containers (if any)
 docker ps -aq --filter "name=femulator" | xargs -r docker rm -f
 
-# Remove images (if present)
-docker image inspect femulator.server:1.0 >/dev/null 2>&1 && docker rmi -f femulator.server:1.0 || true
-docker image inspect femulator:1.0        >/dev/null 2>&1 && docker rmi -f femulator:1.0        || true
+# Remove images (all tags)
+docker rmi -f $(docker images -q logus2k/femulator.server) 2>/dev/null || true
+docker rmi -f $(docker images -q logus2k/femulator) 2>/dev/null || true
 
 docker image prune -f >/dev/null
 

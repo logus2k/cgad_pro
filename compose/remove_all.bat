@@ -16,28 +16,25 @@ call stop.bat || (
 :: -------------------------------------------------
 :: Remove femulator containers (if any)
 :: -------------------------------------------------
-docker ps -aq --filter "name=femulator" >nul 2>&1 && (
-	echo [%TIME%] Removing femulator containers...
-	docker rm -f femulator
+echo [%TIME%] Removing femulator containers...
+for /f "tokens=*" %%i in ('docker ps -aq --filter "name=femulator" 2^>nul') do (
+	echo [%TIME%] Removing container %%i...
+	docker rm -f %%i
 )
 
 :: -------------------------------------------------
-:: Remove images (if they exist)
+:: Remove images (all tags)
 :: -------------------------------------------------
 echo [%TIME%] Removing images...
 
-docker image inspect femulator.server:1.0 >nul 2>&1 && (
-	docker rmi -f femulator.server:1.0
-	echo [%TIME%] Image 'femulator.server:1.0' removed.
-) || (
-	echo [%TIME%] Image 'femulator.server:1.0' does not exist.
+for /f "tokens=*" %%i in ('docker images -q logus2k/femulator.server 2^>nul') do (
+	docker rmi -f %%i
+	echo [%TIME%] Image %%i removed.
 )
 
-docker image inspect femulator:1.0 >nul 2>&1 && (
-	docker rmi -f femulator:1.0
-	echo [%TIME%] Image 'femulator:1.0' removed.
-) || (
-	echo [%TIME%] Image 'femulator:1.0' does not exist.
+for /f "tokens=*" %%i in ('docker images -q logus2k/femulator 2^>nul') do (
+	docker rmi -f %%i
+	echo [%TIME%] Image %%i removed.
 )
 
 :: -------------------------------------------------

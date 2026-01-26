@@ -16,15 +16,15 @@ call stop.bat || (
 :: -------------------------------------------------
 :: Remove femulator containers (if any)
 :: -------------------------------------------------
-docker ps -aq --filter "name=femulator" >nul 2>&1 && (
+for /f "tokens=*" %%i in ('docker ps -aq --filter "name=femulator"') do (
 	echo [%TIME%] Removing femulator containers...
-	docker rm -f femulator
+	docker rm -f %%i
 )
 
 :: -------------------------------------------------
-:: Image 1: femulator.server:1.0
+:: Image 1: femulator.server:latest
 :: -------------------------------------------------
-set "image_name=femulator.server:1.0"
+set "image_name=logus2k/femulator.server:latest"
 set "dockerfile=femulator.server.Dockerfile"
 
 echo [%TIME%] Checking image: %image_name%
@@ -38,9 +38,9 @@ echo [%TIME%] Building image '%image_name%'...
 docker build --no-cache -t %image_name% -f %dockerfile% .. || exit /b 1
 
 :: -------------------------------------------------
-:: Image 2: femulator:1.0
+:: Image 2: femulator:latest
 :: -------------------------------------------------
-set "image_name=femulator:1.0"
+set "image_name=logus2k/femulator:latest"
 set "dockerfile=femulator.Dockerfile"
 
 echo [%TIME%] Checking image: %image_name%

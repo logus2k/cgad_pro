@@ -1,4 +1,4 @@
-FROM femulator.server:1.0
+FROM logus2k/femulator.server:latest
 
 USER root
 
