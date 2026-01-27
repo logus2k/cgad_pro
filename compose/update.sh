@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-IMAGE_NAME="femulator:1.0"
+IMAGE_NAME="logus2k/femulator:latest"
 DOCKERFILE="femulator.Dockerfile"
 
 echo "[$(date +%H:%M:%S)] Updating image: $IMAGE_NAME"
