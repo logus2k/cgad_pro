@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set "IMAGE_NAME=femulator:1.0"
+set "IMAGE_NAME=logus2k/femulator:latest"
 set "DOCKERFILE=femulator.Dockerfile"
 
 echo [%TIME%] Updating image: %IMAGE_NAME%

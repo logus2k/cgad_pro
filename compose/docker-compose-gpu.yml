@@ -1,7 +1,7 @@
 services:
   femulator:
     restart: unless-stopped
-    image: femulator:1.0
+    image: logus2k/femulator:latest
     container_name: femulator
     hostname: femulator
     deploy:

@@ -5,6 +5,7 @@ lib/
 lib64
 __pycache__/
 
+app_reports/
 data/models/
 data/input/
 data/output/
