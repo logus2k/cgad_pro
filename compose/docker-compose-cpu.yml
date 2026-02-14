@@ -1,3 +1,5 @@
+name: fem
+
 services:
   femulator:
     restart: unless-stopped
