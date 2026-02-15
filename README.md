@@ -1,6 +1,14 @@
-# FEMulator Pro User Manual
+# FEMulator Pro
+
+![Femulator Pro](femulator.png)
 
 ## 1. Overview
+
+This application presents multiple implementations of the same FEM problem using different execution models on CPU and GPU. All implementations share an identical numerical formulation, discretization, boundary conditions, and solver configuration; observed differences arise exclusively from the execution strategy and computational backend.
+
+The implementations cover sequential CPU execution, shared-memory and process-based CPU parallelism, just-in-time compiled CPU execution using Numba, and GPU-based execution using Numba CUDA and CuPy with custom raw kernels. Together, these approaches span execution models ranging from interpreter-driven execution to compiled and accelerator-based computation.
+
+Numerical equivalence is preserved across all implementations, enabling direct and fair comparison of execution behavior, performance, and scalability under consistent numerical conditions.
 
 **FEMulator Pro** is distributed as a containerized application using **Docker**.
 To simplify usage, all Docker operations are wrapped in **platform-specific helper scripts**.
