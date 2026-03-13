@@ -850,7 +850,7 @@ class Quad8FEMSolverGPU:
 				fg_eq,
 				x0=cp.zeros_like(fg_eq),
 				M=M,
-				tol=TOL,
+				atol=TOL,
 				maxiter=MAXITER,
 				callback=monitor
 			)
@@ -870,7 +870,7 @@ class Quad8FEMSolverGPU:
 					fg_eq,
 					x0=cp.zeros_like(fg_eq),
 					M=M,
-					tol=TOL,
+					atol=TOL,
 					maxiter=MAXITER,
 					restart=50,
 					callback=monitor

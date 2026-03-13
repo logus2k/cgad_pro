@@ -594,26 +594,26 @@ class Quad8FEMSolverNumbaCUDA:
                 fg_eq,
                 x0=cp.zeros_like(fg_eq),
                 M=M,
-                tol=TOL,
+                atol=TOL,
                 maxiter=MAXITER,
                 callback=self.monitor
             )
             solver_name = "CG"
-            
+
         except Exception as e:
             if self.verbose:
                 print(f"  CG failed: {e}")
                 print("  Falling back to GMRES...")
-            
+
             self.monitor.reset()
-            
+
             try:
                 u_eq, info = cpsplg.gmres(
                     Kg_eq,
                     fg_eq,
                     x0=cp.zeros_like(fg_eq),
                     M=M,
-                    tol=TOL,
+                    atol=TOL,
                     maxiter=MAXITER,
                     restart=50,
                     callback=self.monitor
